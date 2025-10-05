@@ -1,8 +1,8 @@
-import axiosClient from "./axiosClient";
+import axios from "axios";
 
 const parkingLotApi = {
-  register: (data) => axiosClient.post("/parkinglots", data),
-  getAll: () => axiosClient.get("/parkinglots"),
+  register: (data) => axios.post("/parkinglots", data),
+
 };
 
 export default parkingLotApi;

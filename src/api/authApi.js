@@ -1,7 +1,13 @@
-import axiosClient from "./axiosClient";
+import axios from "axios";
 
 const authApi = {
-  login: (data) => axiosClient.post("/v1/user-service/auth/login", data),
+  resendEmail: (email) =>
+    axios.put("/api/v1/user-service/auth/resend", null, { params: { email } }),
+
+  verifyOtp: (verifyCode) =>
+    axios.put("/api/v1/user-service/auth/verify", null, { params: { verifyCode } }),
+
+  login: (data) => axios.post("/api/v1/user-service/auth/login", data),
 };
 
 export default authApi;

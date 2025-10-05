@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ import navigate
 import adminApi from "../api/adminApi";
 import InputField from "../components/InputField";
 import AuthLayout from "../layouts/AuthLayout";
@@ -7,6 +8,7 @@ export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate(); // ✅ hook điều hướng
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,8 +27,8 @@ export default function AdminLogin() {
         localStorage.setItem("accessToken", res.data.accessToken);
         localStorage.setItem("refreshToken", res.data.refreshToken);
 
-        alert("✅ Admin login successful!");
-        // TODO: chuyển hướng sang dashboard
+        // ✅ chuyển hướng sang dashboard
+        navigate("/admin/partners");
       } catch (error) {
         console.error("❌ Login failed:", error);
         alert("Login failed. Please check your credentials.");

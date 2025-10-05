@@ -1,12 +1,16 @@
-import axiosClient from "./axiosClient";
+import axios from "axios";
 
 const partnerApi = {
   registerPartner: (data) =>
-    axiosClient.post("/v1/user-service/partner-registrations", data),
-  getAll: () => axiosClient.get("/admin/partners"), // ✅ đổi endpoint đúng backend
-  getById: (id) => axiosClient.get(`/admin/partners/${id}`),
-  approve: (id) => axiosClient.post(`/admin/partners/${id}/approve`),
-  reject: (id) => axiosClient.post(`/admin/partners/${id}/reject`),
+    axios.post("/api/v1/user-service/partner-registrations", data),
+  getRequests: (params) =>
+    axios.get("/api/v1/user-service/partner-registrations", { params }),
+
+  getById: (id) =>
+    axios.get(`/api/v1/user-service/partner-registrations/${id}`),
+
+  updateStatus: (id, payload) =>
+    axios.put(`/api/v1/user-service/partner-registrations/${id}`, payload),
 };
 
 export default partnerApi;

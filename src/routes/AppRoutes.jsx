@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
+import ConfirmEmail from "../pages/ConfirmEmail";
 import PartnerHome from "../pages/PartnerHome";
 import RegisterLot from "../pages/RegisterLot";
 import AdminLogin from "../pages/AdminLogin";
@@ -11,9 +12,9 @@ export default function AppRoutes() {
   return (
     <Routes>
       {/* Partner/User routes */}
-      <Route path="/" element={<Login />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/confirm-email" element={<ConfirmEmail />} />
       <Route path="/home" element={<PartnerHome />} />
       <Route path="/register-lot" element={<RegisterLot />} />
 

@@ -1,15 +1,18 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import partnerApi from "../api/partnerApi";
+import OtpPopup from "../components/OtpPopup"; // ✅ import OTP
 
 export default function Register() {
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     companyName: "",
     password: "",
     confirmPassword: "",
     taxNumber: "",
     businessLicenseNumber: "",
-    businessLicenseFile: null, // file upload
+    businessLicenseFileUrl: "",
     companyPhone: "",
     companyAddress: "",
     companyEmail: "",
@@ -20,20 +23,13 @@ export default function Register() {
   });
 
   const [errors, setErrors] = useState({});
-  const [preview, setPreview] = useState(null);
+  const [showOtp, setShowOtp] = useState(false);
 
-  // Handle input change
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    if (files) {
-      setForm({ ...form, [name]: files[0] });
-      setPreview(URL.createObjectURL(files[0]));
-    } else {
-      setForm({ ...form, [name]: value });
-    }
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
   };
 
-  // Validate form
   const validateForm = () => {
     let newErrors = {};
     if (!form.companyName) newErrors.companyName = "Company name is required";
@@ -44,8 +40,8 @@ export default function Register() {
     if (!form.taxNumber) newErrors.taxNumber = "Tax number is required";
     if (!form.businessLicenseNumber)
       newErrors.businessLicenseNumber = "Business License Number is required";
-    if (!form.businessLicenseFile)
-      newErrors.businessLicenseFile = "Business License File is required";
+    if (!form.businessLicenseFileUrl)
+      newErrors.businessLicenseFileUrl = "Business License File URL is required";
     if (!form.companyPhone) newErrors.companyPhone = "Company phone is required";
     if (!form.companyAddress)
       newErrors.companyAddress = "Company address is required";
@@ -62,37 +58,21 @@ export default function Register() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    // 👇 Giả sử upload file xong sẽ trả về URL
-    const businessLicenseFileUrl = preview || "";
-
-    const payload = {
-      companyName: form.companyName,
-      password: form.password,
-      taxNumber: form.taxNumber,
-      businessLicenseNumber: form.businessLicenseNumber,
-      businessLicenseFileUrl, // mock URL
-      companyPhone: form.companyPhone,
-      companyAddress: form.companyAddress,
-      companyEmail: form.companyEmail,
-      businessDescription: form.businessDescription,
-      contactPersonName: form.contactPersonName,
-      contactPersonPhone: form.contactPersonPhone,
-      contactPersonEmail: form.contactPersonEmail,
-    };
-
-    console.log("📤 Payload gửi API:", payload);
-
     try {
-      const res = await partnerApi.registerPartner(payload);
-      alert("✅ Register success!");
-      console.log("Response:", res.data);
-    } catch (error) {
-      console.error("❌ Register failed:", error);
+      const res = await partnerApi.registerPartner(form);
+      console.log("✅ Register response:", res.data);
+
+      if (res.data.success) {
+        setShowOtp(true); // mở popup OTP
+      } else {
+        alert("❌ Register failed. Please try again.");
+      }
+    } catch (err) {
+      console.error("❌ Register failed:", err);
       alert("Register failed!");
     }
   };
@@ -111,7 +91,6 @@ export default function Register() {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
-          {/* Company Name */}
           <input
             type="text"
             name="companyName"
@@ -120,11 +99,7 @@ export default function Register() {
             onChange={handleChange}
             className="col-span-2 border px-4 py-2 rounded-md"
           />
-          {errors.companyName && (
-            <p className="text-red-500 text-sm col-span-2">{errors.companyName}</p>
-          )}
 
-          {/* Email + Password */}
           <input
             type="email"
             name="companyEmail"
@@ -133,7 +108,7 @@ export default function Register() {
             onChange={handleChange}
             className="border px-4 py-2 rounded-md"
           />
-           <input
+          <input
             type="text"
             name="taxNumber"
             placeholder="Tax Number"
@@ -141,6 +116,7 @@ export default function Register() {
             onChange={handleChange}
             className="border px-4 py-2 rounded-md"
           />
+
           <input
             type="password"
             name="password"
@@ -149,8 +125,6 @@ export default function Register() {
             onChange={handleChange}
             className="border px-4 py-2 rounded-md"
           />
-
-          {/* Confirm Password + Tax */}
           <input
             type="password"
             name="confirmPassword"
@@ -159,9 +133,7 @@ export default function Register() {
             onChange={handleChange}
             className="border px-4 py-2 rounded-md"
           />
-         
 
-          {/* Business License Number */}
           <input
             type="text"
             name="businessLicenseNumber"
@@ -171,7 +143,15 @@ export default function Register() {
             className="col-span-2 border px-4 py-2 rounded-md"
           />
 
-          {/* Phone + Address */}
+          <input
+            type="text"
+            name="businessLicenseFileUrl"
+            placeholder="Business License File URL"
+            value={form.businessLicenseFileUrl}
+            onChange={handleChange}
+            className="col-span-2 border px-4 py-2 rounded-md"
+          />
+
           <input
             type="text"
             name="companyPhone"
@@ -189,7 +169,6 @@ export default function Register() {
             className="border px-4 py-2 rounded-md"
           />
 
-          {/* Business Description */}
           <textarea
             name="businessDescription"
             placeholder="Business Description"
@@ -198,7 +177,6 @@ export default function Register() {
             className="col-span-2 border px-4 py-2 rounded-md"
           />
 
-          {/* Contact Person */}
           <input
             type="text"
             name="contactPersonName"
@@ -224,26 +202,6 @@ export default function Register() {
             className="col-span-2 border px-4 py-2 rounded-md"
           />
 
-          {/* Business License File */}
-          <div className="col-span-2">
-            <label className="block mb-1 font-medium text-sm">
-              Business License File
-            </label>
-            <input
-              type="file"
-              name="businessLicenseFile"
-              onChange={handleChange}
-              className="w-full border px-4 py-2 rounded-md"
-            />
-            {preview && (
-              <img
-                src={preview}
-                alt="Preview"
-                className="mt-3 h-32 object-contain border rounded-md"
-              />
-            )}
-          </div>
-
           {/* Buttons */}
           <div className="col-span-2 flex justify-between mt-4">
             <Link
@@ -261,6 +219,20 @@ export default function Register() {
           </div>
         </form>
       </div>
+
+      {/* Popup OTP */}
+      {showOtp && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <OtpPopup
+            email={form.companyEmail}
+            onVerified={() => {
+              setShowOtp(false);
+              alert("🎉 Verified! You can now login.");
+              navigate("/login");
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

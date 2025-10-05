@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import authApi from "../api/authApi"; // ✅ import API login
+import authApi from "../api/authApi"; // ✅ API login
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -22,17 +22,18 @@ export default function Login() {
     if (Object.keys(newErrors).length === 0) {
       try {
         const res = await authApi.login({ email, password });
+
         console.log("✅ Login success:", res.data);
 
-        // Lưu token (tuỳ backend trả về accessToken hay token)
-        localStorage.setItem("accessToken", res.data.accessToken);
-        localStorage.setItem("refreshToken", res.data.refreshToken);
+        // lưu token từ backend trả về
+        localStorage.setItem("accessToken", res.data.data?.accessToken);
+        localStorage.setItem("refreshToken", res.data.data?.refreshToken);
 
         alert("Login successful!");
-        navigate("/partner-home"); // 👉 đổi path tuỳ trang sau login
+        navigate("/home"); // 👉 chuyển đến trang đối tác
       } catch (err) {
         console.error("❌ Login failed:", err);
-        setApiError("Invalid email or password");
+        setApiError(err.response?.data?.message || "Invalid email or password");
       }
     }
   };
@@ -98,7 +99,7 @@ export default function Login() {
           {/* API error */}
           {apiError && <p className="text-red-500 text-sm">{apiError}</p>}
 
-          {/* Submit button */}
+          {/* Submit */}
           <button
             type="submit"
             className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700"
