@@ -3,19 +3,27 @@ import AdminLayout from "../layouts/AdminLayout";
 import partnerApi from "../api/partnerApi";
 import parkingLotApi from "../api/parkingLotApi";
 import Modal from "../components/Modal";
-import AddPartnerModal from "../components/AddPartnerModal";
-import ViewPartnerModal from "../components/ViewPartnerModal"; // ✅ thêm modal hiển thị chi tiết
+import ViewPartnerModal from "../components/ViewPartnerModal";
+
+// ✅ Heroicons
+import {
+  ArrowUpTrayIcon,
+  ArrowDownTrayIcon,
+  EyeIcon,
+  ClipboardDocumentListIcon,
+} from "@heroicons/react/24/outline";
 
 export default function AdminRequests() {
   const [activeTab, setActiveTab] = useState("partner");
   const [requests, setRequests] = useState([]);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
-  const [showAddPartner, setShowAddPartner] = useState(false);
-  const [viewingPartner, setViewingPartner] = useState(null); // ✅ lưu thông tin partner đang xem
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
+  const [viewingPartner, setViewingPartner] = useState(null);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   // ✅ Fetch data
   const fetchData = async () => {
@@ -26,13 +34,13 @@ export default function AdminRequests() {
               page,
               size,
               sortBy: "createdAt",
-              sortOrder: "asc",
+              sortOrder: "desc",
             })
           : await parkingLotApi.getRequests({
               page,
               size,
               sortBy: "createdAt",
-              sortOrder: "asc",
+              sortOrder: "desc",
             });
 
       const data = res.data?.data;
@@ -48,39 +56,7 @@ export default function AdminRequests() {
     fetchData();
   }, [activeTab, page, size]);
 
-  // ✅ Handle Approve / Reject
-  const handleAction = async (id, action) => {
-    try {
-      let payload;
-
-      if (action === "approve") {
-        payload = {
-          status: "APPROVED",
-          approvalNotes: "All documents verified successfully",
-          reviewerId: 2,
-          valid: true,
-        };
-      } else if (action === "reject") {
-        const reason = prompt("Nhập lý do từ chối:");
-        if (!reason) return;
-        payload = {
-          status: "REJECTED",
-          rejectionReason: reason,
-          reviewerId: 2,
-          valid: true,
-        };
-      }
-
-      await partnerApi.updateStatus(id, payload);
-      alert(`✅ ${action === "approve" ? "Approved" : "Rejected"} successfully!`);
-      fetchData();
-    } catch (err) {
-      console.error(`❌ Error when ${action}:`, err);
-      alert(`Failed to ${action}. Check console for details.`);
-    }
-  };
-
-  // ✅ Handle View (call API by ID)
+  // ✅ Handle View
   const handleView = async (id) => {
     try {
       const res = await partnerApi.getById(id);
@@ -91,140 +67,223 @@ export default function AdminRequests() {
     }
   };
 
-  // ✅ Filter client-side
+  // ✅ Client-side filters (đã thêm tìm theo Phone)
   const filtered = requests.filter((r) => {
+    const keyword = search.toLowerCase();
+
     const matchSearch =
-      r.contactPersonName?.toLowerCase().includes(search.toLowerCase()) ||
-      r.contactPersonEmail?.toLowerCase().includes(search.toLowerCase()) ||
-      r.companyEmail?.toLowerCase().includes(search.toLowerCase()) ||
-      r.companyName?.toLowerCase().includes(search.toLowerCase());
-    const matchStatus = status ? r.status?.toLowerCase() === status.toLowerCase() : true;
-    return matchSearch && matchStatus;
+      r.contactPersonName?.toLowerCase().includes(keyword) ||
+      r.contactPersonEmail?.toLowerCase().includes(keyword) ||
+      r.companyEmail?.toLowerCase().includes(keyword) ||
+      r.companyName?.toLowerCase().includes(keyword) ||
+      r.companyPhone?.toLowerCase().includes(keyword) ||
+      r.contactPersonPhone?.toLowerCase().includes(keyword);
+
+    const matchStatus = status
+      ? r.status?.toLowerCase() === status.toLowerCase()
+      : true;
+
+    const createdAt = new Date(r.createdAt || r.submittedAt);
+    const from = startDate ? new Date(startDate) : null;
+    const to = endDate ? new Date(endDate) : null;
+    const matchDate = (!from || createdAt >= from) && (!to || createdAt <= to);
+
+    return matchSearch && matchStatus && matchDate;
   });
 
-  // ✅ Render actions
-  const renderActions = (r) => {
-    if (r.status === "PENDING") {
-      return (
-        <>
-          <button
-            className="text-green-600 hover:underline"
-            onClick={() => handleAction(r.id, "approve")}
+  // ✅ Status badges
+  const renderStatus = (status) => {
+    const base =
+      "px-2 py-1 text-xs font-semibold rounded-md border inline-block";
+    switch (status?.toUpperCase()) {
+      case "APPROVED":
+        return (
+          <span
+            className={`${base} text-green-600 bg-green-50 border-green-300`}
           >
-            Approve
-          </button>
-          <button
-            className="text-red-600 hover:underline"
-            onClick={() => handleAction(r.id, "reject")}
+            Approved
+          </span>
+        );
+      case "REJECTED":
+        return (
+          <span className={`${base} text-red-600 bg-red-50 border-red-300`}>
+            Rejected
+          </span>
+        );
+      case "PENDING":
+        return (
+          <span
+            className={`${base} text-yellow-600 bg-yellow-50 border-yellow-300`}
           >
-            Reject
-          </button>
-          <button
-            className="text-indigo-600 hover:underline"
-            onClick={() => handleView(r.id)} // ✅ gọi API getById
-          >
-            View
-          </button>
-        </>
-      );
+            Pending
+          </span>
+        );
+      default:
+        return (
+          <span className={`${base} text-gray-600 bg-gray-50 border-gray-300`}>
+            Unknown
+          </span>
+        );
     }
-    return (
-      <button
-        className="text-indigo-600 hover:underline"
-        onClick={() => handleView(r.id)} // ✅ gọi API getById
-      >
-        View
-      </button>
-    );
   };
 
   return (
     <AdminLayout>
-      {/* Tabs */}
+      {/* 🔹 Header giống Parking Lot page */}
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-indigo-700 flex items-center gap-2">
+          {/* <ClipboardDocumentListIcon className="w-6 h-6" /> */}
+          Partner & Parking Lot Requests
+        </h2>
+      </div>
+
+      {/* 🔹 Tabs */}
       <div className="flex gap-6 border-b mb-6">
-        <button
-          className={`pb-2 ${
-            activeTab === "partner"
-              ? "border-b-2 border-indigo-600 font-semibold"
-              : "text-gray-500"
-          }`}
-          onClick={() => {
-            setActiveTab("partner");
-            setPage(0);
-          }}
-        >
-          Partner Account Requests
-        </button>
-        <button
-          className={`pb-2 ${
-            activeTab === "parkingLot"
-              ? "border-b-2 border-indigo-600 font-semibold"
-              : "text-gray-500"
-          }`}
-          onClick={() => {
-            setActiveTab("parkingLot");
-            setPage(0);
-          }}
-        >
-          Parking Lot Requests
-        </button>
+        {["partner", "parkingLot"].map((tab) => (
+          <button
+            key={tab}
+            className={`pb-2 transition-all ${
+              activeTab === tab
+                ? "border-b-2 border-indigo-600 text-indigo-700 font-semibold"
+                : "text-gray-500 hover:text-indigo-500"
+            }`}
+            onClick={() => {
+              setActiveTab(tab);
+              setPage(0);
+            }}
+          >
+            {tab === "partner"
+              ? "Partner Account Requests"
+              : "Parking Lot Requests"}
+          </button>
+        ))}
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 items-center mb-4">
-        <input
-          type="text"
-          placeholder="Search by Partner Name / Email / Company..."
-          className="border px-3 py-2 rounded-md w-64"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <select
-          className="border px-3 py-2 rounded-md"
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-        >
-          <option value="">All Status</option>
-          <option value="PENDING">Pending</option>
-          <option value="APPROVED">Approved</option>
-          <option value="REJECTED">Rejected</option>
-        </select>
+      {/* 🔹 Filters + Actions */}
+      <div className="flex flex-wrap justify-between items-center mb-6 gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Search */}
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search by name, email, phone, or company..."
+              className="border border-gray-300 pl-10 pr-4 py-2 rounded-lg w-80 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-5 h-5 absolute left-3 top-2.5 text-gray-400"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.75 6.75a7.5 7.5 0 0 0 9.9 9.9z"
+              />
+            </svg>
+          </div>
+
+          {/* Status */}
+          <select
+            className="border px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+          >
+            <option value="">All Status</option>
+            <option value="PENDING">Pending</option>
+            <option value="APPROVED">Approved</option>
+            <option value="REJECTED">Rejected</option>
+          </select>
+
+          {/* Date Range */}
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 transition-all"
+            />
+            <span className="text-gray-500">to</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 transition-all"
+            />
+          </div>
+        </div>
+
+        {/* Import / Export */}
+        <div className="flex gap-2">
+          <button className="flex items-center gap-2 bg-yellow-100 text-yellow-700 hover:bg-yellow-200 font-medium px-4 py-2 rounded-lg border border-yellow-200 transition">
+            <ArrowUpTrayIcon className="w-5 h-5 text-yellow-700" />
+            Import
+          </button>
+          <button className="flex items-center gap-2 bg-green-100 text-green-700 hover:bg-green-200 font-medium px-4 py-2 rounded-lg border border-green-200 transition">
+            <ArrowDownTrayIcon className="w-5 h-5 text-green-700" />
+            Export
+          </button>
+        </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white shadow rounded-lg overflow-hidden">
-        <table className="min-w-full text-sm text-left">
-          <thead className="bg-gray-100 text-gray-700">
+      {/* 🔹 Table */}
+      <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+        <table className="min-w-full table-auto">
+          <thead className="bg-indigo-50 text-indigo-700 uppercase text-sm font-semibold">
             <tr>
-              <th className="px-4 py-2">Partner</th>
-              <th className="px-4 py-2">Email</th>
-              <th className="px-4 py-2">Company</th>
-              <th className="px-4 py-2">Phone</th>
-              <th className="px-4 py-2">Submitted At</th>
-              <th className="px-4 py-2">Status</th>
-              <th className="px-4 py-2">Actions</th>
+              <th className="px-6 py-3 text-left">#</th>
+              <th className="px-6 py-3 text-left">Partner</th>
+              <th className="px-6 py-3 text-left">Email</th>
+              <th className="px-6 py-3 text-left">Company</th>
+              <th className="px-6 py-3 text-left">Phone</th>
+              <th className="px-6 py-3 text-left">Submitted At</th>
+              <th className="px-6 py-3 text-left">Status</th>
+              <th className="px-6 py-3 text-center">Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="text-gray-700 text-sm">
             {filtered.length > 0 ? (
               filtered.map((r, idx) => (
-                <tr key={idx} className="border-t hover:bg-gray-50 transition">
-                  <td className="px-4 py-2">{r.contactPersonName}</td>
-                  <td className="px-4 py-2">{r.contactPersonEmail || r.companyEmail}</td>
-                  <td className="px-4 py-2">{r.companyName}</td>
-                  <td className="px-4 py-2">{r.companyPhone}</td>
-                  <td className="px-4 py-2">
+                <tr
+                  key={idx}
+                  className="border-t border-gray-100 hover:bg-indigo-50 transition-all"
+                >
+                  <td className="px-6 py-3 text-gray-500">
+                    {page * size + idx + 1}
+                  </td>
+                  <td className="px-6 py-3">{r.contactPersonName}</td>
+                  <td className="px-6 py-3">
+                    {r.contactPersonEmail || r.companyEmail}
+                  </td>
+                  <td className="px-6 py-3">{r.companyName}</td>
+                  <td className="px-6 py-3">{r.companyPhone}</td>
+                  <td className="px-6 py-3">
                     {r.submittedAt
                       ? new Date(r.submittedAt).toLocaleDateString("en-GB")
                       : "-"}
                   </td>
-                  <td className="px-4 py-2">{r.status}</td>
-                  <td className="px-4 py-2 flex gap-2">{renderActions(r)}</td>
+                  <td className="px-6 py-3">{renderStatus(r.status)}</td>
+                  <td className="px-6 py-3 text-center">
+                    <button
+                      title="View Details"
+                      onClick={() => handleView(r.id)}
+                      className="p-2 bg-indigo-50 text-indigo-600 rounded-full hover:bg-indigo-100 transition"
+                    >
+                      <EyeIcon className="w-5 h-5" />
+                    </button>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="px-4 py-4 text-center text-gray-500">
+                <td
+                  colSpan="8"
+                  className="px-6 py-6 text-center text-gray-500 italic"
+                >
                   No requests found.
                 </td>
               </tr>
@@ -233,38 +292,34 @@ export default function AdminRequests() {
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className="flex justify-between items-center mt-4">
+      {/* 🔹 Pagination */}
+      <div className="flex justify-between items-center mt-6">
         <button
           disabled={page <= 0}
           onClick={() => setPage((p) => Math.max(p - 1, 0))}
-          className="px-4 py-2 border rounded disabled:opacity-50"
+          className="px-4 py-2 bg-white border rounded-lg hover:bg-indigo-50 text-gray-700 disabled:opacity-50 transition-all"
         >
-          Previous
+          ← Previous
         </button>
-        <span>
-          Page {page + 1} of {totalPages}
+        <span className="text-gray-600 text-sm">
+          Page <strong>{page + 1}</strong> of {totalPages}
         </span>
         <button
           disabled={page >= totalPages - 1}
           onClick={() => setPage((p) => p + 1)}
-          className="px-4 py-2 border rounded disabled:opacity-50"
+          className="px-4 py-2 bg-white border rounded-lg hover:bg-indigo-50 text-gray-700 disabled:opacity-50 transition-all"
         >
-          Next
+          Next →
         </button>
       </div>
 
-      {/* Add Partner Modal */}
-      <Modal isOpen={showAddPartner} onClose={() => setShowAddPartner(false)}>
-        <AddPartnerModal onClose={() => setShowAddPartner(false)} />
-      </Modal>
-
-      {/* ✅ View Partner Modal */}
+      {/* 🔹 Modal View Partner */}
       <Modal isOpen={!!viewingPartner} onClose={() => setViewingPartner(null)}>
         {viewingPartner && (
           <ViewPartnerModal
             partner={viewingPartner}
             onClose={() => setViewingPartner(null)}
+            onActionDone={fetchData}
           />
         )}
       </Modal>

@@ -41,8 +41,10 @@ export default function Register() {
     if (!form.businessLicenseNumber)
       newErrors.businessLicenseNumber = "Business License Number is required";
     if (!form.businessLicenseFileUrl)
-      newErrors.businessLicenseFileUrl = "Business License File URL is required";
-    if (!form.companyPhone) newErrors.companyPhone = "Company phone is required";
+      newErrors.businessLicenseFileUrl =
+        "Business License File URL is required";
+    if (!form.companyPhone)
+      newErrors.companyPhone = "Company phone is required";
     if (!form.companyAddress)
       newErrors.companyAddress = "Company address is required";
     if (!form.businessDescription)
@@ -230,6 +232,7 @@ export default function Register() {
               alert("🎉 Verified! You can now login.");
               navigate("/login");
             }}
+            onClose={() => setShowOtp(false)} // ✅ truyền hàm onClose
           />
         </div>
       )}

@@ -7,6 +7,8 @@ import RegisterLot from "../pages/RegisterLot";
 import AdminLogin from "../pages/AdminLogin";
 import AdminPartners from "../pages/AdminPartners";
 import AdminRequests from "../pages/AdminRequests";
+import AdminUsers from "../pages/AdminUsers";
+import AdminParkingLots from "../pages/AdminParkingLots";
 
 export default function AppRoutes() {
   return (
@@ -21,7 +23,9 @@ export default function AppRoutes() {
       {/* Admin routes */}
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/partners" element={<AdminPartners />} />
+      <Route path="/admin/users" element={<AdminUsers />} />
       <Route path="/admin/requests" element={<AdminRequests />} />
+      <Route path="/admin/parking-lots" element={<AdminParkingLots />} />
     </Routes>
   );
 }

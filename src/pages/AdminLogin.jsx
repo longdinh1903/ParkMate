@@ -23,9 +23,17 @@ export default function AdminLogin() {
         const res = await adminApi.login({ email, password });
         console.log("✅ Login success:", res.data);
 
-        // lưu token vào localStorage
-        localStorage.setItem("accessToken", res.data.accessToken);
-        localStorage.setItem("refreshToken", res.data.refreshToken);
+        // ✅ accessToken nằm trong res.data.data
+        const accessToken = res.data?.data?.accessToken;
+        const refreshToken = res.data?.data?.refreshToken;
+
+        if (accessToken) {
+          localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("refreshToken", refreshToken);
+          console.log("✅ Tokens saved to localStorage");
+        } else {
+          console.warn("⚠️ No token found in response:", res.data);
+        }
 
         // ✅ chuyển hướng sang dashboard
         navigate("/admin/partners");
