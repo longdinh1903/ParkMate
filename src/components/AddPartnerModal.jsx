@@ -58,9 +58,9 @@ export default function AddPartnerModal({ onClose, onAdded }) {
             { label: "Tax Number", name: "taxNumber" },
             { label: "License Number", name: "businessLicenseNumber" },
             { label: "License File URL", name: "businessLicenseFileUrl" },
-            { label: "Address", name: "companyAddress" },
             { label: "Phone", name: "companyPhone" },
             { label: "Email", name: "companyEmail" },
+            { label: "Address", name: "companyAddress" },
             { label: "Description", name: "businessDescription" },
           ].map((f) => (
             <div key={f.name}>

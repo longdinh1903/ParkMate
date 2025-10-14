@@ -36,7 +36,9 @@ export default function AdminLayout({ children }) {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50 text-gray-800">
+    // Container chính: Đảm bảo chiều cao đầy đủ và ngăn chặn tràn
+    <div className="flex min-h-screen bg-gray-50 text-gray-800 overflow-hidden">
+      
       {/* Sidebar */}
       <aside
         className={`relative bg-indigo-700 text-white flex flex-col py-6 transition-all duration-300 shadow-lg ${
@@ -79,7 +81,7 @@ export default function AdminLayout({ children }) {
                   )}
                 </Link>
 
-                {/* Tooltip (chỉ hiện khi thu gọn) */}
+                {/* Tooltip khi sidebar thu gọn */}
                 {!isExpanded && (
                   <div
                     className="absolute left-14 top-1/2 -translate-y-1/2 opacity-0 
@@ -137,13 +139,13 @@ export default function AdminLayout({ children }) {
         </div>
       </aside>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col">
-        {/* Nội dung trang */}
-        <main className="flex-1 p-6 relative">
+      {/* Main content: Flex-1 để chiếm hết không gian còn lại */}
+      <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
+        {/* Nội dung trang: Đã thay đổi thành overflow-y-auto */}
+        <main className="flex-1 p-6 overflow-y-auto">
           {children}
 
-          {/* ✅ Toaster Global cho toàn bộ Admin */}
+          {/* Toaster Global */}
           <Toaster
             position="top-right"
             reverseOrder={false}

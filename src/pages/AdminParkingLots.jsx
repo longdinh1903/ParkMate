@@ -11,19 +11,17 @@ import {
 } from "@heroicons/react/24/outline";
 import { showInfo, showSuccess, showError } from "../utils/toastUtils.jsx";
 import ConfirmModal from "../components/ConfirmModal.jsx";
-import EditParkingLotModal from "../components/EditParkingLotModal.jsx"; // ✅ thêm import popup edit
+import EditParkingLotModal from "../components/EditParkingLotModal.jsx";
 
 export default function AdminParkingLots() {
   const [lots, setLots] = useState([]);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [page, setPage] = useState(0);
-  const [size] = useState(11);
+  const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [confirmingLot, setConfirmingLot] = useState(null);
-
-  // ✅ state mới cho popup Edit
   const [editingLot, setEditingLot] = useState(null);
 
   // ✅ Fetch parking lots
@@ -105,9 +103,9 @@ export default function AdminParkingLots() {
     if (!lot) return;
 
     try {
-      const res = await parkingLotApi.delete(lot.id);
+      const res = await parkingLotApi.deleteRegister(lot.id);
       if (res.status === 200 || res.status === 204) {
-        showSuccess(`Deleted "${lot.name}" successfully!`);
+        showSuccess(`🗑️ Deleted "${lot.name}" successfully!`);
         fetchLots();
       } else {
         showError("❌ Failed to delete parking lot (invalid status code).");
@@ -123,7 +121,49 @@ export default function AdminParkingLots() {
 
   // ✅ Edit
   const handleEdit = (lot) => {
-    setEditingLot(lot); // mở modal
+    setEditingLot(lot);
+  };
+
+  // ✅ Import Excel
+  const handleImport = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      showInfo("📤 Importing Excel...");
+      await parkingLotApi.importExcel(file);
+      showSuccess("✅ Import Excel successfully!");
+      fetchLots();
+    } catch (err) {
+      console.error("❌ Import error:", err);
+      showError(err.response?.data?.message || "Failed to import Excel file!");
+    } finally {
+      e.target.value = null;
+    }
+  };
+
+  // ✅ Export Excel
+  const handleExport = async () => {
+    try {
+      showInfo("📥 Exporting Excel...");
+      const res = await parkingLotApi.exportExcel();
+      const blob = new Blob([res.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `ParkingLots_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      showSuccess("✅ Export Excel successfully!");
+    } catch (err) {
+      console.error("❌ Export error:", err);
+      showError("Failed to export Excel file!");
+    }
   };
 
   return (
@@ -187,26 +227,31 @@ export default function AdminParkingLots() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => showInfo("🟣 Add Parking Lot clicked")}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition"
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition cursor-pointer"
           >
             <PlusIcon className="w-5 h-5 text-white" />
             Add Parking Lot
           </button>
 
-          <button
-            onClick={() => showInfo("🟡 Import clicked")}
-            className="flex items-center gap-2 bg-yellow-100 text-yellow-700 hover:bg-yellow-200 font-medium px-4 py-2 rounded-lg border border-yellow-200 transition"
-          >
+          {/* ✅ Import Excel */}
+          <label className="flex items-center hover:bg-yellow-200 font-medium px-4 py-2 rounded-lg border transition cursor-pointer">
             <ArrowUpTrayIcon className="w-5 h-5 text-yellow-700" />
-            Import
-          </button>
+            Import Excel
+            <input
+              type="file"
+              accept=".xlsx"
+              className="hidden"
+              onChange={handleImport}
+            />
+          </label>
 
+          {/* ✅ Export Excel */}
           <button
-            onClick={() => showInfo("🟢 Export clicked")}
-            className="flex items-center gap-2 bg-green-100 text-green-700 hover:bg-green-200 font-medium px-4 py-2 rounded-lg border border-green-200 transition"
+            onClick={handleExport}
+            className="flex items-center hover:bg-green-200 font-medium px-4 py-2 rounded-lg border transition cursor-pointer"
           >
             <ArrowDownTrayIcon className="w-5 h-5 text-green-700" />
-            Export
+            Export Excel
           </button>
         </div>
       </div>
@@ -238,7 +283,7 @@ export default function AdminParkingLots() {
               filtered.map((lot, idx) => (
                 <tr
                   key={idx}
-                  className="border-t border-gray-100 hover:bg-indigo-50 transition-all"
+                  className="border-t border-gray-100 hover:bg-gray-50 transition-all"
                 >
                   <td className="px-6 py-3 text-gray-500">{page * size + idx + 1}</td>
                   <td className="px-6 py-3 font-medium">{lot.name}</td>
@@ -257,20 +302,20 @@ export default function AdminParkingLots() {
                   </td>
                   <td className="px-6 py-3">{renderStatus(lot.status)}</td>
 
-                  {/* ✅ Actions column */}
+                  {/* ✅ Actions */}
                   <td className="px-6 py-3 text-center">
                     <div className="flex justify-center items-center gap-3">
                       <button
                         title="Edit"
                         onClick={() => handleEdit(lot)}
-                        className="p-2 rounded-full bg-yellow-50 text-yellow-600 hover:bg-yellow-100 transition"
+                        className="p-2 rounded-full hover:bg-yellow-100 transition cursor-pointer"
                       >
                         <PencilSquareIcon className="w-5 h-5" />
                       </button>
                       <button
                         title="Delete"
                         onClick={() => handleDelete(lot)}
-                        className="p-2 rounded-full bg-red-50 text-red-600 hover:bg-red-100 transition"
+                        className="p-2 rounded-full hover:bg-red-100 transition cursor-pointer"
                       >
                         <TrashIcon className="w-5 h-5" />
                       </button>
@@ -294,7 +339,7 @@ export default function AdminParkingLots() {
         <button
           disabled={page <= 0 || loading}
           onClick={() => setPage((p) => Math.max(p - 1, 0))}
-          className="px-4 py-2 bg-white border rounded-lg hover:bg-indigo-50 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="px-4 py-2 bg-white border rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
           ← Previous
         </button>
@@ -306,7 +351,7 @@ export default function AdminParkingLots() {
         <button
           disabled={page >= totalPages - 1 || loading}
           onClick={() => setPage((p) => p + 1)}
-          className="px-4 py-2 bg-white border rounded-lg hover:bg-indigo-50 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="px-4 py-2 bg-white border rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
           Next →
         </button>

@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import partnerApi from "../api/partnerApi";
-import OtpPopup from "../components/OtpPopup"; // ✅ import OTP
+import OtpPopup from "../components/OtpPopup";
+import { showSuccess, showError, showInfo } from "../utils/toastUtils.jsx";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -12,7 +14,7 @@ export default function Register() {
     confirmPassword: "",
     taxNumber: "",
     businessLicenseNumber: "",
-    businessLicenseFileUrl: "",
+    businessLicenseFile: null,
     companyPhone: "",
     companyAddress: "",
     companyEmail: "",
@@ -24,10 +26,15 @@ export default function Register() {
 
   const [errors, setErrors] = useState({});
   const [showOtp, setShowOtp] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
+  };
+
+  const handleFileChange = (e) => {
+    setForm({ ...form, businessLicenseFile: e.target.files[0] });
   };
 
   const validateForm = () => {
@@ -40,9 +47,8 @@ export default function Register() {
     if (!form.taxNumber) newErrors.taxNumber = "Tax number is required";
     if (!form.businessLicenseNumber)
       newErrors.businessLicenseNumber = "Business License Number is required";
-    if (!form.businessLicenseFileUrl)
-      newErrors.businessLicenseFileUrl =
-        "Business License File URL is required";
+    if (!form.businessLicenseFile)
+      newErrors.businessLicenseFile = "Please upload business license file";
     if (!form.companyPhone)
       newErrors.companyPhone = "Company phone is required";
     if (!form.companyAddress)
@@ -60,22 +66,69 @@ export default function Register() {
     return Object.keys(newErrors).length === 0;
   };
 
+  // 🟢 Upload ảnh thật
+  const uploadBusinessLicense = async (entityId, file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const url = `http://parkmate-alb-942390189.ap-southeast-1.elb.amazonaws.com/api/v1/user-service/upload/image/entity?entityId=${entityId}&imageType=PARTNER_BUSINESS_LICENSE`;
+
+    const res = await axios.post(url, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return res.data;
+  };
+
+  // 🟢 Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      showError("Please fill in all required fields.");
+      return;
+    }
 
+    setUploading(true);
     try {
-      const res = await partnerApi.registerPartner(form);
-      console.log("✅ Register response:", res.data);
+      showInfo("Registering partner, please wait...");
 
-      if (res.data.success) {
-        setShowOtp(true); // mở popup OTP
-      } else {
-        alert("❌ Register failed. Please try again.");
+      // 1️⃣ Đăng ký partner
+      const registerPayload = {
+        companyName: form.companyName,
+        password: form.password,
+        taxNumber: form.taxNumber,
+        businessLicenseNumber: form.businessLicenseNumber,
+        businessLicenseFileUrl: "",
+        companyPhone: form.companyPhone,
+        companyAddress: form.companyAddress,
+        companyEmail: form.companyEmail,
+        businessDescription: form.businessDescription,
+        contactPersonName: form.contactPersonName,
+        contactPersonPhone: form.contactPersonPhone,
+        contactPersonEmail: form.contactPersonEmail,
+      };
+
+      const registerRes = await partnerApi.registerPartner(registerPayload);
+      console.log("✅ Register response:", registerRes.data);
+
+      const entityId =
+        registerRes.data?.data?.id || registerRes.data?.id || null;
+      if (!entityId) throw new Error("Missing entityId from register response");
+
+      // 2️⃣ Upload ảnh giấy phép
+      if (form.businessLicenseFile) {
+        showInfo("Uploading business license...");
+        await uploadBusinessLicense(entityId, form.businessLicenseFile);
+        showSuccess("Uploaded business license successfully!");
       }
+
+      // 3️⃣ Thông báo thành công
+      showSuccess("Registration successful! Please verify your email.");
+      setShowOtp(true);
     } catch (err) {
       console.error("❌ Register failed:", err);
-      alert("Register failed!");
+      showError("Register failed. Please try again!");
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -145,14 +198,23 @@ export default function Register() {
             className="col-span-2 border px-4 py-2 rounded-md"
           />
 
-          <input
-            type="text"
-            name="businessLicenseFileUrl"
-            placeholder="Business License File URL"
-            value={form.businessLicenseFileUrl}
-            onChange={handleChange}
-            className="col-span-2 border px-4 py-2 rounded-md"
-          />
+          {/* 🟢 Upload File */}
+          <div className="col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Upload Business License (PDF / Image)
+            </label>
+            <input
+              type="file"
+              accept=".jpg,.jpeg,.png,.pdf"
+              onChange={handleFileChange}
+              className="w-full border px-4 py-2 rounded-md"
+            />
+            {form.businessLicenseFile && (
+              <p className="text-sm text-gray-600 mt-1">
+                File selected: {form.businessLicenseFile.name}
+              </p>
+            )}
+          </div>
 
           <input
             type="text"
@@ -214,9 +276,14 @@ export default function Register() {
             </Link>
             <button
               type="submit"
-              className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700"
+              disabled={uploading}
+              className={`px-6 py-2 rounded-md text-white ${
+                uploading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-indigo-600 hover:bg-indigo-700"
+              }`}
             >
-              Register
+              {uploading ? "Processing..." : "Register"}
             </button>
           </div>
         </form>
@@ -229,10 +296,10 @@ export default function Register() {
             email={form.companyEmail}
             onVerified={() => {
               setShowOtp(false);
-              alert("🎉 Verified! You can now login.");
+              showSuccess("🎉 Verified! You can now login.");
               navigate("/login");
             }}
-            onClose={() => setShowOtp(false)} // ✅ truyền hàm onClose
+            onClose={() => setShowOtp(false)}
           />
         </div>
       )}

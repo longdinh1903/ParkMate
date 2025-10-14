@@ -43,7 +43,7 @@ export default function EditPartnerModal({ partner, onClose, onUpdated }) {
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50">
       <div className="bg-white rounded-xl shadow-lg w-[600px] p-6">
         <h2 className="text-xl font-semibold text-indigo-700 mb-4">
-          ✏️ Edit Partner
+          Edit Partner
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">

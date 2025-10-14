@@ -58,7 +58,7 @@ export default function OtpPopup({ email, onVerified, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50">
       <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm text-center relative animate-fadeIn">
         {/* ✖ Nút đóng popup */}
         <button

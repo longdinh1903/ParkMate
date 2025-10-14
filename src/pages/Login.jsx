@@ -25,9 +25,14 @@ export default function Login() {
 
         console.log("✅ Login success:", res.data);
 
-        // lưu token từ backend trả về
-        localStorage.setItem("accessToken", res.data.data?.accessToken);
-        localStorage.setItem("refreshToken", res.data.data?.refreshToken);
+        // ✅ Lưu token & partnerId
+        const accessToken = res.data.data?.authResponse?.accessToken;
+        const refreshToken = res.data.data?.authResponse?.refreshToken;
+        const partnerId = res.data.data?.partnerResponse?.id;
+
+        if (accessToken) localStorage.setItem("accessToken", accessToken);
+        if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
+        if (partnerId) localStorage.setItem("partnerId", partnerId); // ✅ thêm dòng này
 
         alert("Login successful!");
         navigate("/home"); // 👉 chuyển đến trang đối tác

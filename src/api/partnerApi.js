@@ -1,32 +1,60 @@
-// import axios from "axios";
 import axiosClient from "../api/axiosClient";
 
 const partnerApi = {
   registerPartner: (data) =>
     axiosClient.post("/api/v1/user-service/partner-registrations", data),
 
+  uploadBusinessLicense: (entityId, file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  return axiosClient.post(
+    `/api/v1/user-service/upload/image/entity?entityId=${entityId}&imageType=PARTNER_BUSINESS_LICENSE`,
+    formData,
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+    }
+  );
+},
+
   getRequests: (params) =>
     axiosClient.get("/api/v1/user-service/partner-registrations", { params }),
-
-  getAll: (params) =>
-    axiosClient.get("/api/v1/user-service/partners", { params }),
 
   getById: (id) =>
     axiosClient.get(`/api/v1/user-service/partner-registrations/${id}`),
 
   updateStatus: (id, payload) =>
-    axiosClient.put(`/api/v1/user-service/partner-registrations/${id}`, payload),
+    axiosClient.put(
+      `/api/v1/user-service/partner-registrations/${id}`,
+      payload
+    ),
+
+  deleteRegister: (id) => axiosClient.delete(`/api/v1/user-service/partner-registrations/${id}`),
 
   delete: (id) => axiosClient.delete(`/api/v1/user-service/partners/${id}`),
 
-  create: (data) =>
-    axiosClient.post("/api/v1/user-service/partners", data),
+  getAll: (params) =>
+    axiosClient.get("/api/v1/user-service/partners", { params }),
+  create: (data) => axiosClient.post("/api/v1/user-service/partners", data),
 
-  update: (id, data) => axiosClient.put(`/api/v1/user-service/partners/${id}`, data),
+  update: (id, data) =>
+    axiosClient.put(`/api/v1/user-service/partners/${id}`, data),
 
-  getByIdPartner: (id) => axiosClient.get(`/api/v1/user-service/partners/${id}`),
+  getByIdPartner: (id) =>
+    axiosClient.get(`/api/v1/user-service/partners/${id}`),
 
+  // ✅ Export Excel
+  exportPartners: (filters = {}) =>
+    axiosClient.get("/api/v1/user-service/partners/export", {
+      params: filters,
+      responseType: "blob", // để nhận file Excel
+    }),
+
+  // ✅ Import Excel
+  importPartners: (formData) =>
+    axiosClient.post("/api/v1/user-service/partners/import", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
 };
-
 
 export default partnerApi;

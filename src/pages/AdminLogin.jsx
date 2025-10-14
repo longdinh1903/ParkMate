@@ -24,8 +24,8 @@ export default function AdminLogin() {
         console.log("✅ Login success:", res.data);
 
         // ✅ accessToken nằm trong res.data.data
-        const accessToken = res.data?.data?.accessToken;
-        const refreshToken = res.data?.data?.refreshToken;
+        const accessToken = res.data?.data?.authResponse.accessToken;
+        const refreshToken = res.data?.data?.authResponse.refreshToken;
 
         if (accessToken) {
           localStorage.setItem("accessToken", accessToken);
