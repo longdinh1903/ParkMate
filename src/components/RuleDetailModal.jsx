@@ -19,12 +19,11 @@ export default function RuleDetailModal({ rule, onClose }) {
             <strong>Vehicle Type:</strong> {rule.vehicleType || "-"}
           </p>
           <p>
-            <strong>Base Rate (VND):</strong>{" "}
-            {rule.baseRate ? rule.baseRate.toLocaleString() : "-"}
+            <strong>Step Rate (VND):</strong>{" "}
+            {rule.stepRate ? rule.stepRate.toLocaleString() : "-"}
           </p>
           <p>
-            <strong>Deposit Fee (VND):</strong>{" "}
-            {rule.depositFee ? rule.depositFee.toLocaleString() : "-"}
+            <strong>Step Minute:</strong> {rule.stepMinute || "-"}
           </p>
           <p>
             <strong>Initial Charge (VND):</strong>{" "}
@@ -33,13 +32,6 @@ export default function RuleDetailModal({ rule, onClose }) {
           <p>
             <strong>Initial Duration (minutes):</strong>{" "}
             {rule.initialDurationMinute || "-"}
-          </p>
-          <p>
-            <strong>Free Minute:</strong> {rule.freeMinute || "-"}
-          </p>
-          <p>
-            <strong>Grace Period (minutes):</strong>{" "}
-            {rule.gracePeriodMinute || "-"}
           </p>
           <p>
             <strong>Valid From:</strong>{" "}

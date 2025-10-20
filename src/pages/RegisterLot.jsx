@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import PartnerLayout from "../layouts/MainLayout";
+import PartnerTopLayout from "../layouts/PartnerTopLayout";
 import parkingLotApi from "../api/parkingLotApi";
 import Modal from "../components/Modal";
 import AddRuleModal from "../components/AddRuleModal";
 import RuleDetailModal from "../components/RuleDetailModal";
+import LocationPickerMap from "../components/LocationPickerMap";
 import toast from "react-hot-toast";
 
 export default function RegisterLot() {
@@ -30,19 +31,17 @@ export default function RegisterLot() {
   const [rules, setRules] = useState([]);
   const [showRuleModal, setShowRuleModal] = useState(false);
   const [selectedRule, setSelectedRule] = useState(null);
+  const [showMap, setShowMap] = useState(false);
 
-  // ✅ Lấy partnerId từ localStorage
   const getPartnerIdFromStorage = () => {
     const partnerId = localStorage.getItem("partnerId");
     if (!partnerId) {
       toast.error("❌ Không tìm thấy Partner ID. Vui lòng đăng nhập lại!");
       return null;
     }
-    console.log("✅ Loaded Partner ID:", partnerId);
     return partnerId;
   };
 
-  // ✅ Handle input thay đổi
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm({ ...form, [name]: type === "checkbox" ? checked : value });
@@ -56,7 +55,6 @@ export default function RegisterLot() {
     });
   };
 
-  // ✅ Thêm capacity
   const handleAddCapacity = () => {
     if (!capacityForm.capacity || !capacityForm.vehicleType) {
       toast.error("⚠️ Hãy nhập đầy đủ Capacity và Vehicle Type!");
@@ -86,23 +84,19 @@ export default function RegisterLot() {
     toast("🗑️ Đã xóa Pricing Rule!");
   };
 
-  // ✅ Gửi API đăng ký bãi xe
   const handleSubmit = async (e) => {
     e.preventDefault();
     const partnerId = getPartnerIdFromStorage();
     if (!partnerId) return;
 
-    // Kiểm tra input cơ bản
     if (!form.name || !form.city || !form.latitude || !form.longitude) {
       toast.error("⚠️ Vui lòng nhập đầy đủ thông tin cơ bản!");
       return;
     }
-
     if (capacities.length === 0) {
       toast.error("⚠️ Vui lòng thêm ít nhất 1 cấu hình Capacity!");
       return;
     }
-
     if (rules.length === 0) {
       toast.error("⚠️ Vui lòng thêm ít nhất 1 Pricing Rule!");
       return;
@@ -127,31 +121,22 @@ export default function RegisterLot() {
       pricingRuleCreateRequests: rules.map((r) => ({
         ruleName: r.ruleName,
         vehicleType: r.vehicleType,
-        baseRate: parseInt(r.baseRate),
-        depositFee: parseInt(r.depositFee),
+        stepRate: parseInt(r.stepRate),
+        stepMinute: parseInt(r.stepMinute),
         initialCharge: parseInt(r.initialCharge),
         initialDurationMinute: parseInt(r.initialDurationMinute),
-        freeMinute: parseInt(r.freeMinute),
-        gracePeriodMinute: parseInt(r.gracePeriodMinute),
         validFrom: r.validFrom ? new Date(r.validFrom).toISOString() : null,
         validTo: r.validTo ? new Date(r.validTo).toISOString() : null,
         areaId: parseInt(r.areaId),
       })),
     };
 
-    console.log("📤 Payload gửi API:", payload);
-
-    // ✅ Hiển thị thông báo khi người dùng nhấn nút Đăng ký
-    const toastId = toast.loading("🚗 Đang gửi đăng ký bãi xe...");
-
+    const loadingId = toast.loading("🚗 Đang gửi yêu cầu đăng ký...");
     try {
       const res = await parkingLotApi.register(payload);
-      console.log("✅ API Response:", res.data);
-
       if (res.status === 200 || res.status === 201) {
-        toast.dismiss(toastId);
+        toast.dismiss(loadingId);
         toast.success("🎉 Đăng ký bãi xe thành công!");
-        // Reset form
         setForm({
           name: "",
           streetAddress: "",
@@ -167,134 +152,145 @@ export default function RegisterLot() {
         setCapacities([]);
         setRules([]);
       } else {
-        toast.dismiss(toastId);
+        toast.dismiss(loadingId);
         toast.error("⚠️ Đăng ký thất bại. Vui lòng kiểm tra lại dữ liệu.");
       }
     } catch (error) {
       console.error("❌ Error submitting:", error);
-      toast.dismiss(toastId);
-      const errMsg =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        "❌ Đăng ký thất bại! Vui lòng thử lại.";
-      toast.error(errMsg);
+      toast.dismiss(loadingId);
+      toast.error("❌ Đăng ký thất bại! Vui lòng thử lại.");
     }
   };
 
   return (
-    <PartnerLayout>
-      <div className="p-6">
-        <h1 className="text-2xl font-bold text-indigo-700 mb-2">
+    <PartnerTopLayout>
+      <div className="w-full max-w-[95%] xl:max-w-10xl mx-auto">
+        <h1 className="text-2xl font-semibold text-gray-800 mb-2">
           Register New Parking Lot
         </h1>
         <p className="text-gray-500 mb-6">
           Điền đầy đủ thông tin bên dưới để đăng ký bãi đỗ xe mới.
         </p>
 
-        {/* 🏗️ FORM */}
         <form
           onSubmit={handleSubmit}
-          className="bg-white shadow-md rounded-2xl border border-gray-100 p-6 space-y-6"
+          className="bg-white shadow-md rounded-2xl border border-gray-100 p-8 space-y-8"
         >
           {/* Basic Info */}
           <section>
-            <h2 className="text-lg font-semibold text-indigo-700 mb-3">
+            <h2 className="text-lg font-semibold text-indigo-700 mb-4 flex items-center gap-2">
               🏙️ Basic Information
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input
-                type="text"
-                name="name"
-                placeholder="Parking Lot Name"
-                value={form.name}
-                onChange={handleChange}
-                required
-                className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400"
-              />
-              <input
-                type="text"
-                name="streetAddress"
-                placeholder="Street Address"
-                value={form.streetAddress}
-                onChange={handleChange}
-                required
-                className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400"
-              />
-              <input
-                type="text"
-                name="ward"
-                placeholder="Ward"
-                value={form.ward}
-                onChange={handleChange}
-                required
-                className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400"
-              />
-              <input
-                type="text"
-                name="city"
-                placeholder="City"
-                value={form.city}
-                onChange={handleChange}
-                required
-                className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400"
-              />
-              <input
-                type="number"
-                name="latitude"
-                placeholder="Latitude"
-                value={form.latitude}
-                onChange={handleChange}
-                required
-                className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400"
-              />
-              <input
-                type="number"
-                name="longitude"
-                placeholder="Longitude"
-                value={form.longitude}
-                onChange={handleChange}
-                required
-                className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400"
-              />
-              <input
-                type="number"
-                name="totalFloors"
-                placeholder="Total Floors"
-                value={form.totalFloors}
-                onChange={handleChange}
-                required
-                className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400"
-              />
-              <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {["name", "streetAddress", "ward", "city"].map((field) => (
+                <div key={field}>
+                  <label className="block text-sm font-medium text-gray-600 mb-1 capitalize">
+                    {field.replace(/([A-Z])/g, " $1")}
+                  </label>
+                  <input
+                    type="text"
+                    name={field}
+                    placeholder={`Enter ${field}`}
+                    value={form[field]}
+                    onChange={handleChange}
+                    required
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
+                  />
+                </div>
+              ))}
+
+              {/* Lat / Lng */}
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">
+                  Latitude
+                </label>
+                <input
+                  type="number"
+                  name="latitude"
+                  value={form.latitude}
+                  onChange={handleChange}
+                  placeholder="Latitude"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">
+                  Longitude
+                </label>
+                <input
+                  type="number"
+                  name="longitude"
+                  value={form.longitude}
+                  onChange={handleChange}
+                  placeholder="Longitude"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-center mt-5">
+              <button
+                type="button"
+                onClick={() => setShowMap(true)}
+                className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-6 py-2.5 rounded-full shadow hover:from-indigo-700 hover:to-indigo-600 transition-all"
+              >
+                📍 Chọn vị trí trên bản đồ
+              </button>
+            </div>
+
+            {/* Floor & Hours */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">
+                  Total Floors
+                </label>
+                <input
+                  type="number"
+                  name="totalFloors"
+                  value={form.totalFloors}
+                  onChange={handleChange}
+                  placeholder="Total Floors"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">
+                  Start (HH:mm:ss)
+                </label>
                 <input
                   type="text"
                   name="operatingHoursStart"
-                  placeholder="Start (HH:mm:ss)"
                   value={form.operatingHoursStart}
                   onChange={handleChange}
-                  required
-                  className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400"
+                  placeholder="07:00:00"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">
+                  End (HH:mm:ss)
+                </label>
                 <input
                   type="text"
                   name="operatingHoursEnd"
-                  placeholder="End (HH:mm:ss)"
                   value={form.operatingHoursEnd}
                   onChange={handleChange}
-                  required
-                  className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400"
+                  placeholder="22:00:00"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400"
                 />
               </div>
-              <label className="flex items-center gap-2 mt-2">
-                <input
-                  type="checkbox"
-                  name="is24Hour"
-                  checked={form.is24Hour}
-                  onChange={handleChange}
-                />
-                <span>24-hour Operation</span>
-              </label>
             </div>
+
+            <label className="flex items-center gap-2 mt-4">
+              <input
+                type="checkbox"
+                name="is24Hour"
+                checked={form.is24Hour}
+                onChange={handleChange}
+                className="w-4 h-4 accent-indigo-600"
+              />
+              <span className="text-gray-700 text-sm">24-hour Operation</span>
+            </label>
           </section>
 
           {/* Capacity Section */}
@@ -399,8 +395,8 @@ export default function RegisterLot() {
                     <tr>
                       <th className="px-3 py-2 border">Rule Name</th>
                       <th className="px-3 py-2 border">Vehicle Type</th>
-                      <th className="px-3 py-2 border">Base Rate</th>
-                      <th className="px-3 py-2 border">Free Minute</th>
+                      <th className="px-3 py-2 border">Step Rate</th>
+                      <th className="px-3 py-2 border">Step Minute</th>
                       <th className="px-3 py-2 border">Valid From</th>
                       <th className="px-3 py-2 border">Valid To</th>
                       <th className="px-3 py-2 border">Action</th>
@@ -414,8 +410,8 @@ export default function RegisterLot() {
                       >
                         <td className="border px-3 py-2">{r.ruleName}</td>
                         <td className="border px-3 py-2">{r.vehicleType}</td>
-                        <td className="border px-3 py-2">{r.baseRate}</td>
-                        <td className="border px-3 py-2">{r.freeMinute}</td>
+                        <td className="border px-3 py-2">{r.stepRate}</td>
+                        <td className="border px-3 py-2">{r.stepMinute}</td>
                         <td className="border px-3 py-2">{r.validFrom}</td>
                         <td className="border px-3 py-2">{r.validTo}</td>
                         <td className="border px-3 py-2 flex justify-center gap-3">
@@ -473,7 +469,33 @@ export default function RegisterLot() {
         />
       </Modal>
 
-      <RuleDetailModal rule={selectedRule} onClose={() => setSelectedRule(null)} />
-    </PartnerLayout>
+      <RuleDetailModal
+        rule={selectedRule}
+        onClose={() => setSelectedRule(null)}
+      />
+
+      {/* Map Modal */}
+      <Modal isOpen={showMap} onClose={() => setShowMap(false)}>
+        <div className="p-4 w-[700px] max-w-full">
+          <h2 className="text-lg font-semibold mb-3 text-indigo-700">
+            📍 Chọn vị trí bãi đỗ xe
+          </h2>
+          <p className="text-gray-500 text-sm mb-2">
+            Bấm vào vị trí trên bản đồ để lấy tọa độ.
+          </p>
+          <LocationPickerMap
+            onSelect={(latlng) => {
+              setForm({
+                ...form,
+                latitude: latlng.lat.toFixed(6),
+                longitude: latlng.lng.toFixed(6),
+              });
+              toast.success("✅ Đã chọn vị trí!");
+              setShowMap(false);
+            }}
+          />
+        </div>
+      </Modal>
+    </PartnerTopLayout>
   );
 }

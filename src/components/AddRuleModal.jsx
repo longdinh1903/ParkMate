@@ -5,12 +5,10 @@ export default function AddRuleModal({ onSave, onClose }) {
   const [rule, setRule] = useState({
     ruleName: "",
     vehicleType: "",
-    baseRate: "",
-    depositFee: "",
+    stepRate: "",
+    stepMinute: "",
     initialCharge: "",
     initialDurationMinute: "",
-    freeMinute: "",
-    gracePeriodMinute: "",
     validFrom: "",
     validTo: "",
     areaId: "",
@@ -24,22 +22,27 @@ export default function AddRuleModal({ onSave, onClose }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // validate cơ bản
-    if (!rule.ruleName || !rule.vehicleType || !rule.baseRate) {
-      toast.error("⚠️ Hãy nhập đủ Rule Name, Vehicle Type và Base Rate!");
+    // ✅ validate cơ bản
+    if (
+      !rule.ruleName ||
+      !rule.vehicleType ||
+      !rule.stepRate ||
+      !rule.stepMinute
+    ) {
+      toast.error(
+        "⚠️ Hãy nhập đủ Rule Name, Vehicle Type, Step Rate và Step Minute!"
+      );
       return;
     }
 
-    // format & convert type
+    // ✅ Chuẩn hóa dữ liệu
     const cleanedRule = {
       ...rule,
-      baseRate: parseInt(rule.baseRate),
-      depositFee: parseInt(rule.depositFee) || 0,
+      stepRate: parseInt(rule.stepRate) || 0,
+      stepMinute: parseInt(rule.stepMinute) || 0,
       initialCharge: parseInt(rule.initialCharge) || 0,
       initialDurationMinute: parseInt(rule.initialDurationMinute) || 0,
-      freeMinute: parseInt(rule.freeMinute) || 0,
-      gracePeriodMinute: parseInt(rule.gracePeriodMinute) || 0,
-      areaId: rule.areaId ? parseInt(rule.areaId) : 1, // mặc định 1 nếu chưa chọn
+      areaId: rule.areaId ? parseInt(rule.areaId) : 1, // mặc định 1
     };
 
     onSave(cleanedRule);
@@ -83,38 +86,40 @@ export default function AddRuleModal({ onSave, onClose }) {
             <option value="CAR_UP_TO_9_SEATS">Car (≤9 seats)</option>
             <option value="MOTORBIKE">MOTORBIKE</option>
             <option value="BIKE">BIKE</option>
-            <option value="OTHER">Other</option>
+            <option value="OTHER">OTHER</option>
           </select>
         </div>
       </div>
 
-      {/* Rates */}
+      {/* Step Config */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="text-sm font-medium">Base Rate (VND) *</label>
+          <label className="text-sm font-medium">Step Rate (VND) *</label>
           <input
             type="number"
-            name="baseRate"
-            value={rule.baseRate}
+            name="stepRate"
+            value={rule.stepRate}
             onChange={handleChange}
-            required
             placeholder="e.g. 15000"
+            required
             className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
           />
         </div>
         <div>
-          <label className="text-sm font-medium">Deposit Fee (VND)</label>
+          <label className="text-sm font-medium">Step Minute *</label>
           <input
             type="number"
-            name="depositFee"
-            value={rule.depositFee}
+            name="stepMinute"
+            value={rule.stepMinute}
             onChange={handleChange}
-            placeholder="e.g. 50000"
+            placeholder="e.g. 10"
+            required
             className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
           />
         </div>
       </div>
 
+      {/* Initial Charge */}
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="text-sm font-medium">Initial Charge (VND)</label>
@@ -128,40 +133,15 @@ export default function AddRuleModal({ onSave, onClose }) {
           />
         </div>
         <div>
-          <label className="text-sm font-medium">Initial Duration (minutes)</label>
+          <label className="text-sm font-medium">
+            Initial Duration (minutes)
+          </label>
           <input
             type="number"
             name="initialDurationMinute"
             value={rule.initialDurationMinute}
             onChange={handleChange}
             placeholder="e.g. 30"
-            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
-          />
-        </div>
-      </div>
-
-      {/* Time Config */}
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="text-sm font-medium">Free Minute *</label>
-          <input
-            type="number"
-            name="freeMinute"
-            value={rule.freeMinute}
-            onChange={handleChange}
-            placeholder="e.g. 15"
-            required
-            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
-          />
-        </div>
-        <div>
-          <label className="text-sm font-medium">Grace Period (minutes)</label>
-          <input
-            type="number"
-            name="gracePeriodMinute"
-            value={rule.gracePeriodMinute}
-            onChange={handleChange}
-            placeholder="e.g. 10"
             className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
           />
         </div>
@@ -187,25 +167,24 @@ export default function AddRuleModal({ onSave, onClose }) {
             name="validTo"
             value={rule.validTo}
             onChange={handleChange}
-            required
+            placeholder="(Optional)"
             className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
           />
         </div>
       </div>
 
-      {/* Area */}
-      {/* <div>
-        <label className="text-sm font-medium">Area ID *</label>
+      {/* Area ID */}
+      <div>
+        <label className="text-sm font-medium">Area ID</label>
         <input
           type="number"
           name="areaId"
           value={rule.areaId}
           onChange={handleChange}
           placeholder="e.g. 1"
-          required
           className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
         />
-      </div> */}
+      </div>
 
       {/* Buttons */}
       <div className="flex justify-end gap-3 pt-4 border-t">

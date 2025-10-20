@@ -8,10 +8,12 @@ import {
   MapPinIcon,
   PencilSquareIcon,
   TrashIcon,
+  EyeIcon,
 } from "@heroicons/react/24/outline";
 import { showInfo, showSuccess, showError } from "../utils/toastUtils.jsx";
 import ConfirmModal from "../components/ConfirmModal.jsx";
 import EditParkingLotModal from "../components/EditParkingLotModal.jsx";
+import ViewParkingLotReadOnlyModal from "../components/ViewParkingLotReadOnlyModal.jsx"; // ✅ modal mới
 
 export default function AdminParkingLots() {
   const [lots, setLots] = useState([]);
@@ -23,6 +25,7 @@ export default function AdminParkingLots() {
   const [loading, setLoading] = useState(false);
   const [confirmingLot, setConfirmingLot] = useState(null);
   const [editingLot, setEditingLot] = useState(null);
+  const [viewingLot, setViewingLot] = useState(null); // ✅ thêm state để xem chi tiết
 
   // ✅ Fetch parking lots
   const fetchLots = async () => {
@@ -122,6 +125,11 @@ export default function AdminParkingLots() {
   // ✅ Edit
   const handleEdit = (lot) => {
     setEditingLot(lot);
+  };
+
+  // ✅ View
+  const handleView = (lot) => {
+    setViewingLot(lot);
   };
 
   // ✅ Import Excel
@@ -237,12 +245,7 @@ export default function AdminParkingLots() {
           <label className="flex items-center hover:bg-yellow-200 font-medium px-4 py-2 rounded-lg border transition cursor-pointer">
             <ArrowUpTrayIcon className="w-5 h-5 text-yellow-700" />
             Import Excel
-            <input
-              type="file"
-              accept=".xlsx"
-              className="hidden"
-              onChange={handleImport}
-            />
+            <input type="file" accept=".xlsx" className="hidden" onChange={handleImport} />
           </label>
 
           {/* ✅ Export Excel */}
@@ -281,10 +284,7 @@ export default function AdminParkingLots() {
               </tr>
             ) : filtered.length > 0 ? (
               filtered.map((lot, idx) => (
-                <tr
-                  key={idx}
-                  className="border-t border-gray-100 hover:bg-gray-50 transition-all"
-                >
+                <tr key={idx} className="border-t border-gray-100 hover:bg-gray-50 transition-all">
                   <td className="px-6 py-3 text-gray-500">{page * size + idx + 1}</td>
                   <td className="px-6 py-3 font-medium">{lot.name}</td>
                   <td className="px-6 py-3">{lot.city}</td>
@@ -305,6 +305,16 @@ export default function AdminParkingLots() {
                   {/* ✅ Actions */}
                   <td className="px-6 py-3 text-center">
                     <div className="flex justify-center items-center gap-3">
+                      {/* 👁 View */}
+                      <button
+                        title="View"
+                        onClick={() => handleView(lot)}
+                        className="p-2 rounded-full hover:bg-blue-100 transition cursor-pointer"
+                      >
+                        <EyeIcon className="w-5 h-5 text-blue-600" />
+                      </button>
+
+                      {/* ✏ Edit */}
                       <button
                         title="Edit"
                         onClick={() => handleEdit(lot)}
@@ -312,6 +322,8 @@ export default function AdminParkingLots() {
                       >
                         <PencilSquareIcon className="w-5 h-5" />
                       </button>
+
+                      {/* 🗑 Delete */}
                       <button
                         title="Delete"
                         onClick={() => handleDelete(lot)}
@@ -370,8 +382,14 @@ export default function AdminParkingLots() {
       <EditParkingLotModal
         open={!!editingLot}
         lot={editingLot}
-        onClose={() => setEditingLot(null)}
+        onClose={() => setEditingLot(null)} 
         onUpdated={fetchLots}
+      />
+
+      {/* ✅ Popup View */}
+      <ViewParkingLotReadOnlyModal
+        lot={viewingLot}
+        onClose={() => setViewingLot(null)}
       />
     </AdminLayout>
   );
