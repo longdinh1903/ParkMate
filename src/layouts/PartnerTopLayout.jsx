@@ -2,10 +2,11 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
+import { Toaster } from "react-hot-toast";
 
 export default function PartnerTopLayout({ children }) {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <>
       {/* 🔹 Navbar cố định trên cùng */}
       <header className="fixed top-0 left-0 w-full z-50 bg-indigo-600 text-white shadow-md h-16 flex items-center px-8">
         {/* Logo */}
@@ -67,13 +68,23 @@ export default function PartnerTopLayout({ children }) {
         </div>
       </header>
 
-      {/* 🔹 Nội dung cuộn riêng biệt */}
-      <main
-        className="flex-1 overflow-y-auto pt-20 px-8 pb-8"
-        style={{ height: "100vh" }}
-      >
+      {/* 🔹 Nội dung - không có overflow riêng, scroll toàn trang */}
+      <main className="pt-16 bg-gray-50">
         {children}
+        
+        {/* Toaster Global */}
+        <Toaster
+          position="top-right"
+          reverseOrder={false}
+          toastOptions={{
+            style: {
+              fontFamily: "Inter, sans-serif",
+              borderRadius: "10px",
+              fontSize: "14px",
+            },
+          }}
+        />
       </main>
-    </div>
+    </>
   );
 }

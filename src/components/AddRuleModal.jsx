@@ -46,7 +46,7 @@ export default function AddRuleModal({ onSave, onClose }) {
     };
 
     onSave(cleanedRule);
-    toast.success("✅ Đã thêm Pricing Rule!");
+    toast.success("Đã thêm Pricing Rule!");
     onClose();
   };
 

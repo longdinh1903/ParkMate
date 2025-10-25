@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import parkingLotApi from "../api/parkingLotApi";
-import Modal from "../components/Modal";
+import floorApi from "../api/floorApi";
 import ConfirmModal from "../components/ConfirmModal";
 import ViewParkingLotModal from "../components/ViewParkingLotModal";
 import { showSuccess, showError } from "../utils/toastUtils.jsx";
@@ -13,6 +13,7 @@ import {
 
 export default function AdminParkingLotRequests() {
   const [requests, setRequests] = useState([]);
+  const [floorCounts, setFloorCounts] = useState({}); // Store drawn floor counts
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [page, setPage] = useState(0);
@@ -35,8 +36,45 @@ export default function AdminParkingLotRequests() {
         sortOrder: "desc",
       });
       const data = res.data?.data;
-      setRequests(Array.isArray(data?.content) ? data.content : data || []);
+      const lots = Array.isArray(data?.content) ? data.content : data || [];
+      setRequests(lots);
       setTotalPages(data?.totalPages || 1);
+
+      // Initialize floor counts with 'undefined' for loading state
+      const initialCounts = {};
+      lots.forEach(lot => {
+        initialCounts[lot.id] = undefined;
+      });
+      setFloorCounts(initialCounts);
+
+      // Fetch floor counts for each parking lot
+      const counts = {};
+      await Promise.all(
+        lots.map(async (lot) => {
+          try {
+            console.log(`🔍 Fetching floors for lot ID: ${lot.id}, Name: ${lot.name}`);
+            const floorsRes = await floorApi.getByLotId(lot.id);
+            console.log(`📦 Raw response for ${lot.name}:`, floorsRes);
+            
+            // Try multiple ways to extract floors array
+            const floors = floorsRes.data?.data?.content || 
+                          floorsRes.data?.data || 
+                          floorsRes.data?.content ||
+                          floorsRes.data || 
+                          [];
+            
+            const floorCount = Array.isArray(floors) ? floors.length : 0;
+            counts[lot.id] = floorCount;
+            console.log(`✅ Lot "${lot.name}": ${floorCount} floors drawn`, floors);
+          } catch (error) {
+            console.error(`❌ Error fetching floors for ${lot.name}:`, error);
+            console.error(`   Error details:`, error.response?.data);
+            counts[lot.id] = 0;
+          }
+        })
+      );
+      console.log("📊 Final floor counts:", counts);
+      setFloorCounts(counts);
     } catch (err) {
       console.error("❌ Error fetching parking lots:", err);
       setRequests([]);
@@ -47,6 +85,7 @@ export default function AdminParkingLotRequests() {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   // ✅ View details popup
@@ -302,7 +341,34 @@ export default function AdminParkingLotRequests() {
                   <td className="px-6 py-3">{lot.streetAddress}</td>
                   <td className="px-6 py-3">{lot.ward}</td>
                   <td className="px-6 py-3">{lot.city}</td>
-                  <td className="px-6 py-3">{lot.totalFloors}</td>
+                  <td className="px-6 py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-600 font-medium">{lot.totalFloors} total</span>
+                      <span className="text-gray-300">•</span>
+                      {floorCounts[lot.id] !== undefined ? (
+                        <span
+                          className={`px-2.5 py-1 rounded-full text-xs font-bold ${
+                            floorCounts[lot.id] === 0
+                              ? "bg-gray-100 text-gray-600"
+                              : floorCounts[lot.id] >= lot.totalFloors
+                              ? "bg-green-100 text-green-700"
+                              : "bg-amber-100 text-amber-700"
+                          }`}
+                          title={`${floorCounts[lot.id]} floor(s) drawn out of ${lot.totalFloors}`}
+                        >
+                          {floorCounts[lot.id] === 0
+                            ? "❌ Not drawn"
+                            : floorCounts[lot.id] >= lot.totalFloors
+                            ? `✅ ${floorCounts[lot.id]} drawn`
+                            : `⚠️ ${floorCounts[lot.id]}/${lot.totalFloors} drawn`}
+                        </span>
+                      ) : (
+                        <span className="px-2.5 py-1 bg-gray-50 text-gray-400 text-xs rounded-full animate-pulse">
+                          Loading...
+                        </span>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-6 py-3">
                     {lot.is24Hour
                       ? "24-hour Open"
@@ -377,16 +443,15 @@ export default function AdminParkingLotRequests() {
         />
       )}
 
-      {/* View Lot Modal */}
-      <Modal isOpen={!!viewingLot} onClose={() => setViewingLot(null)}>
-        {viewingLot && (
-          <ViewParkingLotModal
-            lot={viewingLot}
-            onClose={() => setViewingLot(null)}
-            onActionDone={fetchData}
-          />
-        )}
-      </Modal>
+      {/* View Lot Modal (render modal component directly to avoid nested overlays) */}
+      {viewingLot && (
+        <ViewParkingLotModal
+          lot={viewingLot}
+          onClose={() => setViewingLot(null)}
+          onActionDone={fetchData}
+          showDrawMapButton={true}
+        />
+      )}
     </>
   );
 }

@@ -66,22 +66,22 @@ export default function RegisterLot() {
       vehicleType: "",
       supportElectricVehicle: false,
     });
-    toast.success("✅ Đã thêm Capacity!");
+    toast.success("Đã thêm Capacity!");
   };
 
   const handleRemoveCapacity = (index) => {
     setCapacities(capacities.filter((_, i) => i !== index));
-    toast("🗑️ Đã xóa Capacity!");
+    toast("Đã xóa Capacity!");
   };
 
   const handleAddRule = (rule) => {
     setRules([...rules, rule]);
-    toast.success("✅ Đã thêm Pricing Rule!");
+    toast.success("Đã thêm Pricing Rule!");
   };
 
   const handleRemoveRule = (index) => {
     setRules(rules.filter((_, i) => i !== index));
-    toast("🗑️ Đã xóa Pricing Rule!");
+    toast("Đã xóa Pricing Rule!");
   };
 
   const handleSubmit = async (e) => {
@@ -164,304 +164,377 @@ export default function RegisterLot() {
 
   return (
     <PartnerTopLayout>
-      <div className="w-full max-w-[95%] xl:max-w-10xl mx-auto">
-        <h1 className="text-2xl font-semibold text-gray-800 mb-2">
-          Register New Parking Lot
-        </h1>
-        <p className="text-gray-500 mb-6">
-          Điền đầy đủ thông tin bên dưới để đăng ký bãi đỗ xe mới.
-        </p>
+      {/* Container với padding cho header và footer cố định */}
+      <div className="min-h-screen pb-28 bg-gradient-to-br from-gray-50 via-indigo-50/30 to-gray-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Header Section */}
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
+                <i className="ri-parking-box-fill text-2xl text-white"></i>
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Register New Parking Lot
+                </h1>
+                <p className="text-gray-600 text-sm mt-1">
+                  Điền đầy đủ thông tin bên dưới để đăng ký bãi đỗ xe mới
+                </p>
+              </div>
+            </div>
+          </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white shadow-md rounded-2xl border border-gray-100 p-8 space-y-8"
-        >
-          {/* Basic Info */}
-          <section>
-            <h2 className="text-lg font-semibold text-indigo-700 mb-4 flex items-center gap-2">
-              🏙️ Basic Information
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {["name", "streetAddress", "ward", "city"].map((field) => (
-                <div key={field}>
-                  <label className="block text-sm font-medium text-gray-600 mb-1 capitalize">
-                    {field.replace(/([A-Z])/g, " $1")}
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white shadow-xl rounded-2xl border border-gray-200 overflow-hidden"
+          >
+            {/* ---- BASIC INFORMATION ---- */}
+            <section className="p-8 border-b border-gray-100">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                  <i className="ri-building-2-fill text-indigo-600 text-xl"></i>
+                </div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Basic Information
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {["name", "streetAddress", "ward", "city"].map((field) => (
+                  <div key={field}>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2 capitalize">
+                      {field.replace(/([A-Z])/g, " $1")}
+                      <span className="text-red-500 ml-1">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name={field}
+                      placeholder={`Enter ${field}`}
+                      value={form[field]}
+                      onChange={handleChange}
+                      required
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                    />
+                  </div>
+                ))}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Latitude
+                    <span className="text-red-500 ml-1">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="latitude"
+                    value={form.latitude}
+                    onChange={handleChange}
+                    placeholder="Latitude"
+                    step="any"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Longitude
+                    <span className="text-red-500 ml-1">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="longitude"
+                    value={form.longitude}
+                    onChange={handleChange}
+                    placeholder="Longitude"
+                    step="any"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-center my-6">
+                <button
+                  type="button"
+                  onClick={() => setShowMap(true)}
+                  className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-8 py-3 rounded-xl shadow-lg hover:shadow-xl hover:from-indigo-700 hover:to-indigo-600 transition-all transform hover:-translate-y-0.5"
+                >
+                  <i className="ri-map-pin-line text-xl"></i>
+                  <span className="font-medium">Chọn vị trí trên bản đồ</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Total Floors
+                  </label>
+                  <input
+                    type="number"
+                    name="totalFloors"
+                    value={form.totalFloors}
+                    onChange={handleChange}
+                    placeholder="e.g., 3"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Operating Hours Start
                   </label>
                   <input
                     type="text"
-                    name={field}
-                    placeholder={`Enter ${field}`}
-                    value={form[field]}
+                    name="operatingHoursStart"
+                    value={form.operatingHoursStart}
                     onChange={handleChange}
-                    required
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
+                    placeholder="07:00:00"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
                   />
                 </div>
-              ))}
-
-              {/* Lat / Lng */}
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">
-                  Latitude
-                </label>
-                <input
-                  type="number"
-                  name="latitude"
-                  value={form.latitude}
-                  onChange={handleChange}
-                  placeholder="Latitude"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400"
-                />
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Operating Hours End
+                  </label>
+                  <input
+                    type="text"
+                    name="operatingHoursEnd"
+                    value={form.operatingHoursEnd}
+                    onChange={handleChange}
+                    placeholder="22:00:00"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">
-                  Longitude
-                </label>
-                <input
-                  type="number"
-                  name="longitude"
-                  value={form.longitude}
-                  onChange={handleChange}
-                  placeholder="Longitude"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400"
-                />
-              </div>
-            </div>
 
-            <div className="flex justify-center mt-5">
-              <button
-                type="button"
-                onClick={() => setShowMap(true)}
-                className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-6 py-2.5 rounded-full shadow hover:from-indigo-700 hover:to-indigo-600 transition-all"
-              >
-                📍 Chọn vị trí trên bản đồ
-              </button>
-            </div>
-
-            {/* Floor & Hours */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">
-                  Total Floors
-                </label>
-                <input
-                  type="number"
-                  name="totalFloors"
-                  value={form.totalFloors}
-                  onChange={handleChange}
-                  placeholder="Total Floors"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">
-                  Start (HH:mm:ss)
-                </label>
-                <input
-                  type="text"
-                  name="operatingHoursStart"
-                  value={form.operatingHoursStart}
-                  onChange={handleChange}
-                  placeholder="07:00:00"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">
-                  End (HH:mm:ss)
-                </label>
-                <input
-                  type="text"
-                  name="operatingHoursEnd"
-                  value={form.operatingHoursEnd}
-                  onChange={handleChange}
-                  placeholder="22:00:00"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400"
-                />
-              </div>
-            </div>
-
-            <label className="flex items-center gap-2 mt-4">
-              <input
-                type="checkbox"
-                name="is24Hour"
-                checked={form.is24Hour}
-                onChange={handleChange}
-                className="w-4 h-4 accent-indigo-600"
-              />
-              <span className="text-gray-700 text-sm">24-hour Operation</span>
-            </label>
-          </section>
-
-          {/* Capacity Section */}
-          <section>
-            <h2 className="text-lg font-semibold text-indigo-700 mb-3">
-              🚗 Capacity Configuration
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
-              <input
-                type="number"
-                name="capacity"
-                placeholder="Capacity"
-                value={capacityForm.capacity}
-                onChange={handleCapacityChange}
-                className="border px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400"
-              />
-              <select
-                name="vehicleType"
-                value={capacityForm.vehicleType}
-                onChange={handleCapacityChange}
-                className="border px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400"
-              >
-                <option value="">Select Vehicle Type</option>
-                <option value="CAR_UP_TO_9_SEATS">Car (≤9 seats)</option>
-                <option value="MOTORBIKE">Motorbike</option>
-                <option value="BIKE">Bike</option>
-                <option value="OTHER">Other</option>
-              </select>
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-3 mt-6 p-4 bg-indigo-50 rounded-xl cursor-pointer hover:bg-indigo-100 transition-all">
                 <input
                   type="checkbox"
-                  name="supportElectricVehicle"
-                  checked={capacityForm.supportElectricVehicle}
-                  onChange={handleCapacityChange}
+                  name="is24Hour"
+                  checked={form.is24Hour}
+                  onChange={handleChange}
+                  className="w-5 h-5 accent-indigo-600 cursor-pointer"
                 />
-                Support EV
+                <div className="flex items-center gap-2">
+                  <i className="ri-time-line text-indigo-600 text-lg"></i>
+                  <span className="text-gray-800 font-medium">24-hour Operation</span>
+                </div>
               </label>
-            </div>
-            <button
-              type="button"
-              onClick={handleAddCapacity}
-              className="mt-3 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
-            >
-              + Add Capacity
-            </button>
+            </section>
 
-            {capacities.length > 0 && (
-              <div className="mt-4 overflow-x-auto">
-                <table className="min-w-full text-sm border border-gray-200 rounded-lg">
-                  <thead className="bg-gray-100 text-gray-700 text-center">
-                    <tr>
-                      <th className="px-3 py-2 border">Vehicle Type</th>
-                      <th className="px-3 py-2 border">Capacity</th>
-                      <th className="px-3 py-2 border">EV</th>
-                      <th className="px-3 py-2 border">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {capacities.map((c, i) => (
-                      <tr key={i} className="text-center hover:bg-gray-50">
-                        <td className="border px-3 py-2">{c.vehicleType}</td>
-                        <td className="border px-3 py-2">{c.capacity}</td>
-                        <td className="border px-3 py-2">
-                          {c.supportElectricVehicle ? "Yes" : "No"}
-                        </td>
-                        <td className="border px-3 py-2">
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveCapacity(i)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            🗑
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            {/* ---- CAPACITY ---- */}
+            <section className="p-8 border-b border-gray-100 bg-gray-50">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                  <i className="ri-car-fill text-green-600 text-xl"></i>
+                </div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Capacity Configuration
+                </h2>
               </div>
-            )}
-          </section>
-
-          {/* Pricing Rules */}
-          <section>
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="text-lg font-semibold text-indigo-700">
-                💰 Pricing Rules
-              </h2>
-              <button
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end bg-white p-4 rounded-xl border border-gray-200">
+                <div className="md:col-span-1">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Capacity
+                  </label>
+                  <input
+                  type="number"
+                  name="capacity"
+                  placeholder="e.g., 50"
+                  value={capacityForm.capacity}
+                  onChange={handleCapacityChange}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none"
+                />
+                </div>
+                <div className="md:col-span-1">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Vehicle Type
+                  </label>
+                  <select
+                  name="vehicleType"
+                  value={capacityForm.vehicleType}
+                  onChange={handleCapacityChange}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none"
+                >
+                  <option value="">Select Type</option>
+                  <option value="CAR_UP_TO_9_SEATS">🚗 Car (≤9 seats)</option>
+                  <option value="MOTORBIKE">🏍️ Motorbike</option>
+                  <option value="BIKE">🚲 Bike</option>
+                  <option value="OTHER">📦 Other</option>
+                </select>
+                </div>
+                <div className="md:col-span-1">
+                  <label className="flex items-center gap-2 p-3 bg-green-50 rounded-lg cursor-pointer hover:bg-green-100 transition-all">
+                  <input
+                    type="checkbox"
+                    name="supportElectricVehicle"
+                    checked={capacityForm.supportElectricVehicle}
+                    onChange={handleCapacityChange}
+                    className="w-5 h-5 accent-green-600 cursor-pointer"
+                  />
+                  <span className="text-sm font-medium text-gray-700">⚡ Support EV</span>
+                </label>
+                </div>
+                <div className="md:col-span-1">
+                  <button
                 type="button"
-                onClick={() => setShowRuleModal(true)}
-                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+                onClick={handleAddCapacity}
+                className="w-full bg-gradient-to-r from-green-600 to-green-500 text-white px-6 py-3 rounded-lg hover:from-green-700 hover:to-green-600 transition-all shadow-md hover:shadow-lg font-medium flex items-center justify-center gap-2"
               >
-                + Add Rule
+                <i className="ri-add-line text-xl"></i>
+                Add
               </button>
-            </div>
-
-            {rules.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="min-w-full text-sm border border-gray-200 rounded-lg">
-                  <thead className="bg-gray-100 text-gray-700 text-center">
-                    <tr>
-                      <th className="px-3 py-2 border">Rule Name</th>
-                      <th className="px-3 py-2 border">Vehicle Type</th>
-                      <th className="px-3 py-2 border">Step Rate</th>
-                      <th className="px-3 py-2 border">Step Minute</th>
-                      <th className="px-3 py-2 border">Valid From</th>
-                      <th className="px-3 py-2 border">Valid To</th>
-                      <th className="px-3 py-2 border">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rules.map((r, idx) => (
-                      <tr
-                        key={idx}
-                        className="text-center hover:bg-gray-50 transition"
-                      >
-                        <td className="border px-3 py-2">{r.ruleName}</td>
-                        <td className="border px-3 py-2">{r.vehicleType}</td>
-                        <td className="border px-3 py-2">{r.stepRate}</td>
-                        <td className="border px-3 py-2">{r.stepMinute}</td>
-                        <td className="border px-3 py-2">{r.validFrom}</td>
-                        <td className="border px-3 py-2">{r.validTo}</td>
-                        <td className="border px-3 py-2 flex justify-center gap-3">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedRule(r)}
-                            className="text-indigo-600 hover:underline"
-                          >
-                            View
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveRule(idx)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            🗑
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                </div>
               </div>
-            ) : (
-              <p className="text-gray-500 italic text-sm">
-                No pricing rules added yet.
-              </p>
-            )}
-          </section>
 
-          {/* Submit */}
-          <div className="flex justify-end gap-3 pt-4 border-t">
+              {capacities.length > 0 && (
+                <div className="mt-6 overflow-hidden rounded-xl border border-gray-200 shadow-sm">
+                  <table className="min-w-full">
+                    <thead className="bg-gradient-to-r from-gray-100 to-gray-50">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">Vehicle Type</th>
+                        <th className="px-6 py-4 text-center text-sm font-bold text-gray-700">Capacity</th>
+                        <th className="px-6 py-4 text-center text-sm font-bold text-gray-700">EV Support</th>
+                        <th className="px-6 py-4 text-center text-sm font-bold text-gray-700">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {capacities.map((c, i) => (
+                        <tr key={i} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-6 py-4 text-sm text-gray-900 font-medium">{c.vehicleType}</td>
+                          <td className="px-6 py-4 text-center text-sm text-gray-700">{c.capacity}</td>
+                          <td className="px-6 py-4 text-center">
+                            {c.supportElectricVehicle ? (
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                <i className="ri-flashlight-fill mr-1"></i> Yes
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                No
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveCapacity(i)}
+                              className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-all"
+                            >
+                              <i className="ri-delete-bin-line mr-1"></i> Remove
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
+
+            {/* ---- PRICING RULES ---- */}
+            <section className="p-8">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                    <i className="ri-money-dollar-circle-fill text-yellow-600 text-xl"></i>
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-900">
+                    Pricing Rules
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowRuleModal(true)}
+                  className="bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-6 py-2.5 rounded-xl hover:from-indigo-700 hover:to-indigo-600 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2"
+                >
+                  <i className="ri-add-line text-lg"></i>
+                  Add Rule
+                </button>
+              </div>
+
+              {rules.length > 0 ? (
+                <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
+                  <table className="min-w-full">
+                    <thead className="bg-gradient-to-r from-gray-100 to-gray-50">
+                      <tr>
+                        <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase">Rule Name</th>
+                        <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase">Vehicle Type</th>
+                        <th className="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase">Step Rate</th>
+                        <th className="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase">Step Min</th>
+                        <th className="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase">Valid From</th>
+                        <th className="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase">Valid To</th>
+                        <th className="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {rules.map((r, idx) => (
+                        <tr
+                          key={idx}
+                          className="hover:bg-gray-50 transition-colors"
+                        >
+                          <td className="px-4 py-4 text-sm font-medium text-gray-900">{r.ruleName}</td>
+                          <td className="px-4 py-4 text-sm text-gray-700">{r.vehicleType}</td>
+                          <td className="px-4 py-4 text-center text-sm text-gray-700">{r.stepRate}</td>
+                          <td className="px-4 py-4 text-center text-sm text-gray-700">{r.stepMinute}</td>
+                          <td className="px-4 py-4 text-center text-sm text-gray-600">{r.validFrom || '-'}</td>
+                          <td className="px-4 py-4 text-center text-sm text-gray-600">{r.validTo || '-'}</td>
+                          <td className="px-4 py-4 text-center">
+                            <div className="flex items-center justify-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setSelectedRule(r)}
+                                className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium text-indigo-600 hover:bg-indigo-50 transition-all"
+                              >
+                                <i className="ri-eye-line mr-1"></i> View
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveRule(idx)}
+                                className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-all"
+                              >
+                                <i className="ri-delete-bin-line mr-1"></i> Remove
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+                  <i className="ri-file-list-line text-5xl text-gray-400 mb-3"></i>
+                  <p className="text-gray-500 font-medium">No pricing rules added yet.</p>
+                  <p className="text-gray-400 text-sm mt-1">Click "Add Rule" to create your first pricing rule.</p>
+                </div>
+              )}
+            </section>
+          </form>
+        </div>
+      </div>
+
+      {/* ==== Footer cố định toàn trang ==== */}
+      <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-2xl py-4 px-6 z-50 backdrop-blur-sm bg-white/95">
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
+          <div className="text-sm text-gray-600">
+            <i className="ri-information-line mr-1"></i>
+            Fill all required fields before submitting
+          </div>
+          <div className="flex gap-3">
             <button
               type="button"
-              className="px-6 py-2 border rounded-lg hover:bg-gray-100 transition"
+              className="px-8 py-2.5 border-2 border-gray-300 rounded-xl hover:bg-gray-50 transition-all font-medium text-gray-700 hover:border-gray-400"
               onClick={() => toast("🚫 Đã hủy đăng ký")}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition"
+              onClick={handleSubmit}
+              className="px-8 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white rounded-xl hover:from-indigo-700 hover:to-indigo-600 transition-all font-medium shadow-lg hover:shadow-xl flex items-center gap-2"
             >
+              <i className="ri-send-plane-fill"></i>
               Submit Registration
             </button>
           </div>
-        </form>
-      </div>
+        </div>
+      </footer>
 
-      {/* Modals */}
+      {/* ---- MODALS ---- */}
       <Modal isOpen={showRuleModal} onClose={() => setShowRuleModal(false)}>
         <AddRuleModal
           onSave={handleAddRule}
@@ -474,7 +547,6 @@ export default function RegisterLot() {
         onClose={() => setSelectedRule(null)}
       />
 
-      {/* Map Modal */}
       <Modal isOpen={showMap} onClose={() => setShowMap(false)}>
         <div className="p-4 w-[700px] max-w-full">
           <h2 className="text-lg font-semibold mb-3 text-indigo-700">
@@ -490,7 +562,7 @@ export default function RegisterLot() {
                 latitude: latlng.lat.toFixed(6),
                 longitude: latlng.lng.toFixed(6),
               });
-              toast.success("✅ Đã chọn vị trí!");
+              toast.success("Đã chọn vị trí!");
               setShowMap(false);
             }}
           />

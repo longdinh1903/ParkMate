@@ -1,0 +1,1012 @@
+import React, { useState, useRef, useCallback, useEffect } from "react";
+import { Stage, Layer, Rect, Text, Group, Line, Transformer } from "react-konva";
+import toast from "react-hot-toast";
+import floorApi from "../api/floorApi";
+import areaApi from "../api/areaApi";
+
+export default function ParkingLotMapDrawer({ lot, onClose }) {
+  const [currentFloor, setCurrentFloor] = useState(1);
+  const [floors, setFloors] = useState([
+    {
+      floorNumber: 1,
+      floorName: "Floor 1",
+      areas: [],
+      strokes: [],
+    },
+  ]);
+
+  const [mode, setMode] = useState("draw"); // "draw" | "erase" | "area"
+  const [selectedAreaId, setSelectedAreaId] = useState(null);
+  const [selectedSpotId, setSelectedSpotId] = useState(null);
+  const [brushSize, setBrushSize] = useState(3);
+  const [brushColor, setBrushColor] = useState("#1e3a8a");
+  const [eraseSize, setEraseSize] = useState(20);
+
+  const isDrawing = useRef(false);
+  const isCreatingArea = useRef(false);
+  const areaStartPos = useRef(null);
+  const stageRef = useRef(null);
+  const transformerRef = useRef(null);
+  const selectedAreaRef = useRef(null);
+
+  // Get current floor data
+  const currentFloorData =
+    floors.find((f) => f.floorNumber === currentFloor) || floors[0];
+  const areas = currentFloorData?.areas || [];
+  const strokes = currentFloorData?.strokes || [];
+
+  // Update current floor
+  const updateCurrentFloor = useCallback(
+    (updates) => {
+      setFloors((prev) =>
+        prev.map((f) =>
+          f.floorNumber === currentFloor ? { ...f, ...updates } : f
+        )
+      );
+    },
+    [currentFloor]
+  );
+
+  // ===== DRAWING FUNCTIONS =====
+
+  const handleMouseDown = (e) => {
+    const stage = e.target.getStage();
+    const pos = stage.getPointerPosition();
+    const targetClass = e.target.getClassName();
+    
+    // Chỉ chặn khi click vào Area/Spot rectangles, không chặn Background
+    const clickedOnShape = 
+      (targetClass === "Rect" && e.target.attrs.fill !== "#ffffff") ||
+      targetClass === "Text" ||
+      targetClass === "Group";
+
+    if (mode === "draw") {
+      if (clickedOnShape) return;
+      isDrawing.current = true;
+
+      setFloors((prev) =>
+        prev.map((f) =>
+          f.floorNumber === currentFloor
+            ? {
+                ...f,
+                strokes: [
+                  ...f.strokes,
+                  {
+                    id: Date.now().toString(),
+                    points: [pos.x, pos.y],
+                    stroke: brushColor,
+                    strokeWidth: brushSize,
+                    tension: 0.5,
+                    lineCap: "round",
+                    lineJoin: "round",
+                  },
+                ],
+              }
+            : f
+        )
+      );
+    } else if (mode === "erase") {
+      if (clickedOnShape) return;
+      isDrawing.current = true;
+      // Erasing will happen in handleMouseMove
+    } else if (mode === "area") {
+      if (clickedOnShape) {
+        console.log("Clicked on shape, not creating area");
+        return;
+      }
+      console.log("Starting area creation at:", pos);
+      isCreatingArea.current = true;
+      areaStartPos.current = pos;
+    }
+  };
+
+  const handleMouseMove = (e) => {
+    const stage = e.target.getStage();
+    const point = stage.getPointerPosition();
+    if (!point) return; // Safety check
+
+    // 🖌 Draw mode
+    if (mode === "draw" && isDrawing.current) {
+      setFloors((prev) =>
+        prev.map((f) => {
+          if (f.floorNumber !== currentFloor) return f;
+          const strokes = f.strokes;
+          if (strokes.length === 0) return f;
+
+          const last = strokes[strokes.length - 1];
+          const updated = {
+            ...last,
+            points: [...last.points, point.x, point.y],
+          };
+
+          return { ...f, strokes: [...strokes.slice(0, -1), updated] };
+        })
+      );
+    }
+
+    // 🧹 Erase mode
+    if (mode === "erase" && isDrawing.current) {
+      setFloors((prev) =>
+        prev.map((f) => {
+          if (f.floorNumber !== currentFloor) return f;
+          
+          // Filter out strokes that intersect with erase position
+          const filteredStrokes = f.strokes.filter((stroke) => {
+            const points = stroke.points;
+            for (let i = 0; i < points.length; i += 2) {
+              const x = points[i];
+              const y = points[i + 1];
+              const distance = Math.sqrt(
+                Math.pow(x - point.x, 2) + Math.pow(y - point.y, 2)
+              );
+              if (distance < eraseSize) {
+                return false; // Remove this stroke
+              }
+            }
+            return true; // Keep this stroke
+          });
+
+          return { ...f, strokes: filteredStrokes };
+        })
+      );
+    }
+
+    // 🟦 Area mode (preview rectangle)
+    if (
+      mode === "area" &&
+      isCreatingArea.current &&
+      areaStartPos.current
+    ) {
+      console.log("Moving mouse while creating area:", point);
+      const width = point.x - areaStartPos.current.x;
+      const height = point.y - areaStartPos.current.y;
+      const tempId = "temp-area";
+
+      setFloors((prev) =>
+        prev.map((f) => {
+          if (f.floorNumber !== currentFloor) return f;
+          const hasTemp = f.areas.some((a) => a.id === tempId);
+          const newArea = {
+            id: tempId,
+            name: "Drawing...",
+            x: areaStartPos.current.x,
+            y: areaStartPos.current.y,
+            width: Math.abs(width),
+            height: Math.abs(height),
+            spots: [],
+            fill: "rgba(147,197,253,0.2)",
+            stroke: "#3b82f6",
+          };
+          return {
+            ...f,
+            areas: hasTemp
+              ? f.areas.map((a) => (a.id === tempId ? newArea : a))
+              : [...f.areas, newArea],
+          };
+        })
+      );
+    }
+  };
+
+  const handleMouseUp = (e) => {
+    if (mode === "draw") {
+      isDrawing.current = false;
+      return;
+    }
+
+    if (mode === "area" && isCreatingArea.current && areaStartPos.current) {
+      console.log("Mouse up in area mode");
+      isCreatingArea.current = false;
+      const stage = e.target.getStage();
+      const point = stage.getPointerPosition();
+      console.log("Final point:", point);
+      
+      // Lưu giá trị startPos vào biến local trước khi xóa ref
+      const startX = areaStartPos.current.x;
+      const startY = areaStartPos.current.y;
+      
+      if (!point) {
+        // Nếu không có point, xóa temp area
+        setFloors((prev) =>
+          prev.map((f) =>
+            f.floorNumber === currentFloor
+              ? { ...f, areas: f.areas.filter((a) => a.id !== "temp-area") }
+              : f
+          )
+        );
+        areaStartPos.current = null;
+        return;
+      }
+
+      const width = point.x - startX;
+      const height = point.y - startY;
+
+      setFloors((prev) =>
+        prev.map((f) => {
+          if (f.floorNumber !== currentFloor) return f;
+          const filtered = f.areas.filter((a) => a.id !== "temp-area");
+
+          if (Math.abs(width) > 30 && Math.abs(height) > 30) {
+            const newArea = {
+              id: Date.now().toString(),
+              name: `Area ${filtered.length + 1}`,
+              x: startX,
+              y: startY,
+              width: Math.abs(width),
+              height: Math.abs(height),
+              spots: [],
+              fill: "rgba(147,197,253,0.3)",
+              stroke: "#3b82f6",
+            };
+            toast.success(`✅ Created ${newArea.name}`);
+            return { ...f, areas: [...filtered, newArea] };
+          } else {
+            toast.error("⚠️ Area too small!");
+            return { ...f, areas: filtered };
+          }
+        })
+      );
+
+      areaStartPos.current = null;
+    }
+  };
+
+  // ===== AREA MANAGEMENT =====
+
+  const handleAddSpotToArea = () => {
+    if (!selectedAreaId) {
+      toast.error("⚠️ Please select an area first!");
+      return;
+    }
+
+    const selectedArea = areas.find((a) => a.id === selectedAreaId);
+    if (!selectedArea) {
+      toast.error("⚠️ Selected area not found!");
+      return;
+    }
+
+    // Đảm bảo spots array tồn tại
+    if (!selectedArea.spots) {
+      selectedArea.spots = [];
+    }
+
+    // Tạo spot mới trong area
+    const spotWidth = 40;
+    const spotHeight = 60;
+    const spotsPerRow = Math.floor(selectedArea.width / (spotWidth + 10));
+    const existingSpots = selectedArea.spots.length;
+    const row = Math.floor(existingSpots / spotsPerRow);
+    const col = existingSpots % spotsPerRow;
+
+    const newSpot = {
+      id: Date.now().toString(),
+      name: `${selectedArea.name}-S${existingSpots + 1}`,
+      x: col * (spotWidth + 10) + 5,
+      y: row * (spotHeight + 10) + 5,
+      width: spotWidth,
+      height: spotHeight,
+      fill: "rgba(34,197,94,0.3)",
+      stroke: "#16a34a",
+    };
+
+    updateCurrentFloor({
+      areas: areas.map((a) =>
+        a.id === selectedAreaId 
+          ? { ...a, spots: [...(a.spots || []), newSpot] } 
+          : a
+      ),
+    });
+
+    toast.success(`✅ Added spot ${newSpot.name}`);
+  };
+
+  const handleDeleteArea = () => {
+    if (!selectedAreaId) {
+      toast.error("⚠️ Please select an area to delete!");
+      return;
+    }
+
+    const areaName = areas.find(a => a.id === selectedAreaId)?.name;
+    updateCurrentFloor({
+      areas: areas.filter((a) => a.id !== selectedAreaId),
+    });
+    setSelectedAreaId(null);
+    setSelectedSpotId(null);
+    toast.success(`🗑 Deleted ${areaName}!`);
+  };
+
+  const handleDeleteSpot = () => {
+    if (!selectedSpotId || !selectedAreaId) {
+      toast.error("⚠️ Please select a spot to delete!");
+      return;
+    }
+
+    const area = areas.find(a => a.id === selectedAreaId);
+    const spotName = area?.spots.find(s => s.id === selectedSpotId)?.name;
+
+    updateCurrentFloor({
+      areas: areas.map((a) =>
+        a.id === selectedAreaId
+          ? { ...a, spots: a.spots.filter((s) => s.id !== selectedSpotId) }
+          : a
+      ),
+    });
+    setSelectedSpotId(null);
+    toast.success(`🗑 Deleted ${spotName}!`);
+  };
+
+  const handleClearAll = () => {
+    if (strokes.length === 0 && areas.length === 0) {
+      toast("⚠️ Nothing to clear");
+      return;
+    }
+
+    updateCurrentFloor({
+      strokes: [],
+      areas: [],
+    });
+    setSelectedAreaId(null);
+    setSelectedSpotId(null);
+    toast.success("🧹 Floor cleared!");
+  };
+
+  // ===== KEYBOARD SHORTCUTS =====
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Delete" || e.key === "Backspace") {
+        if (mode === "area") {
+          if (selectedSpotId) {
+            handleDeleteSpot();
+          } else if (selectedAreaId) {
+            handleDeleteArea();
+          }
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, selectedAreaId, selectedSpotId]);
+
+  // ===== FLOOR MANAGEMENT =====
+
+  const handleAddFloor = () => {
+    const newFloorNumber = floors.length + 1;
+    setFloors([
+      ...floors,
+      {
+        floorNumber: newFloorNumber,
+        floorName: `Floor ${newFloorNumber}`,
+        areas: [],
+        strokes: [],
+      },
+    ]);
+    setCurrentFloor(newFloorNumber);
+    toast.success(`✅ Added Floor ${newFloorNumber}`);
+  };
+
+  const handleDeleteFloor = () => {
+    if (floors.length === 1) {
+      toast.error("⚠️ Cannot delete the last floor!");
+      return;
+    }
+
+    setFloors(floors.filter((f) => f.floorNumber !== currentFloor));
+    setCurrentFloor(1);
+    toast.success(`🗑 Floor ${currentFloor} deleted!`);
+  };
+
+  // ===== SAVE TO DATABASE =====
+
+  const handleSaveLayout = async () => {
+    try {
+      // Validation
+      if (floors.length === 0) {
+        toast.error("⚠️ No floors to save!");
+        return;
+      }
+
+      const hasAreas = floors.some(f => f.areas.length > 0);
+      if (!hasAreas) {
+        toast.error("⚠️ Please create at least one area before saving!");
+        return;
+      }
+
+      const loadingId = toast.loading("💾 Saving parking lot layout...");
+
+      console.log("🚀 Starting save for lot:", lot.id);
+      console.log("📦 Total floors:", floors.length);
+
+      // Lưu từng floor
+      for (const floor of floors) {
+        console.log(`\n🏢 Saving Floor ${floor.floorNumber}...`);
+        
+        // Format theo Swagger example
+        const floorPayload = {
+          floorNumber: floor.floorNumber,
+          floorName: floor.floorName,
+          capacityRequests: [
+            {
+              capacity: floor.areas.reduce((sum, a) => sum + (a.spots?.length || 0), 0) || 1,
+              vehicleType: "CAR_UP_TO_9_SEATS",
+              supportElectricVehicle: false,
+            },
+          ],
+        };
+
+        console.log("📤 Floor payload:", JSON.stringify(floorPayload, null, 2));
+        console.log("📍 Endpoint:", `/api/v1/parking-service/floors/${lot.id}`);
+
+        const floorRes = await floorApi.create(lot.id, floorPayload);
+        console.log("✅ Floor response:", floorRes.data);
+
+        // Extract floor ID with multiple fallbacks
+        const floorId = floorRes.data?.data?.id || floorRes.data?.id || floorRes.data?.floorId;
+        
+        if (!floorId) {
+          console.error("❌ No floor ID in response:", floorRes.data);
+          throw new Error(`Floor ${floor.floorNumber} creation failed - no ID returned`);
+        }
+
+        console.log(`✅ Floor ${floor.floorNumber} created with ID: ${floorId}`);
+
+        // Lưu các areas CHỈ với tọa độ layout
+        // Partner sẽ đặt tên và chọn vehicleType sau
+        if (floor.areas.length > 0) {
+          console.log(`📍 Saving ${floor.areas.length} areas for floor ${floorId}...`);
+          
+          for (const area of floor.areas) {
+            const areaPayload = {
+              name: area.name, // Tên tạm: "Area 1", "Area 2"...
+              vehicleType: "CAR_UP_TO_9_SEATS", // ⚠️ Temporary - REQUIRED by API
+              areaTopLeftX: Math.round(area.x),
+              areaTopLeftY: Math.round(area.y),
+              areaWidth: Math.round(area.width),
+              areaHeight: Math.round(area.height),
+              supportElectricVehicle: false,
+              totalSpots: area.spots?.length || 0,
+              spotRequests: (area.spots || []).map((s) => ({
+                name: s.name, // Tên tạm: "Area 1-S1"...
+                spotTopLeftX: Math.round(s.x),
+                spotTopLeftY: Math.round(s.y),
+                spotWidth: Math.round(s.width),
+                spotHeight: Math.round(s.height),
+              })),
+            };
+
+            console.log(`📤 Area "${area.name}":`, JSON.stringify(areaPayload, null, 2));
+            console.log(`   ⚠️ Note: vehicleType is temporary - Partner will update later`);
+
+            try {
+              const areaRes = await areaApi.create(floorId, areaPayload);
+              console.log(`✅ Area "${area.name}" created:`, areaRes.data);
+              
+              const areaId = areaRes.data?.data?.id || areaRes.data?.id;
+              console.log(`   Area ID: ${areaId}, Spots: ${area.spots?.length || 0}`);
+            } catch (areaError) {
+              console.error(`❌ Area "${area.name}" failed:`, areaError);
+              console.error("   Error response:", areaError.response?.data);
+              throw new Error(`Failed to create area "${area.name}": ${areaError.response?.data?.message || areaError.message}`);
+            }
+          }
+        } else {
+          console.log(`⚠️ Floor ${floor.floorNumber} has no areas, skipping...`);
+        }
+
+        // Note about strokes
+        if (floor.strokes?.length > 0) {
+          console.log(`ℹ️ Note: ${floor.strokes.length} drawing strokes exist but not saved (drawings are visual only)`);
+        }
+
+        console.log(`✅ Floor ${floor.floorNumber} completed!`);
+      }
+
+      toast.dismiss(loadingId);
+      toast.success("🎉 Layout saved successfully!");
+      console.log("✅ All floors, areas, and spots saved successfully!");
+      
+      setTimeout(() => {
+        onClose();
+      }, 1500);
+      
+    } catch (err) {
+      toast.dismiss();
+      console.error("❌ Save layout error:", err);
+      console.error("Error details:", {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+      });
+      
+      const errorMsg = err.response?.data?.message || err.message || "Unknown error";
+      toast.error(`❌ Failed to save: ${errorMsg}`);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 flex flex-col bg-white z-[60]">{/* Toolbar */}
+      {/* Toolbar */}
+      <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-indigo-50 to-white shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+            <i className="ri-map-2-fill text-white text-xl"></i>
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-gray-900">
+              Draw Parking Map
+            </h2>
+            <p className="text-xs text-gray-500">{lot.name}</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {/* Floor Navigation */}
+          <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-2">
+            <span className="text-sm font-medium text-gray-700">Floor:</span>
+            {floors.map((f) => (
+              <button
+                key={f.floorNumber}
+                onClick={() => setCurrentFloor(f.floorNumber)}
+                className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${
+                  currentFloor === f.floorNumber
+                    ? "bg-indigo-600 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                {f.floorNumber}
+              </button>
+            ))}
+            <button
+              onClick={handleAddFloor}
+              className="px-3 py-1 rounded-md bg-green-100 text-green-700 hover:bg-green-200 text-sm font-medium flex items-center gap-1"
+            >
+              <i className="ri-add-line"></i>
+              Add Floor
+            </button>
+            {floors.length > 1 && (
+              <button
+                onClick={handleDeleteFloor}
+                className="px-3 py-1 rounded-md bg-red-100 text-red-700 hover:bg-red-200 text-sm"
+                title="Delete Current Floor"
+              >
+                <i className="ri-delete-bin-line"></i>
+              </button>
+            )}
+          </div>
+
+          {/* Tools */}
+          <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-1">
+            <button
+              onClick={() => setMode("draw")}
+              className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-all ${
+                mode === "draw"
+                  ? "bg-indigo-600 text-white shadow-md"
+                  : "bg-transparent text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              <i className="ri-pencil-fill"></i>
+              Draw
+            </button>
+            <button
+              onClick={() => setMode("erase")}
+              className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-all ${
+                mode === "erase"
+                  ? "bg-orange-600 text-white shadow-md"
+                  : "bg-transparent text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              <i className="ri-eraser-fill"></i>
+              Erase
+            </button>
+            <button
+              onClick={() => setMode("area")}
+              className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-all ${
+                mode === "area"
+                  ? "bg-blue-600 text-white shadow-md"
+                  : "bg-transparent text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              <i className="ri-layout-grid-fill"></i>
+              Area
+            </button>
+          </div>
+
+          {/* Brush Settings */}
+          {mode === "draw" && (
+            <>
+              <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-2">
+                <i className="ri-brush-fill text-gray-600"></i>
+                <input
+                  type="range"
+                  min="1"
+                  max="10"
+                  value={brushSize}
+                  onChange={(e) => setBrushSize(Number(e.target.value))}
+                  className="w-20 accent-indigo-600"
+                />
+                <span className="text-xs font-medium text-gray-700 w-4">
+                  {brushSize}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-2">
+                <input
+                  type="color"
+                  value={brushColor}
+                  onChange={(e) => setBrushColor(e.target.value)}
+                  className="w-10 h-8 border-0 rounded cursor-pointer"
+                />
+              </div>
+            </>
+          )}
+
+          {/* Eraser Settings */}
+          {mode === "erase" && (
+            <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-2">
+              <i className="ri-eraser-fill text-orange-600"></i>
+              <input
+                type="range"
+                min="10"
+                max="50"
+                value={eraseSize}
+                onChange={(e) => setEraseSize(Number(e.target.value))}
+                className="w-20 accent-orange-600"
+              />
+              <span className="text-xs font-medium text-gray-700 w-6">
+                {eraseSize}
+              </span>
+            </div>
+          )}
+
+          {/* Area Actions */}
+          {mode === "area" && (
+            <>
+              <button
+                onClick={handleAddSpotToArea}
+                className="px-4 py-2 rounded-lg bg-green-100 text-green-700 hover:bg-green-200 transition-all font-medium flex items-center gap-2"
+                disabled={!selectedAreaId}
+              >
+                <i className="ri-parking-box-fill"></i>
+                Add Spot
+              </button>
+              
+              {/* Smart Delete Button */}
+              {selectedSpotId ? (
+                <button
+                  onClick={handleDeleteSpot}
+                  className="px-4 py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-all font-medium flex items-center gap-2"
+                >
+                  <i className="ri-delete-bin-fill"></i>
+                  Delete Spot
+                </button>
+              ) : selectedAreaId ? (
+                <button
+                  onClick={handleDeleteArea}
+                  className="px-4 py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-all font-medium flex items-center gap-2"
+                >
+                  <i className="ri-delete-bin-fill"></i>
+                  Delete Area
+                </button>
+              ) : (
+                <button
+                  disabled
+                  className="px-4 py-2 rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed transition-all font-medium flex items-center gap-2"
+                >
+                  <i className="ri-delete-bin-fill"></i>
+                  Delete
+                </button>
+              )}
+            </>
+          )}
+
+          {/* General Actions */}
+          <button
+            onClick={handleClearAll}
+            className="px-4 py-2 rounded-lg bg-orange-100 text-orange-700 hover:bg-orange-200 transition-all font-medium flex items-center gap-2"
+          >
+            <i className="ri-eraser-fill"></i>
+            Clear Floor
+          </button>
+
+          <button
+            onClick={handleSaveLayout}
+            className="px-6 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-all font-medium shadow-md flex items-center gap-2"
+          >
+            <i className="ri-save-fill"></i>
+            Save Layout
+          </button>
+
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition-all font-medium flex items-center gap-2"
+          >
+            <i className="ri-close-line"></i>
+            Close
+          </button>
+        </div>
+      </div>
+
+      {/* Info Panel */}
+      <div className="px-4 py-2 bg-blue-50 border-b flex items-center justify-between">
+        <div className="flex items-center gap-6 text-sm">
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-gray-700">Mode:</span>
+            <span className={`px-2 py-0.5 rounded ${
+              mode === "draw" 
+                ? "bg-indigo-100 text-indigo-700" 
+                : mode === "erase"
+                ? "bg-orange-100 text-orange-700"
+                : "bg-blue-100 text-blue-700"
+            }`}>
+              {mode === "draw" ? "✏️ Drawing" : mode === "erase" ? "🧹 Erasing" : "⬛ Creating Areas"}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-gray-700">Current Floor:</span>
+            <span className="text-gray-900">{currentFloorData?.floorName}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-gray-700">Areas:</span>
+            <span className="text-gray-900">{areas.length}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-gray-700">Total Spots:</span>
+            <span className="text-gray-900">
+              {areas.reduce((sum, a) => sum + a.spots.length, 0)}
+            </span>
+          </div>
+          {selectedSpotId && (
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-gray-700">Selected:</span>
+              <span className="px-2 py-0.5 bg-red-100 text-red-700 rounded font-medium">
+                🚗 {areas.find(a => a.id === selectedAreaId)?.spots.find(s => s.id === selectedSpotId)?.name || 'Spot'}
+              </span>
+            </div>
+          )}
+        </div>
+        <div className="text-xs text-gray-600">
+          {mode === "draw"
+            ? "🖱️ Click and drag to draw lines"
+            : mode === "erase"
+            ? "🧹 Click and drag to erase drawing strokes"
+            : selectedSpotId
+            ? "🚗 Drag to move • Press Delete to remove spot"
+            : selectedAreaId
+            ? "📍 Drag to move • Resize corners • Press Delete to remove area"
+            : "🖱️ Click and drag to create/move areas • Click spots to select them"}
+        </div>
+      </div>
+
+      {/* Canvas */}
+      <div className="flex-1 bg-gray-100 relative overflow-hidden">
+        <Stage
+          ref={stageRef}
+          width={window.innerWidth}
+          height={window.innerHeight - 160}
+          onMouseDown={handleMouseDown}
+          onMousemove={handleMouseMove}
+          onMouseup={handleMouseUp}
+          className={
+            mode === "draw" 
+              ? "cursor-crosshair" 
+              : mode === "erase"
+              ? "cursor-not-allowed"
+              : "cursor-cell"
+          }
+        >
+          <Layer>
+            {/* Background */}
+            <Rect
+              x={0}
+              y={0}
+              width={window.innerWidth}
+              height={window.innerHeight - 160}
+              fill="#ffffff"
+              onClick={() => {
+                // Deselect when clicking on background in area mode
+                if (mode === "area") {
+                  setSelectedAreaId(null);
+                  setSelectedSpotId(null);
+                }
+              }}
+            />
+
+            {/* Grid */}
+            {Array.from({ length: 50 }).map((_, i) => (
+              <React.Fragment key={`grid-${i}`}>
+                <Line
+                  points={[i * 50, 0, i * 50, window.innerHeight - 160]}
+                  stroke="#e5e7eb"
+                  strokeWidth={1}
+                />
+                <Line
+                  points={[0, i * 50, window.innerWidth, i * 50]}
+                  stroke="#e5e7eb"
+                  strokeWidth={1}
+                />
+              </React.Fragment>
+            ))}
+
+            {/* Drawing Strokes */}
+            {strokes.map((s) => (
+              <Line
+                key={s.id}
+                points={s.points}
+                stroke={s.stroke}
+                strokeWidth={s.strokeWidth}
+                tension={s.tension}
+                lineCap={s.lineCap}
+                lineJoin={s.lineJoin}
+              />
+            ))}
+
+            {/* Areas */}
+            {areas.filter(a => a && a.x != null && a.y != null).map((area) => (
+              <Group key={area.id}>
+                <Rect
+                  id={area.id}
+                  ref={(node) => {
+                    if (selectedAreaId === area.id) {
+                      selectedAreaRef.current = node;
+                      if (transformerRef.current && node) {
+                        transformerRef.current.nodes([node]);
+                        transformerRef.current.getLayer()?.batchDraw();
+                      }
+                    }
+                  }}
+                  x={area.x}
+                  y={area.y}
+                  width={area.width}
+                  height={area.height}
+                  fill={area.fill}
+                  stroke={selectedAreaId === area.id ? "#ef4444" : area.stroke}
+                  strokeWidth={selectedAreaId === area.id ? 3 : 2}
+                  onClick={() => {
+                    if (mode === "area") {
+                      setSelectedAreaId(area.id);
+                      setSelectedSpotId(null); // Deselect spot when selecting area
+                      toast(`✅ Selected: ${area.name}`);
+                    }
+                  }}
+                  draggable={mode === "area"}
+                  onDragMove={(e) => {
+                    e.cancelBubble = true;
+                  }}
+                  onDragEnd={(e) => {
+                    const newX = e.target.x();
+                    const newY = e.target.y();
+                    
+                    updateCurrentFloor({
+                      areas: areas.map((a) =>
+                        a.id === area.id
+                          ? { ...a, x: newX, y: newY }
+                          : a
+                      ),
+                    });
+                    
+                    toast.success(`📍 Moved ${area.name}`);
+                  }}
+                  onTransformEnd={(e) => {
+                    const node = e.target;
+                    const scaleX = node.scaleX();
+                    const scaleY = node.scaleY();
+
+                    // Reset scale
+                    node.scaleX(1);
+                    node.scaleY(1);
+
+                    updateCurrentFloor({
+                      areas: areas.map((a) =>
+                        a.id === area.id
+                          ? {
+                              ...a,
+                              x: node.x(),
+                              y: node.y(),
+                              width: Math.max(50, node.width() * scaleX),
+                              height: Math.max(50, node.height() * scaleY),
+                            }
+                          : a
+                      ),
+                    });
+                    
+                    toast.success(`📐 Resized ${area.name}`);
+                  }}
+                />
+                <Text
+                  x={area.x}
+                  y={area.y - 20}
+                  text={`${area.name} (${area.spots?.length || 0} spots)`}
+                  fontSize={12}
+                  fill="#2563eb"
+                  fontStyle="bold"
+                />
+
+                {/* Spots inside area */}
+                {(area.spots || []).map((spot) => (
+                  <Group key={spot.id}>
+                    <Rect
+                      id={spot.id}
+                      x={area.x + spot.x}
+                      y={area.y + spot.y}
+                      width={spot.width}
+                      height={spot.height}
+                      fill={spot.fill}
+                      stroke={selectedSpotId === spot.id ? "#ef4444" : spot.stroke}
+                      strokeWidth={selectedSpotId === spot.id ? 3 : 1}
+                      onClick={(e) => {
+                        e.cancelBubble = true; // Prevent area selection
+                        if (mode === "area") {
+                          setSelectedSpotId(spot.id);
+                          setSelectedAreaId(area.id); // Also select parent area
+                          toast(`🚗 Selected: ${spot.name}`);
+                        }
+                      }}
+                      draggable={mode === "area"}
+                      onDragMove={(e) => {
+                        e.cancelBubble = true;
+                      }}
+                      onDragEnd={(e) => {
+                        const newX = e.target.x() - area.x;
+                        const newY = e.target.y() - area.y;
+                        
+                        // Ensure spot stays within area bounds
+                        const clampedX = Math.max(0, Math.min(newX, area.width - spot.width));
+                        const clampedY = Math.max(0, Math.min(newY, area.height - spot.height));
+                        
+                        updateCurrentFloor({
+                          areas: areas.map((a) =>
+                            a.id === area.id
+                              ? {
+                                  ...a,
+                                  spots: a.spots.map((s) =>
+                                    s.id === spot.id
+                                      ? { ...s, x: clampedX, y: clampedY }
+                                      : s
+                                  ),
+                                }
+                              : a
+                          ),
+                        });
+                        
+                        toast.success(`🚗 Moved ${spot.name}`);
+                      }}
+                    />
+                    <Text
+                      x={area.x + spot.x + 5}
+                      y={area.y + spot.y + 25}
+                      text={spot.name}
+                      fontSize={10}
+                      fill="#166534"
+                      listening={false}
+                    />
+                  </Group>
+                ))}
+              </Group>
+            ))}
+            
+            {/* Transformer for resizing selected area */}
+            {mode === "area" && selectedAreaId && (
+              <Transformer
+                ref={transformerRef}
+                boundBoxFunc={(oldBox, newBox) => {
+                  // Limit minimum size
+                  if (newBox.width < 50 || newBox.height < 50) {
+                    return oldBox;
+                  }
+                  return newBox;
+                }}
+                rotateEnabled={false}
+                enabledAnchors={[
+                  'top-left',
+                  'top-right',
+                  'bottom-left',
+                  'bottom-right',
+                ]}
+              />
+            )}
+          </Layer>
+        </Stage>
+      </div>
+    </div>
+  );
+}
