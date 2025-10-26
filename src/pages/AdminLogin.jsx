@@ -24,13 +24,49 @@ export default function AdminLogin() {
         console.log("✅ Login success:", res.data);
 
         // ✅ accessToken nằm trong res.data.data
-        const accessToken = res.data?.data?.authResponse.accessToken;
-        const refreshToken = res.data?.data?.authResponse.refreshToken;
+        const accessToken = res.data?.data?.authResponse?.accessToken;
+        const refreshToken = res.data?.data?.authResponse?.refreshToken;
+
+        // decode JWT to check role/authorities to allow only admin users here
+        const decodeJwt = (t) => {
+          try {
+            const seg = (t || "").split('.');
+            if (seg.length < 2) return null;
+            const payload = seg[1].replace(/-/g, '+').replace(/_/g, '/');
+            const json = JSON.parse(decodeURIComponent(atob(payload).split('').map(function(c) {
+              return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join('')));
+            return json;
+          } catch {
+            return null;
+          }
+        };
+
+        const payload = decodeJwt(accessToken);
+        // Normalize possible role fields
+        const rolesFromToken = [];
+        if (payload) {
+          if (Array.isArray(payload.roles)) rolesFromToken.push(...payload.roles);
+          if (Array.isArray(payload.authorities)) rolesFromToken.push(...payload.authorities);
+          if (typeof payload.role === 'string') rolesFromToken.push(payload.role);
+          if (typeof payload.authority === 'string') rolesFromToken.push(payload.authority);
+          if (typeof payload.scope === 'string') rolesFromToken.push(...payload.scope.split(' '));
+        }
+
+        const isAdmin = rolesFromToken.map(r => String(r).toLowerCase()).some(r => r.includes('admin'));
+
+        if (!isAdmin) {
+          alert('Access denied: this login is not an admin account.');
+          console.warn('Non-admin attempted admin login. Token payload:', payload);
+          return;
+        }
 
         if (accessToken) {
           localStorage.setItem("accessToken", accessToken);
           localStorage.setItem("refreshToken", refreshToken);
-          console.log("✅ Tokens saved to localStorage");
+          // optionally store role
+          localStorage.setItem('role', JSON.stringify(rolesFromToken));
+          console.log("✅ Admin tokens saved to localStorage");
         } else {
           console.warn("⚠️ No token found in response:", res.data);
         }

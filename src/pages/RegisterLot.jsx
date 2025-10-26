@@ -34,7 +34,34 @@ export default function RegisterLot() {
   const [showMap, setShowMap] = useState(false);
 
   const getPartnerIdFromStorage = () => {
-    const partnerId = localStorage.getItem("partnerId");
+    let partnerId = localStorage.getItem("partnerId");
+    
+    // ✅ Nếu không có partnerId trong localStorage, thử decode từ token
+    if (!partnerId) {
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        try {
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = decodeURIComponent(
+            atob(base64)
+              .split('')
+              .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+              .join('')
+          );
+          const decoded = JSON.parse(jsonPayload);
+          partnerId = decoded?.partnerId || decoded?.partner_id || decoded?.sub;
+          
+          if (partnerId) {
+            localStorage.setItem("partnerId", partnerId); // Lưu lại cho lần sau
+            console.log("✅ Extracted partnerId from token:", partnerId);
+          }
+        } catch (error) {
+          console.error("❌ Error decoding token:", error);
+        }
+      }
+    }
+    
     if (!partnerId) {
       toast.error("❌ Không tìm thấy Partner ID. Vui lòng đăng nhập lại!");
       return null;

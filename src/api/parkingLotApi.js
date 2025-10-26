@@ -2,28 +2,32 @@ import axiosClient from "../api/axiosClient";
 
 const parkingLotApi = {
   register: (data) => axiosClient.post(`/api/v1/parking-service/lots`, data),
-  getAll: (params) =>
-    axiosClient.get("/api/v1/parking-service/lots", { params }),
+  
+  // Dùng chung cho cả Admin và Partner
+  // - Admin: gọi getAll({ page, size, sortBy, sortOrder }) → lấy tổng danh sách
+  // - Partner: gọi getAll({ page, size, sortBy, sortOrder, ownedByMe: true }) → lấy danh sách riêng
+  getAll: (options = {}) => {
+    const { page = 0, size = 10, sortBy = "id", sortOrder = "DESC", ownedByMe, ...rest } = options;
+    
+    const params = {
+      page,
+      size,
+      sortBy,
+      sortOrder,
+    };
 
-  getMyLots: (params = {}) =>
-    axiosClient.get("/api/v1/parking-service/lots", {
-      params: {
-        page: params.page || 0,
-        size: params.size || 10,
-        sortBy: params.sortBy || "id",
-        sortOrder: params.sortOrder || "DESC",
-        // 🧩 truyền object JSON đúng format Swagger
-        // send the search term to multiple fields so server can match against any of them
-        params: JSON.stringify({
-          ownedByMe: true,
-          name: params.search || null,
-          city: params.search || null,
-          streetAddress: params.search || null,
-          ward: params.search || null,
-          status: params.search || null,
-        }),
-      },
-    }),
+    // ✅ Nếu có ownedByMe = true thì gửi TRỰC TIẾP như query param (không dùng JSON string)
+    // Vì backend có thể cần ownedByMe=true như một query param riêng biệt
+    if (ownedByMe === true) {
+      params.ownedByMe = true;
+    }
+    // Nếu có các filter khác (admin dùng) thì gửi bình thường
+    else if (Object.keys(rest).length > 0) {
+      Object.assign(params, rest);
+    }
+
+    return axiosClient.get("/api/v1/parking-service/lots", { params });
+  },
 
   update: (id, data) =>
     axiosClient.put(`/api/v1/parking-service/lots/${id}`, data),

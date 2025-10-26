@@ -10,6 +10,24 @@ export default function Login() {
 
   const navigate = useNavigate();
 
+  // ✅ Hàm decode JWT token để lấy partnerId
+  const decodeToken = (token) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (error) {
+      console.error("❌ Error decoding token:", error);
+      return null;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -26,14 +44,29 @@ export default function Login() {
         const res = await authApi.login({ email, password });
         console.log("✅ Login success:", res.data);
 
-        // ✅ Lưu token & partnerId
+        // ✅ Lưu token
         const accessToken = res.data.data?.authResponse?.accessToken;
         const refreshToken = res.data.data?.authResponse?.refreshToken;
-        const partnerId = res.data.data?.partnerResponse?.id;
 
-        if (accessToken) localStorage.setItem("accessToken", accessToken);
+        if (accessToken) {
+          localStorage.setItem("accessToken", accessToken);
+          
+          // ✅ Decode token để lấy partnerId
+          const decoded = decodeToken(accessToken);
+          console.log("🔍 Decoded token:", decoded);
+          
+          const partnerId = decoded?.partnerId || decoded?.partner_id || decoded?.sub;
+          console.log("🔍 Extracted partnerId:", partnerId);
+          
+          if (partnerId) {
+            localStorage.setItem("partnerId", partnerId);
+            console.log("✅ Saved partnerId to localStorage:", partnerId);
+          } else {
+            console.warn("⚠️ No partnerId found in token");
+          }
+        }
+        
         if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
-        if (partnerId) localStorage.setItem("partnerId", partnerId);
 
         toast.dismiss(toastId);
         toast.success("🎉 Đăng nhập thành công!");

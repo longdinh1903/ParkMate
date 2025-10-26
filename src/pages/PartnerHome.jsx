@@ -34,11 +34,12 @@ export default function PartnerHome() {
     }
 
     try {
-      const res = await parkingLotApi.getMyLots({
+      const res = await parkingLotApi.getAll({
         page,
         size: pagination.size,
         sortBy: "createdAt",
         sortOrder: "desc",
+        ownedByMe: true, // ✅ Thêm ownedByMe: true để lấy danh sách riêng
       });
 
       console.log("API Response:", res);
