@@ -35,6 +35,9 @@ const partnerApi = {
 
   getAll: (params) =>
     axiosClient.get("/api/v1/user-service/partners", { params }),
+  // Count partners (returns total number matching optional filters)
+  count: (params) =>
+    axiosClient.get("/api/v1/user-service/partners/count", { params }),
   create: (data) => axiosClient.post("/api/v1/user-service/partners", data),
 
   update: (id, data) =>

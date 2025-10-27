@@ -148,20 +148,22 @@ export default function AdminParkingLotRequests() {
     const s = status?.toUpperCase();
     const colorMap = {
       PENDING: "bg-yellow-50 text-yellow-700 border-yellow-300",
-      UNDER_SURVEY: "bg-blue-50 text-blue-700 border-blue-300",
       PREPARING: "bg-orange-50 text-orange-700 border-orange-300",
       PARTNER_CONFIGURATION: "bg-indigo-50 text-indigo-700 border-indigo-300",
-      ACTIVE_PENDING: "bg-cyan-50 text-cyan-700 border-cyan-300",
       ACTIVE: "bg-green-50 text-green-700 border-green-300",
       INACTIVE: "bg-gray-50 text-gray-600 border-gray-300",
-      UNDER_MAINTENANCE: "bg-amber-50 text-amber-700 border-amber-300",
       MAP_DENIED: "bg-red-50 text-red-700 border-red-300",
       REJECTED: "bg-red-50 text-red-700 border-red-300",
     };
 
+    // Capitalize only first letter
+    const displayText = status 
+      ? status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
+      : "Unknown";
+
     return (
       <span className={`${base} ${colorMap[s] || "bg-gray-50 text-gray-600 border-gray-300"}`}>
-        {s || "UNKNOWN"}
+        {displayText}
       </span>
     );
   };
@@ -244,16 +246,13 @@ export default function AdminParkingLotRequests() {
           >
             <option value="">All Status</option>
             {[
-              "PENDING",
-              "UNDER_SURVEY",
-              "PREPARING",
-              "PARTNER_CONFIGURATION",
-              "ACTIVE_PENDING",
-              "ACTIVE",
-              "INACTIVE",
-              "UNDER_MAINTENANCE",
-              "MAP_DENIED",
-              "REJECTED",
+              "Pending",
+              "Preparing",
+              "Partner Configuration",
+              "Active",
+              "Inactive",
+              "Map Denied",
+              "Rejected",
             ].map((s) => (
               <option key={s} value={s}>
                 {s}

@@ -113,19 +113,19 @@ export default function AdminPartnerRequests() {
         );
       case "REJECTED":
         return (
-          <span className={`${base} text-red-600 bg-red-50 border-red-300`}>
+          <span className={`${base} bg-red-50 text-red-700 border-red-300`}>
             Rejected
           </span>
         );
       case "PENDING":
         return (
-          <span className={`${base} text-yellow-600 bg-yellow-50 border-yellow-300`}>
+          <span className={`${base} bg-yellow-50 text-yellow-700 border-yellow-300`}>
             Pending
           </span>
         );
       default:
         return (
-          <span className={`${base} text-gray-600 bg-gray-50 border-gray-300`}>
+          <span className={`${base} bg-gray-50 text-gray-600 border-gray-300`}>
             Unknown
           </span>
         );

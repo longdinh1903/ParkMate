@@ -6,6 +6,9 @@ const adminApi = {
 
   getAllUser: (params) =>
     axiosClient.get("/api/v1/user-service/users", { params }),
+  // Count users (optional filters via params)
+  countUsers: (params) =>
+    axiosClient.get("/api/v1/user-service/users/count", { params }),
   updateUser: (id, data) =>
     axiosClient.put(`/api/v1/user-service/users/${id}`, data),
   getUserById: (id) => axiosClient.get(`/api/v1/user-service/users/${id}`),

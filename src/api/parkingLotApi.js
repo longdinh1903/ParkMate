@@ -50,6 +50,8 @@ const parkingLotApi = {
     axiosClient.get(`/api/v1/parking-service/lots/export`, {
       responseType: "blob", // nhận file binary
     }),
+  // Count lots (no params expected by backend in current swagger)
+  count: (params) => axiosClient.get(`/api/v1/parking-service/lots/count`, { params }),
 };
 
 export default parkingLotApi;

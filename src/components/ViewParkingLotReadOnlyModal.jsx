@@ -38,36 +38,104 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
         </div>
 
         {/* Basic Info */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-[15px] text-gray-700 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-[15px] text-gray-700 mb-6">
           <p>
-            <strong>🏢 Address:</strong> {lot.streetAddress}, {lot.ward},{" "}
-            {lot.city}
+            <strong>🏢 Address:</strong> {lot.streetAddress || "-"}
+            {lot.ward ? `, ${lot.ward}` : ""}
+            {lot.city ? `, ${lot.city}` : ""}
           </p>
           <p>
-            <strong>🕒 Open:</strong> {lot.openTime}
+            <strong>🕒 Open:</strong> {lot.openTime ?? "-"}
           </p>
           <p>
-            <strong>🕕 Close:</strong> {lot.closeTime}
+            <strong>🕕 Close:</strong> {lot.closeTime ?? "-"}
           </p>
           <p>
             <strong>🌙 24 Hours:</strong> {lot.is24Hour ? "Yes" : "No"}
           </p>
           <p>
-            <strong>🏗 Floors:</strong> {lot.totalFloors}
+            <strong>🏗 Floors:</strong> {lot.totalFloors ?? "-"}
           </p>
           <p>
-            <strong>📍 Latitude:</strong> {lot.latitude}
+            <strong>📍 Latitude:</strong> {lot.latitude ?? "-"}
           </p>
           <p>
-            <strong>📍 Longitude:</strong> {lot.longitude}
+            <strong>📍 Longitude:</strong> {lot.longitude ?? "-"}
           </p>
           <p>
-            <strong>📅 Created:</strong> {lot.createdAt}
+            <strong>📅 Created:</strong>{" "}
+            {lot.createdAt ? new Date(lot.createdAt).toLocaleString() : "-"}
           </p>
           <p>
-            <strong>⚙ Updated:</strong> {lot.updatedAt}
+            <strong>⚙ Updated:</strong>{" "}
+            {lot.updatedAt ? new Date(lot.updatedAt).toLocaleString() : "-"}
           </p>
         </div>
+
+        {/* Partner / Owner Info */}
+        {(lot.partner || lot.owner || lot.companyName) && (
+          <div className="mb-6 bg-gray-50 p-4 rounded-2xl border border-gray-200 shadow-sm">
+            <h3 className="font-semibold text-indigo-600 mb-3">🏢 Partner / Owner</h3>
+            <div className="text-sm text-gray-700">
+              <p>
+                <strong>Name:</strong> {lot.partner?.companyName ?? lot.owner?.name ?? lot.companyName ?? "-"}
+              </p>
+              {lot.partner?.companyEmail && (
+                <p>
+                  <strong>Email:</strong> {lot.partner.companyEmail}
+                </p>
+              )}
+              {lot.partner?.companyPhone && (
+                <p>
+                  <strong>Phone:</strong> {lot.partner.companyPhone}
+                </p>
+              )}
+              {lot.partner?.taxNumber && (
+                <p>
+                  <strong>Tax number:</strong> {lot.partner.taxNumber}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Contact Info */}
+        {(lot.contactPhone || lot.contactEmail || lot.phone) && (
+          <div className="mb-6 bg-gray-50 p-4 rounded-2xl border border-gray-200 shadow-sm">
+            <h3 className="font-semibold text-indigo-600 mb-3">📞 Contact</h3>
+            <div className="text-sm text-gray-700">
+              {lot.contactPhone && (<p><strong>Phone:</strong> {lot.contactPhone}</p>)}
+              {lot.phone && !lot.contactPhone && (<p><strong>Phone:</strong> {lot.phone}</p>)}
+              {lot.contactEmail && (<p><strong>Email:</strong> {lot.contactEmail}</p>)}
+            </div>
+          </div>
+        )}
+
+        {/* Description */}
+        {lot.description && (
+          <div className="mb-6 bg-gray-50 p-4 rounded-2xl border border-gray-200 shadow-sm">
+            <h3 className="font-semibold text-indigo-600 mb-2">📝 Description</h3>
+            <p className="text-sm text-gray-700">{lot.description}</p>
+          </div>
+        )}
+
+        {/* Images */}
+        {((lot.images && lot.images.length > 0) || (lot.imageUrls && lot.imageUrls.length > 0) || (lot.photos && lot.photos.length > 0)) && (
+          <div className="mb-6">
+            <h3 className="font-semibold text-indigo-600 mb-3">📸 Images</h3>
+            <div className="flex flex-wrap gap-3">
+              {(lot.images ?? lot.imageUrls ?? lot.photos).map((src, i) => (
+                <img
+                  key={i}
+                  src={src.url ?? src}
+                  alt={`img-${i}`}
+                  className="w-40 h-28 object-cover rounded-md border"
+                  onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/160x112?text=Image" }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Capacity */}
         {lot.lotCapacity?.length > 0 && (

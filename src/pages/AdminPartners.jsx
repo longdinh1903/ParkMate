@@ -21,6 +21,7 @@ export default function AdminPartners() {
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [loading, setLoading] = useState(false);
@@ -56,6 +57,52 @@ export default function AdminPartners() {
   useEffect(() => {
     fetchPartners();
   }, [page]);
+
+  // whenever partners list updates, refresh count to keep in sync
+  useEffect(() => {
+    fetchPartnerCount();
+  }, [partners]);
+
+  // ✅ Fetch total count of partners (no filters for now)
+  const fetchPartnerCount = async (filters = {}) => {
+    try {
+      const res = await partnerApi.count(filters);
+      // backend may return number in res.data or res.data.data
+      const count = Number(res.data?.data ?? res.data ?? 0) || 0;
+      setTotalCount(count);
+    } catch (err) {
+      console.error("❌ Error fetching partner count:", err);
+    }
+  };
+
+  useEffect(() => {
+    // fetch count on mount
+    fetchPartnerCount();
+  }, []);
+
+  // ✅ Render status badge
+  const renderStatus = (status) => {
+    const base = "px-2 py-1 text-xs font-semibold rounded-md border inline-block";
+    const s = status?.toUpperCase();
+    const colorMap = {
+      PENDING: "bg-yellow-50 text-yellow-700 border-yellow-300",
+      ACTIVE: "bg-green-50 text-green-700 border-green-300",
+      INACTIVE: "bg-gray-50 text-gray-600 border-gray-300",
+      REJECTED: "bg-red-50 text-red-700 border-red-300",
+      APPROVED: "bg-green-50 text-green-700 border-green-300",
+    };
+
+    // Capitalize only first letter
+    const displayText = status 
+      ? status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
+      : "Unknown";
+
+    return (
+      <span className={`${base} ${colorMap[s] || "bg-gray-50 text-gray-600 border-gray-300"}`}>
+        {displayText}
+      </span>
+    );
+  };
 
   // ✅ Lọc dữ liệu hiển thị
   const filtered = partners.filter((p) => {
@@ -299,27 +346,27 @@ export default function AdminPartners() {
                   <td className="px-6 py-3">{p.companyEmail}</td>
                   <td className="px-6 py-3">{p.companyPhone}</td>
                   <td className="px-6 py-3">{p.companyAddress}</td>
-                  <td className="px-6 py-3 font-semibold text-gray-700">{p.status}</td>
+                  <td className="px-6 py-3">{renderStatus(p.status)}</td>
                   <td className="px-6 py-3 text-center">
                     <div className="flex justify-center items-center gap-3">
                       <button
                         title="View Details"
                         onClick={(e) => handleView(p, e)}
-                        className="p-2 rounded-full bg-white border border-gray-300 text-gray-700 hover:bg-indigo-100 transition cursor-pointer"
+                        className="p-2 rounded-full hover:bg-indigo-100 transition cursor-pointer"
                       >
                         <EyeIcon className="w-5 h-5" />
                       </button>
                       <button
                         title="Edit Partner"
                         onClick={(e) => handleEdit(p, e)}
-                        className="p-2 rounded-full bg-white border border-gray-300 text-gray-700 hover:bg-yellow-100 transition cursor-pointer"
+                        className="p-2 rounded-full hover:bg-yellow-100 transition cursor-pointer"
                       >
                         <PencilSquareIcon className="w-5 h-5" />
                       </button>
                       <button
                         title="Delete Partner"
                         onClick={(e) => handleDelete(p, e)}
-                        className="p-2 rounded-full bg-white border border-gray-300 text-gray-700 hover:bg-red-100 transition cursor-pointer"
+                        className="p-2 rounded-full hover:bg-red-100 transition cursor-pointer"
                       >
                         <TrashIcon className="w-5 h-5" />
                       </button>
@@ -338,7 +385,7 @@ export default function AdminPartners() {
         </table>
       </div>
 
-      {/* 🔹 Pagination */}
+      {/* 🔹 Pagination (with total count centered) */}
       <div className="flex justify-between items-center mt-6">
         <button
           disabled={page <= 0}
@@ -348,9 +395,14 @@ export default function AdminPartners() {
           ← Previous
         </button>
 
-        <span className="text-gray-600 text-sm">
-          Page <strong>{page + 1}</strong> of {totalPages}
-        </span>
+        <div className="text-center text-gray-600 text-sm">
+          <div>
+            Page <strong>{page + 1}</strong> of {totalPages}
+          </div>
+          <div className="text-sm text-gray-500 mt-1">
+            Total partners: <strong className="text-indigo-700">{totalCount}</strong>
+          </div>
+        </div>
 
         <button
           disabled={page >= totalPages - 1}

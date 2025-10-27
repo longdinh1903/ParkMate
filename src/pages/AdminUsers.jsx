@@ -20,6 +20,7 @@ export default function AdminUsers() {
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [editingUser, setEditingUser] = useState(null);
@@ -50,6 +51,27 @@ export default function AdminUsers() {
     const delay = setTimeout(fetchUsers, 300);
     return () => clearTimeout(delay);
   }, [page, search]);
+
+  // Fetch total number of users (keeps in sync with list)
+  const fetchUserCount = async (filters = {}) => {
+    try {
+      const res = await adminApi.countUsers(filters);
+      const count = Number(res.data?.data ?? res.data ?? 0) || 0;
+      setTotalCount(count);
+    } catch (err) {
+      console.error("❌ Error fetching user count:", err);
+    }
+  };
+
+  useEffect(() => {
+    // initial fetch count on mount
+    fetchUserCount();
+  }, []);
+
+  // keep count in sync whenever users change
+  useEffect(() => {
+    fetchUserCount();
+  }, [users]);
 
   // ✅ Client-side filter
   const filteredUsers = users.filter((u) => {
@@ -307,14 +329,14 @@ export default function AdminUsers() {
                         <button
                           title="View Details"
                           onClick={() => handleViewClick(u)}
-                          className="p-2 rounded-full bg-white border border-gray-300 text-gray-700 hover:bg-blue-100 transition cursor-pointer"
+                          className="p-2 rounded-full hover:bg-indigo-100 transition cursor-pointer"
                         >
                           <EyeIcon className="w-5 h-5" />
                         </button>
                         <button
                           title="Edit User"
                           onClick={() => handleEditClick(u)}
-                          className="p-2 rounded-full bg-white border border-gray-300 text-gray-700 hover:bg-yellow-100 transition cursor-pointer"
+                          className="p-2 rounded-full hover:bg-yellow-100 transition cursor-pointer"
                         >
                           <PencilSquareIcon className="w-5 h-5 " />
                         </button>
@@ -323,7 +345,7 @@ export default function AdminUsers() {
                           onClick={() =>
                             showInfo("Tính năng xóa đang được phát triển")
                           }
-                          className="p-2 rounded-full bg-white border border-gray-300 text-gray-700 hover:bg-red-100 transition cursor-pointer"
+                          className="p-2 rounded-full hover:bg-red-100 transition cursor-pointer"
                         >
                           <TrashIcon className="w-5 h-5" />
                         </button>
@@ -355,9 +377,16 @@ export default function AdminUsers() {
         >
           ← Previous
         </button>
-        <span className="text-gray-600 text-sm">
-          Page <strong>{page + 1}</strong> of {totalPages}
-        </span>
+
+        <div className="text-center text-gray-600 text-sm">
+          <div>
+            Page <strong>{page + 1}</strong> of {totalPages}
+          </div>
+          <div className="text-sm text-gray-500 mt-1">
+            Total users: <strong className="text-indigo-700">{totalCount}</strong>
+          </div>
+        </div>
+
         <button
           disabled={page >= totalPages - 1}
           onClick={() => setPage((p) => p + 1)}

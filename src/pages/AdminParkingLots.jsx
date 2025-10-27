@@ -23,6 +23,7 @@ export default function AdminParkingLots() {
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
   const [confirmingLot, setConfirmingLot] = useState(null);
   const [editingLot, setEditingLot] = useState(null);
   const [viewingLot, setViewingLot] = useState(null); // ✅ thêm state để xem chi tiết
@@ -53,6 +54,27 @@ export default function AdminParkingLots() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, size]);
 
+  // Fetch total count of parking lots
+  const fetchLotsCount = async (filters = {}) => {
+    try {
+      const res = await parkingLotApi.count(filters);
+      const count = Number(res.data?.data ?? res.data ?? 0) || 0;
+      setTotalCount(count);
+    } catch (err) {
+      console.error("❌ Error fetching lots count:", err);
+    }
+  };
+
+  useEffect(() => {
+    // initial fetch
+    fetchLotsCount();
+  }, []);
+
+  // keep count updated when lots change
+  useEffect(() => {
+    fetchLotsCount();
+  }, [lots]);
+
   // ✅ Filter
   const filtered = lots.filter((lot) => {
     const keyword = search.toLowerCase();
@@ -77,22 +99,14 @@ export default function AdminParkingLots() {
     switch (status) {
       case "PENDING":
         return (
-          <span className={`${base} text-gray-600 bg-gray-50 border-gray-300`}>
+          <span className={`${base} bg-yellow-50 text-yellow-700 border-yellow-300`}>
             Pending
-          </span>
-        );
-      case "UNDER_SURVEY":
-        return (
-          <span
-            className={`${base} text-yellow-700 bg-yellow-50 border-yellow-300`}
-          >
-            Under Survey
           </span>
         );
       case "PREPARING":
         return (
           <span
-            className={`${base} text-orange-600 bg-orange-50 border-orange-300`}
+            className={`${base} bg-orange-50 text-orange-700 border-orange-300`}
           >
             Preparing
           </span>
@@ -100,57 +114,37 @@ export default function AdminParkingLots() {
       case "PARTNER_CONFIGURATION":
         return (
           <span
-            className={`${base} text-indigo-600 bg-indigo-50 border-indigo-300`}
+            className={`${base} bg-indigo-50 text-indigo-700 border-indigo-300`}
           >
             Partner Config
-          </span>
-        );
-      case "ACTIVE_PENDING":
-        return (
-          <span className={`${base} text-blue-700 bg-blue-50 border-blue-300`}>
-            Active Pending
           </span>
         );
       case "ACTIVE":
         return (
           <span
-            className={`${base} text-green-700 bg-green-50 border-green-300`}
+            className={`${base} bg-green-50 text-green-700 border-green-300`}
           >
             Active
           </span>
         );
       case "INACTIVE":
         return (
-          <span className={`${base} text-gray-700 bg-gray-50 border-gray-300`}>
+          <span className={`${base} bg-gray-50 text-gray-600 border-gray-300`}>
             Inactive
-          </span>
-        );
-      case "UNDER_MAINTENANCE":
-        return (
-          <span
-            className={`${base} text-yellow-600 bg-yellow-50 border-yellow-300`}
-          >
-            Maintenance
           </span>
         );
       case "MAP_DENIED":
         return (
           <span
-            className={`${base} text-purple-600 bg-purple-50 border-purple-300`}
+            className={`${base} bg-red-50 text-red-700 border-red-300`}
           >
             Map Denied
           </span>
         );
       case "REJECTED":
         return (
-          <span className={`${base} text-red-600 bg-red-50 border-red-300`}>
+          <span className={`${base} bg-red-50 text-red-700 border-red-300`}>
             Rejected
-          </span>
-        );
-      case "DENIED":
-        return (
-          <span className={`${base} text-rose-600 bg-rose-50 border-rose-300`}>
-            Denied
           </span>
         );
       default:
@@ -163,29 +157,57 @@ export default function AdminParkingLots() {
   };
 
   // ✅ Delete
-  const handleDelete = (lot) => setConfirmingLot(lot);
+  const handleDelete = (lot) => {
+    // Don't allow deletion when parking lot is in PENDING state
+    if (lot?.status === "PENDING") {
+      showError(
+        "Bãi xe đang ở trạng thái Pending và không thể vô hiệu hoá. Vui lòng xử lý trạng thái yêu cầu trước khi xóa."
+      );
+      return;
+    }
+
+    setConfirmingLot(lot);
+  };
 
   const confirmDelete = async () => {
     const lot = confirmingLot;
     if (!lot) return;
 
     try {
+      setDeleting(true);
       const res = await parkingLotApi.deleteRegister(lot.id);
       if (res.status === 200 || res.status === 204) {
-        showSuccess(`🗑️ Deleted "${lot.name}" successfully!`);
-        fetchLots();
+        showSuccess(`🗑️ "${lot.name}" đã được vô hiệu hoá (INACTIVE).`);
+        // refresh list
+        await fetchLots();
+        // close modal after successful delete
+        setConfirmingLot(null);
       } else {
         showError("❌ Failed to delete parking lot (invalid status code).");
       }
     } catch (err) {
       console.error("❌ Delete error:", err);
-      const msg =
-        err.response?.data?.message || "❌ Failed to delete parking lot.";
-      showError(msg);
+      const status = err.response?.status;
+      const serverMsg = err.response?.data?.message || err.message;
+
+      if (status === 409) {
+        // Conflict - business rule prevents deletion (e.g., active bookings)
+        showError(
+          serverMsg ||
+            "Không thể vô hiệu hoá bãi xe do có ràng buộc (ví dụ: đặt chỗ đang hoạt động). Vui lòng kiểm tra các booking trước khi vô hiệu hoá."
+        );
+        // keep modal open so admin can take action
+        return;
+      }
+
+      showError(serverMsg || "❌ Failed to delete parking lot.");
     } finally {
-      setConfirmingLot(null);
+      setDeleting(false);
     }
   };
+
+  // Deleting state for confirm button
+  const [deleting, setDeleting] = useState(false);
 
   // ✅ Edit
   const handleEdit = (lot) => {
@@ -193,8 +215,17 @@ export default function AdminParkingLots() {
   };
 
   // ✅ View
-  const handleView = (lot) => {
-    setViewingLot(lot);
+  // Fetch and show full details for a parking lot (fetch first, then open modal)
+  const handleView = async (lot) => {
+    try {
+      const res = await parkingLotApi.getById(lot.id);
+      const detail = res.data?.data ?? res.data ?? null;
+      if (!detail) throw new Error("Empty parking lot detail");
+      setViewingLot(detail);
+    } catch (err) {
+      console.error("❌ Error fetching parking lot detail:", err);
+      showError("Không thể tải chi tiết bãi xe.");
+    }
   };
 
   // ✅ Import Excel
@@ -285,16 +316,12 @@ export default function AdminParkingLots() {
           >
             <option value="">All Status</option>
             <option value="PENDING">Pending</option>
-            <option value="UNDER_SURVEY">Under Survey</option>
             <option value="PREPARING">Preparing</option>
             <option value="PARTNER_CONFIGURATION">Partner Config</option>
-            <option value="ACTIVE_PENDING">Active Pending</option>
             <option value="ACTIVE">Active</option>
             <option value="INACTIVE">Inactive</option>
-            <option value="UNDER_MAINTENANCE">Under Maintenance</option>
             <option value="MAP_DENIED">Map Denied</option>
             <option value="REJECTED">Rejected</option>
-            <option value="DENIED">Denied</option>
           </select>
         </div>
 
@@ -389,9 +416,9 @@ export default function AdminParkingLots() {
                       <button
                         title="View"
                         onClick={() => handleView(lot)}
-                        className="p-2 rounded-full hover:bg-blue-100 transition cursor-pointer"
+                        className="p-2 rounded-full hover:bg-indigo-100 transition cursor-pointer"
                       >
-                        <EyeIcon className="w-5 h-5 text-blue-600" />
+                        <EyeIcon className="w-5 h-5" />
                       </button>
 
                       {/* ✏ Edit */}
@@ -439,9 +466,14 @@ export default function AdminParkingLots() {
           ← Previous
         </button>
 
-        <span className="text-gray-600 text-sm">
-          Page <strong>{page + 1}</strong> of {totalPages}
-        </span>
+        <div className="text-center text-gray-600 text-sm">
+          <div>
+            Page <strong>{page + 1}</strong> of {totalPages}
+          </div>
+          <div className="text-sm text-gray-500 mt-1">
+            Total lots: <strong className="text-indigo-700">{totalCount}</strong>
+          </div>
+        </div>
 
         <button
           disabled={page >= totalPages - 1 || loading}
@@ -455,10 +487,12 @@ export default function AdminParkingLots() {
       {/* ✅ Confirm Delete Modal */}
       <ConfirmModal
         open={!!confirmingLot}
-        title="Confirm Deletion"
-        message={`Are you sure you want to delete "${confirmingLot?.name}"?`}
+        title="Deactivate Parking Lot"
+        message={`This will set the parking lot "${confirmingLot?.name}" to INACTIVE (soft delete). Continue?`}
         onConfirm={confirmDelete}
         onCancel={() => setConfirmingLot(null)}
+        loading={deleting}
+        confirmLabel="Deactivate"
       />
 
       {/* ✅ Popup Edit */}
@@ -469,11 +503,13 @@ export default function AdminParkingLots() {
         onUpdated={fetchLots}
       />
 
-      {/* ✅ Popup View */}
-      <ViewParkingLotReadOnlyModal
-        lot={viewingLot}
-        onClose={() => setViewingLot(null)}
-      />
+      {/* ✅ Popup View (open only after details fetched, like AdminParkingLotRequests) */}
+      {viewingLot && (
+        <ViewParkingLotReadOnlyModal
+          lot={viewingLot}
+          onClose={() => setViewingLot(null)}
+        />
+      )}
     </AdminLayout>
   );
 }
