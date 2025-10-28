@@ -1,35 +1,62 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 export default function ConfirmModal({ open, title, message, onConfirm, onCancel, loading = false, confirmLabel = "Confirm" }) {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      // slight delay to allow CSS transition from hidden -> visible
+      requestAnimationFrame(() => setShow(true));
+    } else {
+      setShow(false);
+    }
+  }, [open]);
+
   if (!open) return null;
 
-  return (
-    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50">
-      <div className="bg-white rounded-xl shadow-lg w-[400px] p-6">
-        <h2 className="text-lg font-semibold text-gray-800 mb-3">{title}</h2>
-        <p className="text-gray-600 mb-6">{message}</p>
+  const handleCancel = () => {
+    setShow(false);
+    // wait for animation to finish before calling parent handler
+    setTimeout(() => onCancel && onCancel(), 200);
+  };
 
-        <div className="flex justify-end gap-3">
-          <button
-            onClick={onCancel}
-            disabled={loading}
-            className={`px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            disabled={loading}
-            className={`px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition flex items-center gap-2 ${loading ? 'opacity-80 cursor-not-allowed' : ''}`}
-          >
-            {loading && (
-              <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-              </svg>
-            )}
-            {loading ? `${confirmLabel}...` : confirmLabel}
-          </button>
+  const handleConfirm = () => {
+    setShow(false);
+    setTimeout(() => onConfirm && onConfirm(), 200);
+  };
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center z-50">
+      {/* backdrop */}
+      <div className={`fixed inset-0 transition-opacity duration-200 ${show ? 'bg-black/30 backdrop-blur-sm' : 'bg-black/10'}`} />
+
+      <div className="relative z-10">
+        <div className={`bg-white rounded-xl shadow-lg w-[400px] p-6 transform transition-all duration-200 ${show ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+          <h2 className="text-lg font-semibold text-gray-800 mb-3">{title}</h2>
+          <p className="text-gray-600 mb-6">{message}</p>
+
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={handleCancel}
+              disabled={loading}
+              className={`px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirm}
+              disabled={loading}
+              className={`px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition flex items-center gap-2 ${loading ? 'opacity-80 cursor-not-allowed' : ''}`}
+            >
+              {loading && (
+                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+              )}
+              {loading ? `${confirmLabel}...` : confirmLabel}
+            </button>
+          </div>
         </div>
       </div>
     </div>

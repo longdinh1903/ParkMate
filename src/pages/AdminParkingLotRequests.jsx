@@ -449,6 +449,12 @@ export default function AdminParkingLotRequests() {
           onClose={() => setViewingLot(null)}
           onActionDone={fetchData}
           showDrawMapButton={true}
+          showResetMapButton={true}
+          statusOptions={[
+            { key: "PREPARING", label: "Preparing", color: "text-yellow-600" },
+            { key: "PARTNER_CONFIGURATION", label: "Partner Configuration", color: "text-blue-600" },
+            { key: "REJECTED", label: "Rejected", color: "text-red-600" },
+          ]}
         />
       )}
     </>

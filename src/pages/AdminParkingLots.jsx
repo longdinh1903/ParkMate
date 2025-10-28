@@ -116,7 +116,7 @@ export default function AdminParkingLots() {
           <span
             className={`${base} bg-indigo-50 text-indigo-700 border-indigo-300`}
           >
-            Partner Config
+            Partner Configuration
           </span>
         );
       case "ACTIVE":
@@ -310,14 +310,14 @@ export default function AdminParkingLots() {
 
           {/* ⚙️ Status Filter */}
           <select
-            className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400"
+            className="border px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
             <option value="">All Status</option>
             <option value="PENDING">Pending</option>
             <option value="PREPARING">Preparing</option>
-            <option value="PARTNER_CONFIGURATION">Partner Config</option>
+            <option value="PARTNER_CONFIGURATION">Partner Configuration</option>
             <option value="ACTIVE">Active</option>
             <option value="INACTIVE">Inactive</option>
             <option value="MAP_DENIED">Map Denied</option>

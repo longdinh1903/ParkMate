@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import ViewParkingLotModal from "../components/ViewParkingLotModal";
 import ParkingLotMapEditor from "../components/ParkingLotMapEditor";
 
-export default function PartnerHome() {
+export default function PartnerHome() { 
   const [lots, setLots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
@@ -192,8 +192,8 @@ export default function PartnerHome() {
         label: "Preparing",
       },
       PARTNER_CONFIGURATION: {
-        bg: "bg-yellow-100",
-        text: "text-yellow-700",
+        bg: "bg-blue-100",
+        text: "text-blue-600",
         icon: "ri-tools-fill",
         label: "Partner Config",
       },
