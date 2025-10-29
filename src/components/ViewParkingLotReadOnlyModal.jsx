@@ -72,6 +72,16 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
           </p>
         </div>
 
+        {/* Reason (if provided by partner) */}
+        {lot.reason && (
+          <div className="mb-6 bg-red-50 p-4 rounded-2xl border border-red-100 shadow-sm">
+            <h3 className="font-semibold text-red-600 mb-2">📝 Reason</h3>
+            <p className="text-sm text-gray-800 whitespace-pre-wrap">
+              {lot.reason}
+            </p>
+          </div>
+        )}
+
         {/* Partner / Owner Info */}
         {(lot.partner || lot.owner || lot.companyName) && (
           <div className="mb-6 bg-gray-50 p-4 rounded-2xl border border-gray-200 shadow-sm">

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 
-export default function AddRuleModal({ onSave, onClose }) {
+export default function AddRuleModal({ open, onSave, onClose }) {
   const [rule, setRule] = useState({
     ruleName: "",
     vehicleType: "",
@@ -50,11 +50,24 @@ export default function AddRuleModal({ onSave, onClose }) {
     onClose();
   };
 
+  if (!open) return null;
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-5 bg-white rounded-2xl shadow-md p-6 border border-gray-100"
-    >
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50" onClick={onClose}>
+      <form
+        onSubmit={handleSubmit}
+        onClick={(e) => e.stopPropagation()}
+        className="relative space-y-5 bg-white rounded-2xl shadow-md p-6 border border-gray-100 max-w-3xl max-h-[90vh] overflow-y-auto"
+      >
+      {/* Close Button */}
+      <button
+        type="button"
+        onClick={onClose}
+        className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
+      >
+        <i className="ri-close-line text-2xl"></i>
+      </button>
+
       <h2 className="text-lg font-bold text-indigo-700 mb-3">
         ➕ Add New Pricing Rule
       </h2>
@@ -203,5 +216,6 @@ export default function AddRuleModal({ onSave, onClose }) {
         </button>
       </div>
     </form>
+    </div>
   );
 }

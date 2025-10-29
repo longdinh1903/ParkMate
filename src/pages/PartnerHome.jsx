@@ -260,10 +260,10 @@ export default function PartnerHome() {
 
   return (
     <PartnerTopLayout>
-  <div className="pb-8 bg-gradient-to-br from-gray-50 via-indigo-50/30 to-gray-50 overflow-x-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="h-[calc(100vh-4rem)] bg-gradient-to-br from-gray-50 via-indigo-50/30 to-gray-50 overflow-y-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           {/* Header */}
-          <div className="mb-8 flex items-center justify-between">
+          <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
                 <i className="ri-parking-box-fill text-2xl text-white"></i>
@@ -285,7 +285,7 @@ export default function PartnerHome() {
           </div>
 
           {/* Search & Sort */}
-          <div className="flex flex-col sm:flex-row items-center gap-3 mb-6">
+          <div className="flex flex-col sm:flex-row items-center gap-3 mb-4">
             <input
               type="text"
               value={search}
@@ -390,7 +390,7 @@ export default function PartnerHome() {
 
                 {/* Pagination like AdminPartners: simple Prev / Page X / Next */}
                 {pagination.totalPages > 1 && (
-                  <div className="flex justify-between items-center mt-6 px-6">
+                  <div className="flex justify-between items-center py-4 px-6 bg-gray-50 border-t border-gray-200">
                     <button
                       disabled={page <= 0}
                       onClick={() => setPage((p) => Math.max(p - 1, 0))}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import AdminLayout from "../layouts/AdminLayout";
 import adminApi from "../api/adminApi";
 import {
@@ -12,6 +12,7 @@ import {
 import { showSuccess, showError, showInfo } from "../utils/toastUtils.jsx";
 import EditUserModal from "../components/EditUserModal";
 import ViewUserModal from "../components/ViewUserModal";
+import ConfirmModal from "../components/ConfirmModal";
 import toast from "react-hot-toast";
 
 export default function AdminUsers() {
@@ -26,9 +27,11 @@ export default function AdminUsers() {
   const [editingUser, setEditingUser] = useState(null);
   const [viewingUser, setViewingUser] = useState(null);
   const [loadingView, setLoadingView] = useState(false);
+  const [deletingUser, setDeletingUser] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   // ✅ Fetch all users
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const res = await adminApi.getAllUser({ page, size, search });
       const responseData = res.data?.data;
@@ -45,12 +48,12 @@ export default function AdminUsers() {
       showError("Không thể tải danh sách người dùng.");
       setUsers([]);
     }
-  };
+  }, [page, size, search]);
 
   useEffect(() => {
     const delay = setTimeout(fetchUsers, 300);
     return () => clearTimeout(delay);
-  }, [page, search]);
+  }, [fetchUsers]);
 
   // Fetch total number of users (keeps in sync with list)
   const fetchUserCount = async (filters = {}) => {
@@ -138,6 +141,30 @@ export default function AdminUsers() {
       showError("Không thể tải chi tiết người dùng!");
     } finally {
       setLoadingView(false);
+    }
+  };
+
+  // ✅ Delete user
+  const handleDeleteClick = (user) => {
+    setDeletingUser(user);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingUser) return;
+    
+    setDeleteLoading(true);
+    try {
+      await adminApi.deleteUser(deletingUser.id || deletingUser.userId);
+      showSuccess("Xóa người dùng thành công!");
+      setDeletingUser(null);
+      fetchUsers();
+    } catch (err) {
+      console.error("❌ Delete failed:", err);
+      showError(
+        err.response?.data?.message || "Xóa người dùng thất bại!"
+      );
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -342,9 +369,7 @@ export default function AdminUsers() {
                         </button>
                         <button
                           title="Delete User"
-                          onClick={() =>
-                            showInfo("Tính năng xóa đang được phát triển")
-                          }
+                          onClick={() => handleDeleteClick(u)}
                           className="p-2 rounded-full hover:bg-red-100 transition cursor-pointer"
                         >
                           <TrashIcon className="w-5 h-5" />
@@ -420,6 +445,21 @@ export default function AdminUsers() {
           </div>
         </div>
       )}
+
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        open={!!deletingUser}
+        title="Confirm Delete User"
+        message={`Are you sure you want to delete user "${
+          deletingUser?.fullName ||
+          `${deletingUser?.firstName || ""} ${deletingUser?.lastName || ""}`.trim() ||
+          "this user"
+        }"? This action cannot be undone.`}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeletingUser(null)}
+        loading={deleteLoading}
+        confirmLabel="Delete"
+      />
     </AdminLayout>
   );
 }

@@ -12,7 +12,9 @@ export default function ViewUserModal({ userId, user, onClose }) {
       try {
         setLoading(true);
         const res = await adminApi.getUserById(userId);
-        setData(res.data?.data || null);
+        const userData = res.data?.data || null;
+        console.log("👤 User data from API:", userData);
+        setData(userData);
       } catch (err) {
         console.error("❌ Error fetching user:", err);
         showError("Không thể tải thông tin người dùng!");
@@ -22,7 +24,7 @@ export default function ViewUserModal({ userId, user, onClose }) {
     };
     // Nếu chưa có dữ liệu thì gọi API
     if (!user) fetchUser();
-  }, [userId]);
+  }, [userId, user]);
 
   if (!data && !loading)
     return (
@@ -74,7 +76,32 @@ export default function ViewUserModal({ userId, user, onClose }) {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "-";
-    return new Date(dateStr).toLocaleDateString("vi-VN");
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString("vi-VN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+    } catch {
+      return dateStr;
+    }
+  };
+
+  const formatDateTime = (dateStr) => {
+    if (!dateStr) return "-";
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleString("vi-VN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return dateStr;
+    }
   };
 
   return (
@@ -117,21 +144,44 @@ export default function ViewUserModal({ userId, user, onClose }) {
               }
               alt="avatar"
               className="w-24 h-24 rounded-full object-cover border-2 border-indigo-200 mx-auto mb-3"
+              onError={(e) => {
+                console.log("❌ Avatar image failed to load:", e.target.src);
+                e.target.onerror = null;
+                e.target.src = "https://placehold.co/100x100?text=👤";
+              }}
+              onLoad={() => {
+                console.log(
+                  "✅ Avatar loaded successfully:",
+                  data.profilePicturePresignedUrl
+                );
+              }}
             />
-            <h3 className="text-lg font-semibold">{data.fullName}</h3>
-            <p className="text-gray-500">{data.email}</p>
+            <h3 className="text-lg font-semibold">
+              {data.fullName ||
+                `${data.firstName || ""} ${data.lastName || ""}`.trim() ||
+                "-"}
+            </h3>
+            <p className="text-gray-500">
+              {data.phoneNumber || data.phone || "-"}
+            </p>
             <div className="flex justify-center gap-3 mt-2">
-              <Badge text={data.role || "USER"} color="gray" />
               <Badge
-                text={data.status || "UNKNOWN"}
-                color={
-                  data.status === "ACTIVE"
-                    ? "green"
-                    : data.status === "INACTIVE"
-                    ? "red"
-                    : "yellow"
-                }
+                text={data.role || data.account?.role || "USER"}
+                color="gray"
               />
+              {data.nationality && (
+                <Badge text={data.nationality} color="green" />
+              )}
+              {(data.status || data.account?.status) && (
+                <Badge
+                  text={data.status || data.account?.status}
+                  color={
+                    (data.status || data.account?.status) === "ACTIVE"
+                      ? "green"
+                      : "red"
+                  }
+                />
+              )}
             </div>
           </div>
 
@@ -142,12 +192,30 @@ export default function ViewUserModal({ userId, user, onClose }) {
             </h4>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-gray-500 text-xs">Phone</p>
-                <p>{data.phone || "-"}</p>
+                <p className="text-gray-500 text-xs">Phone Number</p>
+                <p className="font-medium">
+                  {data.phoneNumber || data.phone || "-"}
+                </p>
               </div>
               <div>
+                <p className="text-gray-500 text-xs">First Name</p>
+                <p className="font-medium">{data.firstName || "-"}</p>
+              </div>
+              <div>
+                <p className="text-gray-500 text-xs">Last Name</p>
+                <p className="font-medium">{data.lastName || "-"}</p>
+              </div>
+              <div>
+                <p className="text-gray-500 text-xs">Gender</p>
+                <p className="font-medium">{data.gender || "-"}</p>
+              </div>
+              <div className="col-span-2">
                 <p className="text-gray-500 text-xs">Address</p>
-                <p>{data.address || "-"}</p>
+                <p className="font-medium">{data.address || "-"}</p>
+              </div>
+              <div>
+                <p className="text-gray-500 text-xs">Nationality</p>
+                <p className="font-medium">{data.nationality || "-"}</p>
               </div>
             </div>
           </section>
@@ -155,28 +223,34 @@ export default function ViewUserModal({ userId, user, onClose }) {
           {/* Personal & ID */}
           <section>
             <h4 className="text-indigo-600 font-semibold border-b border-indigo-200 pb-1 mb-3">
-              Personal & ID
+              Personal & Identity Card
             </h4>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-gray-500 text-xs">Date of Birth</p>
-                <p>{formatDate(data.dateOfBirth)}</p>
+                <p className="font-medium">{formatDate(data.dateOfBirth)}</p>
               </div>
               <div>
                 <p className="text-gray-500 text-xs">ID Number</p>
-                <p>{data.idNumber || "-"}</p>
+                <p className="font-medium">{data.idNumber || "-"}</p>
               </div>
               <div>
-                <p className="text-gray-500 text-xs">Issue Place</p>
-                <p>{data.issuePlace || "-"}</p>
+                <p className="text-gray-500 text-xs">Issue By</p>
+                <p className="font-medium">
+                  {data.issueBy || data.issuePlace || "-"}
+                </p>
               </div>
               <div>
                 <p className="text-gray-500 text-xs">Issue Date</p>
-                <p>{formatDate(data.issueDate)}</p>
+                <p className="font-medium">
+                  {formatDate(data.issueOn || data.issueDate)}
+                </p>
               </div>
               <div>
-                <p className="text-gray-500 text-xs">Expiry Date</p>
-                <p>{formatDate(data.expiryDate)}</p>
+                <p className="text-gray-500 text-xs">Expired Date</p>
+                <p className="font-medium">
+                  {formatDate(data.expiredDate || data.expiryDate)}
+                </p>
               </div>
             </div>
 
@@ -185,21 +259,41 @@ export default function ViewUserModal({ userId, user, onClose }) {
               <div className="mt-4 grid grid-cols-2 gap-4">
                 {data.frontPhotoPresignedUrl && (
                   <div>
-                    <p className="text-gray-500 text-xs mb-1">Front of ID</p>
+                    <p className="text-gray-500 text-xs mb-1">
+                      Front of ID Card
+                    </p>
                     <img
                       src={data.frontPhotoPresignedUrl}
                       alt="Front ID"
-                      className="w-full h-40 object-cover rounded-md border"
+                      className="w-full h-40 object-cover rounded-md border hover:scale-105 transition-transform cursor-pointer"
+                      onClick={() =>
+                        window.open(data.frontPhotoPresignedUrl, "_blank")
+                      }
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src =
+                          "https://placehold.co/400x250?text=Front+ID";
+                      }}
                     />
                   </div>
                 )}
                 {data.backPhotoPresignedUrl && (
                   <div>
-                    <p className="text-gray-500 text-xs mb-1">Back of ID</p>
+                    <p className="text-gray-500 text-xs mb-1">
+                      Back of ID Card
+                    </p>
                     <img
                       src={data.backPhotoPresignedUrl}
                       alt="Back ID"
-                      className="w-full h-40 object-cover rounded-md border"
+                      className="w-full h-40 object-cover rounded-md border hover:scale-105 transition-transform cursor-pointer"
+                      onClick={() =>
+                        window.open(data.backPhotoPresignedUrl, "_blank")
+                      }
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src =
+                          "https://placehold.co/400x250?text=Back+ID";
+                      }}
                     />
                   </div>
                 )}
@@ -210,16 +304,22 @@ export default function ViewUserModal({ userId, user, onClose }) {
           {/* History */}
           <section>
             <h4 className="text-indigo-600 font-semibold border-b border-indigo-200 pb-1 mb-3">
-              History
+              Account Information
             </h4>
             <div className="grid grid-cols-2 gap-4">
               <div>
+                <p className="text-gray-500 text-xs">Email Address</p>
+                <p className="font-medium">
+                  {data.account?.email || data.email || "-"}
+                </p>
+              </div>
+              <div>
                 <p className="text-gray-500 text-xs">Created At</p>
-                <p>{formatDate(data.createdAt)}</p>
+                <p className="font-medium">{formatDateTime(data.createdAt)}</p>
               </div>
               <div>
                 <p className="text-gray-500 text-xs">Updated At</p>
-                <p>{formatDate(data.updatedAt)}</p>
+                <p className="font-medium">{formatDateTime(data.updatedAt)}</p>
               </div>
             </div>
           </section>

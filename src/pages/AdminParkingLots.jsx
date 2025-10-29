@@ -14,6 +14,7 @@ import { showInfo, showSuccess, showError } from "../utils/toastUtils.jsx";
 import ConfirmModal from "../components/ConfirmModal.jsx";
 import EditParkingLotModal from "../components/EditParkingLotModal.jsx";
 import ViewParkingLotReadOnlyModal from "../components/ViewParkingLotReadOnlyModal.jsx"; // ✅ modal mới
+import AddParkingLotModal from "../components/AddParkingLotModal.jsx";
 
 export default function AdminParkingLots() {
   const [lots, setLots] = useState([]);
@@ -27,6 +28,7 @@ export default function AdminParkingLots() {
   const [confirmingLot, setConfirmingLot] = useState(null);
   const [editingLot, setEditingLot] = useState(null);
   const [viewingLot, setViewingLot] = useState(null); // ✅ thêm state để xem chi tiết
+  const [showAddModal, setShowAddModal] = useState(false);
 
   // ✅ Fetch parking lots
   const fetchLots = async () => {
@@ -328,17 +330,17 @@ export default function AdminParkingLots() {
         {/* Right side: Actions */}
         <div className="flex items-center gap-2">
           <button
-            onClick={() => showInfo("🟣 Add Parking Lot clicked")}
+            onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition cursor-pointer"
           >
             <PlusIcon className="w-5 h-5 text-white" />
             Add Parking Lot
           </button>
 
-          {/* ✅ Import Excel */}
+          {/* ✅ Import */}
           <label className="flex items-center hover:bg-yellow-200 font-medium px-4 py-2 rounded-lg border transition cursor-pointer">
             <ArrowUpTrayIcon className="w-5 h-5 text-yellow-700" />
-            Import Excel
+            Import 
             <input
               type="file"
               accept=".xlsx"
@@ -347,13 +349,13 @@ export default function AdminParkingLots() {
             />
           </label>
 
-          {/* ✅ Export Excel */}
+          {/* ✅ Export */}
           <button
             onClick={handleExport}
             className="flex items-center hover:bg-green-200 font-medium px-4 py-2 rounded-lg border transition cursor-pointer"
           >
             <ArrowDownTrayIcon className="w-5 h-5 text-green-700" />
-            Export Excel
+            Export 
           </button>
         </div>
       </div>
@@ -510,6 +512,13 @@ export default function AdminParkingLots() {
           onClose={() => setViewingLot(null)}
         />
       )}
+
+      {/* ✅ Add Parking Lot Modal */}
+      <AddParkingLotModal
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onCreated={fetchLots}
+      />
     </AdminLayout>
   );
 }

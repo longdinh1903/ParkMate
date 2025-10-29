@@ -12,6 +12,7 @@ const adminApi = {
   updateUser: (id, data) =>
     axiosClient.put(`/api/v1/user-service/users/${id}`, data),
   getUserById: (id) => axiosClient.get(`/api/v1/user-service/users/${id}`),
+  deleteUser: (id) => axiosClient.delete(`/api/v1/user-service/users/${id}`),
 
   // ✅ EXPORT USERS TO EXCEL
   exportUsers: (params) =>
