@@ -445,7 +445,17 @@ export default function ViewParkingLotModal({
             {showDrawMapButton && (
               <button
                 onClick={() => setShowDrawMap(true)}
-                className="bg-blue-100 text-blue-700 px-6 py-2 rounded-md text-sm font-medium hover:bg-blue-200 flex items-center gap-2"
+                disabled={!["PREPARING", "MAP_DENIED"].includes((lot?.mapStatus || lot?.status || "").toUpperCase())}
+                title={
+                  !["PREPARING", "MAP_DENIED"].includes((lot?.mapStatus || lot?.status || "").toUpperCase())
+                    ? `Map editing is locked. Current status: ${lot?.mapStatus || lot?.status}. Only available in PREPARING or MAP_DENIED status.`
+                    : "Open map editor"
+                }
+                className={`px-6 py-2 rounded-md text-sm font-medium flex items-center gap-2 ${
+                  ["PREPARING", "MAP_DENIED"].includes((lot?.mapStatus || lot?.status || "").toUpperCase())
+                    ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
+                    : "bg-gray-50 text-gray-400 border border-gray-200 cursor-not-allowed"
+                }`}
               >
                 🗺️ Draw Map
               </button>

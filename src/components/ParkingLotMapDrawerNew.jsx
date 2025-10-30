@@ -6,14 +6,13 @@ import areaApi from "../api/areaApi";
 
 export default function ParkingLotMapDrawer({ lot, onClose }) {
   const [currentFloor, setCurrentFloor] = useState(1);
-  const [floors, setFloors] = useState([
-    {
-      floorNumber: 1,
-      floorName: "Floor 1",
-      areas: [],
-      strokes: [],
-    },
-  ]);
+  const [floors, setFloors] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Check if lot is in PREPARING or MAP_DENIED status (allow drawing in these statuses)
+  const canEdit = ["PREPARING", "MAP_DENIED"].includes(
+    (lot.mapStatus || lot.status || "").toUpperCase()
+  );
 
   const [mode, setMode] = useState("draw"); // "draw" | "erase" | "area"
   const [selectedAreaId, setSelectedAreaId] = useState(null);
@@ -28,6 +27,100 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
   const stageRef = useRef(null);
   const transformerRef = useRef(null);
   const selectedAreaRef = useRef(null);
+
+  // Load existing floors from database
+  useEffect(() => {
+    const loadExistingFloors = async () => {
+      try {
+        setLoading(true);
+        console.log("🔍 Loading existing floors for lot:", lot.id);
+        
+        const floorsRes = await floorApi.getByLotId(lot.id);
+        const floorsDataRaw = floorsRes.data?.data || floorsRes.data;
+
+        // Normalize response
+        let floorsData = [];
+        if (Array.isArray(floorsDataRaw)) {
+          floorsData = floorsDataRaw;
+        } else if (floorsDataRaw && Array.isArray(floorsDataRaw.content)) {
+          floorsData = floorsDataRaw.content;
+        }
+
+        console.log("📥 Loaded existing floors:", floorsData);
+
+        if (floorsData.length > 0) {
+          // Create floor list with existing floors (areas will be empty for drawing)
+          const existingFloors = floorsData.map(floor => ({
+            floorNumber: floor.floorNumber,
+            floorName: floor.floorName || `Floor ${floor.floorNumber}`,
+            areas: [],
+            strokes: [],
+            existsInDb: true, // Mark as existing
+            dbId: floor.id,
+          }));
+
+          // Add missing floors up to totalFloors
+          const maxFloorNumber = Math.max(...floorsData.map(f => f.floorNumber));
+          const totalFloors = lot.totalFloors || maxFloorNumber;
+          
+          for (let i = 1; i <= totalFloors; i++) {
+            if (!existingFloors.find(f => f.floorNumber === i)) {
+              existingFloors.push({
+                floorNumber: i,
+                floorName: `Floor ${i}`,
+                areas: [],
+                strokes: [],
+                existsInDb: false,
+              });
+            }
+          }
+
+          // Sort by floor number
+          existingFloors.sort((a, b) => a.floorNumber - b.floorNumber);
+
+          setFloors(existingFloors);
+          
+          // Set current floor to first UNDRAWN floor, or first floor if all drawn
+          const firstUndrawnFloor = existingFloors.find(f => !f.existsInDb);
+          setCurrentFloor(firstUndrawnFloor ? firstUndrawnFloor.floorNumber : existingFloors[0].floorNumber);
+          
+          console.log("✅ Initialized floors:", existingFloors);
+          console.log("📍 Current floor set to:", firstUndrawnFloor ? `Floor ${firstUndrawnFloor.floorNumber} (undrawn)` : `Floor ${existingFloors[0].floorNumber} (all drawn)`);
+          // No toast needed - loading spinner already shows floors are loading
+        } else {
+          // No existing floors, start with Floor 1
+          setFloors([
+            {
+              floorNumber: 1,
+              floorName: "Floor 1",
+              areas: [],
+              strokes: [],
+              existsInDb: false,
+            },
+          ]);
+          setCurrentFloor(1);
+          console.log("ℹ️ No existing floors, starting fresh");
+        }
+      } catch (err) {
+        console.error("❌ Error loading floors:", err);
+        // Start with Floor 1 on error
+        setFloors([
+          {
+            floorNumber: 1,
+            floorName: "Floor 1",
+            areas: [],
+            strokes: [],
+            existsInDb: false,
+          },
+        ]);
+        setCurrentFloor(1);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadExistingFloors();
+  }, [lot.id, lot.totalFloors]);
 
   // Get current floor data
   const currentFloorData =
@@ -238,7 +331,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
               fill: "rgba(147,197,253,0.3)",
               stroke: "#3b82f6",
             };
-            toast.success(`✅ Created ${newArea.name}`);
+            // Area created - no toast needed, visual feedback is enough
             return { ...f, areas: [...filtered, newArea] };
           } else {
             toast.error("⚠️ Area too small!");
@@ -297,7 +390,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
       ),
     });
 
-    toast.success(`✅ Added spot ${newSpot.name}`);
+    // Removed toast to avoid spam when adding multiple spots
   };
 
   const handleDeleteArea = () => {
@@ -337,7 +430,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
 
   const handleClearAll = () => {
     if (strokes.length === 0 && areas.length === 0) {
-      toast("⚠️ Nothing to clear");
+      // Nothing to clear - no notification needed
       return;
     }
 
@@ -372,7 +465,15 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
   // ===== FLOOR MANAGEMENT =====
 
   const handleAddFloor = () => {
-    const newFloorNumber = floors.length + 1;
+    const maxFloorNumber = Math.max(...floors.map(f => f.floorNumber));
+    const newFloorNumber = maxFloorNumber + 1;
+    
+    // Check if exceeds total floors
+    if (lot.totalFloors && newFloorNumber > lot.totalFloors) {
+      toast.error(`⚠️ Cannot add more than ${lot.totalFloors} floors!`);
+      return;
+    }
+    
     setFloors([
       ...floors,
       {
@@ -380,10 +481,11 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
         floorName: `Floor ${newFloorNumber}`,
         areas: [],
         strokes: [],
+        existsInDb: false,
       },
     ]);
     setCurrentFloor(newFloorNumber);
-    toast.success(`✅ Added Floor ${newFloorNumber}`);
+    // Floor added - no toast needed, dropdown shows new floor
   };
 
   const handleDeleteFloor = () => {
@@ -392,8 +494,20 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
       return;
     }
 
+    const floorToDelete = floors.find(f => f.floorNumber === currentFloor);
+    
+    // If floor exists in DB, warn user
+    if (floorToDelete?.existsInDb) {
+      toast.error("⚠️ Cannot delete floor that already exists in database!");
+      return;
+    }
+
     setFloors(floors.filter((f) => f.floorNumber !== currentFloor));
-    setCurrentFloor(1);
+    
+    // Set to first available floor
+    const remainingFloors = floors.filter((f) => f.floorNumber !== currentFloor);
+    setCurrentFloor(remainingFloors[0].floorNumber);
+    
     toast.success(`🗑 Floor ${currentFloor} deleted!`);
   };
 
@@ -407,8 +521,10 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
         return;
       }
 
-      const hasAreas = floors.some(f => f.areas.length > 0);
-      if (!hasAreas) {
+      // Only save floors that have areas (new drawings)
+      const floorsToSave = floors.filter(f => f.areas.length > 0);
+      
+      if (floorsToSave.length === 0) {
         toast.error("⚠️ Please create at least one area before saving!");
         return;
       }
@@ -416,13 +532,57 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
       const loadingId = toast.loading("💾 Saving parking lot layout...");
 
       console.log("🚀 Starting save for lot:", lot.id);
-      console.log("📦 Total floors:", floors.length);
+      console.log("📦 Total floors to save:", floorsToSave.length);
 
       // Lưu từng floor
-      for (const floor of floors) {
+      for (const floor of floorsToSave) {
         console.log(`\n🏢 Saving Floor ${floor.floorNumber}...`);
         
-        // Format theo Swagger example
+        // Skip if floor already exists in database
+        if (floor.existsInDb) {
+          console.log(`⚠️ Floor ${floor.floorNumber} already exists in DB (ID: ${floor.dbId}), skipping floor creation...`);
+          
+          // Use existing floor ID to save areas
+          const floorId = floor.dbId;
+          
+          // Lưu các areas mới
+          if (floor.areas.length > 0) {
+            console.log(`📍 Saving ${floor.areas.length} NEW areas for existing floor ${floorId}...`);
+            
+            for (const area of floor.areas) {
+              const areaPayload = {
+                name: area.name,
+                vehicleType: "CAR_UP_TO_9_SEATS",
+                areaTopLeftX: Math.round(area.x),
+                areaTopLeftY: Math.round(area.y),
+                areaWidth: Math.round(area.width),
+                areaHeight: Math.round(area.height),
+                supportElectricVehicle: false,
+                totalSpots: area.spots?.length || 0,
+                spotRequests: (area.spots || []).map((s) => ({
+                  name: s.name,
+                  spotTopLeftX: Math.round(s.x),
+                  spotTopLeftY: Math.round(s.y),
+                  spotWidth: Math.round(s.width),
+                  spotHeight: Math.round(s.height),
+                })),
+              };
+
+              try {
+                const areaRes = await areaApi.create(floorId, areaPayload);
+                console.log(`✅ Area "${area.name}" created:`, areaRes.data);
+              } catch (areaError) {
+                console.error(`❌ Area "${area.name}" failed:`, areaError);
+                throw new Error(`Failed to create area "${area.name}": ${areaError.response?.data?.message || areaError.message}`);
+              }
+            }
+          }
+          
+          console.log(`✅ Floor ${floor.floorNumber} completed (existing floor, added areas)!`);
+          continue;
+        }
+        
+        // Create new floor if it doesn't exist in DB
         const floorPayload = {
           floorNumber: floor.floorNumber,
           floorName: floor.floorName,
@@ -435,7 +595,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
           ],
         };
 
-        console.log("📤 Floor payload:", JSON.stringify(floorPayload, null, 2));
+        console.log("📤 Creating NEW floor payload:", JSON.stringify(floorPayload, null, 2));
         console.log("📍 Endpoint:", `/api/v1/parking-service/floors/${lot.id}`);
 
         const floorRes = await floorApi.create(lot.id, floorPayload);
@@ -524,50 +684,107 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     }
   };
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white z-[60]">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Loading floors...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="fixed inset-0 flex flex-col bg-white z-[60]">{/* Toolbar */}
-      {/* Toolbar */}
-      <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-indigo-50 to-white shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
-            <i className="ri-map-2-fill text-white text-xl"></i>
-          </div>
-          <div>
-            <h2 className="text-lg font-bold text-gray-900">
-              Draw Parking Map
-            </h2>
-            <p className="text-xs text-gray-500">{lot.name}</p>
+    <div className="fixed inset-0 flex flex-col bg-white z-[60]">
+      {/* Check if lot is not in PREPARING status */}
+      {!canEdit ? (
+        <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-50">
+          <div className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-md">
+            <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i className="ri-lock-fill text-amber-600 text-5xl"></i>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Map Editing Locked</h3>
+            <p className="text-gray-600 mb-2">
+              This parking lot is in <span className="font-semibold text-amber-600">{lot.mapStatus || lot.status}</span> status.
+            </p>
+            <p className="text-sm text-gray-500 mb-6">
+              Map editing is only available when status is <span className="font-semibold text-green-600">PREPARING</span> or <span className="font-semibold text-amber-600">MAP_DENIED</span>.
+            </p>
+            <button
+              onClick={onClose}
+              className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium shadow-md hover:shadow-lg transition-all"
+            >
+              <i className="ri-close-line mr-2"></i>
+              Close
+            </button>
           </div>
         </div>
+      ) : floors.every(f => f.existsInDb) ? (
+        <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50">
+          <div className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-md">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i className="ri-checkbox-circle-fill text-green-600 text-5xl"></i>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">All Floors Completed! 🎉</h3>
+            <p className="text-gray-600 mb-6">
+              You have successfully drawn all {floors.length} floors for <span className="font-semibold">{lot.name}</span>.
+            </p>
+            <button
+              onClick={onClose}
+              className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-md hover:shadow-lg transition-all"
+            >
+              <i className="ri-close-line mr-2"></i>
+              Close Editor
+            </button>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Toolbar */}
+          <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-indigo-50 to-white shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+                <i className="ri-map-2-fill text-white text-xl"></i>
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">
+                  Draw Parking Map
+                </h2>
+                <p className="text-xs text-gray-500">{lot.name}</p>
+              </div>
+            </div>
 
         <div className="flex items-center gap-3">
-          {/* Floor Navigation */}
+          {/* Floor Navigation - Only show undrawn floors */}
           <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-2">
-            <span className="text-sm font-medium text-gray-700">Floor:</span>
-            {floors.map((f) => (
-              <button
-                key={f.floorNumber}
-                onClick={() => setCurrentFloor(f.floorNumber)}
-                className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${
-                  currentFloor === f.floorNumber
-                    ? "bg-indigo-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                {f.floorNumber}
-              </button>
-            ))}
-            <button
-              onClick={handleAddFloor}
-              className="px-3 py-1 rounded-md bg-green-100 text-green-700 hover:bg-green-200 text-sm font-medium flex items-center gap-1"
+            <span className="text-sm font-medium text-gray-700 flex-shrink-0">Floor:</span>
+            <select
+              value={currentFloor}
+              onChange={(e) => setCurrentFloor(Number(e.target.value))}
+              className="px-3 py-1 rounded-md text-sm font-medium bg-white text-gray-900 border border-gray-300 cursor-pointer focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
-              <i className="ri-add-line"></i>
-              Add Floor
-            </button>
-            {floors.length > 1 && (
+              {floors.filter(f => !f.existsInDb).map((f) => (
+                <option key={f.floorNumber} value={f.floorNumber}>
+                  Floor {f.floorNumber}
+                </option>
+              ))}
+            </select>
+            {/* Only show Add button if haven't reached total floors */}
+            {(!lot.totalFloors || floors.length < lot.totalFloors) && (
+              <button
+                onClick={handleAddFloor}
+                className="px-3 py-1 rounded-md bg-green-100 text-green-700 hover:bg-green-200 text-sm font-medium flex items-center gap-1 flex-shrink-0"
+              >
+                <i className="ri-add-line"></i>
+                Add
+              </button>
+            )}
+            {floors.filter(f => !f.existsInDb).length > 1 && (
               <button
                 onClick={handleDeleteFloor}
-                className="px-3 py-1 rounded-md bg-red-100 text-red-700 hover:bg-red-200 text-sm"
+                className="px-3 py-1 rounded-md bg-red-100 text-red-700 hover:bg-red-200 text-sm flex-shrink-0"
                 title="Delete Current Floor"
               >
                 <i className="ri-delete-bin-line"></i>
@@ -884,7 +1101,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                       ),
                     });
                     
-                    toast.success(`📍 Moved ${area.name}`);
+                    // Removed toast to avoid spam when dragging
                   }}
                   onTransformEnd={(e) => {
                     const node = e.target;
@@ -919,6 +1136,16 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                   fontSize={12}
                   fill="#2563eb"
                   fontStyle="bold"
+                />
+                {/* Display area dimensions */}
+                <Text
+                  x={area.x + 5}
+                  y={area.y + 5}
+                  text={`${Math.round(area.width)} × ${Math.round(area.height)}`}
+                  fontSize={11}
+                  fill="#1e40af"
+                  fontStyle="bold"
+                  opacity={0.8}
                 />
 
                 {/* Spots inside area */}
@@ -972,11 +1199,16 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                       }}
                     />
                     <Text
-                      x={area.x + spot.x + 5}
-                      y={area.y + spot.y + 25}
-                      text={spot.name}
-                      fontSize={10}
+                      x={area.x + spot.x + spot.width / 2}
+                      y={area.y + spot.y + spot.height / 2}
+                      text={spot.name.split('-S')[1] || spot.name}
+                      fontSize={9}
                       fill="#166534"
+                      fontStyle="bold"
+                      align="center"
+                      verticalAlign="middle"
+                      offsetX={10}
+                      offsetY={5}
                       listening={false}
                     />
                   </Group>
@@ -1007,6 +1239,8 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
           </Layer>
         </Stage>
       </div>
+        </>
+      )}
     </div>
   );
 }

@@ -332,24 +332,34 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
                       cornerRadius={4}
                     />
 
-                    {/* Vehicle Type Label (Orange if default, Green if updated) */}
+                    {/* Vehicle Type Label - Display outside above area */}
                     <Text
-                      x={area.areaTopLeftX + 8}
-                      y={area.areaTopLeftY + 8}
+                      x={area.areaTopLeftX}
+                      y={area.areaTopLeftY - 56}
                       text={`Type: ${area.vehicleType || "Not set"}`}
                       fontSize={11}
                       fill={typeColor}
                       fontStyle="bold"
                     />
 
-                    {/* Area Name */}
+                    {/* Area Name - Display outside above area */}
                     <Text
-                      x={area.areaTopLeftX + 8}
-                      y={area.areaTopLeftY + 24}
+                      x={area.areaTopLeftX}
+                      y={area.areaTopLeftY - 38}
                       text={`${area.name} (${area.spots?.length || 0} spots)`}
-                      fontSize={14}
-                      fill="#1f2937"
+                      fontSize={12}
+                      fill="#2563eb"
                       fontStyle="bold"
+                    />
+
+                    {/* Area dimensions - Display outside above area, below name */}
+                    <Text
+                      x={area.areaTopLeftX}
+                      y={area.areaTopLeftY - 22}
+                      text={`Size: ${Math.round(area.areaWidth)} × ${Math.round(area.areaHeight)}`}
+                      fontSize={10}
+                      fill="#64748b"
+                      fontStyle="normal"
                     />
 
                     {/* Draw Spots */}
@@ -372,16 +382,16 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
                           cornerRadius={2}
                         />
                         <Text
-                          x={area.areaTopLeftX + spot.spotTopLeftX + 4}
-                          y={
-                            area.areaTopLeftY +
-                            spot.spotTopLeftY +
-                            spot.spotHeight / 2 -
-                            6
-                          }
-                          text={spot.name}
-                          fontSize={10}
+                          x={area.areaTopLeftX + spot.spotTopLeftX + spot.spotWidth / 2}
+                          y={area.areaTopLeftY + spot.spotTopLeftY + spot.spotHeight / 2}
+                          text={spot.name.split('-S')[1] || spot.name.substring(spot.name.length - 2)}
+                          fontSize={9}
                           fill="#166534"
+                          fontStyle="bold"
+                          align="center"
+                          verticalAlign="middle"
+                          offsetX={10}
+                          offsetY={5}
                         />
                       </Group>
                     ))}
