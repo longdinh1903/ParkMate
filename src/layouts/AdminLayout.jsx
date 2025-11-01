@@ -120,11 +120,17 @@ export default function AdminLayout({ children }) {
           <div className="relative group">
             <button
               onClick={handleLogout}
-              className="flex items-center justify-center w-12 h-12 rounded-lg text-gray-300 hover:bg-indigo-600 hover:text-white transition"
+              className={`flex items-center gap-3 rounded-lg transition-all duration-300 ${
+                isExpanded ? "px-6 py-3 w-full" : "justify-center w-12 h-12"
+              } text-gray-200 hover:bg-indigo-600 hover:text-white`}
             >
               <i className="ri-logout-box-r-line text-2xl"></i>
+              {isExpanded && (
+                <span className="text-sm font-medium">Logout</span>
+              )}
             </button>
 
+            {/* Tooltip khi sidebar thu gọn */}
             {!isExpanded && (
               <div
                 className="absolute left-14 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 

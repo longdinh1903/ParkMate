@@ -50,6 +50,7 @@ export default function Login() {
 
         if (accessToken) {
           localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("userEmail", email); // Save email for display
           
           // ✅ Decode token để lấy partnerId
           const decoded = decodeToken(accessToken);

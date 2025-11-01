@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import parkingLotApi from "../api/parkingLotApi";
 import floorApi from "../api/floorApi";
 import ConfirmModal from "../components/ConfirmModal";
@@ -21,19 +21,21 @@ export default function AdminParkingLotRequests() {
   const [totalPages, setTotalPages] = useState(1);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState("desc");
   const [viewingLot, setViewingLot] = useState(null);
   const [confirmingLot, setConfirmingLot] = useState(null);
   const [loading, setLoading] = useState(false);
 
   // ✅ Fetch data
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const res = await parkingLotApi.getAll({
         page,
         size,
-        sortBy: "createdAt",
-        sortOrder: "desc",
+        sortBy: sortBy,
+        sortOrder: sortOrder,
       });
       const data = res.data?.data;
       const lots = Array.isArray(data?.content) ? data.content : data || [];
@@ -81,12 +83,11 @@ export default function AdminParkingLotRequests() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, size, sortBy, sortOrder]);
 
   useEffect(() => {
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [fetchData]);
 
   // ✅ View details popup
   const handleView = async (id) => {
@@ -238,9 +239,50 @@ export default function AdminParkingLotRequests() {
             </svg>
           </div>
 
+          {/* Sort By */}
+          <div className="relative">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
+            >
+              <option value="createdAt">Created Date</option>
+              <option value="name">Name</option>
+              <option value="city">City</option>
+              <option value="status">Status</option>
+              <option value="totalFloors">Total Floors</option>
+            </select>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-4 h-4 absolute right-3 top-3 text-gray-400 pointer-events-none"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </div>
+
+          {/* Sort Order Toggle */}
+          <button
+            onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+            className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
+            title={sortOrder === "asc" ? "Ascending" : "Descending"}
+          >
+            {sortOrder === "asc" ? (
+              <i className="ri-sort-asc text-lg text-gray-600"></i>
+            ) : (
+              <i className="ri-sort-desc text-lg text-gray-600"></i>
+            )}
+            <span className="text-sm text-gray-600">
+              {sortOrder === "asc" ? "Asc" : "Desc"}
+            </span>
+          </button>
+
           {/* Status filter */}
           <select
-            className="border px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400"
+            className="border px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 cursor-pointer"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
@@ -266,16 +308,35 @@ export default function AdminParkingLotRequests() {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 transition-all"
+              className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 transition-all cursor-pointer"
             />
             <span className="text-gray-500">to</span>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 transition-all"
+              className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 transition-all cursor-pointer"
             />
           </div>
+
+          {/* Refresh Button */}
+          <button
+            onClick={() => {
+              setSearch("");
+              setStatus("");
+              setStartDate("");
+              setEndDate("");
+              setSortBy("createdAt");
+              setSortOrder("desc");
+              setPage(0);
+              fetchData();
+            }}
+            className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
+            title="Reset filters"
+          >
+            <i className="ri-refresh-line text-lg text-gray-600"></i>
+            <span className="text-sm text-gray-600">Refresh</span>
+          </button>
         </div>
 
         {/* ✅ Import / Export */}

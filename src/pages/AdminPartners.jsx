@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import AdminLayout from "../layouts/AdminLayout";
 import partnerApi from "../api/partnerApi";
 import {
@@ -25,6 +25,8 @@ export default function AdminPartners() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState("desc");
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingPartner, setEditingPartner] = useState(null);
@@ -34,14 +36,14 @@ export default function AdminPartners() {
   const fileInputRef = useRef(null);
 
   // ✅ Fetch danh sách đối tác
-  const fetchPartners = async () => {
+  const fetchPartners = useCallback(async () => {
     try {
       setLoading(true);
       const res = await partnerApi.getAll({
         page,
         size,
-        sortBy: "createdAt",
-        sortOrder: "desc",
+        sortBy: sortBy,
+        sortOrder: sortOrder,
       });
       const data = res.data?.data;
       setPartners(Array.isArray(data?.content) ? data.content : []);
@@ -52,11 +54,11 @@ export default function AdminPartners() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, size, sortBy, sortOrder]);
 
   useEffect(() => {
     fetchPartners();
-  }, [page]);
+  }, [fetchPartners]);
 
   // whenever partners list updates, refresh count to keep in sync
   useEffect(() => {
@@ -82,7 +84,8 @@ export default function AdminPartners() {
 
   // ✅ Render status badge
   const renderStatus = (status) => {
-    const base = "px-2 py-1 text-xs font-semibold rounded-md border inline-block";
+    const base =
+      "px-2 py-1 text-xs font-semibold rounded-md border inline-block";
     const s = status?.toUpperCase();
     const colorMap = {
       PENDING: "bg-yellow-50 text-yellow-700 border-yellow-300",
@@ -93,12 +96,16 @@ export default function AdminPartners() {
     };
 
     // Capitalize only first letter
-    const displayText = status 
+    const displayText = status
       ? status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
       : "Unknown";
 
     return (
-      <span className={`${base} ${colorMap[s] || "bg-gray-50 text-gray-600 border-gray-300"}`}>
+      <span
+        className={`${base} ${
+          colorMap[s] || "bg-gray-50 text-gray-600 border-gray-300"
+        }`}
+      >
         {displayText}
       </span>
     );
@@ -170,7 +177,9 @@ export default function AdminPartners() {
         const total = res.data?.totalRows || 0;
         const success = res.data?.successCount || 0;
         const failed = res.data?.failedCount || 0;
-        showSuccess(`✅ Import done: ${success}/${total} rows (failed: ${failed})`);
+        showSuccess(
+          `✅ Import done: ${success}/${total} rows (failed: ${failed})`
+        );
         fetchPartners();
       } else showError("❌ Import failed!");
     } catch (err) {
@@ -256,6 +265,50 @@ export default function AdminPartners() {
             </svg>
           </div>
 
+          {/* Sort By */}
+          <div className="relative">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
+            >
+              <option value="createdAt">Created Date</option>
+              <option value="companyName">Company Name</option>
+              <option value="companyEmail">Email</option>
+              <option value="companyPhone">Phone</option>
+            </select>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-4 h-4 absolute right-3 top-3 text-gray-400 pointer-events-none"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+              />
+            </svg>
+          </div>
+
+          {/* Sort Order Toggle */}
+          <button
+            onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+            className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
+            title={sortOrder === "asc" ? "Ascending" : "Descending"}
+          >
+            {sortOrder === "asc" ? (
+              <i className="ri-sort-asc text-lg text-gray-600"></i>
+            ) : (
+              <i className="ri-sort-desc text-lg text-gray-600"></i>
+            )}
+            <span className="text-sm text-gray-600">
+              {sortOrder === "asc" ? "Asc" : "Desc"}
+            </span>
+          </button>
+
           {/* Date Range */}
           <div className="flex items-center gap-2">
             <input
@@ -272,6 +325,24 @@ export default function AdminPartners() {
               className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 transition-all"
             />
           </div>
+
+          {/* Refresh Button */}
+          <button
+            onClick={() => {
+              setSearch("");
+              setStartDate("");
+              setEndDate("");
+              setSortBy("createdAt");
+              setSortOrder("desc");
+              setPage(0);
+              fetchPartners();
+            }}
+            className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
+            title="Reset filters"
+          >
+            <i className="ri-refresh-line text-lg text-gray-600"></i>
+            <span className="text-sm text-gray-600">Refresh</span>
+          </button>
         </div>
 
         {/* ✅ Actions */}
@@ -315,7 +386,7 @@ export default function AdminPartners() {
       {/* 🔹 Table */}
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
         <table className="min-w-full table-auto">
-          <thead className="bg-gray-50 text-gray-800 uppercase text-sm font-semibold">
+          <thead className="bg-indigo-50 text-indigo-700 uppercase text-sm font-semibold">
             <tr>
               <th className="px-6 py-3 text-left w-16">#</th>
               <th className="px-6 py-3 text-left">Company Name</th>
@@ -330,7 +401,10 @@ export default function AdminPartners() {
           <tbody className="text-gray-700 text-sm">
             {loading ? (
               <tr>
-                <td colSpan="8" className="px-6 py-6 text-center text-gray-500 italic">
+                <td
+                  colSpan="8"
+                  className="px-6 py-6 text-center text-gray-500 italic"
+                >
                   Loading...
                 </td>
               </tr>
@@ -340,7 +414,9 @@ export default function AdminPartners() {
                   key={p.id || idx}
                   className="border-t border-gray-100 hover:bg-gray-50 transition-all"
                 >
-                  <td className="px-6 py-3 text-gray-500">{page * size + idx + 1}</td>
+                  <td className="px-6 py-3 text-gray-500">
+                    {page * size + idx + 1}
+                  </td>
                   <td className="px-6 py-3">{p.companyName}</td>
                   <td className="px-6 py-3">{p.taxNumber}</td>
                   <td className="px-6 py-3">{p.companyEmail}</td>
@@ -376,7 +452,10 @@ export default function AdminPartners() {
               ))
             ) : (
               <tr>
-                <td colSpan="8" className="px-6 py-6 text-center text-gray-500 italic">
+                <td
+                  colSpan="8"
+                  className="px-6 py-6 text-center text-gray-500 italic"
+                >
                   No partners found.
                 </td>
               </tr>
@@ -400,7 +479,8 @@ export default function AdminPartners() {
             Page <strong>{page + 1}</strong> of {totalPages}
           </div>
           <div className="text-sm text-gray-500 mt-1">
-            Total partners: <strong className="text-indigo-700">{totalCount}</strong>
+            Total partners:{" "}
+            <strong className="text-indigo-700">{totalCount}</strong>
           </div>
         </div>
 
@@ -415,7 +495,10 @@ export default function AdminPartners() {
 
       {/* ✅ Modals */}
       {showAddModal && (
-        <AddPartnerModal onClose={() => setShowAddModal(false)} onAdded={fetchPartners} />
+        <AddPartnerModal
+          onClose={() => setShowAddModal(false)}
+          onAdded={fetchPartners}
+        />
       )}
       {editingPartner && (
         <EditPartnerModal

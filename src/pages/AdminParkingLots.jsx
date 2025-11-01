@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import AdminLayout from "../layouts/AdminLayout";
 import parkingLotApi from "../api/parkingLotApi";
 import {
@@ -25,20 +25,22 @@ export default function AdminParkingLots() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState("desc");
   const [confirmingLot, setConfirmingLot] = useState(null);
   const [editingLot, setEditingLot] = useState(null);
   const [viewingLot, setViewingLot] = useState(null); // ✅ thêm state để xem chi tiết
   const [showAddModal, setShowAddModal] = useState(false);
 
   // ✅ Fetch parking lots
-  const fetchLots = async () => {
+  const fetchLots = useCallback(async () => {
     try {
       setLoading(true);
       const res = await parkingLotApi.getAll({
         page,
         size,
-        sortBy: "createdAt",
-        sortOrder: "desc",
+        sortBy: sortBy,
+        sortOrder: sortOrder,
       });
       const data = res.data?.data;
       setLots(Array.isArray(data?.content) ? data.content : []);
@@ -49,12 +51,11 @@ export default function AdminParkingLots() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, size, sortBy, sortOrder]);
 
   useEffect(() => {
     fetchLots();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, size]);
+  }, [fetchLots]);
 
   // Fetch total count of parking lots
   const fetchLotsCount = async (filters = {}) => {
@@ -310,9 +311,50 @@ export default function AdminParkingLots() {
             </svg>
           </div>
 
+          {/* Sort By */}
+          <div className="relative">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
+            >
+              <option value="createdAt">Created Date</option>
+              <option value="name">Name</option>
+              <option value="city">City</option>
+              <option value="totalFloors">Total Floors</option>
+              <option value="status">Status</option>
+            </select>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-4 h-4 absolute right-3 top-3 text-gray-400 pointer-events-none"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </div>
+
+          {/* Sort Order Toggle */}
+          <button
+            onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+            className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
+            title={sortOrder === "asc" ? "Ascending" : "Descending"}
+          >
+            {sortOrder === "asc" ? (
+              <i className="ri-sort-asc text-lg text-gray-600"></i>
+            ) : (
+              <i className="ri-sort-desc text-lg text-gray-600"></i>
+            )}
+            <span className="text-sm text-gray-600">
+              {sortOrder === "asc" ? "Asc" : "Desc"}
+            </span>
+          </button>
+
           {/* ⚙️ Status Filter */}
           <select
-            className="border px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400"
+            className="border px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 cursor-pointer"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
@@ -325,6 +367,23 @@ export default function AdminParkingLots() {
             <option value="MAP_DENIED">Map Denied</option>
             <option value="REJECTED">Rejected</option>
           </select>
+
+          {/* Refresh Button */}
+          <button
+            onClick={() => {
+              setSearch("");
+              setStatus("");
+              setSortBy("createdAt");
+              setSortOrder("desc");
+              setPage(0);
+              fetchLots();
+            }}
+            className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
+            title="Reset filters"
+          >
+            <i className="ri-refresh-line text-lg text-gray-600"></i>
+            <span className="text-sm text-gray-600">Refresh</span>
+          </button>
         </div>
 
         {/* Right side: Actions */}

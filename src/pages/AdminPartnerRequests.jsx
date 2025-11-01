@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import partnerApi from "../api/partnerApi";
 import Modal from "../components/Modal";
 import ConfirmModal from "../components/ConfirmModal";
@@ -22,15 +22,19 @@ export default function AdminPartnerRequests() {
   const [confirmingPartner, setConfirmingPartner] = useState(null);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [loading, setLoading] = useState(false);
 
   // ✅ Fetch Partner Requests
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
+      setLoading(true);
       const res = await partnerApi.getRequests({
         page,
         size,
-        sortBy: "createdAt",
-        sortOrder: "desc",
+        sortBy: sortBy,
+        sortOrder: sortOrder,
       });
 
       const data = res.data?.data;
@@ -39,12 +43,14 @@ export default function AdminPartnerRequests() {
     } catch (err) {
       console.error("❌ Error fetching requests:", err);
       setRequests([]);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [page, size, sortBy, sortOrder]);
 
   useEffect(() => {
     fetchData();
-  }, [page]);
+  }, [fetchData]);
 
   // ✅ View details
   const handleView = async (id) => {
@@ -162,6 +168,47 @@ export default function AdminPartnerRequests() {
             </svg>
           </div>
 
+          {/* Sort By */}
+          <div className="relative">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
+            >
+              <option value="createdAt">Created Date</option>
+              <option value="companyName">Company Name</option>
+              <option value="contactPersonName">Contact Person</option>
+              <option value="companyPhone">Phone</option>
+              <option value="status">Status</option>
+            </select>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-4 h-4 absolute right-3 top-3 text-gray-400 pointer-events-none"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </div>
+
+          {/* Sort Order Toggle */}
+          <button
+            onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+            className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
+            title={sortOrder === "asc" ? "Ascending" : "Descending"}
+          >
+            {sortOrder === "asc" ? (
+              <i className="ri-sort-asc text-lg text-gray-600"></i>
+            ) : (
+              <i className="ri-sort-desc text-lg text-gray-600"></i>
+            )}
+            <span className="text-sm text-gray-600">
+              {sortOrder === "asc" ? "Asc" : "Desc"}
+            </span>
+          </button>
+
           {/* Status Filter */}
           <select
             className="border px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 cursor-pointer"
@@ -190,6 +237,25 @@ export default function AdminPartnerRequests() {
               className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 transition-all cursor-pointer"
             />
           </div>
+
+          {/* Refresh Button */}
+          <button
+            onClick={() => {
+              setSearch("");
+              setStatus("");
+              setStartDate("");
+              setEndDate("");
+              setSortBy("createdAt");
+              setSortOrder("desc");
+              setPage(0);
+              fetchData();
+            }}
+            className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
+            title="Reset filters"
+          >
+            <i className="ri-refresh-line text-lg text-gray-600"></i>
+            <span className="text-sm text-gray-600">Refresh</span>
+          </button>
         </div>
 
         {/* Import / Export */}
@@ -222,7 +288,16 @@ export default function AdminPartnerRequests() {
           </thead>
 
           <tbody className="text-gray-700 text-sm">
-            {filtered.length > 0 ? (
+            {loading ? (
+              <tr>
+                <td
+                  colSpan="8"
+                  className="px-6 py-6 text-center text-gray-500 italic"
+                >
+                  Loading...
+                </td>
+              </tr>
+            ) : filtered.length > 0 ? (
               filtered.map((r, idx) => (
                 <tr
                   key={r.id || idx}

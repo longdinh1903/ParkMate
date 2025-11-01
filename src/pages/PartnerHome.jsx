@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import ViewParkingLotModal from "../components/ViewParkingLotModal";
 import ParkingLotMapEditor from "../components/ParkingLotMapEditor";
 
-export default function PartnerHome() { 
+export default function PartnerHome() {
   const [lots, setLots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
@@ -21,6 +21,9 @@ export default function PartnerHome() {
   const [selectedLotForMap, setSelectedLotForMap] = useState(null);
   const [showMapEditor, setShowMapEditor] = useState(false);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState(""); // "" means "All Status"
+  const [sortBy, setSortBy] = useState("createdAt"); // field to sort by
+  const [sortOrder, setSortOrder] = useState("desc"); // "asc" or "desc"
   // note: server fetch will default to newest-first (createdAt desc)
 
   // 🧠 Load parking lots
@@ -37,8 +40,8 @@ export default function PartnerHome() {
       const res = await parkingLotApi.getAll({
         page,
         size: pagination.size,
-        sortBy: "createdAt",
-        sortOrder: "desc",
+        sortBy: sortBy,
+        sortOrder: sortOrder,
         ownedByMe: true, // ✅ Thêm ownedByMe: true để lấy danh sách riêng
       });
 
@@ -62,7 +65,9 @@ export default function PartnerHome() {
               const s = l?.status;
               if (s === null || s === undefined) return "<NULL>";
               if (typeof s === "string") return s;
-              return s.status || s.name || s.value || s.code || JSON.stringify(s);
+              return (
+                s.status || s.name || s.value || s.code || JSON.stringify(s)
+              );
             })
           );
           console.log("Received statuses:", Array.from(statuses));
@@ -96,11 +101,11 @@ export default function PartnerHome() {
     }
   };
 
-  // Fetch whenever page changes (Admin-like behavior)
+  // Fetch whenever page or sort changes
   useEffect(() => {
     fetchMyLots(page);
     // eslint-disable-next-line
-  }, [page]);
+  }, [page, sortBy, sortOrder]);
   // Search is performed client-side (like AdminPartners): we'll filter the current page's items
 
   const handleViewDetail = async (lot) => {
@@ -125,15 +130,46 @@ export default function PartnerHome() {
 
   // client-side filtered view (search across main fields similar to AdminPartners)
   const filtered = lots.filter((l) => {
+    // Filter by search keyword
     const keyword = (search || "").toLowerCase();
-    if (!keyword) return true;
-    return [
-      l.name,
-      l.city,
-      l.streetAddress,
-      l.ward,
-      l.status && (typeof l.status === "string" ? l.status : JSON.stringify(l.status)),
-    ].some((f) => String(f || "").toLowerCase().includes(keyword));
+    const matchesSearch =
+      !keyword ||
+      [
+        l.name,
+        l.city,
+        l.streetAddress,
+        l.ward,
+        l.district,
+        l.totalFloors,
+        l.status &&
+          (typeof l.status === "string" ? l.status : JSON.stringify(l.status)),
+      ].some((f) =>
+        String(f || "")
+          .toLowerCase()
+          .includes(keyword)
+      );
+
+    // Filter by status
+    if (statusFilter && statusFilter !== "") {
+      const normalizeStatus = (s) => {
+        if (s === null || s === undefined) return "UNKNOWN";
+        if (typeof s === "string") return s.trim().toUpperCase();
+        if (typeof s === "object") {
+          const candidate = s.status || s.name || s.value || s.code || s.type;
+          if (candidate) return String(candidate).trim().toUpperCase();
+        }
+        return String(s).toUpperCase();
+      };
+
+      const lotStatus = normalizeStatus(l.status);
+      const filterStatus = statusFilter.toUpperCase();
+
+      if (lotStatus !== filterStatus) {
+        return false;
+      }
+    }
+
+    return matchesSearch;
   });
 
   const getStatusBadge = (status) => {
@@ -269,7 +305,9 @@ export default function PartnerHome() {
                 <i className="ri-parking-box-fill text-2xl text-white"></i>
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">My Parking Lots</h1>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  My Parking Lots
+                </h1>
                 <p className="text-gray-600 text-sm mt-1">
                   Quản lý các bãi đỗ xe bạn đã đăng ký
                 </p>
@@ -284,23 +322,77 @@ export default function PartnerHome() {
             </button>
           </div>
 
-          {/* Search & Sort */}
+          {/* Search & Filter */}
           <div className="flex flex-col sm:flex-row items-center gap-3 mb-4">
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search (search all fields)..."
-              className="w-full sm:w-1/2 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-            />
-            {/* sort removed - default server sort is newest-first */}
+            {/* Search Input */}
+            <div className="w-full sm:flex-1 relative">
+              <i className="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search (all fields)..."
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+            </div>
+
+            {/* Status Filter Dropdown */}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full sm:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
+            >
+              <option value="">All Status</option>
+              <option value="PENDING">Pending</option>
+              <option value="PREPARING">Preparing</option>
+              <option value="PARTNER_CONFIGURATION">
+                Partner Configuration
+              </option>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+              <option value="MAP_DENIED">Map Denied</option>
+              <option value="REJECTED">Rejected</option>
+            </select>
+
+            {/* Sort By Dropdown */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="w-full sm:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
+            >
+              <option value="createdAt">Created Date</option>
+              <option value="name">Name</option>
+              <option value="status">Status</option>
+              <option value="totalFloors">Total Floors</option>
+            </select>
+
+            {/* Sort Order Button */}
+            <button
+              onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+              className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 whitespace-nowrap"
+              title={sortOrder === "asc" ? "Ascending" : "Descending"}
+            >
+              {sortOrder === "asc" ? (
+                <>
+                  <i className="ri-sort-asc text-lg"></i>
+                  <span className="hidden sm:inline">Asc</span>
+                </>
+              ) : (
+                <>
+                  <i className="ri-sort-desc text-lg"></i>
+                  <span className="hidden sm:inline">Desc</span>
+                </>
+              )}
+            </button>
           </div>
 
           {/* Table */}
           <div className="bg-white shadow-xl rounded-2xl border border-gray-200 overflow-hidden">
             <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Parking Lots List</h2>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Parking Lots List
+                </h2>
                 <p className="text-sm text-gray-600 mt-1">
                   {pagination.totalElements} bãi đỗ xe
                 </p>
@@ -331,62 +423,80 @@ export default function PartnerHome() {
             ) : (
               <>
                 <table className="w-full table-auto">
-                    <thead className="bg-gray-50 border-b border-gray-200">
-                      <tr>
-                        {["STT", "Name", "Address", "Status", "Total Floors", "Actions"].map((h) => (
-                          <th
-                            key={h}
-                            className={`px-6 py-4 text-xs font-bold text-gray-700 uppercase tracking-wider ${
-                              h === "Status" || h === "Actions" ? "text-center" : "text-left"
-                            }`}
-                          >
-                            {h}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {filtered.map((lot, idx) => (
-                        <tr key={lot.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-6 py-4 text-sm font-medium text-gray-900">{page * pagination.size + idx + 1}</td>
-                          <td className="px-6 py-4 text-sm">
-                            <div className="font-medium text-gray-900">{lot.name}</div>
-                            <div className="text-gray-500 text-xs mt-1">{lot.city}</div>
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-700 max-w-xs whitespace-normal break-words">
-                            {lot.streetAddress}, {lot.ward}
-                          </td>
-                          <td className="px-6 py-4 text-center">
-                            {getStatusBadge(lot.status)}
-                          </td>
-                          <td className="px-6 py-4 text-center text-sm text-gray-700">
-                            {lot.totalFloors || "N/A"}
-                          </td>
-                          <td className="px-6 py-4 text-center">
-                            <div className="flex items-center justify-center gap-2">
-                              <button
-                                onClick={() => handleViewDetail(lot)}
-                                className="inline-flex items-center gap-1 px-3 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all text-sm font-medium"
-                              >
-                                <i className="ri-eye-line"></i>
-                              </button>
-
-                              <button
-                                onClick={() => {
-                                  setSelectedLotForMap(lot);
-                                  setShowMapEditor(true);
-                                }}
-                                className="inline-flex items-center gap-1 px-3 py-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-all text-sm font-medium"
-                                title="Edit Map"
-                              >
-                                <i className="ri-map-pin-2-fill"></i>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      {[
+                        "STT",
+                        "Name",
+                        "Address",
+                        "Status",
+                        "Total Floors",
+                        "Actions",
+                      ].map((h) => (
+                        <th
+                          key={h}
+                          className={`px-6 py-4 text-xs font-bold text-gray-700 uppercase tracking-wider ${
+                            h === "Status" || h === "Actions"
+                              ? "text-center"
+                              : "text-left"
+                          }`}
+                        >
+                          {h}
+                        </th>
                       ))}
-                    </tbody>
-                  </table>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {filtered.map((lot, idx) => (
+                      <tr
+                        key={lot.id}
+                        className="hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                          {page * pagination.size + idx + 1}
+                        </td>
+                        <td className="px-6 py-4 text-sm">
+                          <div className="font-medium text-gray-900">
+                            {lot.name}
+                          </div>
+                          <div className="text-gray-500 text-xs mt-1">
+                            {lot.city}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-700 max-w-xs whitespace-normal break-words">
+                          {lot.streetAddress}, {lot.ward}
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          {getStatusBadge(lot.status)}
+                        </td>
+                        <td className="px-6 py-4 text-center text-sm text-gray-700">
+                          {lot.totalFloors || "N/A"}
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              onClick={() => handleViewDetail(lot)}
+                              className="inline-flex items-center gap-1 px-3 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all text-sm font-medium"
+                            >
+                              <i className="ri-eye-line"></i>
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                setSelectedLotForMap(lot);
+                                setShowMapEditor(true);
+                              }}
+                              className="inline-flex items-center gap-1 px-3 py-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-all text-sm font-medium"
+                              title="Edit Map"
+                            >
+                              <i className="ri-map-pin-2-fill"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
 
                 {/* Pagination like AdminPartners: simple Prev / Page X / Next */}
                 {pagination.totalPages > 1 && (
@@ -400,7 +510,8 @@ export default function PartnerHome() {
                     </button>
 
                     <span className="text-gray-600 text-sm">
-                      Page <strong>{page + 1}</strong> of {pagination.totalPages}
+                      Page <strong>{page + 1}</strong> of{" "}
+                      {pagination.totalPages}
                     </span>
 
                     <button
@@ -436,7 +547,7 @@ export default function PartnerHome() {
       {showMapEditor && selectedLotForMap && (
         <ParkingLotMapEditor
           lot={selectedLotForMap}
-            onClose={() => {
+          onClose={() => {
             setShowMapEditor(false);
             setSelectedLotForMap(null);
             // Refresh list as map edits may affect drawn counts

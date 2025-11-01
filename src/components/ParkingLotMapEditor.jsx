@@ -12,12 +12,18 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
   const [selectedItem, setSelectedItem] = useState(null); // { type: 'floor'|'area'|'spot', id, data }
   const [editName, setEditName] = useState("");
   const [editVehicleType, setEditVehicleType] = useState("");
+  const [editAreaType, setEditAreaType] = useState("");
 
   const vehicleTypes = [
     "CAR_UP_TO_9_SEATS",
     "MOTORBIKE",
     "BIKE",
     "OTHER",
+  ];
+
+  const areaTypes = [
+    "WALK_IN_ONLY",
+    "RESERVED_ONLY",
   ];
 
   // Load data from backend
@@ -116,6 +122,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
     setSelectedItem({ type, id, data });
     setEditName(data.name || data.floorName || "");
     setEditVehicleType(data.vehicleType || "CAR_UP_TO_9_SEATS");
+    setEditAreaType(data.areaType || "WALK_IN_ONLY");
   };
 
   const handleSave = async () => {
@@ -147,9 +154,15 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
           .replace(/\s+/g, "_")
           .replace(/[^A-Z0-9_]/g, "_");
 
+        // Normalize areaType
+        const areaTypeNormalized = (editAreaType || "WALK_IN_ONLY").toString()
+          .toUpperCase()
+          .trim();
+
         const payload = {
           name: editName,
           vehicleType: vehicleTypeNormalized,
+          areaType: areaTypeNormalized,
           areaTopLeftX: Number(Math.round((area.areaTopLeftX || area.x || 0) * 100) / 100),
           areaTopLeftY: Number(Math.round((area.areaTopLeftY || area.y || 0) * 100) / 100),
           areaWidth: Number(Math.round((area.areaWidth || area.width || 0) * 100) / 100),
@@ -167,7 +180,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
                   ...f,
                   areas: f.areas.map((a) =>
                     a.id === selectedItem.id
-                      ? { ...a, name: editName, vehicleType: editVehicleType }
+                      ? { ...a, name: editName, vehicleType: editVehicleType, areaType: editAreaType }
                       : a
                   ),
                 }
@@ -220,6 +233,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
     setSelectedItem(null);
     setEditName("");
     setEditVehicleType("");
+    setEditAreaType("");
   };
 
   // Check if any areas still have default vehicle type
@@ -437,25 +451,48 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
               </div>
 
               {selectedItem.type === "area" && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Vehicle Type <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    value={editVehicleType}
-                    onChange={(e) => setEditVehicleType(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  >
-                    {vehicleTypes.map((type) => (
-                      <option key={type} value={type}>
-                        {type.replace(/_/g, " ")}
-                      </option>
-                    ))}
-                  </select>
-                  <p className="mt-2 text-xs text-gray-500">
-                    💡 This determines what vehicle types can park in this area
-                  </p>
-                </div>
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Vehicle Type <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={editVehicleType}
+                      onChange={(e) => setEditVehicleType(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    >
+                      {vehicleTypes.map((type) => (
+                        <option key={type} value={type}>
+                          {type.replace(/_/g, " ")}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-2 text-xs text-gray-500">
+                      💡 This determines what vehicle types can park in this area
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Area Type <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={editAreaType}
+                      onChange={(e) => setEditAreaType(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    >
+                      {areaTypes.map((type) => (
+                        <option key={type} value={type}>
+                          {type.replace(/_/g, " ")}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-2 text-xs text-gray-500">
+                      🚶 <strong>WALK_IN_ONLY:</strong> Customers walk in directly<br />
+                      📅 <strong>RESERVED_ONLY:</strong> Pre-booking required
+                    </p>
+                  </div>
+                </>
               )}
 
               <div className="flex gap-3 pt-4">
