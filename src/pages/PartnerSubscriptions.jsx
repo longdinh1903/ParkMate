@@ -69,10 +69,7 @@ export default function PartnerSubscriptions() {
         filterParams.lotId = lotIdFromUrl;
       }
       
-      // Add search if exists
-      if (searchTerm.trim()) {
-        filterParams.search = searchTerm.trim();
-      }
+      // Không gửi searchTerm qua API - sẽ filter client-side
       
       // Add vehicle type filter if selected
       if (filterVehicleType) {
@@ -122,7 +119,7 @@ export default function PartnerSubscriptions() {
     } finally {
       setLoading(false);
     }
-  }, [size, sortBy, sortOrder, searchTerm, filterVehicleType, filterDurationType, lotIdFromUrl]);
+  }, [size, sortBy, sortOrder, filterVehicleType, filterDurationType, lotIdFromUrl]);
 
   // Fetch parking lots to get names by IDs from subscriptions
   const fetchParkingLotsForSubscriptions = async (subs) => {
@@ -163,7 +160,7 @@ export default function PartnerSubscriptions() {
 
   useEffect(() => {
     fetchSubscriptions(page);
-  }, [page, sortBy, sortOrder, searchTerm, filterVehicleType, filterDurationType, lotIdFromUrl, fetchSubscriptions]); // Fetch when filters change or lotId from URL changes
+  }, [page, sortBy, sortOrder, filterVehicleType, filterDurationType, lotIdFromUrl, fetchSubscriptions]); // searchTerm không cần vì filter client-side
 
   // Fetch parking lots when subscriptions change
   useEffect(() => {
@@ -220,6 +217,20 @@ export default function PartnerSubscriptions() {
     return colors[type] || "bg-gray-100 text-gray-800";
   };
 
+  // ✅ Client-side filtering for search
+  const filteredSubscriptions = subscriptions.filter((sub) => {
+    if (!searchTerm.trim()) return true;
+    
+    const keyword = searchTerm.toLowerCase();
+    return (
+      sub.name?.toLowerCase().includes(keyword) ||
+      sub.description?.toLowerCase().includes(keyword) ||
+      sub.vehicleType?.toLowerCase().includes(keyword) ||
+      sub.durationType?.toLowerCase().includes(keyword) ||
+      getParkingLotName(sub.parkingLotId)?.toLowerCase().includes(keyword)
+    );
+  });
+
   return (
     <PartnerTopLayout>
       <div className="fixed inset-0 top-16 bg-gray-50 overflow-hidden">
@@ -255,10 +266,7 @@ export default function PartnerSubscriptions() {
                   type="text"
                   placeholder="Search by name or description..."
                   value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setPage(0); // Reset to first page when searching
-                  }}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
               </div>
@@ -373,25 +381,27 @@ export default function PartnerSubscriptions() {
               <div className="flex justify-center items-center h-64">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
               </div>
-            ) : subscriptions.length === 0 ? (
+            ) : filteredSubscriptions.length === 0 ? (
               <div className="bg-white rounded-lg shadow-sm p-12 text-center">
                 <p className="text-gray-500 text-lg">
-                  No subscription packages found
+                  {searchTerm ? "No subscription packages match your search" : "No subscription packages found"}
                 </p>
-                <button
-                  onClick={() => {
-                    console.log("Create First Package clicked!");
-                    setShowAddModal(true);
-                  }}
-                  className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-                >
-                  Create First Package
-                </button>
+                {!searchTerm && (
+                  <button
+                    onClick={() => {
+                      console.log("Create First Package clicked!");
+                      setShowAddModal(true);
+                    }}
+                    className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                  >
+                    Create First Package
+                  </button>
+                )}
               </div>
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                {subscriptions.map((subscription) => (
+                {filteredSubscriptions.map((subscription) => (
                 <div
                   key={subscription.id}
                   className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200 flex flex-col h-[280px]"

@@ -30,12 +30,19 @@ export default function AdminPartnerRequests() {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await partnerApi.getRequests({
+      const params = {
         page,
         size,
         sortBy: sortBy,
         sortOrder: sortOrder,
-      });
+      };
+
+      // Không gửi search qua API, filter client-side
+      if (status) params.status = status;
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+
+      const res = await partnerApi.getRequests(params);
 
       const data = res.data?.data;
       setRequests(Array.isArray(data?.content) ? data.content : data || []);
@@ -46,11 +53,28 @@ export default function AdminPartnerRequests() {
     } finally {
       setLoading(false);
     }
-  }, [page, size, sortBy, sortOrder]);
+  }, [page, size, sortBy, sortOrder, status, startDate, endDate]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // ✅ Client-side filtering for search (giống PartnerHome)
+  const filtered = requests.filter((r) => {
+    const keyword = (search || "").toLowerCase();
+    
+    const matchSearch =
+      !keyword ||
+      [
+        r.contactPersonName,
+        r.contactPersonEmail,
+        r.companyEmail,
+        r.companyName,
+        r.companyPhone,
+      ].some((field) => String(field || "").toLowerCase().includes(keyword));
+
+    return matchSearch;
+  });
 
   // ✅ View details
   const handleView = async (id) => {
@@ -82,29 +106,6 @@ export default function AdminPartnerRequests() {
       setConfirmingPartner(null);
     }
   };
-
-  // ✅ Filter logic
-  const filtered = requests.filter((r) => {
-    const keyword = search.toLowerCase();
-
-    const matchSearch =
-      r.contactPersonName?.toLowerCase().includes(keyword) ||
-      r.contactPersonEmail?.toLowerCase().includes(keyword) ||
-      r.companyEmail?.toLowerCase().includes(keyword) ||
-      r.companyName?.toLowerCase().includes(keyword) ||
-      r.companyPhone?.toLowerCase().includes(keyword);
-
-    const matchStatus = status
-      ? r.status?.toLowerCase() === status.toLowerCase()
-      : true;
-
-    const createdAt = new Date(r.createdAt || r.submittedAt);
-    const from = startDate ? new Date(startDate) : null;
-    const to = endDate ? new Date(endDate) : null;
-    const matchDate = (!from || createdAt >= from) && (!to || createdAt <= to);
-
-    return matchSearch && matchStatus && matchDate;
-  });
 
   // ✅ Render status badge
   const renderStatus = (status) => {

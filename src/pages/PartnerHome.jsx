@@ -400,7 +400,15 @@ export default function PartnerHome() {
                 </p>
               </div>
               <button
-                onClick={() => fetchMyLots(page)}
+                onClick={() => {
+                  // Reset all filters to default
+                  setSearch("");
+                  setStatusFilter("");
+                  setSortBy("createdAt");
+                  setSortOrder("desc");
+                  setPage(0);
+                  fetchMyLots(0);
+                }}
                 className="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-all flex items-center gap-2 font-medium cursor-pointer"
               >
                 <i className="ri-refresh-line"></i> Refresh
