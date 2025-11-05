@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PartnerTopLayout from "../layouts/PartnerTopLayout";
 import parkingLotApi from "../api/parkingLotApi";
 import toast from "react-hot-toast";
@@ -6,6 +7,7 @@ import ViewParkingLotModal from "../components/ViewParkingLotModal";
 import ParkingLotMapEditor from "../components/ParkingLotMapEditor";
 
 export default function PartnerHome() {
+  const navigate = useNavigate();
   const [lots, setLots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
@@ -296,12 +298,12 @@ export default function PartnerHome() {
 
   return (
     <PartnerTopLayout>
-      <div className="h-[calc(100vh-4rem)] bg-gradient-to-br from-gray-50 via-indigo-50/30 to-gray-50 overflow-y-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="h-[calc(100vh-4rem)] bg-gradient-to-br from-gray-50 via-purple-50/30 to-gray-50" style={{ overflowY: 'auto' }}>
+        <div className="max-w-7xl mx-auto px-6 py-6 min-h-full">
           {/* Header */}
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
                 <i className="ri-parking-box-fill text-2xl text-white"></i>
               </div>
               <div>
@@ -315,7 +317,7 @@ export default function PartnerHome() {
             </div>
             <button
               onClick={() => (window.location.href = "/register-lot")}
-              className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white rounded-xl hover:from-indigo-700 hover:to-indigo-600 transition-all shadow-lg hover:shadow-xl font-medium flex items-center gap-2"
+              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-500 text-white rounded-xl hover:from-purple-700 hover:to-purple-600 transition-all shadow-lg hover:shadow-xl font-medium flex items-center gap-2 cursor-pointer"
             >
               <i className="ri-add-line text-lg"></i>
               Register New Lot
@@ -332,7 +334,7 @@ export default function PartnerHome() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search (all fields)..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
 
@@ -340,7 +342,7 @@ export default function PartnerHome() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full sm:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
+              className="w-full sm:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white cursor-pointer"
             >
               <option value="">All Status</option>
               <option value="PENDING">Pending</option>
@@ -358,7 +360,7 @@ export default function PartnerHome() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="w-full sm:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
+              className="w-full sm:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white cursor-pointer"
             >
               <option value="createdAt">Created Date</option>
               <option value="name">Name</option>
@@ -369,7 +371,7 @@ export default function PartnerHome() {
             {/* Sort Order Button */}
             <button
               onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-              className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 whitespace-nowrap"
+              className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer"
               title={sortOrder === "asc" ? "Ascending" : "Descending"}
             >
               {sortOrder === "asc" ? (
@@ -399,7 +401,7 @@ export default function PartnerHome() {
               </div>
               <button
                 onClick={() => fetchMyLots(page)}
-                className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all flex items-center gap-2 font-medium"
+                className="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-all flex items-center gap-2 font-medium cursor-pointer"
               >
                 <i className="ri-refresh-line"></i> Refresh
               </button>
@@ -407,7 +409,7 @@ export default function PartnerHome() {
 
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20">
-                <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                <div className="w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin"></div>
                 <p className="text-gray-600 mt-3">Loading...</p>
               </div>
             ) : lots.length === 0 ? (
@@ -476,7 +478,8 @@ export default function PartnerHome() {
                           <div className="flex items-center justify-center gap-2">
                             <button
                               onClick={() => handleViewDetail(lot)}
-                              className="inline-flex items-center gap-1 px-3 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all text-sm font-medium"
+                              className="inline-flex items-center gap-1 px-3 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all text-sm font-medium cursor-pointer"
+                              title="View Details"
                             >
                               <i className="ri-eye-line"></i>
                             </button>
@@ -486,10 +489,18 @@ export default function PartnerHome() {
                                 setSelectedLotForMap(lot);
                                 setShowMapEditor(true);
                               }}
-                              className="inline-flex items-center gap-1 px-3 py-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-all text-sm font-medium"
+                              className="inline-flex items-center gap-1 px-3 py-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-all text-sm font-medium cursor-pointer"
                               title="Edit Map"
                             >
                               <i className="ri-map-pin-2-fill"></i>
+                            </button>
+
+                            <button
+                              onClick={() => navigate(`/subscriptions?lotId=${lot.id}`)}
+                              className="inline-flex items-center gap-1 px-3 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-all text-sm font-medium cursor-pointer"
+                              title="View Subscriptions"
+                            >
+                              <i className="ri-file-list-3-line"></i>
                             </button>
                           </div>
                         </td>
@@ -504,7 +515,7 @@ export default function PartnerHome() {
                     <button
                       disabled={page <= 0}
                       onClick={() => setPage((p) => Math.max(p - 1, 0))}
-                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
                       ← Previous
                     </button>
@@ -517,7 +528,7 @@ export default function PartnerHome() {
                     <button
                       disabled={page >= pagination.totalPages - 1}
                       onClick={() => setPage((p) => p + 1)}
-                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
                       Next →
                     </button>

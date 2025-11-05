@@ -20,6 +20,8 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
   const [brushSize, setBrushSize] = useState(3);
   const [brushColor, setBrushColor] = useState("#1e3a8a");
   const [eraseSize, setEraseSize] = useState(20);
+  const [showCopyModal, setShowCopyModal] = useState(false);
+  const [copySourceFloor, setCopySourceFloor] = useState(null);
 
   const isDrawing = useRef(false);
   const isCreatingArea = useRef(false);
@@ -511,6 +513,55 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     toast.success(`🗑 Floor ${currentFloor} deleted!`);
   };
 
+  // ===== COPY FLOOR FUNCTION =====
+
+  const handleCopyFloor = () => {
+    setShowCopyModal(true);
+  };
+
+  const handleConfirmCopy = () => {
+    if (!copySourceFloor) {
+      toast.error("⚠️ Please select a floor to copy from!");
+      return;
+    }
+
+    const sourceFloorData = floors.find(f => f.floorNumber === copySourceFloor);
+    if (!sourceFloorData) {
+      toast.error("⚠️ Source floor not found!");
+      return;
+    }
+
+    if (sourceFloorData.areas.length === 0) {
+      toast.error("⚠️ Source floor has no areas to copy!");
+      return;
+    }
+
+    // Deep copy areas and spots with new IDs
+    const copiedAreas = sourceFloorData.areas.map(area => ({
+      ...area,
+      id: Date.now().toString() + Math.random(), // New unique ID
+      spots: area.spots.map(spot => ({
+        ...spot,
+        id: Date.now().toString() + Math.random(), // New unique ID
+      })),
+    }));
+
+    // Update current floor with copied data
+    updateCurrentFloor({
+      areas: copiedAreas,
+      strokes: [], // Don't copy strokes, only areas/spots
+    });
+
+    setShowCopyModal(false);
+    setCopySourceFloor(null);
+    toast.success(`✅ Copied ${copiedAreas.length} areas from Floor ${copySourceFloor}!`);
+  };
+
+  const handleCancelCopy = () => {
+    setShowCopyModal(false);
+    setCopySourceFloor(null);
+  };
+
   // ===== SAVE TO DATABASE =====
 
   const handleSaveLayout = async () => {
@@ -788,6 +839,17 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                 title="Delete Current Floor"
               >
                 <i className="ri-delete-bin-line"></i>
+              </button>
+            )}
+            {/* Copy Floor Button */}
+            {floors.length > 1 && (
+              <button
+                onClick={handleCopyFloor}
+                className="px-3 py-1 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 text-sm font-medium flex items-center gap-1 flex-shrink-0"
+                title="Copy from another floor"
+              >
+                <i className="ri-file-copy-line"></i>
+                Copy
               </button>
             )}
           </div>
@@ -1239,6 +1301,77 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
           </Layer>
         </Stage>
       </div>
+
+      {/* Copy Floor Modal */}
+      {showCopyModal && (
+        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black/30 z-50">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-96">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i className="ri-file-copy-line text-blue-600 text-2xl"></i>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">Copy Floor Layout</h3>
+                <p className="text-sm text-gray-500">Select a floor to copy from</p>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Copy from Floor:
+              </label>
+              <select
+                value={copySourceFloor || ""}
+                onChange={(e) => setCopySourceFloor(Number(e.target.value))}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">-- Select a floor --</option>
+                {floors
+                  .filter(f => f.floorNumber !== currentFloor && f.areas.length > 0)
+                  .map(f => (
+                    <option key={f.floorNumber} value={f.floorNumber}>
+                      Floor {f.floorNumber} ({f.areas.length} areas, {f.areas.reduce((sum, a) => sum + (a.spots?.length || 0), 0)} spots)
+                    </option>
+                  ))}
+              </select>
+              {floors.filter(f => f.floorNumber !== currentFloor && f.areas.length > 0).length === 0 && (
+                <p className="text-sm text-amber-600 mt-2">
+                  ⚠️ No other floors with areas available to copy from.
+                </p>
+              )}
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
+              <p className="text-sm text-blue-800">
+                <i className="ri-information-line mr-1"></i>
+                This will copy all areas and parking spots from the selected floor to <strong>Floor {currentFloor}</strong>. 
+                Any existing areas on this floor will be replaced.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleCancelCopy}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmCopy}
+                disabled={!copySourceFloor}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+                  copySourceFloor
+                    ? "bg-blue-600 text-white hover:bg-blue-700 shadow-md"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+              >
+                <i className="ri-file-copy-line mr-2"></i>
+                Copy Layout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
         </>
       )}
     </div>

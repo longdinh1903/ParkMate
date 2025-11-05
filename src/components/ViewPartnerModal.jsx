@@ -33,12 +33,6 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
     }
   };
 
-  // ✅ Mở modal từ chối
-  const openRejectModal = () => {
-    setRejectReason("");
-    setShowRejectModal(true);
-  };
-
   // ✅ Gửi lý do từ chối
   const handleRejectSubmit = async () => {
     if (!rejectReason.trim()) {
@@ -68,23 +62,24 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
 
   return (
     <>
-      <div className="bg-white rounded-2xl shadow-2xl w-[480px] relative overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-indigo-700 flex items-center gap-2">
-            <i className="ri-building-fill text-indigo-600"></i>
-            Partner Details
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition"
-          >
-            <i className="ri-close-line text-xl"></i>
-          </button>
-        </div>
+      <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50">
+        <div className="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-[480px] max-h-[85vh] border border-gray-200 flex flex-col">
+          {/* Header - Fixed */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 flex-shrink-0">
+            <h2 className="text-lg font-semibold text-indigo-700 flex items-center gap-2">
+              <i className="ri-building-fill text-indigo-600"></i>
+              Partner Details
+            </h2>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition"
+            >
+              <i className="ri-close-line text-xl"></i>
+            </button>
+          </div>
 
-        {/* Content */}
-        <div className="px-6 py-5 text-sm text-gray-700 space-y-2 max-h-[70vh] overflow-y-auto">
+          {/* Content - Scrollable */}
+          <div className="px-6 py-5 text-sm text-gray-700 space-y-2 overflow-y-auto flex-1">
           <div className="grid grid-cols-1 gap-1">
             <p>
               <strong>Company Name:</strong> {partner.companyName}
@@ -156,41 +151,37 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
           </div>
         </div>
 
-        {/* Footer buttons */}
-        <div className="px-6 py-4 border-t border-gray-200 flex justify-between items-center">
+        {/* Footer - Fixed */}
+        <div className="px-6 py-4 border-t border-gray-200 flex gap-3 justify-end flex-shrink-0">
+          {partner.status === "PENDING" && (
+            <>
+              <button
+                onClick={() => setShowRejectModal(true)}
+                disabled={isProcessing}
+                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition disabled:opacity-50 flex items-center gap-2"
+              >
+                <i className="ri-close-line"></i>
+                Reject
+              </button>
+              <button
+                onClick={() => setShowApproveModal(true)}
+                disabled={isProcessing}
+                className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition disabled:opacity-50 flex items-center gap-2"
+              >
+                <i className="ri-check-line"></i>
+                Approve
+              </button>
+            </>
+          )}
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
           >
             Close
           </button>
-
-          <div className="flex gap-3">
-            {partner.status === "PENDING" ? (
-              <>
-                <button
-                  onClick={() => setShowApproveModal(true)} // ✅ mở modal xác nhận
-                  disabled={isProcessing}
-                  className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition disabled:opacity-50"
-                >
-                  <i className="ri-check-line mr-1"></i> Approve
-                </button>
-                <button
-                  onClick={openRejectModal}
-                  disabled={isProcessing}
-                  className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition disabled:opacity-50"
-                >
-                  <i className="ri-close-line mr-1"></i> Reject
-                </button>
-              </>
-            ) : (
-              <span className="text-gray-500 text-sm italic">
-                No actions available
-              </span>
-            )}
-          </div>
         </div>
       </div>
+    </div>
 
       {/* 🔸 Modal nhập lý do từ chối */}
       {showRejectModal && (

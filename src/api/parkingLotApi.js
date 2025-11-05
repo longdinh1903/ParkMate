@@ -29,6 +29,13 @@ const parkingLotApi = {
     return axiosClient.get("/api/v1/parking-service/lots", { params });
   },
 
+  // Get all parking lots for current partner
+  getAllByPartner: () => {
+    return axiosClient.get("/api/v1/parking-service/lots", { 
+      params: { ownedByMe: true, size: 1000 } // Get all lots owned by partner
+    });
+  },
+
   update: (id, data) =>
     axiosClient.put(`/api/v1/parking-service/lots/${id}`, data),
   create: (partnerId, data) =>

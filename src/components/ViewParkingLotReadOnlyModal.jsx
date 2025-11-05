@@ -22,9 +22,9 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50">
-      <div className="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-[1000px] max-h-[85vh] overflow-y-auto p-8 border border-gray-200">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6 border-b pb-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-[1200px] max-h-[85vh] border border-gray-200 flex flex-col">
+        {/* Header - Fixed */}
+        <div className="flex justify-between items-center px-8 pt-8 pb-4 border-b flex-shrink-0">
           <h2 className="text-3xl font-bold text-indigo-700 flex items-center gap-2">
             🅿️ {lot.name}
           </h2>
@@ -37,6 +37,8 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
           </span>
         </div>
 
+        {/* Content - Scrollable */}
+        <div className="px-8 py-6 overflow-y-auto flex-1">
         {/* Basic Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-[15px] text-gray-700 mb-6">
           <p>
@@ -215,8 +217,51 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
           </div>
         )}
 
-        {/* Footer */}
-        <div className="flex justify-end border-t pt-5">
+        {/* Parking Policies */}
+        {lot.policies?.length > 0 && (
+          <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
+            <h3 className="font-semibold text-indigo-600 mb-4 text-xl flex items-center gap-2">
+              🛡️ Parking Policies
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              {lot.policies.map((policy, idx) => {
+                const getPolicyLabel = (type) => {
+                  switch (type) {
+                    case "EARLY_CHECK_IN_BUFFER":
+                      return { label: "Early Check-in Buffer", icon: "🕐", desc: "Thời gian cho phép check-in sớm" };
+                    case "LATE_CHECK_OUT_BUFFER":
+                      return { label: "Late Check-out Buffer", icon: "🕐", desc: "Thời gian cho phép check-out trễ" };
+                    case "LATE_CHECK_IN_CANCEL_AFTER":
+                      return { label: "Late Check-in Cancel After", icon: "⏰", desc: "Tự động hủy nếu check-in trễ quá" };
+                    case "EARLY_CANCEL_REFUND_BEFORE":
+                      return { label: "Early Cancel Refund Before", icon: "💰", desc: "Hoàn tiền 100% nếu hủy trước" };
+                    default:
+                      return { label: type, icon: "📋", desc: "" };
+                  }
+                };
+                const policyInfo = getPolicyLabel(policy.policyType);
+                return (
+                  <div key={idx} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">{policyInfo.icon}</span>
+                        <h4 className="font-semibold text-gray-900 text-sm">{policyInfo.label}</h4>
+                      </div>
+                      <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
+                        {policy.value} phút
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-600 pl-7">{policyInfo.desc}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+        </div>
+
+        {/* Footer - Fixed */}
+        <div className="flex justify-end px-8 pb-8 pt-5 border-t flex-shrink-0">
           <button
             onClick={onClose}
             className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md font-medium transition"

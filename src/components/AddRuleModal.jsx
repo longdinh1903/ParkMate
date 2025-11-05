@@ -11,7 +11,6 @@ export default function AddRuleModal({ open, onSave, onClose }) {
     initialDurationMinute: "",
     validFrom: "",
     validTo: "",
-    areaId: "",
   });
 
   const handleChange = (e) => {
@@ -42,7 +41,7 @@ export default function AddRuleModal({ open, onSave, onClose }) {
       stepMinute: parseInt(rule.stepMinute) || 0,
       initialCharge: parseInt(rule.initialCharge) || 0,
       initialDurationMinute: parseInt(rule.initialDurationMinute) || 0,
-      areaId: rule.areaId ? parseInt(rule.areaId) : 1, // mặc định 1
+      areaId: 1, // mặc định 1
     };
 
     onSave(cleanedRule);
@@ -53,7 +52,7 @@ export default function AddRuleModal({ open, onSave, onClose }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50" onClick={onClose}>
+    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50" onClick={onClose}>
       <form
         onSubmit={handleSubmit}
         onClick={(e) => e.stopPropagation()}
@@ -68,7 +67,7 @@ export default function AddRuleModal({ open, onSave, onClose }) {
         <i className="ri-close-line text-2xl"></i>
       </button>
 
-      <h2 className="text-lg font-bold text-indigo-700 mb-3">
+      <h2 className="text-lg font-bold text-purple-700 mb-3">
         ➕ Add New Pricing Rule
       </h2>
 
@@ -83,7 +82,7 @@ export default function AddRuleModal({ open, onSave, onClose }) {
             onChange={handleChange}
             required
             placeholder="Enter rule name"
-            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-purple-400"
           />
         </div>
         <div>
@@ -93,7 +92,7 @@ export default function AddRuleModal({ open, onSave, onClose }) {
             value={rule.vehicleType}
             onChange={handleChange}
             required
-            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-purple-400"
           >
             <option value="">Select type</option>
             <option value="CAR_UP_TO_9_SEATS">Car (≤9 seats)</option>
@@ -115,7 +114,7 @@ export default function AddRuleModal({ open, onSave, onClose }) {
             onChange={handleChange}
             placeholder="e.g. 15000"
             required
-            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-purple-400"
           />
         </div>
         <div>
@@ -127,7 +126,7 @@ export default function AddRuleModal({ open, onSave, onClose }) {
             onChange={handleChange}
             placeholder="e.g. 10"
             required
-            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-purple-400"
           />
         </div>
       </div>
@@ -142,7 +141,7 @@ export default function AddRuleModal({ open, onSave, onClose }) {
             value={rule.initialCharge}
             onChange={handleChange}
             placeholder="e.g. 5000"
-            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-purple-400"
           />
         </div>
         <div>
@@ -155,7 +154,7 @@ export default function AddRuleModal({ open, onSave, onClose }) {
             value={rule.initialDurationMinute}
             onChange={handleChange}
             placeholder="e.g. 30"
-            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-purple-400"
           />
         </div>
       </div>
@@ -170,7 +169,7 @@ export default function AddRuleModal({ open, onSave, onClose }) {
             value={rule.validFrom}
             onChange={handleChange}
             required
-            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-purple-400"
           />
         </div>
         <div>
@@ -181,22 +180,9 @@ export default function AddRuleModal({ open, onSave, onClose }) {
             value={rule.validTo}
             onChange={handleChange}
             placeholder="(Optional)"
-            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-purple-400"
           />
         </div>
-      </div>
-
-      {/* Area ID */}
-      <div>
-        <label className="text-sm font-medium">Area ID</label>
-        <input
-          type="number"
-          name="areaId"
-          value={rule.areaId}
-          onChange={handleChange}
-          placeholder="e.g. 1"
-          className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
-        />
       </div>
 
       {/* Buttons */}
@@ -210,7 +196,7 @@ export default function AddRuleModal({ open, onSave, onClose }) {
         </button>
         <button
           type="submit"
-          className="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+          className="px-5 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
         >
           Save Rule
         </button>

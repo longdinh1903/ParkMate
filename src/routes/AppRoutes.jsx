@@ -4,6 +4,8 @@ import Register from "../pages/Register";
 import ConfirmEmail from "../pages/ConfirmEmail";
 import PartnerHome from "../pages/PartnerHome";
 import RegisterLot from "../pages/RegisterLot";
+import PartnerSubscriptions from "../pages/PartnerSubscriptions";
+import PartnerSubscriptionsTest from "../pages/PartnerSubscriptionsTest";
 import AdminLogin from "../pages/AdminLogin";
 import AdminPartners from "../pages/AdminPartners";
 import AdminRequests from "../pages/AdminRequests";
@@ -19,6 +21,8 @@ export default function AppRoutes() {
       <Route path="/confirm-email" element={<ConfirmEmail />} />
       <Route path="/home" element={<PartnerHome />} />
       <Route path="/register-lot" element={<RegisterLot />} />
+      <Route path="/subscriptions" element={<PartnerSubscriptions />} />
+      <Route path="/subscriptions-test" element={<PartnerSubscriptionsTest />} />
 
       {/* Admin routes */}
       <Route path="/admin/login" element={<AdminLogin />} />

@@ -133,11 +133,11 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-indigo-100">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-purple-100">
       <div className="bg-white shadow-lg rounded-lg w-full max-w-3xl p-8">
         {/* Header */}
         <div className="flex flex-col items-center mb-6">
-          <div className="w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center mb-3">
+          <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mb-3">
             <span className="text-white text-xl font-bold">P</span>
           </div>
           <h2 className="text-xl font-semibold">Parking Partner</h2>
@@ -280,7 +280,7 @@ export default function Register() {
               className={`px-6 py-2 rounded-md text-white ${
                 uploading
                   ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-indigo-600 hover:bg-indigo-700"
+                  : "bg-purple-600 hover:bg-purple-700"
               }`}
             >
               {uploading ? "Processing..." : "Register"}

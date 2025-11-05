@@ -45,9 +45,6 @@ export default function RuleDetailModal({ rule, onClose }) {
               ? new Date(rule.validTo).toLocaleString("vi-VN")
               : "-"}
           </p>
-          <p>
-            <strong>Area ID:</strong> {rule.areaId || "-"}
-          </p>
         </div>
 
         {/* Optional Description Section */}

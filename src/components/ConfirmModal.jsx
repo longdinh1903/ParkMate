@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-export default function ConfirmModal({ open, title, message, onConfirm, onCancel, loading = false, confirmLabel = "Confirm" }) {
+export default function ConfirmModal({ open = true, title, message, onConfirm, onCancel, loading = false, confirmLabel = "Confirm" }) {
   const [show, setShow] = useState(false);
 
   useEffect(() => {

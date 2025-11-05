@@ -340,7 +340,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                 className="bg-gradient-to-r from-green-600 to-green-500 text-white px-6 py-2.5 rounded-xl hover:from-green-700 hover:to-green-600 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2"
               >
                 <i className="ri-add-line text-lg"></i>
-                Add Capacity
+                Add 
               </button>
             </div>
 
@@ -406,7 +406,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
               <button
                 type="button"
                 onClick={() => setShowRuleModal(true)}
-                className="bg-gradient-to-r from-yellow-500 to-yellow-400 text-white px-6 py-2.5 rounded-xl hover:from-yellow-600 hover:to-yellow-500 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2"
+                className="bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-6 py-2.5 rounded-xl hover:from-indigo-700 hover:to-indigo-600 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2"
               >
                 <i className="ri-add-line text-lg"></i>
                 Add Rule
