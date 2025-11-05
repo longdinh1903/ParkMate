@@ -42,7 +42,7 @@ export default function EditPartnerModal({ partner, onClose, onUpdated }) {
   return (
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50">
       <div className="bg-white rounded-xl shadow-lg w-[600px] p-6">
-        <h2 className="text-xl font-semibold text-indigo-700 mb-4">
+        <h2 className="text-xl font-semibold text-orange-700 mb-4">
           Edit Partner
         </h2>
 
@@ -118,7 +118,7 @@ export default function EditPartnerModal({ partner, onClose, onUpdated }) {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+              className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
             >
               Save Changes
             </button>

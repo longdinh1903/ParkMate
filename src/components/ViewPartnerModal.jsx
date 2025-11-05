@@ -66,8 +66,8 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
         <div className="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-[480px] max-h-[85vh] border border-gray-200 flex flex-col">
           {/* Header - Fixed */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 flex-shrink-0">
-            <h2 className="text-lg font-semibold text-indigo-700 flex items-center gap-2">
-              <i className="ri-building-fill text-indigo-600"></i>
+            <h2 className="text-lg font-semibold text-orange-700 flex items-center gap-2">
+              <i className="ri-building-fill text-orange-600"></i>
               Partner Details
             </h2>
             <button
@@ -98,7 +98,7 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
                   href={partner.businessLicenseFileUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-indigo-600 hover:underline"
+                  className="text-orange-600 hover:underline"
                 >
                   View License
                 </a>

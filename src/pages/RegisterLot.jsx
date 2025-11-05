@@ -240,12 +240,12 @@ export default function RegisterLot() {
   return (
     <PartnerTopLayout>
       {/* Container với padding cho header và footer cố định */}
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/30 to-gray-50">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-indigo-50/30 to-gray-50">
         <div className="max-w-7xl mx-auto px-6 py-6">
           {/* Header Section */}
           <div className="mb-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
                 <i className="ri-parking-box-fill text-2xl text-white"></i>
               </div>
               <div>
@@ -266,8 +266,8 @@ export default function RegisterLot() {
             {/* ---- BASIC INFORMATION ---- */}
             <section className="p-8 border-b border-gray-100">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <i className="ri-building-2-fill text-purple-600 text-xl"></i>
+                <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                  <i className="ri-building-2-fill text-indigo-600 text-xl"></i>
                 </div>
                 <h2 className="text-xl font-bold text-gray-900">
                   Basic Information
@@ -287,7 +287,7 @@ export default function RegisterLot() {
                       value={form[field]}
                       onChange={handleChange}
                       required
-                      className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none"
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
                     />
                   </div>
                 ))}
@@ -301,7 +301,7 @@ export default function RegisterLot() {
                     value={form.city}
                     onChange={handleChange}
                     required
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none bg-white"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none bg-white"
                   >
                     <option value="">-- Chọn Tỉnh/Thành phố --</option>
                     <option value="Hà Nội">Hà Nội</option>
@@ -381,7 +381,7 @@ export default function RegisterLot() {
                     onChange={handleChange}
                     placeholder="Latitude"
                     step="any"
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
                   />
                 </div>
                 <div>
@@ -396,7 +396,7 @@ export default function RegisterLot() {
                     onChange={handleChange}
                     placeholder="Longitude"
                     step="any"
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
                   />
                 </div>
               </div>
@@ -405,7 +405,7 @@ export default function RegisterLot() {
                 <button
                   type="button"
                   onClick={() => setShowMap(true)}
-                  className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-500 text-white px-8 py-3 rounded-xl shadow-lg hover:shadow-xl hover:from-purple-700 hover:to-purple-600 transition-all transform hover:-translate-y-0.5"
+                  className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-8 py-3 rounded-xl shadow-lg hover:shadow-xl hover:from-indigo-700 hover:to-indigo-600 transition-all transform hover:-translate-y-0.5"
                 >
                   <i className="ri-map-pin-line text-xl"></i>
                   <span className="font-medium">Chọn vị trí trên bản đồ</span>
@@ -423,7 +423,7 @@ export default function RegisterLot() {
                     value={form.totalFloors}
                     onChange={handleChange}
                     placeholder="e.g., 3"
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
                   />
                 </div>
                 <div>
@@ -436,7 +436,7 @@ export default function RegisterLot() {
                     value={form.operatingHoursStart}
                     onChange={handleChange}
                     placeholder="07:00:00"
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
                   />
                 </div>
                 <div>
@@ -449,21 +449,21 @@ export default function RegisterLot() {
                     value={form.operatingHoursEnd}
                     onChange={handleChange}
                     placeholder="22:00:00"
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
                   />
                 </div>
               </div>
 
-              <label className="flex items-center gap-3 mt-6 p-4 bg-purple-50 rounded-xl cursor-pointer hover:bg-purple-100 transition-all">
+              <label className="flex items-center gap-3 mt-6 p-4 bg-indigo-50 rounded-xl cursor-pointer hover:bg-indigo-100 transition-all">
                 <input
                   type="checkbox"
                   name="is24Hour"
                   checked={form.is24Hour}
                   onChange={handleChange}
-                  className="w-5 h-5 accent-purple-600 cursor-pointer"
+                  className="w-5 h-5 accent-indigo-600 cursor-pointer"
                 />
                 <div className="flex items-center gap-2">
-                  <i className="ri-time-line text-purple-600 text-lg"></i>
+                  <i className="ri-time-line text-indigo-600 text-lg"></i>
                   <span className="text-gray-800 font-medium">
                     24-hour Operation
                   </span>
@@ -598,7 +598,7 @@ export default function RegisterLot() {
             </section>
 
             {/* ---- POLICIES ---- */}
-            <section className="p-8 border-b border-gray-100 bg-gradient-to-br from-blue-50/30 to-purple-50/30">
+            <section className="p-8 border-b border-gray-100 bg-gradient-to-br from-blue-50/30 to-indigo-50/30">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                   <i className="ri-shield-check-fill text-blue-600 text-xl"></i>
@@ -652,7 +652,7 @@ export default function RegisterLot() {
                           }
                           placeholder="Nhập số phút"
                           min="1"
-                          className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none"
+                          className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
                           required
                         />
                       </div>
@@ -705,7 +705,7 @@ export default function RegisterLot() {
                 <button
                   type="button"
                   onClick={() => setShowRuleModal(true)}
-                  className="bg-gradient-to-r from-purple-600 to-purple-500 text-white px-6 py-2.5 rounded-xl hover:from-purple-700 hover:to-purple-600 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2"
+                  className="bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-6 py-2.5 rounded-xl hover:from-indigo-700 hover:to-indigo-600 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2"
                 >
                   <i className="ri-add-line text-lg"></i>
                   Add Rule
@@ -769,7 +769,7 @@ export default function RegisterLot() {
                               <button
                                 type="button"
                                 onClick={() => setSelectedRule(r)}
-                                className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium text-purple-600 hover:bg-purple-50 transition-all"
+                                className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium text-indigo-600 hover:bg-indigo-50 transition-all"
                               >
                                 <i className="ri-eye-line mr-1"></i> View
                               </button>
@@ -821,7 +821,7 @@ export default function RegisterLot() {
           <button
             type="submit"
             onClick={handleSubmit}
-            className="px-6 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-all font-medium shadow-lg hover:shadow-xl flex items-center gap-2"
+            className="px-6 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-all font-medium shadow-lg hover:shadow-xl flex items-center gap-2"
           >
             <i className="ri-send-plane-fill"></i>
             Submit Registration
@@ -843,7 +843,7 @@ export default function RegisterLot() {
 
       <Modal isOpen={showMap} onClose={() => setShowMap(false)}>
         <div className="p-4 w-[700px] max-w-full">
-          <h2 className="text-lg font-semibold mb-3 text-purple-700">
+          <h2 className="text-lg font-semibold mb-3 text-indigo-700">
             📍 Chọn vị trí bãi đỗ xe
           </h2>
           <p className="text-gray-500 text-sm mb-2">

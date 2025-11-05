@@ -17,6 +17,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
   const [mode, setMode] = useState("draw"); // "draw" | "erase" | "area"
   const [selectedAreaId, setSelectedAreaId] = useState(null);
   const [selectedSpotId, setSelectedSpotId] = useState(null);
+  const [bulkSpotCount, setBulkSpotCount] = useState("");
   const [brushSize, setBrushSize] = useState(3);
   const [brushColor, setBrushColor] = useState("#1e3a8a");
   const [eraseSize, setEraseSize] = useState(20);
@@ -393,6 +394,65 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     });
 
     // Removed toast to avoid spam when adding multiple spots
+  };
+
+  // Bulk add spots
+  const handleBulkAddSpots = () => {
+    if (!selectedAreaId) {
+      toast.error("⚠️ Please select an area first!");
+      return;
+    }
+
+    const count = parseInt(bulkSpotCount);
+    if (!count || count < 1) {
+      toast.error("⚠️ Please enter a valid number of spots!");
+      return;
+    }
+
+    const selectedArea = areas.find((a) => a.id === selectedAreaId);
+    if (!selectedArea) {
+      toast.error("⚠️ Selected area not found!");
+      return;
+    }
+
+    // Đảm bảo spots array tồn tại
+    if (!selectedArea.spots) {
+      selectedArea.spots = [];
+    }
+
+    const spotWidth = 40;
+    const spotHeight = 60;
+    const spotsPerRow = Math.floor(selectedArea.width / (spotWidth + 10));
+    const existingSpots = selectedArea.spots.length;
+
+    const newSpots = [];
+    for (let i = 0; i < count; i++) {
+      const spotIndex = existingSpots + i;
+      const row = Math.floor(spotIndex / spotsPerRow);
+      const col = spotIndex % spotsPerRow;
+
+      newSpots.push({
+        id: `${Date.now()}-${i}`,
+        name: `${selectedArea.name}-S${spotIndex + 1}`,
+        x: col * (spotWidth + 10) + 5,
+        y: row * (spotHeight + 10) + 5,
+        width: spotWidth,
+        height: spotHeight,
+        fill: "rgba(34,197,94,0.3)",
+        stroke: "#16a34a",
+      });
+    }
+
+    updateCurrentFloor({
+      areas: areas.map((a) =>
+        a.id === selectedAreaId 
+          ? { ...a, spots: [...(a.spots || []), ...newSpots] } 
+          : a
+      ),
+    });
+
+    toast.success(`✅ Added ${count} spots to ${selectedArea.name}!`);
+    setBulkSpotCount(""); // Reset to empty
   };
 
   const handleDeleteArea = () => {
@@ -946,8 +1006,30 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                 disabled={!selectedAreaId}
               >
                 <i className="ri-parking-box-fill"></i>
-                Add Spot
+                Add 1 Spot
               </button>
+
+              {/* Bulk Add Spots */}
+              {selectedAreaId && (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={bulkSpotCount}
+                    onChange={(e) => setBulkSpotCount(e.target.value)}
+                    className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Qty"
+                  />
+                  <button
+                    onClick={handleBulkAddSpots}
+                    className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-all font-medium flex items-center gap-2"
+                  >
+                    <i className="ri-add-circle-fill"></i>
+                    Add Multiple
+                  </button>
+                </div>
+              )}
               
               {/* Smart Delete Button */}
               {selectedSpotId ? (

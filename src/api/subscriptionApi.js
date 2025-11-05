@@ -36,6 +36,28 @@ const subscriptionApi = {
     const url = `/api/v1/parking-service/subscriptions/${id}`;
     return axiosClient.delete(url);
   },
+
+  // Get subscribers (users who purchased this subscription package at specific parking lot)
+  // API expects subscriptionPackageId and parkingLotId as direct query parameters
+  getSubscribers: (subscriptionPackageId, parkingLotId, queryParams = {}) => {
+    const url = `/api/v1/user-service/user-subscriptions`;
+    return axiosClient.get(url, { 
+      params: {
+        page: queryParams.page || 0,
+        size: queryParams.size || 10,
+        sortBy: queryParams.sortBy || "createdAt",
+        sortOrder: queryParams.sortOrder || "asc",
+        subscriptionPackageId: subscriptionPackageId,
+        parkingLotId: parkingLotId
+      }
+    });
+  },
+
+  // Get user subscription by ID - for viewing full details
+  getUserSubscriptionById: (id) => {
+    const url = `/api/v1/user-service/user-subscriptions/${id}`;
+    return axiosClient.get(url);
+  },
 };
 
 export default subscriptionApi;

@@ -23,7 +23,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
 
   const areaTypes = [
     "WALK_IN_ONLY",
-    "RESERVED_ONLY",
+    "SUBSCRIPTION_ONLY",
   ];
 
   // Load data from backend
@@ -489,7 +489,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
                     </select>
                     <p className="mt-2 text-xs text-gray-500">
                       🚶 <strong>WALK_IN_ONLY:</strong> Customers walk in directly<br />
-                      📅 <strong>RESERVED_ONLY:</strong> Pre-booking required
+                      📅 <strong>SUBSCRIPTION_ONLY:</strong> Pre-booking required
                     </p>
                   </div>
                 </>

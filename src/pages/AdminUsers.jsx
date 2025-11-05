@@ -205,7 +205,7 @@ export default function AdminUsers() {
     <AdminLayout>
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-indigo-700">User Management</h2>
+        <h2 className="text-2xl font-bold text-orange-700">User Management</h2>
       </div>
 
       {/* Filters */}
@@ -216,7 +216,7 @@ export default function AdminUsers() {
             <input
               type="text"
               placeholder="Search by any field..."
-              className="border border-gray-300 pl-10 pr-4 py-2 rounded-lg w-80 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all"
+              className="border border-gray-300 pl-10 pr-4 py-2 rounded-lg w-80 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -241,7 +241,7 @@ export default function AdminUsers() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
+              className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
             >
               <option value="createdAt">Created Date</option>
               <option value="fullName">Full Name</option>
@@ -282,14 +282,14 @@ export default function AdminUsers() {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 transition-all cursor-pointer"
+              className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all cursor-pointer"
             />
             <span className="text-gray-500">to</span>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 transition-all cursor-pointer"
+              className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all cursor-pointer"
             />
           </div>
 
@@ -316,7 +316,7 @@ export default function AdminUsers() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => showInfo("Chức năng thêm người dùng đang phát triển")}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition transform hover:scale-105 hover:shadow-md cursor-pointer"
+            className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition transform hover:scale-105 hover:shadow-md cursor-pointer"
           >
             <PlusIcon className="w-5 h-5 text-white" />
             Add User
@@ -348,7 +348,7 @@ export default function AdminUsers() {
       {/* Table */}
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
         <table className="min-w-full table-auto">
-          <thead className="bg-indigo-50 text-indigo-700 uppercase text-sm font-semibold">
+          <thead className="bg-orange-50 text-orange-700 uppercase text-sm font-semibold">
             <tr>
               <th className="px-6 py-3 text-left">#</th>
               <th className="px-6 py-3 text-left">Full Name</th>
@@ -375,28 +375,41 @@ export default function AdminUsers() {
                 return (
                   <tr
                     key={idx}
-                    className="border-t border-gray-100 hover:bg-indigo-50 transition-all cursor-pointer"
+                    className="border-t border-gray-100 hover:bg-orange-50 transition-all cursor-pointer"
                   >
                     <td className="px-6 py-3 text-gray-500">
                       {page * size + idx + 1}
                     </td>
                     <td className="px-6 py-3 font-medium">
                       <div className="flex items-center gap-3">
-                        <img
-                          src={
-                            u.profilePictureUrl ||
-                            "https://placehold.co/40x40?text=👤"
-                          }
-                          alt="avatar"
-                          className="w-10 h-10 rounded-full object-cover border"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = "https://placehold.co/40x40?text=👤";
-                          }}
-                        />
+                        <div className="relative">
+                          <img
+                            src={
+                              u.profilePicturePresignedUrl ||
+                              u.profilePictureUrl ||
+                              `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                u.fullName || `${u.firstName || ""} ${u.lastName || ""}`.trim() || "Anonymous"
+                              )}&background=FF8901&color=fff&bold=true&size=128`
+                            }
+                            alt={u.fullName || "User"}
+                            className="w-10 h-10 rounded-full object-cover border-2 border-orange-200 shadow-sm"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = `https://ui-avatars.com/api/?name=Anonymous&background=94a3b8&color=fff&bold=true&size=128`;
+                            }}
+                          />
+                          {u.isActive && (
+                            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></span>
+                          )}
+                        </div>
                         <div>
-                          <p>{u.fullName || `${u.firstName} ${u.lastName}`}</p>
-                          <p className="text-xs text-gray-500">
+                          <p className="font-semibold text-gray-800">
+                            {u.fullName || `${u.firstName || ""} ${u.lastName || ""}`.trim() || "N/A"}
+                          </p>
+                          <p className="text-xs text-gray-500 flex items-center gap-1">
+                            {u.role === "ADMIN" && "👑"}
+                            {u.role === "PARTNER" && "🤝"}
+                            {u.role === "USER" && "👤"}
                             {u.role || "User"}
                           </p>
                         </div>
@@ -415,7 +428,7 @@ export default function AdminUsers() {
                         <button
                           title="View Details"
                           onClick={() => handleViewClick(u)}
-                          className="p-2 rounded-full hover:bg-indigo-100 transition cursor-pointer"
+                          className="p-2 rounded-full hover:bg-orange-100 transition cursor-pointer"
                         >
                           <EyeIcon className="w-5 h-5" />
                         </button>
@@ -467,7 +480,7 @@ export default function AdminUsers() {
             Page <strong>{page + 1}</strong> of {totalPages}
           </div>
           <div className="text-sm text-gray-500 mt-1">
-            Total users: <strong className="text-indigo-700">{totalCount}</strong>
+            Total users: <strong className="text-orange-700">{totalCount}</strong>
           </div>
         </div>
 
@@ -499,7 +512,7 @@ export default function AdminUsers() {
 
       {loadingView && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
-          <div className="bg-white px-6 py-4 rounded-lg shadow-lg text-indigo-700 font-medium">
+          <div className="bg-white px-6 py-4 rounded-lg shadow-lg text-orange-700 font-medium">
             Loading user details...
           </div>
         </div>

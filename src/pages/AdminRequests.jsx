@@ -10,7 +10,7 @@ export default function AdminRequests() {
     <AdminLayout>
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-indigo-700">
+        <h2 className="text-2xl font-bold text-orange-700">
           Partner & Parking Lot Requests
         </h2>
       </div>
@@ -20,8 +20,8 @@ export default function AdminRequests() {
         <button
           className={`pb-2 transition-all ${
             activeTab === "partner"
-              ? "border-b-2 border-indigo-600 text-indigo-700 font-semibold"
-              : "text-gray-500 hover:text-indigo-500"
+              ? "border-b-2 border-orange-600 text-orange-700 font-semibold"
+              : "text-gray-500 hover:text-orange-500"
           }`}
           onClick={() => setActiveTab("partner")}
         >
@@ -31,8 +31,8 @@ export default function AdminRequests() {
         <button
           className={`pb-2 transition-all ${
             activeTab === "parkingLot"
-              ? "border-b-2 border-indigo-600 text-indigo-700 font-semibold"
-              : "text-gray-500 hover:text-indigo-500"
+              ? "border-b-2 border-orange-600 text-orange-700 font-semibold"
+              : "text-gray-500 hover:text-orange-500"
           }`}
           onClick={() => setActiveTab("parkingLot")}
         >

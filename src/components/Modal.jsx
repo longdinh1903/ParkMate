@@ -10,7 +10,7 @@ export default function Modal({ isOpen = true, onClose, children, title, maxWidt
       onClick={onClose}
     >
       <div
-        className={`bg-white rounded-xl shadow-2xl ${maxWidth} w-full mx-4 max-h-[90vh] overflow-y-auto animate-fadeInScale`}
+        className={`bg-white rounded-xl shadow-2xl ${maxWidth} w-full mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar animate-fadeInScale`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header with title and close button */}

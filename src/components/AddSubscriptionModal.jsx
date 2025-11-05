@@ -137,7 +137,7 @@ export default function AddSubscriptionModal({ onClose, onSuccess }) {
             value={formData.description}
             onChange={handleChange}
             placeholder="Describe the benefits and features of this package..."
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none custom-scrollbar h-32 max-h-32 overflow-y-auto"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none custom-scrollbar h-32 max-h-32 overflow-y-auto"
             required
           />
           <p className="text-xs text-gray-500 mt-1">
@@ -154,7 +154,7 @@ export default function AddSubscriptionModal({ onClose, onSuccess }) {
             name="vehicleType"
             value={formData.vehicleType}
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             required
           >
             <option value="BIKE">Bike</option>
@@ -172,7 +172,7 @@ export default function AddSubscriptionModal({ onClose, onSuccess }) {
             name="durationType"
             value={formData.durationType}
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             required
           >
             <option value="MONTHLY">Monthly</option>
@@ -211,7 +211,7 @@ export default function AddSubscriptionModal({ onClose, onSuccess }) {
               name="lotId"
               value={formData.lotId}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               required
             >
               <option value="">Select a parking lot</option>
@@ -236,7 +236,7 @@ export default function AddSubscriptionModal({ onClose, onSuccess }) {
           </button>
           <button
             type="submit"
-            className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:bg-gray-400"
+            className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:bg-gray-400"
             disabled={loading || loadingLots || !Array.isArray(parkingLots) || parkingLots.length === 0}
           >
             {loading ? "Creating..." : "Create Package"}

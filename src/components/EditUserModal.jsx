@@ -36,7 +36,7 @@ export default function EditUserModal({ user, onClose, onSave }) {
   return (
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50">
       <div className="bg-white p-6 rounded-2xl shadow-xl w-[420px]">
-        <h3 className="text-lg font-semibold mb-4 text-indigo-700">
+        <h3 className="text-lg font-semibold mb-4 text-orange-700">
           Edit User
         </h3>
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -96,7 +96,7 @@ export default function EditUserModal({ user, onClose, onSave }) {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+              className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
             >
               Save
             </button>

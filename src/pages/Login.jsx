@@ -86,10 +86,10 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-purple-100">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-indigo-100">
       <div className="bg-white shadow-lg rounded-lg w-full max-w-md p-8">
         <div className="flex flex-col items-center mb-6">
-          <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mb-3">
+          <div className="w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center mb-3">
             <span className="text-white text-xl font-bold">P</span>
           </div>
           <h2 className="text-xl font-semibold">Parking Partner</h2>
@@ -107,7 +107,7 @@ export default function Login() {
               className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
                 errors.email
                   ? "border-red-500 focus:ring-red-400"
-                  : "focus:ring-purple-400"
+                  : "focus:ring-indigo-400"
               }`}
             />
             {errors.email && (
@@ -125,7 +125,7 @@ export default function Login() {
               className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
                 errors.password
                   ? "border-red-500 focus:ring-red-400"
-                  : "focus:ring-purple-400"
+                  : "focus:ring-indigo-400"
               }`}
             />
             {errors.password && (
@@ -138,7 +138,7 @@ export default function Login() {
             <label className="flex items-center">
               <input type="checkbox" className="mr-2" /> Remember me
             </label>
-            <a href="#" className="text-purple-600 hover:underline">
+            <a href="#" className="text-indigo-600 hover:underline">
               Forgot password?
             </a>
           </div>
@@ -146,7 +146,7 @@ export default function Login() {
           {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700 transition"
+            className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
           >
             Log in
           </button>
@@ -154,7 +154,7 @@ export default function Login() {
 
         <p className="text-sm text-center mt-4">
           Don’t have an account?{" "}
-          <Link to="/register" className="text-purple-600 hover:underline">
+          <Link to="/register" className="text-indigo-600 hover:underline">
             Register here
           </Link>
         </p>

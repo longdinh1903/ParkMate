@@ -117,7 +117,7 @@ export default function AdminParkingLots() {
       case "PARTNER_CONFIGURATION":
         return (
           <span
-            className={`${base} bg-indigo-50 text-indigo-700 border-indigo-300`}
+            className={`${base} bg-orange-50 text-orange-700 border-orange-300`}
           >
             Partner Configuration
           </span>
@@ -277,7 +277,7 @@ export default function AdminParkingLots() {
     <AdminLayout>
       {/* 🔹 Header */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-indigo-700">
+        <h2 className="text-2xl font-bold text-orange-700">
           Parking Lot Management
         </h2>
       </div>
@@ -291,7 +291,7 @@ export default function AdminParkingLots() {
             <input
               type="text"
               placeholder="Search by name, city, address, floors, or 24h..."
-              className="border border-gray-300 pl-10 pr-4 py-2 rounded-lg w-80 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all"
+              className="border border-gray-300 pl-10 pr-4 py-2 rounded-lg w-80 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -316,7 +316,7 @@ export default function AdminParkingLots() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
+              className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
             >
               <option value="createdAt">Created Date</option>
               <option value="name">Name</option>
@@ -354,7 +354,7 @@ export default function AdminParkingLots() {
 
           {/* ⚙️ Status Filter */}
           <select
-            className="border px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 cursor-pointer"
+            className="border px-3 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 cursor-pointer"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
@@ -390,7 +390,7 @@ export default function AdminParkingLots() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition cursor-pointer"
+            className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition cursor-pointer"
           >
             <PlusIcon className="w-5 h-5 text-white" />
             Add Parking Lot
@@ -422,7 +422,7 @@ export default function AdminParkingLots() {
       {/* 🔹 Table */}
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
         <table className="min-w-full table-auto">
-          <thead className="bg-indigo-50 text-indigo-700 uppercase text-sm font-semibold">
+          <thead className="bg-orange-50 text-orange-700 uppercase text-sm font-semibold">
             <tr>
               <th className="px-6 py-3 text-left w-16">#</th>
               <th className="px-6 py-3 text-left">Name</th>
@@ -477,7 +477,7 @@ export default function AdminParkingLots() {
                       <button
                         title="View"
                         onClick={() => handleView(lot)}
-                        className="p-2 rounded-full hover:bg-indigo-100 transition cursor-pointer"
+                        className="p-2 rounded-full hover:bg-orange-100 transition cursor-pointer"
                       >
                         <EyeIcon className="w-5 h-5" />
                       </button>
@@ -532,7 +532,7 @@ export default function AdminParkingLots() {
             Page <strong>{page + 1}</strong> of {totalPages}
           </div>
           <div className="text-sm text-gray-500 mt-1">
-            Total lots: <strong className="text-indigo-700">{totalCount}</strong>
+            Total lots: <strong className="text-orange-700">{totalCount}</strong>
           </div>
         </div>
 

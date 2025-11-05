@@ -94,7 +94,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
   return (
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50">
       <div className="bg-white rounded-2xl shadow-xl w-[600px] p-6 overflow-y-auto max-h-[90vh] animate-fadeIn">
-        <h2 className="text-xl font-semibold text-indigo-700 mb-4">
+        <h2 className="text-xl font-semibold text-orange-700 mb-4">
           Edit Parking Lot
         </h2>
 
@@ -107,7 +107,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
               name="name"
               value={form.name}
               onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+              className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-orange-400"
               required
             />
           </div>
@@ -121,7 +121,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
                 name="streetAddress"
                 value={form.streetAddress}
                 onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+                className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-orange-400"
               />
             </div>
             <div>
@@ -131,7 +131,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
                 name="ward"
                 value={form.ward}
                 onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+                className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-orange-400"
               />
             </div>
           </div>
@@ -145,7 +145,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
                 name="city"
                 value={form.city}
                 onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+                className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-orange-400"
               />
             </div>
             <div>
@@ -155,7 +155,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
                 name="totalFloors"
                 value={form.totalFloors}
                 onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+                className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-orange-400"
               />
             </div>
           </div>
@@ -170,7 +170,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
                 name="latitude"
                 value={form.latitude}
                 onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+                className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-orange-400"
               />
             </div>
             <div>
@@ -181,7 +181,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
                 name="longitude"
                 value={form.longitude}
                 onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+                className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-orange-400"
               />
             </div>
           </div>
@@ -198,7 +198,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
                 placeholder="06:00:00"
                 value={form.operatingHoursStart}
                 onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+                className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-orange-400"
               />
             </div>
             <div>
@@ -211,7 +211,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
                 placeholder="23:00:00"
                 value={form.operatingHoursEnd}
                 onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+                className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-orange-400"
               />
             </div>
           </div>
@@ -223,7 +223,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
               name="is24Hour"
               checked={form.is24Hour}
               onChange={handleChange}
-              className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+              className="h-4 w-4 text-orange-600 border-gray-300 rounded"
             />
             <label className="text-sm font-medium text-gray-700">24 Hour</label>
           </div>
@@ -240,7 +240,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
                 name="reason"
                 value={form.reason}
                 onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+                className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-orange-400"
                 rows={3}
                 required
               />
@@ -259,7 +259,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-50"
+              className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition disabled:opacity-50"
             >
               {loading ? "Saving..." : "Save Changes"}
             </button>

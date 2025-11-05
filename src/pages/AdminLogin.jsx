@@ -83,7 +83,7 @@ export default function AdminLogin() {
   return (
     <AuthLayout>
       <div className="flex flex-col items-center mb-6">
-        <div className="w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center mb-3">
+        <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center mb-3">
           <span className="text-white text-xl font-bold">A</span>
         </div>
         <h2 className="text-xl font-semibold">Admin Login</h2>
@@ -111,14 +111,14 @@ export default function AdminLogin() {
           <label className="flex items-center">
             <input type="checkbox" className="mr-2" /> Remember me
           </label>
-          <a href="#" className="text-indigo-600 hover:underline">
+          <a href="#" className="text-orange-600 hover:underline">
             Forgot password?
           </a>
         </div>
 
         <button
           type="submit"
-          className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700"
+          className="w-full bg-orange-600 text-white py-2 rounded-md hover:bg-orange-700"
         >
           Log in
         </button>

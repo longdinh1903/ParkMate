@@ -11,11 +11,14 @@ import {
   EyeIcon,
   MagnifyingGlassIcon,
   FunnelIcon,
+  EllipsisVerticalIcon,
+  UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import AddSubscriptionModal from "../components/AddSubscriptionModal";
 import EditSubscriptionModal from "../components/EditSubscriptionModal";
 import ViewSubscriptionModal from "../components/ViewSubscriptionModal";
 import ConfirmModal from "../components/ConfirmModal";
+import SubscribersModal from "../components/SubscribersModal";
 
 export default function PartnerSubscriptions() {
   const [searchParams] = useSearchParams();
@@ -44,7 +47,9 @@ export default function PartnerSubscriptions() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showSubscribersModal, setShowSubscribersModal] = useState(false);
   const [selectedSubscription, setSelectedSubscription] = useState(null);
+  const [openDropdownId, setOpenDropdownId] = useState(null);
 
   // Fetch all subscriptions
   const fetchSubscriptions = useCallback(async (currentPage = 0) => {
@@ -98,6 +103,7 @@ export default function PartnerSubscriptions() {
 
       if (payload.content !== undefined) {
         console.log("Subscriptions found:", payload.content.length);
+        console.log("First subscription object:", payload.content[0]);
         setSubscriptions(payload.content);
         setPagination({
           totalPages: payload.totalPages || 0,
@@ -202,7 +208,7 @@ export default function PartnerSubscriptions() {
     const colors = {
       BIKE: "bg-blue-100 text-blue-800",
       MOTORBIKE: "bg-green-100 text-green-800",
-      CAR_UP_TO_9_SEATS: "bg-purple-100 text-purple-800",
+      CAR_UP_TO_9_SEATS: "bg-indigo-100 text-indigo-800",
     };
     return colors[type] || "bg-gray-100 text-gray-800";
   };
@@ -212,7 +218,7 @@ export default function PartnerSubscriptions() {
     const colors = {
       MONTHLY: "bg-orange-100 text-orange-800",
       QUARTERLY: "bg-teal-100 text-teal-800",
-      YEARLY: "bg-purple-100 text-purple-800",
+      YEARLY: "bg-indigo-100 text-indigo-800",
     };
     return colors[type] || "bg-gray-100 text-gray-800";
   };
@@ -246,7 +252,7 @@ export default function PartnerSubscriptions() {
               packages
             </p>
             {lotIdFromUrl && parkingLotsMap[lotIdFromUrl] && (
-              <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-700 rounded-lg border border-purple-200">
+              <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-200">
                 <i className="ri-filter-3-line"></i>
                 <span className="text-sm font-medium">
                   Filtered by parking lot: <strong>{parkingLotsMap[lotIdFromUrl].name}</strong>
@@ -267,7 +273,7 @@ export default function PartnerSubscriptions() {
                   placeholder="Search by name or description..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
               </div>
 
@@ -287,7 +293,7 @@ export default function PartnerSubscriptions() {
                   fetchSubscriptions(0);
                 }}
                 disabled={loading}
-                className="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-all flex items-center gap-2 font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all flex items-center gap-2 font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <i className={`ri-refresh-line ${loading ? 'animate-spin' : ''}`}></i> Refresh
               </button>
@@ -303,7 +309,7 @@ export default function PartnerSubscriptions() {
                     setFilterVehicleType(e.target.value);
                     setPage(0); // Reset to first page
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 >
                   <option value="">All Vehicle Types</option>
                   <option value="BIKE">Bike</option>
@@ -318,7 +324,7 @@ export default function PartnerSubscriptions() {
                     setFilterDurationType(e.target.value);
                     setPage(0); // Reset to first page
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 >
                   <option value="">All Durations</option>
                   <option value="MONTHLY">Monthly</option>
@@ -330,7 +336,7 @@ export default function PartnerSubscriptions() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white cursor-pointer"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white cursor-pointer"
                 >
                   <option value="createdAt">Created Date</option>
                   <option value="name">Name</option>
@@ -366,7 +372,7 @@ export default function PartnerSubscriptions() {
                     console.log("Add Package clicked!");
                     setShowAddModal(true);
                   }}
-                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                 >
                   <PlusIcon className="w-5 h-5" />
                   Add Package
@@ -379,7 +385,7 @@ export default function PartnerSubscriptions() {
           <div className="flex-1 overflow-y-auto">
             {loading ? (
               <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
               </div>
             ) : filteredSubscriptions.length === 0 ? (
               <div className="bg-white rounded-lg shadow-sm p-12 text-center">
@@ -392,7 +398,7 @@ export default function PartnerSubscriptions() {
                       console.log("Create First Package clicked!");
                       setShowAddModal(true);
                     }}
-                    className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                    className="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                   >
                     Create First Package
                   </button>
@@ -414,42 +420,87 @@ export default function PartnerSubscriptions() {
                           {subscription.name}
                         </h3>
                         {getParkingLotName(subscription.lotId) && (
-                          <p className="text-xs text-purple-600 mt-1 truncate">
+                          <p className="text-xs text-indigo-600 mt-1 truncate">
                             📍 {getParkingLotName(subscription.lotId)}
                           </p>
                         )}
                       </div>
-                      <div className="flex gap-1.5 flex-shrink-0">
+                      
+                      {/* Dropdown Menu */}
+                      <div className="relative flex-shrink-0">
                         <button
-                          onClick={() => {
-                            setSelectedSubscription(subscription);
-                            setShowViewModal(true);
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenDropdownId(openDropdownId === subscription.id ? null : subscription.id);
                           }}
-                          className="p-1.5 text-green-600 hover:bg-green-50 rounded transition-colors"
-                          title="View Details"
+                          className="p-1.5 text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                          title="Actions"
                         >
-                          <EyeIcon className="w-5 h-5" />
+                          <EllipsisVerticalIcon className="w-5 h-5" />
                         </button>
-                        <button
-                          onClick={() => {
-                            setSelectedSubscription(subscription);
-                            setShowEditModal(true);
-                          }}
-                          className="p-1.5 text-purple-600 hover:bg-purple-50 rounded transition-colors"
-                          title="Edit"
-                        >
-                          <PencilSquareIcon className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setSelectedSubscription(subscription);
-                            setShowDeleteModal(true);
-                          }}
-                          className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
-                          title="Delete"
-                        >
-                          <TrashIcon className="w-5 h-5" />
-                        </button>
+                        
+                        {/* Dropdown Panel */}
+                        {openDropdownId === subscription.id && (
+                          <>
+                            {/* Overlay to close dropdown */}
+                            <div
+                              className="fixed inset-0 z-10"
+                              onClick={() => setOpenDropdownId(null)}
+                            />
+                            
+                            {/* Menu */}
+                            <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-20 overflow-hidden">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedSubscription(subscription);
+                                  setShowViewModal(true);
+                                  setOpenDropdownId(null);
+                                }}
+                                className="w-full px-4 py-2.5 text-left text-sm text-green-600 hover:bg-green-50 flex items-center gap-2 transition-colors"
+                              >
+                                <EyeIcon className="w-4 h-4" />
+                                View Details
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedSubscription(subscription);
+                                  setShowSubscribersModal(true);
+                                  setOpenDropdownId(null);
+                                }}
+                                className="w-full px-4 py-2.5 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center gap-2 transition-colors"
+                              >
+                                <UserGroupIcon className="w-4 h-4" />
+                                View Subscriptions
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedSubscription(subscription);
+                                  setShowEditModal(true);
+                                  setOpenDropdownId(null);
+                                }}
+                                className="w-full px-4 py-2.5 text-left text-sm text-indigo-600 hover:bg-indigo-50 flex items-center gap-2 transition-colors"
+                              >
+                                <PencilSquareIcon className="w-4 h-4" />
+                                Edit
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedSubscription(subscription);
+                                  setShowDeleteModal(true);
+                                  setOpenDropdownId(null);
+                                }}
+                                className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 border-t border-gray-200 transition-colors"
+                              >
+                                <TrashIcon className="w-4 h-4" />
+                                Delete
+                              </button>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
 
@@ -494,7 +545,7 @@ export default function PartnerSubscriptions() {
                     {/* Price */}
                     <div className="pt-2">
                       <p className="text-xs text-gray-500">Price</p>
-                      <p className="text-lg font-bold text-purple-600">
+                      <p className="text-lg font-bold text-indigo-600">
                         {formatPrice(subscription.price)}
                       </p>
                     </div>
@@ -510,14 +561,14 @@ export default function PartnerSubscriptions() {
                   <button
                     disabled={page <= 0}
                     onClick={() => setPage((p) => Math.max(p - 1, 0))}
-                    className="px-4 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium"
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium"
                   >
                     ← Previous
                   </button>
 
                   <span className="text-gray-700 text-sm font-medium px-4">
-                    Page <strong className="text-purple-600">{page + 1}</strong> of{" "}
-                    <strong className="text-purple-600">{pagination.totalPages}</strong> 
+                    Page <strong className="text-indigo-600">{page + 1}</strong> of{" "}
+                    <strong className="text-indigo-600">{pagination.totalPages}</strong> 
                     <span className="text-gray-400 ml-2">
                       ({pagination.totalElements} items)
                     </span>
@@ -526,7 +577,7 @@ export default function PartnerSubscriptions() {
                   <button
                     disabled={page >= pagination.totalPages - 1}
                     onClick={() => setPage((p) => p + 1)}
-                    className="px-4 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium"
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium"
                   >
                     Next →
                   </button>
@@ -589,6 +640,17 @@ export default function PartnerSubscriptions() {
           onConfirm={handleDelete}
           onCancel={() => {
             setShowDeleteModal(false);
+            setSelectedSubscription(null);
+          }}
+        />
+      )}
+
+      {/* Subscribers Modal */}
+      {showSubscribersModal && selectedSubscription && (
+        <SubscribersModal
+          subscription={selectedSubscription}
+          onClose={() => {
+            setShowSubscribersModal(false);
             setSelectedSubscription(null);
           }}
         />

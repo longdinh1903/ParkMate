@@ -298,12 +298,12 @@ export default function PartnerHome() {
 
   return (
     <PartnerTopLayout>
-      <div className="h-[calc(100vh-4rem)] bg-gradient-to-br from-gray-50 via-purple-50/30 to-gray-50" style={{ overflowY: 'auto' }}>
+      <div className="h-[calc(100vh-4rem)] bg-gradient-to-br from-gray-50 via-indigo-50/30 to-gray-50" style={{ overflowY: 'auto' }}>
         <div className="max-w-7xl mx-auto px-6 py-6 min-h-full">
           {/* Header */}
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
                 <i className="ri-parking-box-fill text-2xl text-white"></i>
               </div>
               <div>
@@ -317,7 +317,7 @@ export default function PartnerHome() {
             </div>
             <button
               onClick={() => (window.location.href = "/register-lot")}
-              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-500 text-white rounded-xl hover:from-purple-700 hover:to-purple-600 transition-all shadow-lg hover:shadow-xl font-medium flex items-center gap-2 cursor-pointer"
+              className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white rounded-xl hover:from-indigo-700 hover:to-indigo-600 transition-all shadow-lg hover:shadow-xl font-medium flex items-center gap-2 cursor-pointer"
             >
               <i className="ri-add-line text-lg"></i>
               Register New Lot
@@ -334,7 +334,7 @@ export default function PartnerHome() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search (all fields)..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
             </div>
 
@@ -342,7 +342,7 @@ export default function PartnerHome() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full sm:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white cursor-pointer"
+              className="w-full sm:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white cursor-pointer"
             >
               <option value="">All Status</option>
               <option value="PENDING">Pending</option>
@@ -360,7 +360,7 @@ export default function PartnerHome() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="w-full sm:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white cursor-pointer"
+              className="w-full sm:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white cursor-pointer"
             >
               <option value="createdAt">Created Date</option>
               <option value="name">Name</option>
@@ -409,7 +409,7 @@ export default function PartnerHome() {
                   setPage(0);
                   fetchMyLots(0);
                 }}
-                className="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-all flex items-center gap-2 font-medium cursor-pointer"
+                className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all flex items-center gap-2 font-medium cursor-pointer"
               >
                 <i className="ri-refresh-line"></i> Refresh
               </button>
@@ -417,7 +417,7 @@ export default function PartnerHome() {
 
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20">
-                <div className="w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin"></div>
+                <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
                 <p className="text-gray-600 mt-3">Loading...</p>
               </div>
             ) : lots.length === 0 ? (

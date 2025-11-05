@@ -30,7 +30,7 @@ export default function ViewUserModal({ userId, user, onClose }) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50 p-4">
         <div className="bg-white rounded-xl shadow-xl w-full max-w-lg relative p-6">
-          <h2 className="text-lg font-semibold text-indigo-700 mb-4">
+          <h2 className="text-lg font-semibold text-orange-700 mb-4">
             User Details
           </h2>
           <p className="text-center text-red-500 italic">
@@ -39,7 +39,7 @@ export default function ViewUserModal({ userId, user, onClose }) {
           <div className="mt-6 text-center">
             <button
               onClick={onClose}
-              className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+              className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
             >
               Đóng
             </button>
@@ -51,7 +51,7 @@ export default function ViewUserModal({ userId, user, onClose }) {
   if (loading)
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
-        <div className="bg-white px-6 py-4 rounded-lg shadow-md text-indigo-700">
+        <div className="bg-white px-6 py-4 rounded-lg shadow-md text-orange-700">
           Đang tải thông tin người dùng...
         </div>
       </div>
@@ -108,13 +108,13 @@ export default function ViewUserModal({ userId, user, onClose }) {
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="flex justify-between items-center px-6 py-4 bg-indigo-50 border-b border-indigo-100">
-          <h2 className="text-xl font-bold text-indigo-700 flex items-center gap-2">
+        <div className="flex justify-between items-center px-6 py-4 bg-orange-50 border-b border-orange-100">
+          <h2 className="text-xl font-bold text-orange-700 flex items-center gap-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="currentColor"
               viewBox="0 0 24 24"
-              className="w-6 h-6 text-indigo-500"
+              className="w-6 h-6 text-orange-500"
             >
               <path
                 fillRule="evenodd"
@@ -136,33 +136,40 @@ export default function ViewUserModal({ userId, user, onClose }) {
         <div className="overflow-y-auto p-6 text-gray-700 text-sm space-y-8">
           {/* Profile Header */}
           <div className="text-center">
-            <img
-              src={
-                data.profilePicturePresignedUrl ||
-                data.profilePictureUrl ||
-                "https://placehold.co/100x100?text=👤"
-              }
-              alt="avatar"
-              className="w-24 h-24 rounded-full object-cover border-2 border-indigo-200 mx-auto mb-3"
-              onError={(e) => {
-                console.log("❌ Avatar image failed to load:", e.target.src);
-                e.target.onerror = null;
-                e.target.src = "https://placehold.co/100x100?text=👤";
-              }}
-              onLoad={() => {
-                console.log(
-                  "✅ Avatar loaded successfully:",
-                  data.profilePicturePresignedUrl
-                );
-              }}
-            />
+            <div className="relative inline-block">
+              <img
+                src={
+                  data.profilePicturePresignedUrl ||
+                  data.profilePictureUrl ||
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                    data.fullName || `${data.firstName || ""} ${data.lastName || ""}`.trim() || "Anonymous"
+                  )}&background=FF8901&color=fff&bold=true&size=256`
+                }
+                alt={data.fullName || "User"}
+                className="w-24 h-24 rounded-full object-cover border-4 border-orange-200 shadow-lg mx-auto mb-3"
+                onError={(e) => {
+                  console.log("❌ Avatar image failed to load:", e.target.src);
+                  e.target.onerror = null;
+                  e.target.src = `https://ui-avatars.com/api/?name=Anonymous&background=94a3b8&color=fff&bold=true&size=256`;
+                }}
+                onLoad={() => {
+                  console.log(
+                    "✅ Avatar loaded successfully:",
+                    data.profilePicturePresignedUrl || data.profilePictureUrl
+                  );
+                }}
+              />
+              {(data.status === "ACTIVE" || data.account?.status === "ACTIVE") && (
+                <span className="absolute bottom-3 right-0 w-6 h-6 bg-green-500 border-4 border-white rounded-full"></span>
+              )}
+            </div>
             <h3 className="text-lg font-semibold">
               {data.fullName ||
                 `${data.firstName || ""} ${data.lastName || ""}`.trim() ||
-                "-"}
+                "Anonymous User"}
             </h3>
             <p className="text-gray-500">
-              {data.phoneNumber || data.phone || "-"}
+              {data.phoneNumber || data.phone || "No phone number"}
             </p>
             <div className="flex justify-center gap-3 mt-2">
               <Badge
@@ -187,7 +194,7 @@ export default function ViewUserModal({ userId, user, onClose }) {
 
           {/* Contact & Address */}
           <section>
-            <h4 className="text-indigo-600 font-semibold border-b border-indigo-200 pb-1 mb-3">
+            <h4 className="text-orange-600 font-semibold border-b border-orange-200 pb-1 mb-3">
               Contact & Address
             </h4>
             <div className="grid grid-cols-2 gap-4">
@@ -222,7 +229,7 @@ export default function ViewUserModal({ userId, user, onClose }) {
 
           {/* Personal & ID */}
           <section>
-            <h4 className="text-indigo-600 font-semibold border-b border-indigo-200 pb-1 mb-3">
+            <h4 className="text-orange-600 font-semibold border-b border-orange-200 pb-1 mb-3">
               Personal & Identity Card
             </h4>
             <div className="grid grid-cols-2 gap-4">
@@ -303,7 +310,7 @@ export default function ViewUserModal({ userId, user, onClose }) {
 
           {/* History */}
           <section>
-            <h4 className="text-indigo-600 font-semibold border-b border-indigo-200 pb-1 mb-3">
+            <h4 className="text-orange-600 font-semibold border-b border-orange-200 pb-1 mb-3">
               Account Information
             </h4>
             <div className="grid grid-cols-2 gap-4">
@@ -329,7 +336,7 @@ export default function ViewUserModal({ userId, user, onClose }) {
         <div className="border-t bg-gray-50 px-6 py-4 flex justify-end">
           <button
             onClick={onClose}
-            className="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition"
+            className="px-6 py-2 bg-orange-600 text-white font-semibold rounded-lg hover:bg-orange-700 transition"
           >
             Đóng
           </button>

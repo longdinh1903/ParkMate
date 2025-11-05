@@ -50,7 +50,6 @@ export default function AdminPartners() {
       setTotalPages(data?.totalPages || 1);
     } catch (err) {
       console.error("❌ Error fetching partners:", err);
-      showError("Failed to load partner list!");
     } finally {
       setLoading(false);
     }
@@ -232,7 +231,7 @@ export default function AdminPartners() {
     <AdminLayout>
       {/* 🔹 Header */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-indigo-700">
+        <h2 className="text-2xl font-bold text-orange-700">
           Partner Management
         </h2>
       </div>
@@ -245,7 +244,7 @@ export default function AdminPartners() {
             <input
               type="text"
               placeholder="Search by name, email, phone, or address..."
-              className="border border-gray-300 pl-10 pr-4 py-2 rounded-lg w-80 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all"
+              className="border border-gray-300 pl-10 pr-4 py-2 rounded-lg w-80 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -270,7 +269,7 @@ export default function AdminPartners() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
+              className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
             >
               <option value="createdAt">Created Date</option>
               <option value="companyName">Company Name</option>
@@ -315,14 +314,14 @@ export default function AdminPartners() {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 transition-all"
+              className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all"
             />
             <span className="text-gray-500">to</span>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 transition-all"
+              className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all"
             />
           </div>
 
@@ -349,7 +348,7 @@ export default function AdminPartners() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition cursor-pointer"
+            className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition cursor-pointer"
           >
             <PlusIcon className="w-5 h-5 text-white" />
             Add Partner
@@ -386,7 +385,7 @@ export default function AdminPartners() {
       {/* 🔹 Table */}
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
         <table className="min-w-full table-auto">
-          <thead className="bg-indigo-50 text-indigo-700 uppercase text-sm font-semibold">
+          <thead className="bg-orange-50 text-orange-700 uppercase text-sm font-semibold">
             <tr>
               <th className="px-6 py-3 text-left w-16">#</th>
               <th className="px-6 py-3 text-left">Company Name</th>
@@ -428,7 +427,7 @@ export default function AdminPartners() {
                       <button
                         title="View Details"
                         onClick={(e) => handleView(p, e)}
-                        className="p-2 rounded-full hover:bg-indigo-100 transition cursor-pointer"
+                        className="p-2 rounded-full hover:bg-orange-100 transition cursor-pointer"
                       >
                         <EyeIcon className="w-5 h-5" />
                       </button>
@@ -480,7 +479,7 @@ export default function AdminPartners() {
           </div>
           <div className="text-sm text-gray-500 mt-1">
             Total partners:{" "}
-            <strong className="text-indigo-700">{totalCount}</strong>
+            <strong className="text-orange-700">{totalCount}</strong>
           </div>
         </div>
 

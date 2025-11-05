@@ -139,7 +139,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-8 py-6 rounded-t-2xl shadow-lg z-10">
+        <div className="sticky top-0 bg-gradient-to-r from-orange-600 to-orange-500 text-white px-8 py-6 rounded-t-2xl shadow-lg z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
@@ -147,7 +147,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
               </div>
               <div>
                 <h2 className="text-2xl font-bold">Add New Parking Lot</h2>
-                <p className="text-indigo-100 text-sm mt-1">Điền đầy đủ thông tin bên dưới</p>
+                <p className="text-orange-100 text-sm mt-1">Điền đầy đủ thông tin bên dưới</p>
               </div>
             </div>
             <button
@@ -165,8 +165,8 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
           {/* ---- BASIC INFORMATION ---- */}
           <section className="border-b border-gray-200 pb-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                <i className="ri-building-2-fill text-indigo-600 text-xl"></i>
+              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                <i className="ri-building-2-fill text-orange-600 text-xl"></i>
               </div>
               <h3 className="text-xl font-bold text-gray-900">Basic Information</h3>
             </div>
@@ -183,7 +183,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                   onChange={handleChange}
                   required
                   placeholder="Enter parking lot name"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none"
                 />
               </div>
 
@@ -198,7 +198,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                   onChange={handleChange}
                   required
                   placeholder="Enter street address"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none"
                 />
               </div>
 
@@ -213,7 +213,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                   onChange={handleChange}
                   required
                   placeholder="Enter ward"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none"
                 />
               </div>
 
@@ -228,7 +228,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                   onChange={handleChange}
                   required
                   placeholder="Enter city"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none"
                 />
               </div>
 
@@ -244,7 +244,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                   onChange={handleChange}
                   required
                   placeholder="Latitude"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none"
                 />
               </div>
 
@@ -260,7 +260,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                   onChange={handleChange}
                   required
                   placeholder="Longitude"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none"
                 />
               </div>
             </div>
@@ -277,7 +277,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                   onChange={handleChange}
                   required
                   placeholder="e.g., 3"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none"
                 />
               </div>
 
@@ -291,7 +291,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                   value={form.operatingHoursStart}
                   onChange={handleChange}
                   placeholder="07:00:00"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none"
                 />
               </div>
 
@@ -305,21 +305,21 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                   value={form.operatingHoursEnd}
                   onChange={handleChange}
                   placeholder="22:00:00"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none"
                 />
               </div>
             </div>
 
-            <label className="flex items-center gap-3 mt-6 p-4 bg-indigo-50 rounded-xl cursor-pointer hover:bg-indigo-100 transition-all">
+            <label className="flex items-center gap-3 mt-6 p-4 bg-orange-50 rounded-xl cursor-pointer hover:bg-orange-100 transition-all">
               <input
                 type="checkbox"
                 name="is24Hour"
                 checked={form.is24Hour}
                 onChange={handleChange}
-                className="w-5 h-5 accent-indigo-600 cursor-pointer"
+                className="w-5 h-5 accent-orange-600 cursor-pointer"
               />
               <div className="flex items-center gap-2">
-                <i className="ri-time-line text-indigo-600 text-lg"></i>
+                <i className="ri-time-line text-orange-600 text-lg"></i>
                 <span className="text-gray-800 font-medium">24-hour Operation</span>
               </div>
             </label>
@@ -406,7 +406,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
               <button
                 type="button"
                 onClick={() => setShowRuleModal(true)}
-                className="bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-6 py-2.5 rounded-xl hover:from-indigo-700 hover:to-indigo-600 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2"
+                className="bg-gradient-to-r from-orange-600 to-orange-500 text-white px-6 py-2.5 rounded-xl hover:from-orange-700 hover:to-orange-600 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2"
               >
                 <i className="ri-add-line text-lg"></i>
                 Add Rule
@@ -472,7 +472,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
             <button
               type="submit"
               disabled={loading}
-              className="px-8 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-semibold hover:from-indigo-700 hover:to-indigo-600 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 flex items-center gap-2"
+              className="px-8 py-3 rounded-xl bg-gradient-to-r from-orange-600 to-orange-500 text-white font-semibold hover:from-orange-700 hover:to-orange-600 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 flex items-center gap-2"
             >
               {loading ? (
                 <>

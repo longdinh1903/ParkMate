@@ -135,7 +135,7 @@ export default function EditSubscriptionModal({ subscription, onClose, onSuccess
             value={formData.description}
             onChange={handleChange}
             placeholder="Describe the benefits and features of this package..."
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none custom-scrollbar h-32 max-h-32 overflow-y-auto"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none custom-scrollbar h-32 max-h-32 overflow-y-auto"
             required
           />
           <p className="text-xs text-gray-500 mt-1">
@@ -235,8 +235,8 @@ export default function EditSubscriptionModal({ subscription, onClose, onSuccess
           <button
             type="button"
             onClick={() => setFormData(prev => ({ ...prev, isActive: !prev.isActive }))}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
-              formData.isActive ? 'bg-purple-600' : 'bg-gray-300'
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+              formData.isActive ? 'bg-indigo-600' : 'bg-gray-300'
             }`}
           >
             <span
@@ -259,7 +259,7 @@ export default function EditSubscriptionModal({ subscription, onClose, onSuccess
           </button>
           <button
             type="submit"
-            className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:bg-gray-400"
+            className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:bg-gray-400"
             disabled={loading || loadingLots}
           >
             {loading ? "Updating..." : "Update Package"}

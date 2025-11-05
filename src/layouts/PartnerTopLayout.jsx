@@ -69,10 +69,10 @@ export default function PartnerTopLayout({ children }) {
   return (
     <>
       {/* 🔹 Navbar cố định trên cùng */}
-      <header className="fixed top-0 left-0 w-full z-50 bg-purple-600 text-white shadow-md h-16 flex items-center px-8">
+      <header className="fixed top-0 left-0 w-full z-50 bg-indigo-600 text-white shadow-md h-16 flex items-center px-8">
         {/* Logo */}
         <div className="flex items-center gap-2 flex-shrink-0">
-          <div className="w-8 h-8 bg-white text-purple-600 rounded-full flex items-center justify-center font-bold">
+          <div className="w-8 h-8 bg-white text-indigo-600 rounded-full flex items-center justify-center font-bold">
             P
           </div>
           <span className="text-lg font-semibold">Parking Partner</span>
@@ -83,8 +83,8 @@ export default function PartnerTopLayout({ children }) {
           <NavLink
             to="/home"
             className={({ isActive }) =>
-              `hover:text-purple-200 transition ${
-                isActive ? "underline text-purple-200" : ""
+              `hover:text-indigo-200 transition ${
+                isActive ? "underline text-indigo-200" : ""
               }`
             }
           >
@@ -93,8 +93,8 @@ export default function PartnerTopLayout({ children }) {
           <NavLink
             to="/register-lot"
             className={({ isActive }) =>
-              `hover:text-purple-200 transition ${
-                isActive ? "underline text-purple-200" : ""
+              `hover:text-indigo-200 transition ${
+                isActive ? "underline text-indigo-200" : ""
               }`
             }
           >
@@ -103,8 +103,8 @@ export default function PartnerTopLayout({ children }) {
           <NavLink
             to="/subscriptions"
             className={({ isActive }) =>
-              `hover:text-purple-200 transition ${
-                isActive ? "underline text-purple-200" : ""
+              `hover:text-indigo-200 transition ${
+                isActive ? "underline text-indigo-200" : ""
               }`
             }
           >
@@ -113,8 +113,8 @@ export default function PartnerTopLayout({ children }) {
           <NavLink
             to="/reports"
             className={({ isActive }) =>
-              `hover:text-purple-200 transition ${
-                isActive ? "underline text-purple-200" : ""
+              `hover:text-indigo-200 transition ${
+                isActive ? "underline text-indigo-200" : ""
               }`
             }
           >
@@ -123,8 +123,8 @@ export default function PartnerTopLayout({ children }) {
           <NavLink
             to="/profile"
             className={({ isActive }) =>
-              `hover:text-purple-200 transition ${
-                isActive ? "underline text-purple-200" : ""
+              `hover:text-indigo-200 transition ${
+                isActive ? "underline text-indigo-200" : ""
               }`
             }
           >

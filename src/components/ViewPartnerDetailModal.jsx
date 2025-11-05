@@ -65,10 +65,10 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl relative overflow-hidden transform transition-all duration-300">
         
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 bg-indigo-50 border-b border-indigo-100">
-          <h2 className="text-xl font-bold text-indigo-700 flex items-center gap-3">
+        <div className="flex items-center justify-between px-6 py-4 bg-orange-50 border-b border-orange-100">
+          <h2 className="text-xl font-bold text-orange-700 flex items-center gap-3">
             {/* Sử dụng icon hiện đại hơn */}
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-indigo-500">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-orange-500">
                 <path fillRule="evenodd" d="M3.75 3.75L7.5 7.5L3.75 11.25V3.75ZM7.5 7.5L11.25 3.75H18.75A2.25 2.25 0 0121 6V18A2.25 2.25 0 0118.75 20.25H5.25A2.25 2.25 0 013 18.75V15L7.5 10.5V7.5ZM15 15.75A1.5 1.5 0 1112 15.75A1.5 1.5 0 0115 15.75Z" clipRule="evenodd" />
             </svg>
             Partner Details
@@ -114,7 +114,7 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
 
             {/* --- Company Info Section --- */}
             <section className="mb-6">
-                <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1">Thông tin Công ty</h3>
+                <h3 className="text-lg font-semibold text-orange-600 mb-3 border-b-2 border-orange-100 pb-1">Thông tin Công ty</h3>
                 <div className="space-y-1">
                     <InfoRow label="Tên Công ty" value={data.companyName} />
                     <InfoRow label="Mã số Thuế" value={data.taxNumber} />
@@ -128,7 +128,7 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
                                 href={data.businessLicenseFileUrl}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="text-indigo-600 hover:text-indigo-800 font-semibold transition underline"
+                                className="text-orange-600 hover:text-orange-800 font-semibold transition underline"
                             >
                                 Xem tệp đính kèm
                             </a>
@@ -147,7 +147,7 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
 
             {/* --- Contact Info Section --- */}
             <section>
-                <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1">Thông tin Người liên hệ</h3>
+                <h3 className="text-lg font-semibold text-orange-600 mb-3 border-b-2 border-orange-100 pb-1">Thông tin Người liên hệ</h3>
                 {Array.isArray(data.accounts) && data.accounts.length > 0 ? (
                     (() => {
                         const contact = data.accounts[0];
@@ -175,7 +175,7 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
           <div className="px-6 py-4 border-t border-gray-100 flex justify-end bg-gray-50">
             <button
               onClick={onClose}
-              className="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
+              className="px-6 py-2 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors duration-200"
             >
               Đóng
             </button>

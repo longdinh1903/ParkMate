@@ -48,7 +48,7 @@ export default function AddPartnerModal({ onClose, onAdded }) {
   return (
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50">
       <div className="bg-white w-[500px] rounded-xl shadow-xl p-6">
-        <h2 className="text-xl font-semibold text-indigo-700 mb-4">
+        <h2 className="text-xl font-semibold text-orange-700 mb-4">
           ➕ Add New Partner
         </h2>
 
@@ -73,7 +73,7 @@ export default function AddPartnerModal({ onClose, onAdded }) {
                 value={form[f.name]}
                 onChange={handleChange}
                 required
-                className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none transition"
+                className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none transition"
               />
             </div>
           ))}
@@ -89,7 +89,7 @@ export default function AddPartnerModal({ onClose, onAdded }) {
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition disabled:opacity-50"
+              className="px-4 py-2 rounded-lg bg-orange-600 text-white hover:bg-orange-700 transition disabled:opacity-50"
             >
               {loading ? "Creating..." : "Create"}
             </button>

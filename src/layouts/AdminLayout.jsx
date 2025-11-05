@@ -41,7 +41,7 @@ export default function AdminLayout({ children }) {
       
       {/* Sidebar */}
       <aside
-        className={`relative bg-indigo-700 text-white flex flex-col py-6 transition-all duration-300 shadow-lg ${
+        className={`relative bg-orange-700 text-white flex flex-col py-6 transition-all duration-300 shadow-lg ${
           isExpanded ? "w-64" : "w-20 items-center"
         }`}
       >
@@ -71,8 +71,8 @@ export default function AdminLayout({ children }) {
                     isExpanded ? "px-6 py-3" : "justify-center w-12 h-12"
                   } ${
                     isActive
-                      ? "bg-indigo-600 text-white"
-                      : "hover:bg-indigo-600 hover:text-white text-gray-200"
+                      ? "bg-orange-600 text-white"
+                      : "hover:bg-orange-600 hover:text-white text-gray-200"
                   }`}
                 >
                   <i className={`${item.icon} text-2xl`}></i>
@@ -106,7 +106,7 @@ export default function AdminLayout({ children }) {
           {/* Toggle button */}
           <button
             onClick={() => setIsExpanded((prev) => !prev)}
-            className="flex items-center justify-center w-12 h-12 rounded-lg bg-indigo-600 hover:bg-indigo-500 transition"
+            className="flex items-center justify-center w-12 h-12 rounded-lg bg-orange-600 hover:bg-orange-500 transition"
             title={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
           >
             <i
@@ -122,7 +122,7 @@ export default function AdminLayout({ children }) {
               onClick={handleLogout}
               className={`flex items-center gap-3 rounded-lg transition-all duration-300 ${
                 isExpanded ? "px-6 py-3 w-full" : "justify-center w-12 h-12"
-              } text-gray-200 hover:bg-indigo-600 hover:text-white`}
+              } text-gray-200 hover:bg-orange-600 hover:text-white`}
             >
               <i className="ri-logout-box-r-line text-2xl"></i>
               {isExpanded && (

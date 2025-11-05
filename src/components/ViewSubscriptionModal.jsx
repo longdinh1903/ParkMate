@@ -48,9 +48,9 @@ export default function ViewSubscriptionModal({ subscription, parkingLotName, on
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl relative overflow-hidden animate-fadeInScale">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-purple-50">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-indigo-50">
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <i className="ri-file-list-3-line text-purple-600"></i>
+            <i className="ri-file-list-3-line text-indigo-600"></i>
             Subscription Details
           </h2>
           <button
@@ -65,8 +65,8 @@ export default function ViewSubscriptionModal({ subscription, parkingLotName, on
         <div className="px-6 py-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
           <div className="space-y-6">
             {/* Basic Info */}
-            <div className="bg-purple-50 rounded-lg p-4">
-              <h3 className="font-semibold text-purple-900 mb-3 flex items-center gap-2">
+            <div className="bg-indigo-50 rounded-lg p-4">
+              <h3 className="font-semibold text-indigo-900 mb-3 flex items-center gap-2">
                 <i className="ri-information-line"></i>
                 Basic Information
               </h3>
@@ -101,7 +101,7 @@ export default function ViewSubscriptionModal({ subscription, parkingLotName, on
                 </div>
                 <div className="md:col-span-2">
                   <p className="text-gray-500 mb-1">Parking Lot</p>
-                  <p className="font-semibold text-purple-600 flex items-center gap-1">
+                  <p className="font-semibold text-indigo-600 flex items-center gap-1">
                     <i className="ri-map-pin-2-fill"></i>
                     {parkingLotName || `Lot ID: ${subscription.lotId}`}
                   </p>
@@ -110,13 +110,13 @@ export default function ViewSubscriptionModal({ subscription, parkingLotName, on
             </div>
 
             {/* Price */}
-            <div className="bg-purple-50 rounded-lg p-4">
-              <h3 className="font-semibold text-purple-900 mb-3 flex items-center gap-2">
+            <div className="bg-indigo-50 rounded-lg p-4">
+              <h3 className="font-semibold text-indigo-900 mb-3 flex items-center gap-2">
                 <i className="ri-money-dollar-circle-line"></i>
                 Pricing
               </h3>
               <div className="text-center">
-                <p className="text-4xl font-bold text-purple-600">
+                <p className="text-4xl font-bold text-indigo-600">
                   {formatPrice(subscription.price)}
                 </p>
                 <p className="text-sm text-gray-500 mt-1">

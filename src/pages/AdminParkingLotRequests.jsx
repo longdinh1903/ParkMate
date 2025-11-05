@@ -219,7 +219,7 @@ export default function AdminParkingLotRequests() {
             <input
               type="text"
               placeholder="Search by name, city, ward, or status..."
-              className="border border-gray-300 pl-10 pr-4 py-2 rounded-lg w-80 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all"
+              className="border border-gray-300 pl-10 pr-4 py-2 rounded-lg w-80 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -244,7 +244,7 @@ export default function AdminParkingLotRequests() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
+              className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
             >
               <option value="createdAt">Created Date</option>
               <option value="name">Name</option>
@@ -282,7 +282,7 @@ export default function AdminParkingLotRequests() {
 
           {/* Status filter */}
           <select
-            className="border px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 cursor-pointer"
+            className="border px-3 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 cursor-pointer"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
@@ -308,14 +308,14 @@ export default function AdminParkingLotRequests() {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 transition-all cursor-pointer"
+              className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all cursor-pointer"
             />
             <span className="text-gray-500">to</span>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 transition-all cursor-pointer"
+              className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all cursor-pointer"
             />
           </div>
 
@@ -367,7 +367,7 @@ export default function AdminParkingLotRequests() {
       {/* Table */}
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
         <table className="min-w-full table-auto">
-          <thead className="bg-indigo-50 text-indigo-700 uppercase text-sm font-semibold">
+          <thead className="bg-orange-50 text-orange-700 uppercase text-sm font-semibold">
             <tr>
               <th className="px-6 py-3 text-left">#</th>
               <th className="px-6 py-3 text-left">Name</th>
@@ -442,7 +442,7 @@ export default function AdminParkingLotRequests() {
                       <button
                         title="View Details"
                         onClick={() => handleView(lot.id)}
-                        className="p-2 rounded-full hover:bg-indigo-100 transition cursor-pointer"
+                        className="p-2 rounded-full hover:bg-orange-100 transition cursor-pointer"
                       >
                         <EyeIcon className="w-5 h-5" />
                       </button>
