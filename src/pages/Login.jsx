@@ -1,14 +1,32 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import authApi from "../api/authApi"; // ✅ import API login
+import toast from "react-hot-toast";
+import authApi from "../api/authApi"; // ✅ API login
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
-  const [apiError, setApiError] = useState("");
 
   const navigate = useNavigate();
+
+  // ✅ Hàm decode JWT token để lấy partnerId
+  const decodeToken = (token) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (error) {
+      console.error("❌ Error decoding token:", error);
+      return null;
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,19 +38,49 @@ export default function Login() {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
+      const toastId = toast.loading("🔐 Đang đăng nhập...");
+
       try {
         const res = await authApi.login({ email, password });
         console.log("✅ Login success:", res.data);
 
-        // Lưu token (tuỳ backend trả về accessToken hay token)
-        localStorage.setItem("accessToken", res.data.accessToken);
-        localStorage.setItem("refreshToken", res.data.refreshToken);
+        // ✅ Lưu token
+        const accessToken = res.data.data?.authResponse?.accessToken;
+        const refreshToken = res.data.data?.authResponse?.refreshToken;
 
-        alert("Login successful!");
-        navigate("/partner-home"); // 👉 đổi path tuỳ trang sau login
+        if (accessToken) {
+          localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("userEmail", email); // Save email for display
+          
+          // ✅ Decode token để lấy partnerId
+          const decoded = decodeToken(accessToken);
+          console.log("🔍 Decoded token:", decoded);
+          
+          const partnerId = decoded?.partnerId || decoded?.partner_id || decoded?.sub;
+          console.log("🔍 Extracted partnerId:", partnerId);
+          
+          if (partnerId) {
+            localStorage.setItem("partnerId", partnerId);
+            console.log("✅ Saved partnerId to localStorage:", partnerId);
+          } else {
+            console.warn("⚠️ No partnerId found in token");
+          }
+        }
+        
+        if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
+
+        toast.dismiss(toastId);
+        toast.success("🎉 Đăng nhập thành công!");
+
+        navigate("/home"); // 👉 chuyển đến trang đối tác
       } catch (err) {
         console.error("❌ Login failed:", err);
-        setApiError("Invalid email or password");
+        toast.dismiss(toastId);
+
+        const errorMessage =
+          err.response?.data?.message ||
+          "❌ Email hoặc mật khẩu không đúng. Vui lòng thử lại!";
+        toast.error(errorMessage);
       }
     }
   };
@@ -95,13 +143,10 @@ export default function Login() {
             </a>
           </div>
 
-          {/* API error */}
-          {apiError && <p className="text-red-500 text-sm">{apiError}</p>}
-
-          {/* Submit button */}
+          {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700"
+            className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
           >
             Log in
           </button>

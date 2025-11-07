@@ -6,4 +6,15 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-})
+  server: {
+    open: true,
+    proxy: {
+      "/api": {
+        target:
+          "http://parkmate-alb-942390189.ap-southeast-1.elb.amazonaws.com", // endpoint backend của bạn
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
+});
