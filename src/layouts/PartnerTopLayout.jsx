@@ -9,7 +9,9 @@ import authApi from "../api/authApi";
 export default function PartnerTopLayout({ children }) {
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showManagementMenu, setShowManagementMenu] = useState(false);
   const dropdownRef = useRef(null);
+  const managementRef = useRef(null);
   
   // Get user email from localStorage
   const userEmail = localStorage.getItem("userEmail") || "partner@example.com";
@@ -19,6 +21,9 @@ export default function PartnerTopLayout({ children }) {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
+      }
+      if (managementRef.current && !managementRef.current.contains(event.target)) {
+        setShowManagementMenu(false);
       }
     };
 
@@ -110,6 +115,56 @@ export default function PartnerTopLayout({ children }) {
           >
             Subscriptions
           </NavLink>
+          
+          {/* Management Dropdown */}
+          <div className="relative" ref={managementRef}>
+            <button
+              onClick={() => setShowManagementMenu(!showManagementMenu)}
+              className="flex items-center gap-1 hover:text-indigo-200 transition"
+            >
+              Management
+              <ChevronDownIcon className={`w-4 h-4 transition-transform ${showManagementMenu ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {showManagementMenu && (
+              <div className="absolute top-full left-0 mt-2 w-40 bg-white rounded-lg shadow-lg py-2 z-50">
+                <NavLink
+                  to="/users"
+                  onClick={() => setShowManagementMenu(false)}
+                  className={({ isActive }) =>
+                    `block px-4 py-2 text-gray-700 hover:bg-indigo-50 transition ${
+                      isActive ? "bg-indigo-100 font-semibold" : ""
+                    }`
+                  }
+                >
+                  Users
+                </NavLink>
+                <NavLink
+                  to="/sessions"
+                  onClick={() => setShowManagementMenu(false)}
+                  className={({ isActive }) =>
+                    `block px-4 py-2 text-gray-700 hover:bg-indigo-50 transition ${
+                      isActive ? "bg-indigo-100 font-semibold" : ""
+                    }`
+                  }
+                >
+                  Entry/Exit
+                </NavLink>
+                <NavLink
+                  to="/reservations"
+                  onClick={() => setShowManagementMenu(false)}
+                  className={({ isActive }) =>
+                    `block px-4 py-2 text-gray-700 hover:bg-indigo-50 transition ${
+                      isActive ? "bg-indigo-100 font-semibold" : ""
+                    }`
+                  }
+                >
+                  Reservations
+                </NavLink>
+              </div>
+            )}
+          </div>
+
           <NavLink
             to="/reports"
             className={({ isActive }) =>
@@ -119,16 +174,6 @@ export default function PartnerTopLayout({ children }) {
             }
           >
             Reports
-          </NavLink>
-          <NavLink
-            to="/profile"
-            className={({ isActive }) =>
-              `hover:text-indigo-200 transition ${
-                isActive ? "underline text-indigo-200" : ""
-              }`
-            }
-          >
-            Profile
           </NavLink>
         </nav>
 

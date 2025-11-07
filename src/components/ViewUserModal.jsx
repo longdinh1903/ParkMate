@@ -133,7 +133,7 @@ export default function ViewUserModal({ userId, user, onClose }) {
         </div>
 
         {/* Scrollable Content */}
-        <div className="overflow-y-auto p-6 text-gray-700 text-sm space-y-8">
+        <div className="overflow-y-auto p-6 text-gray-700 text-sm space-y-8 custom-scrollbar">
           {/* Profile Header */}
           <div className="text-center">
             <div className="relative inline-block">

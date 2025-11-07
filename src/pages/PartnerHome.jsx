@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { EllipsisVerticalIcon, EyeIcon, MapPinIcon } from "@heroicons/react/24/outline";
 import PartnerTopLayout from "../layouts/PartnerTopLayout";
 import parkingLotApi from "../api/parkingLotApi";
 import toast from "react-hot-toast";
@@ -26,6 +27,7 @@ export default function PartnerHome() {
   const [statusFilter, setStatusFilter] = useState(""); // "" means "All Status"
   const [sortBy, setSortBy] = useState("createdAt"); // field to sort by
   const [sortOrder, setSortOrder] = useState("desc"); // "asc" or "desc"
+  const [openDropdownId, setOpenDropdownId] = useState(null); // Track open dropdown
   // note: server fetch will default to newest-first (createdAt desc)
 
   // 🧠 Load parking lots
@@ -433,10 +435,10 @@ export default function PartnerHome() {
             ) : (
               <>
                 <table className="w-full table-auto">
-                  <thead className="bg-gray-50 border-b border-gray-200">
+                  <thead className="bg-indigo-50">
                     <tr>
                       {[
-                        "STT",
+                        "#",
                         "Name",
                         "Address",
                         "Status",
@@ -483,33 +485,98 @@ export default function PartnerHome() {
                           {lot.totalFloors || "N/A"}
                         </td>
                         <td className="px-6 py-4 text-center">
-                          <div className="flex items-center justify-center gap-2">
-                            <button
-                              onClick={() => handleViewDetail(lot)}
-                              className="inline-flex items-center gap-1 px-3 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all text-sm font-medium cursor-pointer"
-                              title="View Details"
-                            >
-                              <i className="ri-eye-line"></i>
-                            </button>
-
-                            <button
-                              onClick={() => {
-                                setSelectedLotForMap(lot);
-                                setShowMapEditor(true);
-                              }}
-                              className="inline-flex items-center gap-1 px-3 py-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-all text-sm font-medium cursor-pointer"
-                              title="Edit Map"
-                            >
-                              <i className="ri-map-pin-2-fill"></i>
-                            </button>
-
-                            <button
-                              onClick={() => navigate(`/subscriptions?lotId=${lot.id}`)}
-                              className="inline-flex items-center gap-1 px-3 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-all text-sm font-medium cursor-pointer"
-                              title="View Subscriptions"
-                            >
-                              <i className="ri-file-list-3-line"></i>
-                            </button>
+                          <div className="flex items-center justify-center">
+                            {/* Dropdown Menu */}
+                            <div className="relative">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setOpenDropdownId(openDropdownId === lot.id ? null : lot.id);
+                                }}
+                                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                                title="Actions"
+                                id={`dropdown-button-${lot.id}`}
+                              >
+                                <EllipsisVerticalIcon className="w-5 h-5" />
+                              </button>
+                              
+                              {/* Dropdown Panel - Fixed positioning to avoid overflow issues */}
+                              {openDropdownId === lot.id && (
+                                <>
+                                  {/* Overlay to close dropdown */}
+                                  <div
+                                    className="fixed inset-0 z-40"
+                                    onClick={() => setOpenDropdownId(null)}
+                                  />
+                                  
+                                  {/* Menu */}
+                                  <div 
+                                    className="fixed w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden"
+                                    style={{
+                                      top: document.getElementById(`dropdown-button-${lot.id}`)?.getBoundingClientRect().bottom + 4 || 0,
+                                      left: document.getElementById(`dropdown-button-${lot.id}`)?.getBoundingClientRect().right - 192 || 0,
+                                    }}
+                                  >
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleViewDetail(lot);
+                                        setOpenDropdownId(null);
+                                      }}
+                                      className="w-full px-4 py-2.5 text-left text-sm text-indigo-600 hover:bg-indigo-50 flex items-center gap-2 transition-colors"
+                                    >
+                                      <EyeIcon className="w-4 h-4" />
+                                      View Details
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedLotForMap(lot);
+                                        setShowMapEditor(true);
+                                        setOpenDropdownId(null);
+                                      }}
+                                      className="w-full px-4 py-2.5 text-left text-sm text-emerald-600 hover:bg-emerald-50 flex items-center gap-2 transition-colors"
+                                    >
+                                      <MapPinIcon className="w-4 h-4" />
+                                      Edit Map
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigate(`/subscriptions?lotId=${lot.id}`);
+                                        setOpenDropdownId(null);
+                                      }}
+                                      className="w-full px-4 py-2.5 text-left text-sm text-purple-600 hover:bg-purple-50 flex items-center gap-2 transition-colors"
+                                    >
+                                      <i className="ri-file-list-3-line text-base"></i>
+                                      View Subscriptions
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigate(`/sessions?lotId=${lot.id}`);
+                                        setOpenDropdownId(null);
+                                      }}
+                                      className="w-full px-4 py-2.5 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center gap-2 transition-colors"
+                                    >
+                                      <i className="ri-timer-line text-base"></i>
+                                      View Sessions
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigate(`/reservations?lotId=${lot.id}`);
+                                        setOpenDropdownId(null);
+                                      }}
+                                      className="w-full px-4 py-2.5 text-left text-sm text-orange-600 hover:bg-orange-50 flex items-center gap-2 transition-colors"
+                                    >
+                                      <i className="ri-calendar-line text-base"></i>
+                                      View Reservations
+                                    </button>
+                                  </div>
+                                </>
+                              )}
+                            </div>
                           </div>
                         </td>
                       </tr>
@@ -517,26 +584,29 @@ export default function PartnerHome() {
                   </tbody>
                 </table>
 
-                {/* Pagination like AdminPartners: simple Prev / Page X / Next */}
+                {/* Pagination */}
                 {pagination.totalPages > 1 && (
                   <div className="flex justify-between items-center py-4 px-6 bg-gray-50 border-t border-gray-200">
                     <button
                       disabled={page <= 0}
                       onClick={() => setPage((p) => Math.max(p - 1, 0))}
-                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      className="px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
                     >
                       ← Previous
                     </button>
 
-                    <span className="text-gray-600 text-sm">
-                      Page <strong>{page + 1}</strong> of{" "}
-                      {pagination.totalPages}
+                    <span className="text-gray-700 text-sm font-medium px-4">
+                      Page <strong className="text-indigo-600">{page + 1}</strong> of{" "}
+                      <strong className="text-indigo-600">{pagination.totalPages}</strong>
+                      <span className="text-gray-400 ml-2">
+                        ({pagination.totalElements} parking lots)
+                      </span>
                     </span>
 
                     <button
                       disabled={page >= pagination.totalPages - 1}
                       onClick={() => setPage((p) => p + 1)}
-                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      className="px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
                     >
                       Next →
                     </button>

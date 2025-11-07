@@ -53,6 +53,28 @@ const subscriptionApi = {
     });
   },
 
+  // Get all user subscriptions for partner's parking lots
+  // This will get all users who subscribed to any parking lot owned by the current partner
+  getAllUserSubscriptions: (queryParams = {}) => {
+    const url = `/api/v1/user-service/user-subscriptions`;
+    const params = {
+      page: queryParams.page || 0,
+      size: queryParams.size || 10,
+      sortBy: queryParams.sortBy || "createdAt",
+      sortOrder: queryParams.sortOrder || "asc",
+      ownedByMe: true, // Filter by partner's parking lots
+    };
+    
+    // Add optional filters
+    if (queryParams.status) params.status = queryParams.status;
+    if (queryParams.vehicleType) params.vehicleType = queryParams.vehicleType;
+    if (queryParams.subscriptionPackageId) params.subscriptionPackageId = queryParams.subscriptionPackageId;
+    if (queryParams.parkingLotId) params.parkingLotId = queryParams.parkingLotId;
+    
+    console.log("getAllUserSubscriptions params:", params);
+    return axiosClient.get(url, { params });
+  },
+
   // Get user subscription by ID - for viewing full details
   getUserSubscriptionById: (id) => {
     const url = `/api/v1/user-service/user-subscriptions/${id}`;

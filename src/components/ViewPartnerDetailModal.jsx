@@ -91,7 +91,7 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
             Đang tải thông tin đối tác...
           </div>
         ) : data ? (
-          <div className="p-6 text-sm text-gray-700 max-h-[70vh] overflow-y-auto">
+          <div className="p-6 text-sm text-gray-700 max-h-[70vh] overflow-y-auto custom-scrollbar">
             
             {/* --- General Status Section --- */}
             <div className="mb-6 pb-4 border-b border-gray-200">

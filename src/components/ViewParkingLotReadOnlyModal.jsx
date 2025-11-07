@@ -38,7 +38,7 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
         </div>
 
         {/* Content - Scrollable */}
-        <div className="px-8 py-6 overflow-y-auto flex-1">
+        <div className="px-8 py-6 overflow-y-auto flex-1 custom-scrollbar">
         {/* Basic Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-[15px] text-gray-700 mb-6">
           <p>

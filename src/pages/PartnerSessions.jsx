@@ -1,0 +1,555 @@
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
+import PartnerTopLayout from "../layouts/PartnerTopLayout";
+import sessionApi from "../api/sessionApi";
+import parkingLotApi from "../api/parkingLotApi";
+import ViewSessionDetailModal from "../components/ViewSessionDetailModal";
+import toast from "react-hot-toast";
+import {
+  MagnifyingGlassIcon,
+  FunnelIcon,
+  EyeIcon,
+  ClockIcon,
+} from "@heroicons/react/24/outline";
+
+export default function PartnerSessions() {
+  const [searchParams] = useSearchParams();
+  const lotIdFromUrl = searchParams.get("lotId");
+
+  const [sessions, setSessions] = useState([]);
+  const [parkingLotsMap, setParkingLotsMap] = useState({});
+  const [partnerLotIds, setPartnerLotIds] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Filters
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterReferenceType, setFilterReferenceType] = useState("");
+  const [filterParkingLot, setFilterParkingLot] = useState(lotIdFromUrl || "");
+  const [sortBy, setSortBy] = useState("entryTime");
+  const [sortOrder, setSortOrder] = useState("desc");
+
+  // Pagination
+  const [page, setPage] = useState(0);
+  const [size] = useState(8);
+  const [pagination, setPagination] = useState({
+    totalPages: 0,
+    totalElements: 0,
+  });
+
+  // Modal
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedSession, setSelectedSession] = useState(null);
+
+  // Fetch partner's parking lots
+  const fetchPartnerParkingLots = async () => {
+    try {
+      console.log("Fetching partner's parking lots...");
+      const response = await parkingLotApi.getAllByPartner();
+      const payload = response?.data?.data;
+      
+      if (payload) {
+        const lots = payload.content || payload;
+        const lotIds = Array.isArray(lots) ? lots.map(lot => lot.id) : [];
+        console.log("Partner's parking lot IDs:", lotIds);
+        setPartnerLotIds(lotIds);
+        
+        const lotsMap = {};
+        lots.forEach(lot => {
+          lotsMap[lot.id] = lot;
+        });
+        setParkingLotsMap(lotsMap);
+        
+        return lotIds;
+      }
+      return [];
+    } catch (error) {
+      console.error("Error fetching partner's parking lots:", error);
+      toast.error("Failed to load parking lots");
+      return [];
+    }
+  };
+
+  // Fetch sessions
+  const fetchSessions = useCallback(async (currentPage = 0, lotIds = []) => {
+    try {
+      setLoading(true);
+
+      if (lotIds.length === 0) {
+        console.log("No parking lots found for this partner");
+        setSessions([]);
+        setPagination({ totalPages: 0, totalElements: 0 });
+        setLoading(false);
+        return;
+      }
+
+      const queryParams = {
+        page: currentPage,
+        size: 9999, // Get all to filter client-side
+        sortBy: sortBy,
+        sortOrder: sortOrder === "asc" ? "ASC" : "DESC",
+      };
+
+      // Add status filter
+      if (filterStatus) {
+        queryParams.status = filterStatus;
+      }
+
+      // Add reference type filter
+      if (filterReferenceType) {
+        queryParams.referenceType = filterReferenceType;
+      }
+
+      // Add parking lot filter if selected
+      if (filterParkingLot) {
+        queryParams.lotId = filterParkingLot;
+      }
+
+      console.log("Fetching sessions with params:", queryParams);
+
+      const response = await sessionApi.getAllSessions(queryParams);
+      console.log("Sessions response:", response);
+
+      const payload = response?.data?.data;
+      const success = response?.data?.success;
+
+      if (!success || !payload) {
+        toast.error("Failed to load sessions");
+        setSessions([]);
+        return;
+      }
+
+      if (payload.content !== undefined) {
+        console.log("Sessions found:", payload.content.length);
+
+        // Filter by partner's parking lot IDs
+        const filteredByPartnerLots = payload.content.filter(session => {
+          return lotIds.includes(session.lotId);
+        });
+        console.log(`Filtered: ${filteredByPartnerLots.length} sessions belonging to partner's parking lots`);
+
+        setSessions(filteredByPartnerLots);
+        setPagination({
+          totalPages: Math.ceil(filteredByPartnerLots.length / size),
+          totalElements: filteredByPartnerLots.length,
+        });
+      } else {
+        const data = Array.isArray(payload) ? payload : [];
+        const filteredByPartnerLots = data.filter(session => 
+          lotIds.includes(session.lotId)
+        );
+        
+        setSessions(filteredByPartnerLots);
+        setPagination({
+          totalPages: 1,
+          totalElements: filteredByPartnerLots.length,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching sessions:", error);
+      toast.error("Failed to load sessions");
+      setSessions([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [sortBy, sortOrder, filterStatus, filterReferenceType, filterParkingLot, size]);
+
+  // Initial load
+  useEffect(() => {
+    const loadData = async () => {
+      const lotIds = await fetchPartnerParkingLots();
+      if (lotIds.length > 0) {
+        await fetchSessions(page, lotIds);
+      } else {
+        setLoading(false);
+      }
+    };
+    loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Refetch when filters change
+  useEffect(() => {
+    if (partnerLotIds.length > 0) {
+      setPage(0);
+      fetchSessions(0, partnerLotIds);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortBy, sortOrder, filterStatus, filterReferenceType, filterParkingLot, partnerLotIds]);
+
+  // Client-side search and pagination
+  const filteredSessions = useMemo(() => {
+    let filtered = sessions;
+
+    // Apply search
+    if (searchTerm.trim()) {
+      const keyword = searchTerm.toLowerCase();
+      filtered = filtered.filter((session) => {
+        const licensePlate = session.licensePlate?.toLowerCase() || "";
+        const lotName = parkingLotsMap[session.lotId]?.name?.toLowerCase() || "";
+        const userId = session.userId?.toString() || "";
+        
+        return (
+          licensePlate.includes(keyword) ||
+          lotName.includes(keyword) ||
+          userId.includes(keyword)
+        );
+      });
+    }
+
+    // Paginate
+    const start = page * size;
+    const end = start + size;
+    return filtered.slice(start, end);
+  }, [sessions, searchTerm, page, size, parkingLotsMap]);
+
+  // Helper functions
+  const formatDateTime = (dateStr) => {
+    if (!dateStr) return "-";
+    try {
+      return new Date(dateStr).toLocaleString("vi-VN");
+    } catch {
+      return dateStr;
+    }
+  };
+
+  const calculateDuration = (entryTime, exitTime) => {
+    if (!entryTime) return "-";
+    const start = new Date(entryTime);
+    const end = exitTime ? new Date(exitTime) : new Date();
+    const durationMs = end - start;
+    const minutes = Math.floor(durationMs / 60000);
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h ${mins}m`;
+  };
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "ACTIVE":
+        return "bg-green-100 text-green-700";
+      case "COMPLETED":
+        return "bg-blue-100 text-blue-700";
+      case "SYNCED":
+        return "bg-purple-100 text-purple-700";
+      case "CANCELLED":
+        return "bg-red-100 text-red-700";
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
+  };
+
+  const getReferenceTypeBadge = (type) => {
+    switch (type) {
+      case "WALK_IN":
+        return { color: "bg-orange-100 text-orange-700", icon: "🚶", label: "Walk-in" };
+      case "RESERVATION":
+        return { color: "bg-blue-100 text-blue-700", icon: "📅", label: "Reservation" };
+      case "SUBSCRIPTION":
+        return { color: "bg-purple-100 text-purple-700", icon: "🎫", label: "Subscription" };
+      default:
+        return { color: "bg-gray-100 text-gray-700", icon: "❓", label: type };
+    }
+  };
+
+  const refreshData = async () => {
+    setSearchTerm("");
+    setFilterStatus("");
+    setFilterReferenceType("");
+    setFilterParkingLot(lotIdFromUrl || "");
+    setSortBy("entryTime");
+    setSortOrder("desc");
+    setPage(0);
+    
+    const lotIds = await fetchPartnerParkingLots();
+    if (lotIds.length > 0) {
+      await fetchSessions(0, lotIds);
+    }
+  };
+
+  return (
+    <PartnerTopLayout>
+      <div className="fixed inset-0 top-16 bg-gray-50 overflow-hidden">
+        <div className="h-full">
+          <div className="max-w-7xl mx-auto px-6 h-full flex flex-col">
+            {/* Header */}
+            <div className="pt-6 mb-4 flex-shrink-0">
+              <h1 className="text-3xl font-bold text-gray-900">Parking Sessions</h1>
+              <p className="text-gray-600 mt-1">
+                All parking sessions (entry/exit) for your parking lots
+              </p>
+              {lotIdFromUrl && parkingLotsMap[lotIdFromUrl] && (
+                <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-700 rounded-lg border border-purple-200">
+                  <i className="ri-filter-3-line"></i>
+                  <span className="text-sm font-medium">
+                    Filtered by parking lot: <strong>{parkingLotsMap[lotIdFromUrl].name}</strong>
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Actions Bar */}
+            <div className="bg-white rounded-lg shadow-sm p-4 mb-4 flex-shrink-0">
+              <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+                
+                {/* Search */}
+                <div className="relative flex-1 max-w-md">
+                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search by license plate, parking lot..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  />
+                </div>
+
+                {/* Refresh Button */}
+                <button
+                  onClick={refreshData}
+                  disabled={loading}
+                  className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all flex items-center gap-2 font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <i className={`ri-refresh-line ${loading ? 'animate-spin' : ''}`}></i> Refresh
+                </button>
+
+                {/* Filters and Sort */}
+                <div className="flex gap-3 items-center flex-wrap">
+                  <FunnelIcon className="w-5 h-5 text-gray-500" />
+
+                  {/* Parking Lot Filter */}
+                  <select
+                    value={filterParkingLot}
+                    onChange={(e) => setFilterParkingLot(e.target.value)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  >
+                    <option value="">All Parking Lots</option>
+                    {Object.values(parkingLotsMap).map(lot => (
+                      <option key={lot.id} value={lot.id}>
+                        {lot.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* Reference Type Filter */}
+                  <select
+                    value={filterReferenceType}
+                    onChange={(e) => {
+                      setFilterReferenceType(e.target.value);
+                      setPage(0);
+                    }}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  >
+                    <option value="">All Types</option>
+                    <option value="WALK_IN">🚶 Walk-in</option>
+                    <option value="RESERVATION">📅 Reservation</option>
+                    <option value="SUBSCRIPTION">🎫 Subscription</option>
+                  </select>
+
+                  {/* Status Filter */}
+                  <select
+                    value={filterStatus}
+                    onChange={(e) => {
+                      setFilterStatus(e.target.value);
+                      setPage(0);
+                    }}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  >
+                    <option value="">All Status</option>
+                    <option value="ACTIVE">Active</option>
+                    <option value="COMPLETED">Completed</option>
+                    <option value="SYNCED">Synced</option>
+                    <option value="CANCELLED">Cancelled</option>
+                  </select>
+
+                  {/* Sort By Dropdown */}
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white cursor-pointer"
+                  >
+                    <option value="entryTime">Entry Time</option>
+                    <option value="exitTime">Exit Time</option>
+                    <option value="status">Status</option>
+                    <option value="totalAmount">Total Amount</option>
+                    <option value="durationMinute">Duration</option>
+                  </select>
+
+                  {/* Sort Order Button */}
+                  <button
+                    onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                    className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer"
+                    title={sortOrder === "asc" ? "Ascending" : "Descending"}
+                  >
+                    {sortOrder === "asc" ? (
+                      <>
+                        <i className="ri-sort-asc text-lg"></i>
+                        <span className="hidden sm:inline">Asc</span>
+                      </>
+                    ) : (
+                      <>
+                        <i className="ri-sort-desc text-lg"></i>
+                        <span className="hidden sm:inline">Desc</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Sessions Table - Scrollable Content */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+              {loading ? (
+                <div className="flex justify-center items-center h-64">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                </div>
+              ) : filteredSessions.length === 0 ? (
+                <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+                  <ClockIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500 text-lg">
+                    {searchTerm ? "No sessions match your search" : "No sessions found"}
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
+                    <table className="w-full table-auto">
+                      <thead className="bg-indigo-50">
+                        <tr>
+                          <th className="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-12">
+                            #
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Vehicle
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Parking Lot
+                          </th>
+                          <th className="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Type
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Entry/Exit Time
+                          </th>
+                          <th className="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-20">
+                            Duration
+                          </th>
+                          <th className="px-3 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Amount
+                          </th>
+                          <th className="px-3 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider w-24">
+                            Status
+                          </th>
+                          <th className="px-3 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider w-32">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {filteredSessions.map((session, idx) => {
+                          const refType = getReferenceTypeBadge(session.referenceType);
+                          return (
+                            <tr key={session.id || idx} className="hover:bg-gray-50 transition-colors">
+                              <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {page * size + idx + 1}
+                              </td>
+                              <td className="px-4 py-4 whitespace-nowrap">
+                                <p className="font-semibold text-gray-900 text-sm">
+                                  {session.licensePlate || "-"}
+                                </p>
+                              </td>
+                              <td className="px-4 py-4 text-sm text-gray-900">
+                                {parkingLotsMap[session.lotId]?.name || "-"}
+                              </td>
+                              <td className="px-3 py-4 whitespace-nowrap">
+                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${refType.color}`}>
+                                  {refType.icon} {refType.label}
+                                </span>
+                              </td>
+                              <td className="px-4 py-4 text-xs whitespace-nowrap">
+                                <p className="text-gray-500">In: {formatDateTime(session.entryTime)}</p>
+                                <p className="text-gray-500">Out: {formatDateTime(session.exitTime)}</p>
+                              </td>
+                              <td className="px-3 py-4 text-sm text-gray-900 whitespace-nowrap">
+                                {session.durationMinute ? `${session.durationMinute} min` : calculateDuration(session.entryTime, session.exitTime)}
+                              </td>
+                              <td className="px-3 py-4 text-center whitespace-nowrap">
+                                <p className="font-semibold text-gray-900 text-sm">
+                                  {session.totalAmount ? `${session.totalAmount.toLocaleString()} ₫` : "-"}
+                                </p>
+                              </td>
+                              <td className="px-3 py-4 whitespace-nowrap text-center">
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusBadge(session.status)}`}>
+                                  {session.status || "UNKNOWN"}
+                                </span>
+                              </td>
+                              <td className="px-3 py-4 whitespace-nowrap text-center">
+                                <button
+                                  onClick={() => {
+                                    setSelectedSession(session);
+                                    setShowDetailModal(true);
+                                  }}
+                                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all text-xs font-medium"
+                                >
+                                  <EyeIcon className="w-4 h-4" />
+                                  View Details
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Pagination */}
+                  {pagination.totalPages > 1 && (
+                    <div className="mt-6">
+                      <div className="flex justify-between items-center py-3 px-6 bg-white/95 backdrop-blur-sm shadow-xl border border-gray-200 rounded-full">
+                        <button
+                          disabled={page <= 0}
+                          onClick={() => setPage((p) => Math.max(p - 1, 0))}
+                          className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium"
+                        >
+                          ← Previous
+                        </button>
+
+                        <span className="text-gray-700 text-sm font-medium px-4">
+                          Page <strong className="text-indigo-600">{page + 1}</strong> of{" "}
+                          <strong className="text-indigo-600">{pagination.totalPages}</strong> 
+                          <span className="text-gray-400 ml-2">
+                            ({pagination.totalElements} sessions)
+                          </span>
+                        </span>
+
+                        <button
+                          disabled={page >= pagination.totalPages - 1}
+                          onClick={() => setPage((p) => p + 1)}
+                          className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium"
+                        >
+                          Next →
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Detail Modal */}
+      {showDetailModal && selectedSession && (
+        <ViewSessionDetailModal
+          session={selectedSession}
+          parkingLotName={parkingLotsMap[selectedSession.lotId]?.name || "Unknown"}
+          onClose={() => {
+            setShowDetailModal(false);
+            setSelectedSession(null);
+          }}
+        />
+      )}
+    </PartnerTopLayout>
+  );
+}

@@ -305,7 +305,7 @@ export default function ViewParkingLotModal({
           </div>
 
           {/* Content - Scrollable */}
-          <div className="px-8 py-6 overflow-y-auto flex-1">
+          <div className="px-8 py-6 overflow-y-auto flex-1 custom-scrollbar">
           {/* Basic Info */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-[15px] text-gray-700 mb-8">
             <p>

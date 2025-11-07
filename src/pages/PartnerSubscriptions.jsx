@@ -18,7 +18,6 @@ import AddSubscriptionModal from "../components/AddSubscriptionModal";
 import EditSubscriptionModal from "../components/EditSubscriptionModal";
 import ViewSubscriptionModal from "../components/ViewSubscriptionModal";
 import ConfirmModal from "../components/ConfirmModal";
-import SubscribersModal from "../components/SubscribersModal";
 
 export default function PartnerSubscriptions() {
   const [searchParams] = useSearchParams();
@@ -47,7 +46,6 @@ export default function PartnerSubscriptions() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showSubscribersModal, setShowSubscribersModal] = useState(false);
   const [selectedSubscription, setSelectedSubscription] = useState(null);
   const [openDropdownId, setOpenDropdownId] = useState(null);
 
@@ -465,14 +463,13 @@ export default function PartnerSubscriptions() {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setSelectedSubscription(subscription);
-                                  setShowSubscribersModal(true);
+                                  navigate(`/users?subscriptionId=${subscription.id}&lotId=${subscription.lotId}`);
                                   setOpenDropdownId(null);
                                 }}
                                 className="w-full px-4 py-2.5 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center gap-2 transition-colors"
                               >
                                 <UserGroupIcon className="w-4 h-4" />
-                                View Subscriptions
+                                View Users
                               </button>
                               <button
                                 onClick={(e) => {
@@ -640,17 +637,6 @@ export default function PartnerSubscriptions() {
           onConfirm={handleDelete}
           onCancel={() => {
             setShowDeleteModal(false);
-            setSelectedSubscription(null);
-          }}
-        />
-      )}
-
-      {/* Subscribers Modal */}
-      {showSubscribersModal && selectedSubscription && (
-        <SubscribersModal
-          subscription={selectedSubscription}
-          onClose={() => {
-            setShowSubscribersModal(false);
             setSelectedSubscription(null);
           }}
         />
