@@ -92,6 +92,29 @@ export default function ViewReservationDetailModal({ reservation, parkingLotName
             </div>
           </section>
 
+          {/* QR Code Section */}
+          {reservation.qrCode && (
+            <section className="mb-6">
+              <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
+                <i className="ri-qr-code-fill text-indigo-500"></i>
+                QR Code
+              </h3>
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 flex flex-col items-center border border-gray-200">
+                <div className="bg-white p-4 rounded-lg shadow-lg">
+                  <img 
+                    src={reservation.qrCode} 
+                    alt="Reservation QR Code" 
+                    className="w-48 h-48 object-contain"
+                  />
+                </div>
+                <p className="text-xs text-gray-600 mt-3 text-center">
+                  <i className="ri-information-line mr-1"></i>
+                  Scan this QR code for check-in
+                </p>
+              </div>
+            </section>
+          )}
+
           {/* Vehicle Information */}
           <section className="mb-6">
             <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">

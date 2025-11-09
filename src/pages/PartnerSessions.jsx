@@ -26,12 +26,14 @@ export default function PartnerSessions() {
   const [filterStatus, setFilterStatus] = useState("");
   const [filterReferenceType, setFilterReferenceType] = useState("");
   const [filterParkingLot, setFilterParkingLot] = useState(lotIdFromUrl || "");
+  const [filterDateFrom, setFilterDateFrom] = useState("");
+  const [filterDateTo, setFilterDateTo] = useState("");
   const [sortBy, setSortBy] = useState("entryTime");
   const [sortOrder, setSortOrder] = useState("desc");
 
   // Pagination
   const [page, setPage] = useState(0);
-  const [size] = useState(8);
+  const [size] = useState(7);
   const [pagination, setPagination] = useState({
     totalPages: 0,
     totalElements: 0,
@@ -197,11 +199,32 @@ export default function PartnerSessions() {
       });
     }
 
+    // Date range filter (by entryTime)
+    if (filterDateFrom) {
+      const fromDate = new Date(filterDateFrom);
+      fromDate.setHours(0, 0, 0, 0);
+      filtered = filtered.filter((session) => {
+        if (!session.entryTime) return false;
+        const entryDate = new Date(session.entryTime);
+        return entryDate >= fromDate;
+      });
+    }
+
+    if (filterDateTo) {
+      const toDate = new Date(filterDateTo);
+      toDate.setHours(23, 59, 59, 999);
+      filtered = filtered.filter((session) => {
+        if (!session.entryTime) return false;
+        const entryDate = new Date(session.entryTime);
+        return entryDate <= toDate;
+      });
+    }
+
     // Paginate
     const start = page * size;
     const end = start + size;
     return filtered.slice(start, end);
-  }, [sessions, searchTerm, page, size, parkingLotsMap]);
+  }, [sessions, searchTerm, page, size, parkingLotsMap, filterDateFrom, filterDateTo]);
 
   // Helper functions
   const formatDateTime = (dateStr) => {
@@ -257,6 +280,8 @@ export default function PartnerSessions() {
     setFilterStatus("");
     setFilterReferenceType("");
     setFilterParkingLot(lotIdFromUrl || "");
+    setFilterDateFrom("");
+    setFilterDateTo("");
     setSortBy("entryTime");
     setSortOrder("desc");
     setPage(0);
@@ -290,10 +315,10 @@ export default function PartnerSessions() {
 
             {/* Actions Bar */}
             <div className="bg-white rounded-lg shadow-sm p-4 mb-4 flex-shrink-0">
-              <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-                
-                {/* Search */}
-                <div className="relative flex-1 max-w-md">
+              {/* Row 1: Search + Refresh */}
+              <div className="flex gap-4 items-center mb-4">
+                {/* Search - takes most space */}
+                <div className="relative flex-1">
                   <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="text"
@@ -308,92 +333,120 @@ export default function PartnerSessions() {
                 <button
                   onClick={refreshData}
                   disabled={loading}
-                  className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all flex items-center gap-2 font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all flex items-center gap-2 font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                 >
                   <i className={`ri-refresh-line ${loading ? 'animate-spin' : ''}`}></i> Refresh
                 </button>
+              </div>
 
-                {/* Filters and Sort */}
-                <div className="flex gap-3 items-center flex-wrap">
-                  <FunnelIcon className="w-5 h-5 text-gray-500" />
+              {/* Row 2: Filters and Sort */}
+              <div className="flex gap-3 items-end flex-wrap">
+                <FunnelIcon className="w-5 h-5 text-gray-500 mb-2" />
 
-                  {/* Parking Lot Filter */}
-                  <select
-                    value={filterParkingLot}
-                    onChange={(e) => setFilterParkingLot(e.target.value)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  >
-                    <option value="">All Parking Lots</option>
-                    {Object.values(parkingLotsMap).map(lot => (
-                      <option key={lot.id} value={lot.id}>
-                        {lot.name}
-                      </option>
-                    ))}
-                  </select>
-
-                  {/* Reference Type Filter */}
-                  <select
-                    value={filterReferenceType}
+                {/* Date From Filter */}
+                <div className="flex flex-col">
+                  <label className="text-xs text-gray-600 mb-1 font-medium">From Date</label>
+                  <input
+                    type="date"
+                    value={filterDateFrom}
                     onChange={(e) => {
-                      setFilterReferenceType(e.target.value);
+                      setFilterDateFrom(e.target.value);
                       setPage(0);
                     }}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  >
-                    <option value="">All Types</option>
-                    <option value="WALK_IN">🚶 Walk-in</option>
-                    <option value="RESERVATION">📅 Reservation</option>
-                    <option value="SUBSCRIPTION">🎫 Subscription</option>
-                  </select>
-
-                  {/* Status Filter */}
-                  <select
-                    value={filterStatus}
-                    onChange={(e) => {
-                      setFilterStatus(e.target.value);
-                      setPage(0);
-                    }}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  >
-                    <option value="">All Status</option>
-                    <option value="ACTIVE">Active</option>
-                    <option value="COMPLETED">Completed</option>
-                    <option value="SYNCED">Synced</option>
-                    <option value="CANCELLED">Cancelled</option>
-                  </select>
-
-                  {/* Sort By Dropdown */}
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white cursor-pointer"
-                  >
-                    <option value="entryTime">Entry Time</option>
-                    <option value="exitTime">Exit Time</option>
-                    <option value="status">Status</option>
-                    <option value="totalAmount">Total Amount</option>
-                    <option value="durationMinute">Duration</option>
-                  </select>
-
-                  {/* Sort Order Button */}
-                  <button
-                    onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-                    className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer"
-                    title={sortOrder === "asc" ? "Ascending" : "Descending"}
-                  >
-                    {sortOrder === "asc" ? (
-                      <>
-                        <i className="ri-sort-asc text-lg"></i>
-                        <span className="hidden sm:inline">Asc</span>
-                      </>
-                    ) : (
-                      <>
-                        <i className="ri-sort-desc text-lg"></i>
-                        <span className="hidden sm:inline">Desc</span>
-                      </>
-                    )}
-                  </button>
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                  />
                 </div>
+
+                {/* Date To Filter */}
+                <div className="flex flex-col">
+                  <label className="text-xs text-gray-600 mb-1 font-medium">To Date</label>
+                  <input
+                    type="date"
+                    value={filterDateTo}
+                    onChange={(e) => {
+                      setFilterDateTo(e.target.value);
+                      setPage(0);
+                    }}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                  />
+                </div>
+
+                {/* Parking Lot Filter */}
+                <select
+                  value={filterParkingLot}
+                  onChange={(e) => setFilterParkingLot(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                >
+                  <option value="">All Parking Lots</option>
+                  {Object.values(parkingLotsMap).map(lot => (
+                    <option key={lot.id} value={lot.id}>
+                      {lot.name}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Reference Type Filter */}
+                <select
+                  value={filterReferenceType}
+                  onChange={(e) => {
+                    setFilterReferenceType(e.target.value);
+                    setPage(0);
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                >
+                  <option value="">All Types</option>
+                  <option value="WALK_IN">🚶 Walk-in</option>
+                  <option value="RESERVATION">📅 Reservation</option>
+                  <option value="SUBSCRIPTION">🎫 Subscription</option>
+                </select>
+
+                {/* Status Filter */}
+                <select
+                  value={filterStatus}
+                  onChange={(e) => {
+                    setFilterStatus(e.target.value);
+                    setPage(0);
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                >
+                  <option value="">All Status</option>
+                  <option value="ACTIVE">Active</option>
+                  <option value="COMPLETED">Completed</option>
+                  <option value="SYNCED">Synced</option>
+                  <option value="CANCELLED">Cancelled</option>
+                </select>
+
+                {/* Sort By Dropdown */}
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white cursor-pointer"
+                >
+                  <option value="entryTime">Entry Time</option>
+                  <option value="exitTime">Exit Time</option>
+                  <option value="status">Status</option>
+                  <option value="totalAmount">Total Amount</option>
+                  <option value="durationMinute">Duration</option>
+                </select>
+
+                {/* Sort Order Button */}
+                <button
+                  onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                  className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer"
+                  title={sortOrder === "asc" ? "Ascending" : "Descending"}
+                >
+                  {sortOrder === "asc" ? (
+                    <>
+                      <i className="ri-sort-asc text-lg"></i>
+                      <span className="hidden sm:inline">Asc</span>
+                    </>
+                  ) : (
+                    <>
+                      <i className="ri-sort-desc text-lg"></i>
+                      <span className="hidden sm:inline">Desc</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
 

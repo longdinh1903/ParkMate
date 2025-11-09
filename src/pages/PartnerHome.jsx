@@ -529,11 +529,24 @@ export default function PartnerHome() {
                                       View Details
                                     </button>
                                     <button
-                                      onClick={(e) => {
+                                      onClick={async (e) => {
                                         e.stopPropagation();
-                                        setSelectedLotForMap(lot);
-                                        setShowMapEditor(true);
                                         setOpenDropdownId(null);
+                                        
+                                        // Load full lot details including lotCapacity before opening editor
+                                        try {
+                                          toast.loading("Loading parking lot details...", { id: "load-lot" });
+                                          const detailRes = await parkingLotApi.getById(lot.id);
+                                          const fullLot = detailRes?.data?.data || detailRes?.data || lot;
+                                          console.log("📥 Full lot details for map editor:", fullLot);
+                                          
+                                          setSelectedLotForMap(fullLot);
+                                          setShowMapEditor(true);
+                                          toast.dismiss("load-lot");
+                                        } catch (err) {
+                                          console.error("❌ Error loading lot details:", err);
+                                          toast.error("Failed to load parking lot details", { id: "load-lot" });
+                                        }
                                       }}
                                       className="w-full px-4 py-2.5 text-left text-sm text-emerald-600 hover:bg-emerald-50 flex items-center gap-2 transition-colors"
                                     >

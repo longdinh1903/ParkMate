@@ -14,12 +14,23 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
   const [editVehicleType, setEditVehicleType] = useState("");
   const [editAreaType, setEditAreaType] = useState("");
 
-  const vehicleTypes = [
-    "CAR_UP_TO_9_SEATS",
-    "MOTORBIKE",
-    "BIKE",
-    "OTHER",
-  ];
+  // Get allowed vehicle types from lot.lotCapacity (approved types only)
+  const getAllowedVehicleTypes = () => {
+    console.log("🔍 Checking lot.lotCapacity:", lot.lotCapacity);
+    console.log("🔍 Full lot object:", lot);
+    
+    if (lot.lotCapacity && Array.isArray(lot.lotCapacity) && lot.lotCapacity.length > 0) {
+      const allowedTypes = lot.lotCapacity.map(capacity => capacity.vehicleType);
+      console.log("✅ Allowed vehicle types from lotCapacity:", allowedTypes);
+      return allowedTypes;
+    }
+    
+    // Fallback to all types if no lotCapacity
+    console.log("⚠️ No lotCapacity found, allowing all vehicle types");
+    return ["CAR_UP_TO_9_SEATS", "MOTORBIKE", "BIKE", "OTHER"];
+  };
+
+  const vehicleTypes = getAllowedVehicleTypes();
 
   const areaTypes = [
     "WALK_IN_ONLY",
@@ -467,9 +478,12 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
                         </option>
                       ))}
                     </select>
-                    <p className="mt-2 text-xs text-gray-500">
-                      💡 This determines what vehicle types can park in this area
-                    </p>
+                    <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-xs text-blue-800">
+                        <i className="ri-information-line mr-1"></i>
+                        <strong>Note:</strong> Only vehicle types registered in your parking lot approval are available.
+                      </p>
+                    </div>
                   </div>
 
                   <div>
