@@ -23,6 +23,14 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
   const [eraseSize, setEraseSize] = useState(20);
   const [showCopyModal, setShowCopyModal] = useState(false);
   const [copySourceFloor, setCopySourceFloor] = useState(null);
+  const [showFloorModal, setShowFloorModal] = useState(false);
+  const [showEditVehicleTypesModal, setShowEditVehicleTypesModal] = useState(false);
+  const [selectedVehicleTypes, setSelectedVehicleTypes] = useState({
+    CAR_UP_TO_9_SEATS: true,
+    MOTORBIKE: false,
+    BIKE: false,
+    OTHER: false,
+  });
 
   const isDrawing = useRef(false);
   const isCreatingArea = useRef(false);
@@ -30,6 +38,35 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
   const stageRef = useRef(null);
   const transformerRef = useRef(null);
   const selectedAreaRef = useRef(null);
+
+  // Get allowed vehicle types from lot's capacity (from registration request)
+  const getAllowedVehicleTypes = useCallback(() => {
+    // Use lot.lotCapacity (approved capacities) to determine allowed vehicle types
+    if (lot.lotCapacity && Array.isArray(lot.lotCapacity) && lot.lotCapacity.length > 0) {
+      const allowed = {
+        CAR_UP_TO_9_SEATS: false,
+        MOTORBIKE: false,
+        BIKE: false,
+        OTHER: false,
+      };
+      
+      lot.lotCapacity.forEach(capacity => {
+        if (capacity.vehicleType && Object.prototype.hasOwnProperty.call(allowed, capacity.vehicleType)) {
+          allowed[capacity.vehicleType] = true;
+        }
+      });
+      
+      return allowed;
+    }
+    
+    // If no lotCapacity, allow all types (backward compatibility)
+    return {
+      CAR_UP_TO_9_SEATS: true,
+      MOTORBIKE: true,
+      BIKE: true,
+      OTHER: true,
+    };
+  }, [lot.lotCapacity]);
 
   // Load existing floors from database
   useEffect(() => {
@@ -60,6 +97,13 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             strokes: [],
             existsInDb: true, // Mark as existing
             dbId: floor.id,
+            // Store existing vehicle types from capacities
+            vehicleTypes: {
+              CAR_UP_TO_9_SEATS: floor.capacities?.some(c => c.vehicleType === "CAR_UP_TO_9_SEATS") || false,
+              MOTORBIKE: floor.capacities?.some(c => c.vehicleType === "MOTORBIKE") || false,
+              BIKE: floor.capacities?.some(c => c.vehicleType === "BIKE") || false,
+              OTHER: floor.capacities?.some(c => c.vehicleType === "OTHER") || false,
+            },
           }));
 
           // Add missing floors up to totalFloors
@@ -74,6 +118,8 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                 areas: [],
                 strokes: [],
                 existsInDb: false,
+                // Use allowed vehicle types from lot capacity
+                vehicleTypes: getAllowedVehicleTypes(),
               });
             }
           }
@@ -99,6 +145,8 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
               areas: [],
               strokes: [],
               existsInDb: false,
+              // Use allowed vehicle types from lot capacity
+              vehicleTypes: getAllowedVehicleTypes(),
             },
           ]);
           setCurrentFloor(1);
@@ -114,6 +162,8 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             areas: [],
             strokes: [],
             existsInDb: false,
+            // Use allowed vehicle types from lot capacity
+            vehicleTypes: getAllowedVehicleTypes(),
           },
         ]);
         setCurrentFloor(1);
@@ -123,7 +173,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     };
 
     loadExistingFloors();
-  }, [lot.id, lot.totalFloors]);
+  }, [lot.id, lot.totalFloors, getAllowedVehicleTypes]);
 
   // Get current floor data
   const currentFloorData =
@@ -536,6 +586,40 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
       return;
     }
     
+    // Set vehicle types to allowed types from lot capacity
+    const allowedTypes = getAllowedVehicleTypes();
+    setSelectedVehicleTypes(allowedTypes);
+    
+    // Show modal to select vehicle types
+    setShowFloorModal(true);
+  };
+
+  const handleConfirmAddFloor = () => {
+    const maxFloorNumber = Math.max(...floors.map(f => f.floorNumber));
+    const newFloorNumber = maxFloorNumber + 1;
+    
+    // Validate against allowed types
+    const allowedTypes = getAllowedVehicleTypes();
+    const selectedTypes = selectedVehicleTypes;
+    
+    // Check if any selected type is NOT in allowed types (trying to select unregistered types)
+    const hasInvalidSelection = Object.keys(selectedTypes).some(key => {
+      // If selected but not allowed → invalid
+      return selectedTypes[key] === true && allowedTypes[key] === false;
+    });
+    
+    if (hasInvalidSelection) {
+      toast.error("⚠️ Cannot select vehicle types that were not registered!");
+      return;
+    }
+    
+    // Check if at least one vehicle type is selected
+    const hasSelection = Object.values(selectedVehicleTypes).some(v => v);
+    if (!hasSelection) {
+      toast.error("⚠️ Please select at least one vehicle type!");
+      return;
+    }
+    
     setFloors([
       ...floors,
       {
@@ -544,10 +628,66 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
         areas: [],
         strokes: [],
         existsInDb: false,
+        vehicleTypes: selectedVehicleTypes, // Store selected vehicle types
       },
     ]);
     setCurrentFloor(newFloorNumber);
-    // Floor added - no toast needed, dropdown shows new floor
+    setShowFloorModal(false);
+    
+    const selectedCount = Object.values(selectedVehicleTypes).filter(v => v).length;
+    toast.success(`✅ Floor ${newFloorNumber} added with ${selectedCount} vehicle type(s)!`);
+  };
+
+  // Edit vehicle types for current floor
+  const handleEditVehicleTypes = () => {
+    const floor = floors.find(f => f.floorNumber === currentFloor);
+    if (!floor) return;
+    
+    // Load current vehicle types
+    setSelectedVehicleTypes(floor.vehicleTypes || {
+      CAR_UP_TO_9_SEATS: true,
+      MOTORBIKE: false,
+      BIKE: false,
+      OTHER: false,
+    });
+    
+    setShowEditVehicleTypesModal(true);
+  };
+
+  const handleConfirmEditVehicleTypes = () => {
+    // Validate against allowed types
+    const allowedTypes = getAllowedVehicleTypes();
+    const selectedTypes = selectedVehicleTypes;
+    
+    // Check if any selected type is NOT in allowed types (trying to select unregistered types)
+    const hasInvalidSelection = Object.keys(selectedTypes).some(key => {
+      // If selected but not allowed → invalid
+      return selectedTypes[key] === true && allowedTypes[key] === false;
+    });
+    
+    if (hasInvalidSelection) {
+      toast.error("⚠️ Cannot select vehicle types that were not registered!");
+      return;
+    }
+    
+    // Check if at least one vehicle type is selected
+    const hasSelection = Object.values(selectedVehicleTypes).some(v => v);
+    if (!hasSelection) {
+      toast.error("⚠️ Please select at least one vehicle type!");
+      return;
+    }
+    
+    // Update current floor's vehicle types
+    setFloors(prev => prev.map(f => 
+      f.floorNumber === currentFloor 
+        ? { ...f, vehicleTypes: selectedVehicleTypes }
+        : f
+    ));
+    
+    setShowEditVehicleTypesModal(false);
+    
+    const selectedCount = Object.values(selectedVehicleTypes).filter(v => v).length;
+    toast.success(`✅ Updated Floor ${currentFloor} with ${selectedCount} vehicle type(s)!`);
   };
 
   const handleDeleteFloor = () => {
@@ -694,16 +834,54 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
         }
         
         // Create new floor if it doesn't exist in DB
+        const totalSpots = floor.areas.reduce((sum, a) => sum + (a.spots?.length || 0), 0) || 1;
+        
+        // Build capacityRequests based on floor's selected vehicle types
+        const floorVehicleTypes = floor.vehicleTypes || {
+          CAR_UP_TO_9_SEATS: true,
+          MOTORBIKE: false,
+          BIKE: false,
+          OTHER: false,
+        };
+        
+        const capacityRequests = [];
+        
+        if (floorVehicleTypes.CAR_UP_TO_9_SEATS) {
+          capacityRequests.push({
+            capacity: totalSpots,
+            vehicleType: "CAR_UP_TO_9_SEATS",
+            supportElectricVehicle: true,
+          });
+        }
+        
+        if (floorVehicleTypes.MOTORBIKE) {
+          capacityRequests.push({
+            capacity: totalSpots,
+            vehicleType: "MOTORBIKE",
+            supportElectricVehicle: false,
+          });
+        }
+        
+        if (floorVehicleTypes.BIKE) {
+          capacityRequests.push({
+            capacity: totalSpots,
+            vehicleType: "BIKE",
+            supportElectricVehicle: false,
+          });
+        }
+        
+        if (floorVehicleTypes.OTHER) {
+          capacityRequests.push({
+            capacity: totalSpots,
+            vehicleType: "OTHER",
+            supportElectricVehicle: false,
+          });
+        }
+        
         const floorPayload = {
           floorNumber: floor.floorNumber,
           floorName: floor.floorName,
-          capacityRequests: [
-            {
-              capacity: floor.areas.reduce((sum, a) => sum + (a.spots?.length || 0), 0) || 1,
-              vehicleType: "CAR_UP_TO_9_SEATS",
-              supportElectricVehicle: false,
-            },
-          ],
+          capacityRequests: capacityRequests,
         };
 
         console.log("📤 Creating NEW floor payload:", JSON.stringify(floorPayload, null, 2));
@@ -721,8 +899,6 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
         }
 
         console.log(`✅ Floor ${floor.floorNumber} created with ID: ${floorId}`);
-
-        // Lưu các areas CHỈ với tọa độ layout
         // Partner sẽ đặt tên và chọn vehicleType sau
         if (floor.areas.length > 0) {
           console.log(`📍 Saving ${floor.areas.length} areas for floor ${floorId}...`);
@@ -912,6 +1088,15 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                 Copy
               </button>
             )}
+            {/* Edit Vehicle Types Button */}
+            <button
+              onClick={handleEditVehicleTypes}
+              className="px-3 py-1 rounded-md bg-purple-100 text-purple-700 hover:bg-purple-200 text-sm font-medium flex items-center gap-1 flex-shrink-0"
+              title="Edit vehicle types for this floor"
+            >
+              <i className="ri-settings-3-line"></i>
+              Types
+            </button>
           </div>
 
           {/* Tools */}
@@ -1106,6 +1291,25 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             <span className="font-medium text-gray-700">Current Floor:</span>
             <span className="text-gray-900">{currentFloorData?.floorName}</span>
           </div>
+          {currentFloorData?.vehicleTypes && (
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-gray-700">Vehicle Types:</span>
+              <div className="flex gap-1">
+                {currentFloorData.vehicleTypes.CAR_UP_TO_9_SEATS && (
+                  <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">🚗 Car</span>
+                )}
+                {currentFloorData.vehicleTypes.MOTORBIKE && (
+                  <span className="px-2 py-0.5 bg-orange-100 text-orange-700 rounded text-xs">🏍️ Bike</span>
+                )}
+                {currentFloorData.vehicleTypes.BIKE && (
+                  <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs">🚲 Cycle</span>
+                )}
+                {currentFloorData.vehicleTypes.OTHER && (
+                  <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">🚚 Other</span>
+                )}
+              </div>
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <span className="font-medium text-gray-700">Areas:</span>
             <span className="text-gray-900">{areas.length}</span>
@@ -1449,6 +1653,374 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
               >
                 <i className="ri-file-copy-line mr-2"></i>
                 Copy Layout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Floor Modal - Vehicle Type Selection */}
+      {showFloorModal && (
+        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black/30 z-50">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-[500px]">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <i className="ri-add-circle-line text-green-600 text-2xl"></i>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">Add New Floor</h3>
+                <p className="text-sm text-gray-500">Vehicle types based on parking lot registration</p>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Vehicle Types: <span className="text-red-500">*</span>
+              </label>
+              
+              <div className="space-y-3">
+                {(() => {
+                  const allowedTypes = getAllowedVehicleTypes();
+                  return (
+                    <>
+                      {/* Car */}
+                      <label className={`flex items-center gap-3 p-3 border-2 rounded-lg transition-all ${
+                        allowedTypes.CAR_UP_TO_9_SEATS 
+                          ? 'cursor-pointer hover:bg-blue-50 hover:border-blue-300' 
+                          : 'cursor-not-allowed opacity-50 bg-gray-50'
+                      }`}>
+                        <input
+                          type="checkbox"
+                          checked={selectedVehicleTypes.CAR_UP_TO_9_SEATS}
+                          disabled={!allowedTypes.CAR_UP_TO_9_SEATS}
+                          onChange={(e) => setSelectedVehicleTypes({
+                            ...selectedVehicleTypes,
+                            CAR_UP_TO_9_SEATS: e.target.checked
+                          })}
+                          className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <i className="ri-car-fill text-blue-600 text-xl"></i>
+                            <span className="font-medium text-gray-900">Car (up to 9 seats)</span>
+                            {allowedTypes.CAR_UP_TO_9_SEATS ? (
+                              <span className="ml-auto px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                                ⚡ Electric Support
+                              </span>
+                            ) : (
+                              <span className="ml-auto px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
+                                🚫 Not Registered
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-500 ml-7">Cars, SUVs, and small vans</p>
+                        </div>
+                      </label>
+
+                      {/* Motorbike */}
+                      <label className={`flex items-center gap-3 p-3 border-2 rounded-lg transition-all ${
+                        allowedTypes.MOTORBIKE
+                          ? 'cursor-pointer hover:bg-orange-50 hover:border-orange-300'
+                          : 'cursor-not-allowed opacity-50 bg-gray-50'
+                      }`}>
+                        <input
+                          type="checkbox"
+                          checked={selectedVehicleTypes.MOTORBIKE}
+                          disabled={!allowedTypes.MOTORBIKE}
+                          onChange={(e) => setSelectedVehicleTypes({
+                            ...selectedVehicleTypes,
+                            MOTORBIKE: e.target.checked
+                          })}
+                          className="w-5 h-5 text-orange-600 rounded focus:ring-2 focus:ring-orange-500 disabled:cursor-not-allowed"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <i className="ri-motorbike-fill text-orange-600 text-xl"></i>
+                            <span className="font-medium text-gray-900">Motorbike</span>
+                            {!allowedTypes.MOTORBIKE && (
+                              <span className="ml-auto px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
+                                🚫 Not Registered
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-500 ml-7">Motorcycles and scooters</p>
+                        </div>
+                      </label>
+
+                      {/* Bike */}
+                      <label className={`flex items-center gap-3 p-3 border-2 rounded-lg transition-all ${
+                        allowedTypes.BIKE
+                          ? 'cursor-pointer hover:bg-green-50 hover:border-green-300'
+                          : 'cursor-not-allowed opacity-50 bg-gray-50'
+                      }`}>
+                        <input
+                          type="checkbox"
+                          checked={selectedVehicleTypes.BIKE}
+                          disabled={!allowedTypes.BIKE}
+                          onChange={(e) => setSelectedVehicleTypes({
+                            ...selectedVehicleTypes,
+                            BIKE: e.target.checked
+                          })}
+                          className="w-5 h-5 text-green-600 rounded focus:ring-2 focus:ring-green-500 disabled:cursor-not-allowed"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <i className="ri-bike-fill text-green-600 text-xl"></i>
+                            <span className="font-medium text-gray-900">Bicycle</span>
+                            {!allowedTypes.BIKE && (
+                              <span className="ml-auto px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
+                                🚫 Not Registered
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-500 ml-7">Regular bicycles and e-bikes</p>
+                        </div>
+                      </label>
+
+                      {/* Other */}
+                      <label className={`flex items-center gap-3 p-3 border-2 rounded-lg transition-all ${
+                        allowedTypes.OTHER
+                          ? 'cursor-pointer hover:bg-purple-50 hover:border-purple-300'
+                          : 'cursor-not-allowed opacity-50 bg-gray-50'
+                      }`}>
+                        <input
+                          type="checkbox"
+                          checked={selectedVehicleTypes.OTHER}
+                          disabled={!allowedTypes.OTHER}
+                          onChange={(e) => setSelectedVehicleTypes({
+                            ...selectedVehicleTypes,
+                            OTHER: e.target.checked
+                          })}
+                          className="w-5 h-5 text-purple-600 rounded focus:ring-2 focus:ring-purple-500 disabled:cursor-not-allowed"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <i className="ri-truck-fill text-purple-600 text-xl"></i>
+                            <span className="font-medium text-gray-900">Other</span>
+                            {!allowedTypes.OTHER && (
+                              <span className="ml-auto px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
+                                🚫 Not Registered
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-500 ml-7">Trucks, buses, and other vehicles</p>
+                        </div>
+                      </label>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-6">
+              <p className="text-sm text-amber-800">
+                <i className="ri-information-line mr-1"></i>
+                <strong>Note:</strong> You can only select vehicle types that are registered in your parking lot request. Select at least one type from the available options.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowFloorModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmAddFloor}
+                disabled={!Object.values(selectedVehicleTypes).some(v => v)}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+                  Object.values(selectedVehicleTypes).some(v => v)
+                    ? "bg-green-600 text-white hover:bg-green-700 shadow-md"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+              >
+                <i className="ri-add-circle-line mr-2"></i>
+                Add Floor
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Vehicle Types Modal */}
+      {showEditVehicleTypesModal && (
+        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black/30 z-50">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-[500px]">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <i className="ri-settings-3-line text-purple-600 text-2xl"></i>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">Edit Vehicle Types</h3>
+                <p className="text-sm text-gray-500">Update vehicle types for Floor {currentFloor}</p>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Vehicle Types: <span className="text-red-500">*</span>
+              </label>
+              
+              <div className="space-y-3">
+                {(() => {
+                  const allowedTypes = getAllowedVehicleTypes();
+                  return (
+                    <>
+                      {/* Car */}
+                      <label className={`flex items-center gap-3 p-3 border-2 rounded-lg transition-all ${
+                        allowedTypes.CAR_UP_TO_9_SEATS 
+                          ? 'cursor-pointer hover:bg-blue-50 hover:border-blue-300' 
+                          : 'cursor-not-allowed opacity-50 bg-gray-50'
+                      }`}>
+                        <input
+                          type="checkbox"
+                          checked={selectedVehicleTypes.CAR_UP_TO_9_SEATS}
+                          disabled={!allowedTypes.CAR_UP_TO_9_SEATS}
+                          onChange={(e) => setSelectedVehicleTypes({
+                            ...selectedVehicleTypes,
+                            CAR_UP_TO_9_SEATS: e.target.checked
+                          })}
+                          className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <i className="ri-car-fill text-blue-600 text-xl"></i>
+                            <span className="font-medium text-gray-900">Car (up to 9 seats)</span>
+                            {allowedTypes.CAR_UP_TO_9_SEATS ? (
+                              <span className="ml-auto px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                                ⚡ Electric Support
+                              </span>
+                            ) : (
+                              <span className="ml-auto px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
+                                🚫 Not Registered
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-500 ml-7">Cars, SUVs, and small vans</p>
+                        </div>
+                      </label>
+
+                      {/* Motorbike */}
+                      <label className={`flex items-center gap-3 p-3 border-2 rounded-lg transition-all ${
+                        allowedTypes.MOTORBIKE
+                          ? 'cursor-pointer hover:bg-orange-50 hover:border-orange-300'
+                          : 'cursor-not-allowed opacity-50 bg-gray-50'
+                      }`}>
+                        <input
+                          type="checkbox"
+                          checked={selectedVehicleTypes.MOTORBIKE}
+                          disabled={!allowedTypes.MOTORBIKE}
+                          onChange={(e) => setSelectedVehicleTypes({
+                            ...selectedVehicleTypes,
+                            MOTORBIKE: e.target.checked
+                          })}
+                          className="w-5 h-5 text-orange-600 rounded focus:ring-2 focus:ring-orange-500 disabled:cursor-not-allowed"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <i className="ri-motorbike-fill text-orange-600 text-xl"></i>
+                            <span className="font-medium text-gray-900">Motorbike</span>
+                            {!allowedTypes.MOTORBIKE && (
+                              <span className="ml-auto px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
+                                🚫 Not Registered
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-500 ml-7">Motorcycles and scooters</p>
+                        </div>
+                      </label>
+
+                      {/* Bike */}
+                      <label className={`flex items-center gap-3 p-3 border-2 rounded-lg transition-all ${
+                        allowedTypes.BIKE
+                          ? 'cursor-pointer hover:bg-green-50 hover:border-green-300'
+                          : 'cursor-not-allowed opacity-50 bg-gray-50'
+                      }`}>
+                        <input
+                          type="checkbox"
+                          checked={selectedVehicleTypes.BIKE}
+                          disabled={!allowedTypes.BIKE}
+                          onChange={(e) => setSelectedVehicleTypes({
+                            ...selectedVehicleTypes,
+                            BIKE: e.target.checked
+                          })}
+                          className="w-5 h-5 text-green-600 rounded focus:ring-2 focus:ring-green-500 disabled:cursor-not-allowed"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <i className="ri-bike-fill text-green-600 text-xl"></i>
+                            <span className="font-medium text-gray-900">Bicycle</span>
+                            {!allowedTypes.BIKE && (
+                              <span className="ml-auto px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
+                                🚫 Not Registered
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-500 ml-7">Regular bicycles and e-bikes</p>
+                        </div>
+                      </label>
+
+                      {/* Other */}
+                      <label className={`flex items-center gap-3 p-3 border-2 rounded-lg transition-all ${
+                        allowedTypes.OTHER
+                          ? 'cursor-pointer hover:bg-purple-50 hover:border-purple-300'
+                          : 'cursor-not-allowed opacity-50 bg-gray-50'
+                      }`}>
+                        <input
+                          type="checkbox"
+                          checked={selectedVehicleTypes.OTHER}
+                          disabled={!allowedTypes.OTHER}
+                          onChange={(e) => setSelectedVehicleTypes({
+                            ...selectedVehicleTypes,
+                            OTHER: e.target.checked
+                          })}
+                          className="w-5 h-5 text-purple-600 rounded focus:ring-2 focus:ring-purple-500 disabled:cursor-not-allowed"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <i className="ri-truck-fill text-purple-600 text-xl"></i>
+                            <span className="font-medium text-gray-900">Other</span>
+                            {!allowedTypes.OTHER && (
+                              <span className="ml-auto px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
+                                🚫 Not Registered
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-500 ml-7">Trucks, buses, and other vehicles</p>
+                        </div>
+                      </label>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
+              <p className="text-sm text-blue-800">
+                <i className="ri-information-line mr-1"></i>
+                <strong>Note:</strong> You can only select vehicle types that are registered in your parking lot request. Select at least one type from the available options. Changes will apply when you save the floor layout.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowEditVehicleTypesModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmEditVehicleTypes}
+                disabled={!Object.values(selectedVehicleTypes).some(v => v)}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+                  Object.values(selectedVehicleTypes).some(v => v)
+                    ? "bg-purple-600 text-white hover:bg-purple-700 shadow-md"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+              >
+                <i className="ri-check-line mr-2"></i>
+                Update Types
               </button>
             </div>
           </div>

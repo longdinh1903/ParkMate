@@ -5,7 +5,6 @@ import ConfirmEmail from "../pages/ConfirmEmail";
 import PartnerHome from "../pages/PartnerHome";
 import RegisterLot from "../pages/RegisterLot";
 import PartnerSubscriptions from "../pages/PartnerSubscriptions";
-import PartnerSubscriptionsTest from "../pages/PartnerSubscriptionsTest";
 import PartnerUsers from "../pages/PartnerUsers";
 import PartnerSessions from "../pages/PartnerSessions";
 import PartnerReservations from "../pages/PartnerReservations";
@@ -25,7 +24,6 @@ export default function AppRoutes() {
       <Route path="/home" element={<PartnerHome />} />
       <Route path="/register-lot" element={<RegisterLot />} />
       <Route path="/subscriptions" element={<PartnerSubscriptions />} />
-      <Route path="/subscriptions-test" element={<PartnerSubscriptionsTest />} />
       <Route path="/users" element={<PartnerUsers />} />
       <Route path="/sessions" element={<PartnerSessions />} />
       <Route path="/reservations" element={<PartnerReservations />} />

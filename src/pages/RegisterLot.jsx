@@ -35,22 +35,22 @@ export default function RegisterLot() {
     {
       type: "EARLY_CHECK_IN_BUFFER",
       label: "Early Check-in Buffer",
-      description: "🕐 Thời gian cho phép check-in sớm hơn",
+      description: "🕐 Early check-in time allowed",
     },
     {
       type: "LATE_CHECK_OUT_BUFFER",
       label: "Late Check-out Buffer",
-      description: "🕐 Thời gian cho phép check-out trễ hơn",
+      description: "🕐 Late check-out time allowed",
     },
     {
       type: "LATE_CHECK_IN_CANCEL_AFTER",
       label: "Late Check-in Cancel After",
-      description: "⏰ Tự động hủy booking nếu check-in trễ quá",
+      description: "⏰ Automatically cancels the booking if check-in is too late",
     },
     {
       type: "EARLY_CANCEL_REFUND_BEFORE",
       label: "Early Cancel Refund Before",
-      description: "💰 Hoàn tiền 100% nếu hủy trước thời gian này",
+      description: "💰 100% refund if canceled before this time",
     },
   ];
 
@@ -608,7 +608,7 @@ export default function RegisterLot() {
                     Parking Policies
                   </h2>
                   <p className="text-sm text-gray-600 mt-0.5">
-                    Cấu hình các chính sách cho bãi đỗ xe (đơn vị: phút)
+                    Configure parking policies (unit: minutes)
                   </p>
                 </div>
               </div>
@@ -633,7 +633,7 @@ export default function RegisterLot() {
                           </div>
                           <div className="bg-blue-100 px-2 py-1 rounded-lg">
                             <span className="text-xs font-semibold text-blue-700">
-                              Bắt buộc
+                              Required
                             </span>
                           </div>
                         </div>
@@ -641,7 +641,7 @@ export default function RegisterLot() {
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Thời gian (phút)
+                          Time (minutes)
                           <span className="text-red-500 ml-1">*</span>
                         </label>
                         <input
@@ -666,24 +666,24 @@ export default function RegisterLot() {
                   <i className="ri-information-line text-blue-600 text-xl mt-0.5"></i>
                   <div className="text-sm text-blue-800">
                     <p className="font-semibold mb-2">
-                      Giải thích các loại Policy:
+                      Explanation of Policy Types:
                     </p>
                     <ul className="space-y-1.5 text-blue-700">
                       <li>
-                        • <strong>Early Check-in Buffer:</strong> Cho phép khách
-                        check-in sớm hơn thời gian đặt
+                        • <strong>Early Check-in Buffer:</strong> Allows guests
+                        to check in earlier than the booked time
                       </li>
                       <li>
-                        • <strong>Late Check-out Buffer:</strong> Cho phép khách
-                        check-out trễ hơn thời gian đặt
+                        • <strong>Late Check-out Buffer:</strong> Allows guests
+                        to check out later than the booked time
                       </li>
                       <li>
-                        • <strong>Late Check-in Cancel After:</strong> Tự động
-                        hủy booking nếu khách không check-in
+                        • <strong>Late Check-in Cancel After:</strong> Automatically
+                        cancels the booking if the guest does not check in
                       </li>
                       <li>
-                        • <strong>Early Cancel Refund Before:</strong> Hoàn tiền
-                        100% nếu hủy trước thời gian này
+                        • <strong>Early Cancel Refund Before:</strong> 100% refund
+                        if canceled before this time
                       </li>
                     </ul>
                   </div>
