@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import authApi from "../api/authApi"; // ✅ API login
+import authApi from "../api/authApi";
+import partnerApi from "../api/partnerApi";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -44,9 +45,16 @@ export default function Login() {
         const res = await authApi.login({ email, password });
         console.log("✅ Login success:", res.data);
 
+        // ✅ Clear old data trước khi lưu data mới
+        localStorage.removeItem("registrationId");
+        localStorage.removeItem("registrationStatus");
+        localStorage.removeItem("partnerId");
+
         // ✅ Lưu token
         const accessToken = res.data.data?.authResponse?.accessToken;
         const refreshToken = res.data.data?.authResponse?.refreshToken;
+        
+        let partnerId = null; // Declare outside if block
 
         if (accessToken) {
           localStorage.setItem("accessToken", accessToken);
@@ -56,7 +64,7 @@ export default function Login() {
           const decoded = decodeToken(accessToken);
           console.log("🔍 Decoded token:", decoded);
           
-          const partnerId = decoded?.partnerId || decoded?.partner_id || decoded?.sub;
+          partnerId = decoded?.partnerId || decoded?.partner_id || decoded?.sub;
           console.log("🔍 Extracted partnerId:", partnerId);
           
           if (partnerId) {
@@ -72,7 +80,84 @@ export default function Login() {
         toast.dismiss(toastId);
         toast.success("🎉 Đăng nhập thành công!");
 
-        navigate("/home"); // 👉 chuyển đến trang đối tác
+        // ✅ Check partner registration status
+        try {
+          // Get registration list and filter by email
+          const registrationRes = await partnerApi.getRequests({});
+          console.log("📦 Full registration response:", registrationRes);
+          
+          // Handle multiple possible response structures
+          let registrationsList = [];
+          if (registrationRes?.data?.content) {
+            registrationsList = registrationRes.data.content;
+          } else if (registrationRes?.data?.data?.content) {
+            registrationsList = registrationRes.data.data.content;
+          } else if (Array.isArray(registrationRes?.data?.data)) {
+            registrationsList = registrationRes.data.data;
+          } else if (Array.isArray(registrationRes?.data)) {
+            registrationsList = registrationRes.data;
+          }
+          
+          console.log("📋 Extracted registrations list:", registrationsList);
+          console.log("🔍 Looking for email:", email);
+          
+          // ✅ Debug: Log all emails to find the correct field name
+          if (Array.isArray(registrationsList) && registrationsList.length > 0) {
+            console.log("📧 Sample registration object:", registrationsList[0]);
+            console.log("📧 All partner emails to check:");
+            registrationsList.forEach((reg, idx) => {
+              console.log(`  [${idx}] companyEmail: "${reg.companyEmail}", contactPersonEmail: "${reg.contactPersonEmail}"`);
+            });
+          }
+          
+          // Find registration by email - check both companyEmail and contactPersonEmail
+          const registration = registrationsList.find(
+            (req) => req.companyEmail === email || req.contactPersonEmail === email
+          );
+          
+          console.log("📋 Found user registration:", registration);
+          
+          if (registration) {
+            const status = registration.status;
+            console.log("✅ Registration status:", status);
+            
+            // ✅ Lưu vào localStorage ngay lập tức
+            localStorage.setItem("registrationId", registration.id);
+            localStorage.setItem("registrationStatus", status);
+            
+            console.log("💾 Saved to localStorage:", {
+              registrationId: registration.id,
+              registrationStatus: status
+            });
+            
+            if (status === "REJECTED") {
+              // Redirect to profile page to edit registration
+              toast.info("⚠️ Đơn đăng ký của bạn đã bị từ chối. Vui lòng cập nhật lại thông tin.");
+              navigate("/partner-profile");
+              return;
+            } else if (status === "PENDING") {
+              toast.info("⏳ Đơn đăng ký của bạn đang được xét duyệt.");
+              navigate("/partner-profile");
+              return;
+            } else if (status === "APPROVED") {
+              // Navigate to home for approved users
+              console.log("✅ Status is APPROVED, navigating to /home");
+              navigate("/home");
+              return;
+            }
+          } else {
+            console.warn("⚠️ No registration found for this email");
+            // No registration found - might be first login, go to profile
+            navigate("/partner-profile");
+            return;
+          }
+        } catch (error) {
+          console.warn("⚠️ Could not fetch registration status:", error);
+          console.error("Error details:", error.response?.data);
+          // If error checking status, go to profile to be safe
+          navigate("/partner-profile");
+          return; // ✅ Thêm return để dừng execution
+        }
       } catch (err) {
         console.error("❌ Login failed:", err);
         toast.dismiss(toastId);

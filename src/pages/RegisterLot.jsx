@@ -19,6 +19,8 @@ export default function RegisterLot() {
     operatingHoursStart: "",
     operatingHoursEnd: "",
     is24Hour: false,
+    lotSquare: "",
+    horizonTime: "",
   });
 
   const [capacityForm, setCapacityForm] = useState({
@@ -180,10 +182,12 @@ export default function RegisterLot() {
       city: form.city.trim(),
       latitude: parseFloat(form.latitude),
       longitude: parseFloat(form.longitude),
-      totalFloors: parseInt(form.totalFloors),
+      totalFloors: parseInt(form.totalFloors) || 0,
       operatingHoursStart: form.operatingHoursStart,
       operatingHoursEnd: form.operatingHoursEnd,
       is24Hour: form.is24Hour,
+      lotSquare: form.lotSquare ? parseFloat(form.lotSquare) : null,
+      horizonTime: form.horizonTime ? parseInt(form.horizonTime) : null,
       lotCapacityRequests: capacities.map((c) => ({
         capacity: parseInt(c.capacity),
         vehicleType: c.vehicleType,
@@ -192,19 +196,20 @@ export default function RegisterLot() {
       pricingRuleCreateRequests: rules.map((r) => ({
         ruleName: r.ruleName,
         vehicleType: r.vehicleType,
-        stepRate: parseInt(r.stepRate),
+        stepRate: parseFloat(r.stepRate),
         stepMinute: parseInt(r.stepMinute),
-        initialCharge: parseInt(r.initialCharge),
+        initialCharge: parseFloat(r.initialCharge),
         initialDurationMinute: parseInt(r.initialDurationMinute),
         validFrom: r.validFrom ? new Date(r.validFrom).toISOString() : null,
         validTo: r.validTo ? new Date(r.validTo).toISOString() : null,
-        areaId: parseInt(r.areaId),
       })),
       policyCreateRequests: policies.map((p) => ({
         policyType: p.policyType,
         value: parseInt(p.value),
       })),
     };
+
+    console.log("📤 Payload to send:", JSON.stringify(payload, null, 2));
 
     const loadingId = toast.loading("🚗 Đang gửi yêu cầu đăng ký...");
     try {
@@ -223,6 +228,8 @@ export default function RegisterLot() {
           operatingHoursStart: "",
           operatingHoursEnd: "",
           is24Hour: false,
+          lotSquare: "",
+          horizonTime: "",
         });
         setCapacities([]);
         setRules([]);
@@ -253,7 +260,7 @@ export default function RegisterLot() {
                   Register New Parking Lot
                 </h1>
                 <p className="text-gray-600 text-sm mt-1">
-                  Điền đầy đủ thông tin bên dưới để đăng ký bãi đỗ xe mới
+                  Fill out the information below to register for a new parking space.
                 </p>
               </div>
             </div>
@@ -426,6 +433,36 @@ export default function RegisterLot() {
                     className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Lot Square (m²)
+                  </label>
+                  <input
+                    type="number"
+                    name="lotSquare"
+                    value={form.lotSquare}
+                    onChange={handleChange}
+                    placeholder="e.g., 1000"
+                    step="any"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Horizon Time (minutes)
+                  </label>
+                  <input
+                    type="number"
+                    name="horizonTime"
+                    value={form.horizonTime}
+                    onChange={handleChange}
+                    placeholder="e.g., 60"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Operating Hours Start
@@ -650,7 +687,7 @@ export default function RegisterLot() {
                           onChange={(e) =>
                             handlePolicyChange(index, e.target.value)
                           }
-                          placeholder="Nhập số phút"
+                          placeholder="Enter the number of minutes"
                           min="1"
                           className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
                           required

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
-import { Stage, Layer, Rect, Text, Group, Line, Transformer } from "react-konva";
+import { Stage, Layer, Rect, Text, Group, Line, Transformer, Image as KonvaImage } from "react-konva";
 import toast from "react-hot-toast";
 import floorApi from "../api/floorApi";
 import areaApi from "../api/areaApi";
@@ -34,7 +34,9 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
 
   const isDrawing = useRef(false);
   const isCreatingArea = useRef(false);
+  const isCreatingFloorBounds = useRef(false);
   const areaStartPos = useRef(null);
+  const floorBoundsStartPos = useRef(null);
   const stageRef = useRef(null);
   const transformerRef = useRef(null);
   const selectedAreaRef = useRef(null);
@@ -180,6 +182,16 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     floors.find((f) => f.floorNumber === currentFloor) || floors[0];
   const areas = currentFloorData?.areas || [];
   const strokes = currentFloorData?.strokes || [];
+  
+  // Floor bounds from API uses: floorTopLeftX, floorTopLeftY, floorWidth, floorHeight
+  const floorBounds = currentFloorData ? {
+    x: currentFloorData.floorTopLeftX,
+    y: currentFloorData.floorTopLeftY,
+    width: currentFloorData.floorWidth,
+    height: currentFloorData.floorHeight,
+  } : null;
+  
+  const tempFloorBounds = currentFloorData?.tempFloorBounds || null;
 
   // Update current floor
   const updateCurrentFloor = useCallback(
@@ -235,6 +247,10 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
       if (clickedOnShape) return;
       isDrawing.current = true;
       // Erasing will happen in handleMouseMove
+    } else if (mode === "floor") {
+      if (clickedOnShape) return;
+      isCreatingFloorBounds.current = true;
+      floorBoundsStartPos.current = pos;
     } else if (mode === "area") {
       if (clickedOnShape) {
         console.log("Clicked on shape, not creating area");
@@ -297,7 +313,26 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
       );
     }
 
-    // 🟦 Area mode (preview rectangle)
+    // � Floor Bounds mode (preview rectangle)
+    if (
+      mode === "floor" &&
+      isCreatingFloorBounds.current &&
+      floorBoundsStartPos.current
+    ) {
+      const width = point.x - floorBoundsStartPos.current.x;
+      const height = point.y - floorBoundsStartPos.current.y;
+      
+      updateCurrentFloor({
+        tempFloorBounds: {
+          x: floorBoundsStartPos.current.x,
+          y: floorBoundsStartPos.current.y,
+          width: Math.abs(width),
+          height: Math.abs(height),
+        }
+      });
+    }
+
+    // �🟦 Area mode (preview rectangle)
     if (
       mode === "area" &&
       isCreatingArea.current &&
@@ -337,6 +372,41 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
   const handleMouseUp = (e) => {
     if (mode === "draw") {
       isDrawing.current = false;
+      return;
+    }
+
+    if (mode === "floor" && isCreatingFloorBounds.current && floorBoundsStartPos.current) {
+      isCreatingFloorBounds.current = false;
+      const stage = e.target.getStage();
+      const point = stage.getPointerPosition();
+      
+      const startX = floorBoundsStartPos.current.x;
+      const startY = floorBoundsStartPos.current.y;
+      
+      if (!point) {
+        updateCurrentFloor({ tempFloorBounds: null });
+        floorBoundsStartPos.current = null;
+        return;
+      }
+
+      const width = point.x - startX;
+      const height = point.y - startY;
+
+      if (Math.abs(width) > 50 && Math.abs(height) > 50) {
+        updateCurrentFloor({
+          floorTopLeftX: startX,
+          floorTopLeftY: startY,
+          floorWidth: Math.abs(width),
+          floorHeight: Math.abs(height),
+          tempFloorBounds: null,
+        });
+        toast.success(`✅ Floor bounds set: ${Math.round(Math.abs(width))}×${Math.round(Math.abs(height))}`);
+      } else {
+        updateCurrentFloor({ tempFloorBounds: null });
+        toast.error("⚠️ Floor bounds too small! Minimum 50×50");
+      }
+      
+      floorBoundsStartPos.current = null;
       return;
     }
 
@@ -387,7 +457,6 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             // Area created - no toast needed, visual feedback is enough
             return { ...f, areas: [...filtered, newArea] };
           } else {
-            toast.error("⚠️ Area too small!");
             return { ...f, areas: filtered };
           }
         })
@@ -882,6 +951,10 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
           floorNumber: floor.floorNumber,
           floorName: floor.floorName,
           capacityRequests: capacityRequests,
+          floorTopLeftX: floor.floorTopLeftX || null,
+          floorTopLeftY: floor.floorTopLeftY || null,
+          floorWidth: floor.floorWidth || null,
+          floorHeight: floor.floorHeight || null,
         };
 
         console.log("📤 Creating NEW floor payload:", JSON.stringify(floorPayload, null, 2));
@@ -1134,6 +1207,36 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
               <i className="ri-layout-grid-fill"></i>
               Area
             </button>
+            <button
+              onClick={() => setMode("floor")}
+              className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-all ${
+                mode === "floor"
+                  ? "bg-purple-600 text-white shadow-md"
+                  : "bg-transparent text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              <i className="ri-layout-fill"></i>
+              Floor Bounds
+            </button>
+            {/* Delete Floor Bounds Button */}
+            {floorBounds && floorBounds.x !== undefined && floorBounds.width && floorBounds.height && (
+              <button
+                onClick={() => {
+                  updateCurrentFloor({ 
+                    floorTopLeftX: null,
+                    floorTopLeftY: null,
+                    floorWidth: null,
+                    floorHeight: null,
+                  });
+                  toast.success("Floor bounds deleted");
+                }}
+                className="px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 bg-red-100 text-red-700 hover:bg-red-200"
+                title="Delete floor bounds"
+              >
+                <i className="ri-delete-bin-line"></i>
+                Delete Bounds
+              </button>
+            )}
           </div>
 
           {/* Brush Settings */}
@@ -1334,6 +1437,8 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             ? "🖱️ Click and drag to draw lines"
             : mode === "erase"
             ? "🧹 Click and drag to erase drawing strokes"
+            : mode === "floor"
+            ? "🖱️ Click and drag to define floor bounds"
             : selectedSpotId
             ? "🚗 Drag to move • Press Delete to remove spot"
             : selectedAreaId
@@ -1356,6 +1461,8 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
               ? "cursor-crosshair" 
               : mode === "erase"
               ? "cursor-not-allowed"
+              : mode === "floor"
+              ? "cursor-crosshair"
               : "cursor-cell"
           }
         >
@@ -1368,13 +1475,64 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
               height={window.innerHeight - 160}
               fill="#ffffff"
               onClick={() => {
-                // Deselect when clicking on background in area mode
+                // Deselect when clicking on background
                 if (mode === "area") {
                   setSelectedAreaId(null);
                   setSelectedSpotId(null);
                 }
               }}
             />
+
+            {/* Floor Bounds (saved) */}
+            {floorBounds && floorBounds.x !== undefined && floorBounds.width && floorBounds.height && (
+              <>
+                <Rect
+                  x={floorBounds.x}
+                  y={floorBounds.y}
+                  width={floorBounds.width}
+                  height={floorBounds.height}
+                  fill="rgba(139, 92, 246, 0.1)"
+                  stroke="#8b5cf6"
+                  strokeWidth={3}
+                  dash={[10, 5]}
+                  listening={false}
+                />
+                <Text
+                  x={floorBounds.x + 10}
+                  y={floorBounds.y + 10}
+                  text={`Floor Bounds: ${Math.round(floorBounds.width)}×${Math.round(floorBounds.height)}`}
+                  fontSize={14}
+                  fill="#8b5cf6"
+                  fontStyle="bold"
+                  listening={false}
+                />
+              </>
+            )}
+
+            {/* Floor Bounds (preview while dragging) */}
+            {tempFloorBounds && (
+              <>
+                <Rect
+                  x={tempFloorBounds.x}
+                  y={tempFloorBounds.y}
+                  width={tempFloorBounds.width}
+                  height={tempFloorBounds.height}
+                  stroke="#a78bfa"
+                  strokeWidth={2}
+                  dash={[5, 5]}
+                  fill="rgba(139, 92, 246, 0.1)"
+                  listening={false}
+                />
+                <Text
+                  x={tempFloorBounds.x + 10}
+                  y={tempFloorBounds.y + 10}
+                  text={`${Math.round(tempFloorBounds.width)}×${Math.round(tempFloorBounds.height)}`}
+                  fontSize={12}
+                  fill="#8b5cf6"
+                  listening={false}
+                />
+              </>
+            )}
 
             {/* Grid */}
             {Array.from({ length: 50 }).map((_, i) => (

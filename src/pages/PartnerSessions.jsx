@@ -34,10 +34,6 @@ export default function PartnerSessions() {
   // Pagination
   const [page, setPage] = useState(0);
   const [size] = useState(7);
-  const [pagination, setPagination] = useState({
-    totalPages: 0,
-    totalElements: 0,
-  });
 
   // Modal
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -80,7 +76,6 @@ export default function PartnerSessions() {
       if (lotIds.length === 0) {
         console.log("No parking lots found for this partner");
         setSessions([]);
-        setPagination({ totalPages: 0, totalElements: 0 });
         setLoading(false);
         return;
       }
@@ -131,10 +126,6 @@ export default function PartnerSessions() {
         console.log(`Filtered: ${filteredByPartnerLots.length} sessions belonging to partner's parking lots`);
 
         setSessions(filteredByPartnerLots);
-        setPagination({
-          totalPages: Math.ceil(filteredByPartnerLots.length / size),
-          totalElements: filteredByPartnerLots.length,
-        });
       } else {
         const data = Array.isArray(payload) ? payload : [];
         const filteredByPartnerLots = data.filter(session => 
@@ -142,10 +133,6 @@ export default function PartnerSessions() {
         );
         
         setSessions(filteredByPartnerLots);
-        setPagination({
-          totalPages: 1,
-          totalElements: filteredByPartnerLots.length,
-        });
       }
     } catch (error) {
       console.error("Error fetching sessions:", error);
@@ -154,7 +141,7 @@ export default function PartnerSessions() {
     } finally {
       setLoading(false);
     }
-  }, [sortBy, sortOrder, filterStatus, filterReferenceType, filterParkingLot, size]);
+  }, [sortBy, sortOrder, filterStatus, filterReferenceType, filterParkingLot]);
 
   // Initial load
   useEffect(() => {
@@ -199,6 +186,21 @@ export default function PartnerSessions() {
       });
     }
 
+    // Status filter (client-side)
+    if (filterStatus) {
+      filtered = filtered.filter((session) => session.status === filterStatus);
+    }
+
+    // Reference type filter (client-side)
+    if (filterReferenceType) {
+      filtered = filtered.filter((session) => session.referenceType === filterReferenceType);
+    }
+
+    // Parking lot filter (client-side)
+    if (filterParkingLot) {
+      filtered = filtered.filter((session) => session.lotId === parseInt(filterParkingLot));
+    }
+
     // Date range filter (by entryTime)
     if (filterDateFrom) {
       const fromDate = new Date(filterDateFrom);
@@ -220,11 +222,23 @@ export default function PartnerSessions() {
       });
     }
 
-    // Paginate
+    return filtered;
+  }, [sessions, searchTerm, parkingLotsMap, filterDateFrom, filterDateTo, filterStatus, filterReferenceType, filterParkingLot]);
+
+  // Paginate filtered sessions
+  const paginatedSessions = useMemo(() => {
     const start = page * size;
     const end = start + size;
-    return filtered.slice(start, end);
-  }, [sessions, searchTerm, page, size, parkingLotsMap, filterDateFrom, filterDateTo]);
+    return filteredSessions.slice(start, end);
+  }, [filteredSessions, page, size]);
+
+  // Calculate pagination info
+  const paginationInfo = useMemo(() => {
+    return {
+      totalPages: Math.ceil(filteredSessions.length / size),
+      totalElements: filteredSessions.length,
+    };
+  }, [filteredSessions, size]);
 
   // Helper functions
   const formatDateTime = (dateStr) => {
@@ -253,10 +267,8 @@ export default function PartnerSessions() {
         return "bg-green-100 text-green-700";
       case "COMPLETED":
         return "bg-blue-100 text-blue-700";
-      case "SYNCED":
+      case "MANUAL_COMPLETED":
         return "bg-purple-100 text-purple-700";
-      case "CANCELLED":
-        return "bg-red-100 text-red-700";
       default:
         return "bg-gray-100 text-gray-700";
     }
@@ -315,8 +327,8 @@ export default function PartnerSessions() {
 
             {/* Actions Bar */}
             <div className="bg-white rounded-lg shadow-sm p-4 mb-4 flex-shrink-0">
-              {/* Row 1: Search + Refresh */}
-              <div className="flex gap-4 items-center mb-4">
+              {/* Row 1: Search + Refresh + Sort Order */}
+              <div className="flex gap-3 items-center mb-4">
                 {/* Search - takes most space */}
                 <div className="relative flex-1">
                   <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -329,6 +341,25 @@ export default function PartnerSessions() {
                   />
                 </div>
 
+                {/* Sort Order Button */}
+                <button
+                  onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                  className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer"
+                  title={sortOrder === "asc" ? "Ascending" : "Descending"}
+                >
+                  {sortOrder === "asc" ? (
+                    <>
+                      <i className="ri-sort-asc text-lg"></i>
+                      <span>Asc</span>
+                    </>
+                  ) : (
+                    <>
+                      <i className="ri-sort-desc text-lg"></i>
+                      <span>Desc</span>
+                    </>
+                  )}
+                </button>
+
                 {/* Refresh Button */}
                 <button
                   onClick={refreshData}
@@ -339,7 +370,7 @@ export default function PartnerSessions() {
                 </button>
               </div>
 
-              {/* Row 2: Filters and Sort */}
+              {/* Row 2: Filters */}
               <div className="flex gap-3 items-end flex-wrap">
                 <FunnelIcon className="w-5 h-5 text-gray-500 mb-2" />
 
@@ -412,8 +443,7 @@ export default function PartnerSessions() {
                   <option value="">All Status</option>
                   <option value="ACTIVE">Active</option>
                   <option value="COMPLETED">Completed</option>
-                  <option value="SYNCED">Synced</option>
-                  <option value="CANCELLED">Cancelled</option>
+                  <option value="MANUAL_COMPLETED">Manual Completed</option>
                 </select>
 
                 {/* Sort By Dropdown */}
@@ -428,25 +458,6 @@ export default function PartnerSessions() {
                   <option value="totalAmount">Total Amount</option>
                   <option value="durationMinute">Duration</option>
                 </select>
-
-                {/* Sort Order Button */}
-                <button
-                  onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-                  className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer"
-                  title={sortOrder === "asc" ? "Ascending" : "Descending"}
-                >
-                  {sortOrder === "asc" ? (
-                    <>
-                      <i className="ri-sort-asc text-lg"></i>
-                      <span className="hidden sm:inline">Asc</span>
-                    </>
-                  ) : (
-                    <>
-                      <i className="ri-sort-desc text-lg"></i>
-                      <span className="hidden sm:inline">Desc</span>
-                    </>
-                  )}
-                </button>
               </div>
             </div>
 
@@ -456,11 +467,13 @@ export default function PartnerSessions() {
                 <div className="flex justify-center items-center h-64">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
                 </div>
-              ) : filteredSessions.length === 0 ? (
+              ) : paginatedSessions.length === 0 ? (
                 <div className="bg-white rounded-lg shadow-sm p-12 text-center">
                   <ClockIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                   <p className="text-gray-500 text-lg">
-                    {searchTerm ? "No sessions match your search" : "No sessions found"}
+                    {searchTerm || filterStatus || filterReferenceType || filterParkingLot || filterDateFrom || filterDateTo
+                      ? "No sessions match your filters" 
+                      : "No sessions found"}
                   </p>
                 </div>
               ) : (
@@ -499,7 +512,7 @@ export default function PartnerSessions() {
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {filteredSessions.map((session, idx) => {
+                        {paginatedSessions.map((session, idx) => {
                           const refType = getReferenceTypeBadge(session.referenceType);
                           return (
                             <tr key={session.id || idx} className="hover:bg-gray-50 transition-colors">
@@ -556,7 +569,7 @@ export default function PartnerSessions() {
                   </div>
 
                   {/* Pagination */}
-                  {pagination.totalPages > 1 && (
+                  {paginationInfo.totalPages > 1 && (
                     <div className="mt-6">
                       <div className="flex justify-between items-center py-3 px-6 bg-white/95 backdrop-blur-sm shadow-xl border border-gray-200 rounded-full">
                         <button
@@ -569,14 +582,14 @@ export default function PartnerSessions() {
 
                         <span className="text-gray-700 text-sm font-medium px-4">
                           Page <strong className="text-indigo-600">{page + 1}</strong> of{" "}
-                          <strong className="text-indigo-600">{pagination.totalPages}</strong> 
+                          <strong className="text-indigo-600">{paginationInfo.totalPages}</strong> 
                           <span className="text-gray-400 ml-2">
-                            ({pagination.totalElements} sessions)
+                            ({paginationInfo.totalElements} sessions)
                           </span>
                         </span>
 
                         <button
-                          disabled={page >= pagination.totalPages - 1}
+                          disabled={page >= paginationInfo.totalPages - 1}
                           onClick={() => setPage((p) => p + 1)}
                           className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium"
                         >
