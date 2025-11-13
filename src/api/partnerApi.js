@@ -29,6 +29,13 @@ const partnerApi = {
       payload
     ),
 
+  // Update partner registration (for resubmit after rejection)
+  updateRegistration: (id, data) =>
+    axiosClient.put(
+      `/api/v1/user-service/partner-registrations/${id}`,
+      data
+    ),
+
   deleteRegister: (id) => axiosClient.delete(`/api/v1/user-service/partner-registrations/${id}`),
 
   delete: (id) => axiosClient.delete(`/api/v1/user-service/partners/${id}`),

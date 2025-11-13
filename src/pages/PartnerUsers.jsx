@@ -36,7 +36,7 @@ export default function PartnerUsers() {
 
   // Pagination state
   const [page, setPage] = useState(0);
-  const [size] = useState(6); // 6 items per page
+  const [size] = useState(7); // 6 items per page
   const [pagination, setPagination] = useState({
     totalPages: 0,
     totalElements: 0,
@@ -386,10 +386,11 @@ export default function PartnerUsers() {
   // Get status badge
   const getStatusBadge = (status) => {
     const colors = {
+      PENDING_PAYMENT: "bg-orange-100 text-orange-800",
       ACTIVE: "bg-green-100 text-green-800",
+      INACTIVE: "bg-gray-100 text-gray-800",
       EXPIRED: "bg-red-100 text-red-800",
-      CANCELLED: "bg-gray-100 text-gray-800",
-      PENDING: "bg-yellow-100 text-yellow-800",
+      CANCELLED: "bg-slate-100 text-slate-800",
     };
     return colors[status] || "bg-gray-100 text-gray-800";
   };
@@ -533,10 +534,11 @@ export default function PartnerUsers() {
                     className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   >
                     <option value="">All Status</option>
+                    <option value="PENDING_PAYMENT">Pending Payment</option>
                     <option value="ACTIVE">Active</option>
+                    <option value="INACTIVE">Inactive</option>
                     <option value="EXPIRED">Expired</option>
                     <option value="CANCELLED">Cancelled</option>
-                    <option value="PENDING">Pending</option>
                   </select>
                   {/* Subscription Package Filter */}
                   <select

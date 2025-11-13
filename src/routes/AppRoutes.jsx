@@ -8,11 +8,14 @@ import PartnerSubscriptions from "../pages/PartnerSubscriptions";
 import PartnerUsers from "../pages/PartnerUsers";
 import PartnerSessions from "../pages/PartnerSessions";
 import PartnerReservations from "../pages/PartnerReservations";
+import PartnerDashboard from "../pages/PartnerDashboard";
+import PartnerProfile from "../pages/PartnerProfile";
 import AdminLogin from "../pages/AdminLogin";
 import AdminPartners from "../pages/AdminPartners";
 import AdminRequests from "../pages/AdminRequests";
 import AdminUsers from "../pages/AdminUsers";
 import AdminParkingLots from "../pages/AdminParkingLots";
+import ProtectedPartnerRoute from "../components/ProtectedPartnerRoute";
 
 export default function AppRoutes() {
   return (
@@ -21,12 +24,16 @@ export default function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/confirm-email" element={<ConfirmEmail />} />
-      <Route path="/home" element={<PartnerHome />} />
-      <Route path="/register-lot" element={<RegisterLot />} />
-      <Route path="/subscriptions" element={<PartnerSubscriptions />} />
-      <Route path="/users" element={<PartnerUsers />} />
-      <Route path="/sessions" element={<PartnerSessions />} />
-      <Route path="/reservations" element={<PartnerReservations />} />
+      <Route path="/partner-profile" element={<PartnerProfile />} />
+      
+      {/* Protected Partner routes - Only for APPROVED status */}
+      <Route path="/home" element={<ProtectedPartnerRoute><PartnerHome /></ProtectedPartnerRoute>} />
+      <Route path="/register-lot" element={<ProtectedPartnerRoute><RegisterLot /></ProtectedPartnerRoute>} />
+      <Route path="/subscriptions" element={<ProtectedPartnerRoute><PartnerSubscriptions /></ProtectedPartnerRoute>} />
+      <Route path="/users" element={<ProtectedPartnerRoute><PartnerUsers /></ProtectedPartnerRoute>} />
+      <Route path="/sessions" element={<ProtectedPartnerRoute><PartnerSessions /></ProtectedPartnerRoute>} />
+      <Route path="/reservations" element={<ProtectedPartnerRoute><PartnerReservations /></ProtectedPartnerRoute>} />
+      <Route path="/dashboard" element={<ProtectedPartnerRoute><PartnerDashboard /></ProtectedPartnerRoute>} />
 
       {/* Admin routes */}
       <Route path="/admin/login" element={<AdminLogin />} />

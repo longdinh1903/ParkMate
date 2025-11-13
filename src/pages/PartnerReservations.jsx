@@ -174,6 +174,10 @@ export default function PartnerReservations() {
         return "bg-red-100 text-red-700 ring-red-600/20";
       case "PENDING":
         return "bg-yellow-100 text-yellow-700 ring-yellow-600/20";
+      case "ACTIVE":
+        return "bg-blue-100 text-blue-700 ring-blue-600/20";
+      case "EXPIRED":
+        return "bg-orange-100 text-orange-700 ring-orange-600/20";
       default:
         return "bg-gray-100 text-gray-700 ring-gray-600/20";
     }
@@ -299,7 +303,9 @@ export default function PartnerReservations() {
                 >
                   <option value="">All Status</option>
                   <option value="PENDING">Pending</option>
+                  <option value="ACTIVE">Active</option>
                   <option value="COMPLETED">Completed</option>
+                  <option value="EXPIRED">Expired</option>
                   <option value="CANCELLED">Cancelled</option>
                 </select>
 

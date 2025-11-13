@@ -313,7 +313,7 @@ export default function PartnerHome() {
                   My Parking Lots
                 </h1>
                 <p className="text-gray-600 text-sm mt-1">
-                  Quản lý các bãi đỗ xe bạn đã đăng ký
+                  Manage the parking spaces you have registered for
                 </p>
               </div>
             </div>
@@ -644,6 +644,7 @@ export default function PartnerHome() {
             { key: "ACTIVE", label: "Active", color: "text-green-600" },
             { key: "MAP_DENIED", label: "Map Denied", color: "text-red-600" },
           ]}
+          allowEdit={true}
         />
       )}
       {showMapEditor && selectedLotForMap && (

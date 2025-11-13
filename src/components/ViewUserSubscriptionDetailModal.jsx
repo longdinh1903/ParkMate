@@ -311,12 +311,10 @@ export default function ViewUserSubscriptionDetailModal({ userSubscription, onCl
                     <span className="text-sm font-medium text-orange-700">End Date</span>
                     <span className="text-sm text-gray-900">{formatDate(displayData?.endDate)}</span>
                   </div>
-                  {displayData?.updatedAt && (
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <span className="text-sm font-medium text-gray-700">Last Updated</span>
-                      <span className="text-sm text-gray-900">{formatDate(displayData?.updatedAt)}</span>
-                    </div>
-                  )}
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <span className="text-sm font-medium text-gray-700">Last Updated</span>
+                    <span className="text-sm text-gray-900">{formatDate(displayData?.updatedAt)}</span>
+                  </div>
                 </div>
               </div>
 

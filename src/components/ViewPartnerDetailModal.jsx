@@ -95,9 +95,9 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
             
             {/* --- General Status Section --- */}
             <div className="mb-6 pb-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-700 mb-3">Trạng thái tổng quan</h3>
+                <h3 className="text-lg font-semibold text-gray-700 mb-3">General Status</h3>
                 <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
-                    <span className="font-bold text-base text-gray-600">Trạng thái duyệt:</span>
+                    <span className="font-bold text-base text-gray-600">Status:</span>
                     <span
                         className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ring-1 ring-inset ${getStatusClasses(data.status)}`}
                     >
@@ -106,7 +106,7 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
                 </div>
                 {data.rejectionReason && (
                     <div className="mt-4 p-3 bg-red-50 border-l-4 border-red-400 text-red-700 rounded-r-lg">
-                        <p className="font-semibold">Lý do từ chối/tạm ngưng:</p>
+                        <p className="font-semibold">Reason for rejection/suspension:</p>
                         <p className="text-sm italic">{data.rejectionReason}</p>
                     </div>
                 )}
@@ -114,15 +114,15 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
 
             {/* --- Company Info Section --- */}
             <section className="mb-6">
-                <h3 className="text-lg font-semibold text-orange-600 mb-3 border-b-2 border-orange-100 pb-1">Thông tin Công ty</h3>
+                <h3 className="text-lg font-semibold text-orange-600 mb-3 border-b-2 border-orange-100 pb-1">Company Information</h3>
                 <div className="space-y-1">
-                    <InfoRow label="Tên Công ty" value={data.companyName} />
-                    <InfoRow label="Mã số Thuế" value={data.taxNumber} />
-                    <InfoRow label="Giấy phép KD" value={data.businessLicenseNumber} />
-                    <InfoRow label="Địa chỉ" value={data.companyAddress} />
-                    <InfoRow label="Email Công ty" value={data.companyEmail} />
-                    <InfoRow label="Điện thoại Công ty" value={data.companyPhone} />
-                    <InfoRow label="Tệp Giấy phép">
+                    <InfoRow label="Company Name" value={data.companyName} />
+                    <InfoRow label="Tax Number" value={data.taxNumber} />
+                    <InfoRow label="Business License" value={data.businessLicenseNumber} />
+                    <InfoRow label="Address" value={data.companyAddress} />
+                    <InfoRow label="Company Email" value={data.companyEmail} />
+                    <InfoRow label="Company Phone" value={data.companyPhone} />
+                    <InfoRow label="Business License File">
                         {data.businessLicenseFileUrl ? (
                             <a
                                 href={data.businessLicenseFileUrl}
@@ -130,16 +130,16 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
                                 rel="noreferrer"
                                 className="text-orange-600 hover:text-orange-800 font-semibold transition underline"
                             >
-                                Xem tệp đính kèm
+                                View Attachment
                             </a>
                         ) : (
-                            <span className="text-gray-400">Không có tệp</span>
+                            <span className="text-gray-400">No file available</span>
                         )}
                     </InfoRow>
                     <div className="pt-2">
-                        <span className="font-medium text-gray-500 block mb-1">Mô tả Kinh doanh:</span>
+                        <span className="font-medium text-gray-500 block mb-1">Business Description:</span>
                         <p className="p-3 bg-gray-50 border rounded-md whitespace-pre-wrap text-gray-800">
-                            {data.businessDescription || "Không có mô tả chi tiết."}
+                            {data.businessDescription || "No detailed description available."}
                         </p>
                     </div>
                 </div>
@@ -147,26 +147,26 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
 
             {/* --- Contact Info Section --- */}
             <section>
-                <h3 className="text-lg font-semibold text-orange-600 mb-3 border-b-2 border-orange-100 pb-1">Thông tin Người liên hệ</h3>
+                <h3 className="text-lg font-semibold text-orange-600 mb-3 border-b-2 border-orange-100 pb-1">Contact Information</h3>
                 {Array.isArray(data.accounts) && data.accounts.length > 0 ? (
                     (() => {
                         const contact = data.accounts[0];
                         return (
                             <div className="space-y-1">
-                                <InfoRow label="Tên Người liên hệ" value={contact.fullName} />
-                                <InfoRow label="Email Liên hệ" value={contact.email} />
-                                <InfoRow label="Điện thoại Liên hệ" value={contact.phone} />
+                                <InfoRow label="Contact Name" value={contact.fullName} />
+                                <InfoRow label="Contact Email" value={contact.email} />
+                                <InfoRow label="Contact Phone" value={contact.phone} />
                             </div>
                         );
                     })()  
                 ) : (
-                    <p className="p-3 bg-yellow-50 text-yellow-700 rounded-lg italic">Không có thông tin người liên hệ được liên kết.</p>
+                    <p className="p-3 bg-yellow-50 text-yellow-700 rounded-lg italic">No contact information linked.</p>
                 )}
             </section>
           </div>
         ) : (
           <div className="px-6 py-12 text-center text-red-500 italic text-lg">
-            Không tìm thấy dữ liệu cho đối tác này.
+            No data found for this partner.
           </div>
         )}
 

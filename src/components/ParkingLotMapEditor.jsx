@@ -13,6 +13,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
   const [editName, setEditName] = useState("");
   const [editVehicleType, setEditVehicleType] = useState("");
   const [editAreaType, setEditAreaType] = useState("");
+  const [showRightPanel, setShowRightPanel] = useState(true); // Toggle right panel
 
   // Get allowed vehicle types from lot.lotCapacity (approved types only)
   const getAllowedVehicleTypes = () => {
@@ -35,6 +36,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
   const areaTypes = [
     "WALK_IN_ONLY",
     "SUBSCRIPTION_ONLY",
+    "EMERGENCY_ONLY",
   ];
 
   // Load data from backend
@@ -112,9 +114,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
           setCurrentFloorId(floorsWithAreas[0].id);
         }
         
-        console.log("✅ All data loaded:", floorsWithAreas);
-        toast.success("✅ Parking lot layout loaded!");
-        
+        console.log("✅ All data loaded:", floorsWithAreas);        
       } catch (err) {
         console.error("❌ Load error:", err);
         toast.error("Failed to load parking lot data");
@@ -128,6 +128,40 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
 
   const currentFloor = floors.find((f) => f.id === currentFloorId);
   const areas = currentFloor?.areas || [];
+  
+  // Calculate canvas size based on floor bounds or areas
+  let canvasWidth = 1200;
+  let canvasHeight = 800;
+  
+  if (currentFloor) {
+    // If floor has bounds, use them
+    if (currentFloor.floorTopLeftX != null && currentFloor.floorWidth != null) {
+      canvasWidth = Math.max(1200, currentFloor.floorTopLeftX + currentFloor.floorWidth + 50);
+    }
+    if (currentFloor.floorTopLeftY != null && currentFloor.floorHeight != null) {
+      canvasHeight = Math.max(800, currentFloor.floorTopLeftY + currentFloor.floorHeight + 50);
+    }
+    
+    // Or calculate from areas
+    if (areas.length > 0) {
+      areas.forEach(area => {
+        const areaRight = area.areaTopLeftX + area.areaWidth + 100; // Add padding
+        const areaBottom = area.areaTopLeftY + area.areaHeight + 100;
+        canvasWidth = Math.max(canvasWidth, areaRight);
+        canvasHeight = Math.max(canvasHeight, areaBottom);
+      });
+    }
+  }
+  
+  // Debug floor bounds
+  console.log("🔍 Current floor data:", currentFloor);
+  console.log("🔍 Floor bounds:", {
+    floorTopLeftX: currentFloor?.floorTopLeftX,
+    floorTopLeftY: currentFloor?.floorTopLeftY,
+    floorWidth: currentFloor?.floorWidth,
+    floorHeight: currentFloor?.floorHeight,
+  });
+  console.log("📐 Canvas size:", { canvasWidth, canvasHeight });
 
   const handleSelectItem = (type, id, data) => {
     setSelectedItem({ type, id, data });
@@ -264,76 +298,120 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 flex bg-white z-[60]">
-      {/* Main Canvas Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-green-50 to-white shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
-              <i className="ri-edit-2-fill text-white text-xl"></i>
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-gray-900">
-                Edit Parking Map
-              </h2>
-              <p className="text-xs text-gray-500">{lot.name}</p>
-            </div>
+    <div className="fixed inset-0 flex flex-col bg-white z-[60]">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-green-50 to-white shadow-sm flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
+            <i className="ri-edit-2-fill text-white text-xl"></i>
           </div>
-
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-          >
-            <i className="ri-close-line mr-2"></i>
-            Close
-          </button>
+          <div>
+            <h2 className="text-lg font-bold text-gray-900">
+              Edit Parking Map
+            </h2>
+            <p className="text-xs text-gray-500">{lot.name}</p>
+          </div>
         </div>
 
-        {/* Warning Banner */}
-        {hasDefaultVehicleTypes && (
-          <div className="bg-orange-100 border-l-4 border-orange-500 p-4 mx-4 mt-4 rounded">
-            <div className="flex items-center">
-              <i className="ri-alert-line text-orange-600 text-xl mr-3"></i>
-              <p className="text-orange-800 font-medium">
-                ⚠️ Action required: Some areas still have default vehicle types. Please update them.
-              </p>
-            </div>
-          </div>
-        )}
+        <button
+          onClick={onClose}
+          className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+        >
+          <i className="ri-close-line mr-2"></i>
+          Close
+        </button>
+      </div>
 
-        {/* Floor Tabs */}
-        <div className="flex items-center gap-2 p-4 border-b bg-gray-50">
-          <span className="text-sm font-medium text-gray-700">Floors:</span>
-          {floors.map((floor) => (
-            <button
-              key={floor.id}
-              onClick={() => setCurrentFloorId(floor.id)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                currentFloorId === floor.id
-                  ? "bg-green-600 text-white"
-                  : "bg-white text-gray-700 hover:bg-gray-100 border"
-              }`}
-            >
-              {floor.floorName}
-            </button>
-          ))}
+      {/* Warning Banner */}
+      {hasDefaultVehicleTypes && (
+        <div className="bg-orange-100 border-l-4 border-orange-500 p-4 mx-4 mt-4 rounded flex-shrink-0">
+          <div className="flex items-center">
+            <i className="ri-alert-line text-orange-600 text-xl mr-3"></i>
+            <p className="text-orange-800 font-medium">
+              ⚠️ Action required: Some areas still have default vehicle types. Please update them.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Main Content Area - Flex Row */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left: Canvas Area */}
+        <div className="flex-1 flex flex-col overflow-hidden">{/* Floor Tabs */}
+        <div className="flex items-center justify-between gap-2 p-4 border-b bg-gray-50">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-700">Floors:</span>
+            {floors.map((floor) => (
+              <button
+                key={floor.id}
+                onClick={() => setCurrentFloorId(floor.id)}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  currentFloorId === floor.id
+                    ? "bg-green-600 text-white"
+                    : "bg-white text-gray-700 hover:bg-gray-100 border"
+                }`}
+              >
+                {floor.floorName}
+              </button>
+            ))}
+          </div>
+          
+          {/* Toggle Panel Button */}
+          <button
+            onClick={() => setShowRightPanel(!showRightPanel)}
+            className="px-3 py-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 transition-colors flex items-center gap-2"
+            title={showRightPanel ? "Hide panel" : "Show panel"}
+          >
+            <i className={`ri-${showRightPanel ? 'layout-right-2' : 'layout-right'}-line text-lg`}></i>
+            <span className="text-sm font-medium">{showRightPanel ? 'Hide Panel' : 'Show Panel'}</span>
+          </button>
         </div>
 
         {/* Canvas */}
         <div className="flex-1 overflow-auto bg-gray-100 p-4">
-          <Stage width={1200} height={800}>
+          <Stage width={canvasWidth} height={canvasHeight}>
             <Layer>
               {/* Grid Background */}
               <Rect
                 x={0}
                 y={0}
-                width={1200}
-                height={800}
+                width={canvasWidth}
+                height={canvasHeight}
                 fill="#ffffff"
                 stroke="#e5e7eb"
                 strokeWidth={1}
               />
+
+              {/* Floor Bounds (if exists) */}
+              {currentFloor && 
+               currentFloor.floorTopLeftX != null && 
+               currentFloor.floorTopLeftY != null && 
+               currentFloor.floorWidth != null && 
+               currentFloor.floorHeight != null && (
+                <>
+                  <Rect
+                    x={currentFloor.floorTopLeftX}
+                    y={currentFloor.floorTopLeftY}
+                    width={currentFloor.floorWidth}
+                    height={currentFloor.floorHeight}
+                    fill="rgba(139, 92, 246, 0.05)"
+                    stroke="#8b5cf6"
+                    strokeWidth={2}
+                    dash={[10, 5]}
+                    listening={false}
+                  />
+                  {/* Label - positioned at bottom right corner */}
+                  <Text
+                    x={currentFloor.floorTopLeftX + currentFloor.floorWidth - 160}
+                    y={currentFloor.floorTopLeftY + currentFloor.floorHeight - 25}
+                    text={`Floor Bounds: ${Math.round(currentFloor.floorWidth)}×${Math.round(currentFloor.floorHeight)}`}
+                    fontSize={12}
+                    fill="#8b5cf6"
+                    fontStyle="bold"
+                    listening={false}
+                  />
+                </>
+              )}
 
               {/* Draw Areas */}
               {areas.map((area) => {
@@ -426,15 +504,16 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
             </Layer>
           </Stage>
         </div>
-      </div>
+        </div> {/* End of Left: Canvas Area */}
 
-      {/* Right Panel - Edit Form */}
-      <div className="w-96 border-l bg-white shadow-lg flex flex-col">
-        <div className="p-6 border-b bg-gradient-to-r from-green-50 to-white">
-          <h3 className="text-lg font-bold text-gray-900">
-            {selectedItem ? "Edit Details" : "Parking Lot Info"}
-          </h3>
-        </div>
+        {/* Right Panel - Edit Form */}
+        {showRightPanel && (
+        <div className="w-96 border-l bg-white shadow-lg flex flex-col">
+          <div className="p-6 border-b bg-gradient-to-r from-green-50 to-white">
+            <h3 className="text-lg font-bold text-gray-900">
+              {selectedItem ? "Edit Details" : "Parking Lot Info"}
+            </h3>
+          </div>
 
         <div className="flex-1 overflow-y-auto p-6">
           {selectedItem ? (
@@ -571,6 +650,8 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
           )}
         </div>
       </div>
+      )}
+      </div> {/* End of Main Content Area - Flex Row */}
     </div>
   );
 }

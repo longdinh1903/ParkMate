@@ -204,7 +204,6 @@ export default function PartnerSubscriptions() {
   // Get badge color based on vehicle type
   const getVehicleTypeBadge = (type) => {
     const colors = {
-      BIKE: "bg-blue-100 text-blue-800",
       MOTORBIKE: "bg-green-100 text-green-800",
       CAR_UP_TO_9_SEATS: "bg-indigo-100 text-indigo-800",
     };
@@ -310,7 +309,6 @@ export default function PartnerSubscriptions() {
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 >
                   <option value="">All Vehicle Types</option>
-                  <option value="BIKE">Bike</option>
                   <option value="MOTORBIKE">Motorbike</option>
                   <option value="CAR_UP_TO_9_SEATS">Car (Up to 9 seats)</option>
                 </select>

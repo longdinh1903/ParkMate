@@ -1,6 +1,37 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import vehicleApi from "../api/vehicleApi";
 
 export default function ViewReservationDetailModal({ reservation, parkingLotName, onClose }) {
+  const [vehicleData, setVehicleData] = useState(null);
+  const [loadingVehicle, setLoadingVehicle] = useState(false);
+
+  useEffect(() => {
+    const fetchVehicle = async () => {
+      console.log("Reservation data:", reservation);
+      console.log("Vehicle ID:", reservation?.vehicleId);
+      
+      if (reservation?.vehicleId) {
+        setLoadingVehicle(true);
+        try {
+          console.log("Fetching vehicle with ID:", reservation.vehicleId);
+          const response = await vehicleApi.getById(reservation.vehicleId);
+          console.log("Vehicle API response:", response);
+          const vehicleInfo = response.data?.data || response.data;
+          console.log("Vehicle data extracted:", vehicleInfo);
+          setVehicleData(vehicleInfo);
+        } catch (error) {
+          console.error("Error fetching vehicle:", error);
+        } finally {
+          setLoadingVehicle(false);
+        }
+      } else {
+        console.log("No vehicleId found in reservation");
+      }
+    };
+
+    fetchVehicle();
+  }, [reservation?.vehicleId]);
+
   const formatDateTime = (dateStr) => {
     if (!dateStr) return "-";
     try {
@@ -36,6 +67,10 @@ export default function ViewReservationDetailModal({ reservation, parkingLotName
       MOTORBIKE: { label: "Motorbike", color: "bg-purple-100 text-purple-700" },
       BIKE: { label: "Bike", color: "bg-green-100 text-green-700" },
       OTHER: { label: "Other", color: "bg-gray-100 text-gray-700" },
+      1: { label: "Motorbike", color: "bg-purple-100 text-purple-700" },
+      2: { label: "Car (≤9 seats)", color: "bg-blue-100 text-blue-700" },
+      3: { label: "Bike", color: "bg-green-100 text-green-700" },
+      4: { label: "Other", color: "bg-gray-100 text-gray-700" },
     };
     const info = typeMap[type] || { label: type, color: "bg-gray-100 text-gray-700" };
     return (
@@ -77,12 +112,18 @@ export default function ViewReservationDetailModal({ reservation, parkingLotName
         {/* Content */}
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)] custom-scrollbar">
           {/* Status Overview */}
-          <section className="mb-6 grid grid-cols-2 gap-4">
+          <section className="mb-6 grid grid-cols-3 gap-4">
             <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 border border-indigo-200">
               <p className="text-xs text-indigo-600 font-medium mb-2">STATUS</p>
               <span className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getStatusBadge(reservation.status)}`}>
                 {reservation.status || "UNKNOWN"}
               </span>
+            </div>
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+              <p className="text-xs text-blue-600 font-medium mb-2">INITIAL FEE</p>
+              <p className="text-2xl font-bold text-blue-700">
+                {reservation.initialFee ? `${reservation.initialFee.toLocaleString()} ₫` : "-"}
+              </p>
             </div>
             <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
               <p className="text-xs text-green-600 font-medium mb-2">TOTAL FEE</p>
@@ -121,12 +162,35 @@ export default function ViewReservationDetailModal({ reservation, parkingLotName
               <i className="ri-car-fill text-indigo-500"></i>
               Vehicle Information
             </h3>
-            <div className="space-y-1">
-              <InfoRow label="License Plate" value={reservation.vehicleLicensePlate} />
-              <InfoRow label="Vehicle Type">
-                {getVehicleTypeBadge(reservation.vehicleType)}
-              </InfoRow>
-            </div>
+            {loadingVehicle ? (
+              <div className="flex items-center justify-center py-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                <span className="ml-3 text-gray-600">Loading vehicle details...</span>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <InfoRow label="License Plate">
+                  <span className="font-bold text-lg">
+                    {vehicleData?.licensePlate || reservation.vehicleLicensePlate || "-"}
+                  </span>
+                </InfoRow>
+                <InfoRow label="Vehicle Type">
+                  {getVehicleTypeBadge(vehicleData?.type || reservation.vehicleType)}
+                </InfoRow>
+                {vehicleData?.vehicleBrand && (
+                  <InfoRow label="Brand" value={vehicleData.vehicleBrand} />
+                )}
+                {vehicleData?.vehicleModel && (
+                  <InfoRow label="Model" value={vehicleData.vehicleModel} />
+                )}
+                {vehicleData?.vehicleColor && (
+                  <InfoRow label="Color" value={vehicleData.vehicleColor} />
+                )}
+                {vehicleData?.description && (
+                  <InfoRow label="Description" value={vehicleData.description} />
+                )}
+              </div>
+            )}
           </section>
 
           {/* Parking Information */}
@@ -137,8 +201,6 @@ export default function ViewReservationDetailModal({ reservation, parkingLotName
             </h3>
             <div className="space-y-1">
               <InfoRow label="Parking Lot" value={parkingLotName} />
-              <InfoRow label="Parking Name" value={reservation.parkingLotName} />
-              <InfoRow label="Location" value={reservation.location} />
             </div>
           </section>
 

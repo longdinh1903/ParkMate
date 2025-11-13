@@ -59,7 +59,13 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
             <strong>🏗 Floors:</strong> {lot.totalFloors ?? "-"}
           </p>
           <p>
-            <strong>📍 Latitude:</strong> {lot.latitude ?? "-"}
+            <strong>� Lot Square:</strong> {lot.lotSquare ? `${lot.lotSquare} m²` : "-"}
+          </p>
+          <p>
+            <strong>⏱️ Horizon Time:</strong> {lot.horizonTime ? `${lot.horizonTime} minutes` : "-"}
+          </p>
+          <p>
+            <strong>�📍 Latitude:</strong> {lot.latitude ?? "-"}
           </p>
           <p>
             <strong>📍 Longitude:</strong> {lot.longitude ?? "-"}
@@ -184,36 +190,70 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
             <h3 className="font-semibold text-indigo-600 mb-4 text-xl flex items-center gap-2">
               💰 Pricing Rules
             </h3>
-            <table className="min-w-full text-xs border bg-white rounded-lg shadow-sm">
-              <thead className="bg-gray-100 text-gray-600">
-                <tr>
-                  <th className="px-3 py-2 text-left">Rule Name</th>
-                  <th className="px-3 py-2 text-left">Vehicle Type</th>
-                  <th className="px-3 py-2 text-left">Step Rate</th>
-                  <th className="px-3 py-2 text-left">Initial Charge</th>
-                  <th className="px-3 py-2 text-left">
-                    Initial Duration (Minute)
-                  </th>
-                  <th className="px-3 py-2 text-left">Step Minute (Minute)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {lot.pricingRules.map((r, idx) => (
-                  <tr key={idx} className="border-t text-gray-700">
-                    <td className="px-3 py-2">{r.ruleName}</td>
-                    <td className="px-3 py-2">{r.vehicleType}</td>
-                    <td className="px-3 py-2">
-                      {r.stepRate.toLocaleString()} ₫
-                    </td>
-                    <td className="px-3 py-2">
-                      {r.initialCharge.toLocaleString()} ₫
-                    </td>
-                    <td className="px-3 py-2">{r.initialDurationMinute}</td>
-                    <td className="px-3 py-2">{r.stepMinute}</td>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-xs border bg-white rounded-lg shadow-sm">
+                <thead className="bg-gray-100 text-gray-600">
+                  <tr>
+                    <th className="px-3 py-2 text-left">Rule Name</th>
+                    <th className="px-3 py-2 text-left">Vehicle Type</th>
+                    <th className="px-3 py-2 text-left">Initial Charge</th>
+                    <th className="px-3 py-2 text-left">Initial Duration</th>
+                    <th className="px-3 py-2 text-left">Step Rate</th>
+                    <th className="px-3 py-2 text-left">Step Minute</th>
+                    <th className="px-3 py-2 text-left">Valid From</th>
+                    <th className="px-3 py-2 text-left">Valid To</th>
+                    <th className="px-3 py-2 text-left">Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {lot.pricingRules.map((r, idx) => (
+                    <tr key={idx} className="border-t text-gray-700">
+                      <td className="px-3 py-2">{r.ruleName}</td>
+                      <td className="px-3 py-2">
+                        <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-semibold">
+                          {r.vehicleType}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2 font-semibold text-green-600">
+                        {r.initialCharge.toLocaleString()} ₫
+                      </td>
+                      <td className="px-3 py-2">{r.initialDurationMinute} minutes</td>
+                      <td className="px-3 py-2 font-semibold text-orange-600">
+                        {r.stepRate.toLocaleString()} ₫
+                      </td>
+                      <td className="px-3 py-2">{r.stepMinute} minutes</td>
+                      <td className="px-3 py-2">
+                        {r.validFrom ? new Date(r.validFrom).toLocaleString('vi-VN', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        }) : 'N/A'}
+                      </td>
+                      <td className="px-3 py-2">
+                        {r.validTo ? new Date(r.validTo).toLocaleString('vi-VN', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        }) : 'N/A'}
+                      </td>
+                      <td className="px-3 py-2">
+                        <span className={`px-2 py-1 rounded-full text-[10px] font-semibold ${
+                          r.isActive 
+                            ? 'bg-green-100 text-green-700' 
+                            : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          {r.isActive ? '✅ Active' : '❌ Inactive'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
@@ -228,13 +268,13 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
                 const getPolicyLabel = (type) => {
                   switch (type) {
                     case "EARLY_CHECK_IN_BUFFER":
-                      return { label: "Early Check-in Buffer", icon: "🕐", desc: "Thời gian cho phép check-in sớm" };
+                      return { label: "Early Check-in Buffer", icon: "🕐", desc: "Allows guests to check in earlier than the booked time" };
                     case "LATE_CHECK_OUT_BUFFER":
-                      return { label: "Late Check-out Buffer", icon: "🕐", desc: "Thời gian cho phép check-out trễ" };
+                      return { label: "Late Check-out Buffer", icon: "🕐", desc: "Allows guests to check out later than the booked time" };
                     case "LATE_CHECK_IN_CANCEL_AFTER":
-                      return { label: "Late Check-in Cancel After", icon: "⏰", desc: "Tự động hủy nếu check-in trễ quá" };
+                      return { label: "Late Check-in Cancel After", icon: "⏰", desc: "Automatically cancels if check-in is too late" };
                     case "EARLY_CANCEL_REFUND_BEFORE":
-                      return { label: "Early Cancel Refund Before", icon: "💰", desc: "Hoàn tiền 100% nếu hủy trước" };
+                      return { label: "Early Cancel Refund Before", icon: "💰", desc: "100% refund if canceled before" };
                     default:
                       return { label: type, icon: "📋", desc: "" };
                   }
@@ -248,7 +288,7 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
                         <h4 className="font-semibold text-gray-900 text-sm">{policyInfo.label}</h4>
                       </div>
                       <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
-                        {policy.value} phút
+                        {policy.value} minutes
                       </span>
                     </div>
                     <p className="text-xs text-gray-600 pl-7">{policyInfo.desc}</p>

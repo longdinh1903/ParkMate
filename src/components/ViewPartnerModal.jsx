@@ -62,92 +62,205 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
 
   return (
     <>
-      <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50">
-        <div className="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-[480px] max-h-[85vh] border border-gray-200 flex flex-col">
+      <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50 p-4">
+        <div className="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-[700px] max-h-[90vh] border border-gray-200 flex flex-col">
           {/* Header - Fixed */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 flex-shrink-0">
-            <h2 className="text-lg font-semibold text-orange-700 flex items-center gap-2">
-              <i className="ri-building-fill text-orange-600"></i>
+          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200 flex-shrink-0">
+            <h2 className="text-xl font-semibold text-orange-700 flex items-center gap-2">
+              <i className="ri-building-fill text-orange-600 text-2xl"></i>
               Partner Details
             </h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition"
+              className="text-gray-400 hover:text-gray-600 transition hover:bg-gray-100 w-10 h-10 rounded-full flex items-center justify-center"
             >
-              <i className="ri-close-line text-xl"></i>
+              <i className="ri-close-line text-2xl"></i>
             </button>
           </div>
 
           {/* Content - Scrollable */}
-          <div className="px-6 py-5 text-sm text-gray-700 space-y-2 overflow-y-auto flex-1">
-          <div className="grid grid-cols-1 gap-1">
-            <p>
-              <strong>Company Name:</strong> {partner.companyName}
-            </p>
-            <p>
-              <strong>Tax Number:</strong> {partner.taxNumber}
-            </p>
-            <p>
-              <strong>Business License:</strong>{" "}
-              {partner.businessLicenseNumber || "N/A"}
-            </p>
-            <p>
-              <strong>License File:</strong>{" "}
-              {partner.businessLicenseFileUrl ? (
+          <div className="px-6 py-5 text-sm text-gray-700 space-y-3 overflow-y-auto flex-1">
+          
+          {/* Company Information */}
+          <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg p-4 border border-indigo-200">
+            <h3 className="font-semibold text-indigo-900 mb-3 flex items-center gap-2">
+              <i className="ri-building-line"></i>
+              Company Information
+            </h3>
+            <div className="space-y-2">
+              <div>
+                <span className="text-gray-600 text-xs">Company Name:</span>
+                <p className="font-medium text-gray-900">{partner.companyName || "N/A"}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <span className="text-gray-600 text-xs">Tax Number:</span>
+                  <p className="font-medium text-gray-900">{partner.taxNumber || "N/A"}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600 text-xs">Business License:</span>
+                  <p className="font-medium text-gray-900">{partner.businessLicenseNumber || "N/A"}</p>
+                </div>
+              </div>
+              <div>
+                <span className="text-gray-600 text-xs">Address:</span>
+                <p className="font-medium text-gray-900">{partner.companyAddress || "N/A"}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <span className="text-gray-600 text-xs">Email:</span>
+                  <p className="font-medium text-gray-900 truncate">{partner.companyEmail || "N/A"}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600 text-xs">Phone:</span>
+                  <p className="font-medium text-gray-900">{partner.companyPhone || "N/A"}</p>
+                </div>
+              </div>
+              {partner.website && (
+                <div>
+                  <span className="text-gray-600 text-xs">Website:</span>
+                  <a 
+                    href={partner.website} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="font-medium text-blue-600 hover:underline block truncate"
+                  >
+                    {partner.website}
+                  </a>
+                </div>
+              )}
+              {partner.businessDescription && (
+                <div>
+                  <span className="text-gray-600 text-xs">Business Description:</span>
+                  <p className="text-gray-700 text-sm mt-1">{partner.businessDescription}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Contact Person */}
+          <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-200">
+            <h3 className="font-semibold text-purple-900 mb-3 flex items-center gap-2">
+              <i className="ri-user-line"></i>
+              Contact Person
+            </h3>
+            <div className="space-y-2">
+              <div>
+                <span className="text-gray-600 text-xs">Full Name:</span>
+                <p className="font-medium text-gray-900">{partner.contactPersonName || "N/A"}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <span className="text-gray-600 text-xs">Email:</span>
+                  <p className="font-medium text-gray-900 truncate">{partner.contactPersonEmail || "N/A"}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600 text-xs">Phone:</span>
+                  <p className="font-medium text-gray-900">{partner.contactPersonPhone || "N/A"}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Business License File */}
+          <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg p-4 border border-orange-200">
+            <h3 className="font-semibold text-orange-900 mb-3 flex items-center gap-2">
+              <i className="ri-file-text-line"></i>
+              Business License Document
+            </h3>
+            {partner.businessLicenseFileUrl ? (
+              <div className="space-y-3">
                 <a
                   href={partner.businessLicenseFileUrl}
                   target="_blank"
-                  rel="noreferrer"
-                  className="text-orange-600 hover:underline"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition text-sm font-medium"
                 >
-                  View License
+                  <i className="ri-file-download-line"></i>
+                  View/Download License
                 </a>
-              ) : (
-                <span className="text-gray-500">No file</span>
-              )}
-            </p>
-            <p>
-              <strong>Address:</strong> {partner.companyAddress || "N/A"}
-            </p>
-            <p>
-              <strong>Company Email:</strong> {partner.companyEmail}
-            </p>
-            <p>
-              <strong>Phone:</strong> {partner.companyPhone}
-            </p>
+                
+                {/* Image Preview */}
+                {partner.businessLicenseFileUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) && (
+                  <div className="border border-orange-200 rounded-lg overflow-hidden bg-white p-2">
+                    <p className="text-xs text-gray-600 mb-2">Preview:</p>
+                    <img
+                      src={partner.businessLicenseFileUrl}
+                      alt="Business License"
+                      className="max-w-full h-auto rounded shadow-sm"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextElementSibling.style.display = 'block';
+                      }}
+                    />
+                    <div style={{display: 'none'}} className="text-center p-4 bg-gray-50 rounded">
+                      <i className="ri-image-line text-3xl text-gray-400"></i>
+                      <p className="text-xs text-gray-500 mt-2">Cannot load image preview</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-sm">No license file uploaded</p>
+            )}
           </div>
 
-          <hr className="my-3" />
-
-          <div className="grid grid-cols-1 gap-1">
-            <p>
-              <strong>Contact Person:</strong> {partner.contactPersonName}
-            </p>
-            <p>
-              <strong>Contact Email:</strong> {partner.contactPersonEmail}
-            </p>
-            <p>
-              <strong>Contact Phone:</strong> {partner.contactPersonPhone}
-            </p>
-            <p>
-              <strong>Status:</strong>{" "}
-              <span
-                className={`px-2 py-0.5 text-xs rounded-md font-semibold ${
-                  partner.status === "APPROVED"
-                    ? "text-green-600 bg-green-50 border border-green-300"
-                    : partner.status === "REJECTED"
-                    ? "text-red-600 bg-red-50 border border-red-300"
-                    : "text-yellow-600 bg-yellow-50 border border-yellow-300"
-                }`}
-              >
-                {partner.status}
-              </span>
-            </p>
-            {partner.rejectionReason && (
-              <p>
-                <strong>Reason:</strong> {partner.rejectionReason}
-              </p>
-            )}
+          {/* Status & Review */}
+          <div className={`rounded-lg p-4 border ${
+            partner.status === "APPROVED" 
+              ? "bg-green-50 border-green-200" 
+              : partner.status === "REJECTED"
+              ? "bg-red-50 border-red-200"
+              : "bg-yellow-50 border-yellow-200"
+          }`}>
+            <h3 className={`font-semibold mb-3 flex items-center gap-2 ${
+              partner.status === "APPROVED" 
+                ? "text-green-900" 
+                : partner.status === "REJECTED"
+                ? "text-red-900"
+                : "text-yellow-900"
+            }`}>
+              <i className={`${
+                partner.status === "APPROVED" 
+                  ? "ri-checkbox-circle-line" 
+                  : partner.status === "REJECTED"
+                  ? "ri-close-circle-line"
+                  : "ri-time-line"
+              }`}></i>
+              Registration Status
+            </h3>
+            <div className="space-y-2">
+              <div>
+                <span className="text-gray-600 text-xs">Status:</span>
+                <p>
+                  <span className={`inline-flex items-center gap-1 px-3 py-1 text-xs rounded-full font-semibold ${
+                    partner.status === "APPROVED"
+                      ? "text-green-700 bg-green-100"
+                      : partner.status === "REJECTED"
+                      ? "text-red-700 bg-red-100"
+                      : "text-yellow-700 bg-yellow-100"
+                  }`}>
+                    {partner.status}
+                  </span>
+                </p>
+              </div>
+              {partner.rejectionReason && (
+                <div>
+                  <span className="text-gray-600 text-xs">Rejection Reason:</span>
+                  <p className="text-red-700 bg-red-100 px-3 py-2 rounded border border-red-200 text-sm mt-1">
+                    {partner.rejectionReason}
+                  </p>
+                </div>
+              )}
+              {partner.submittedAt && (
+                <div>
+                  <span className="text-gray-600 text-xs">Submitted At:</span>
+                  <p className="font-medium text-gray-900 text-sm">
+                    {new Date(partner.submittedAt).toLocaleString()}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

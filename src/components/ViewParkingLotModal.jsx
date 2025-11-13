@@ -3,6 +3,8 @@ import parkingLotApi from "../api/parkingLotApi";
 import floorApi from "../api/floorApi";
 import areaApi from "../api/areaApi";
 import spotApi from "../api/spotApi";
+import policyApi from "../api/policyApi";
+import pricingRuleApi from "../api/pricingRuleApi";
 import { showSuccess, showError, showInfo } from "../utils/toastUtils.jsx";
 import ParkingLotMapDrawer from "../components/ParkingLotMapDrawerNew"; // ✅ thêm import
 import ConfirmModal from "../components/ConfirmModal";
@@ -15,13 +17,41 @@ export default function ViewParkingLotModal({
   // optional: allow callers to provide a custom list of status options
   statusOptions = null,
   showResetMapButton = false,
+  allowEdit = false, // only show edit buttons when true (for Partner)
 }) {
+  // Local state for lot data (for realtime updates)
+  const [lotData, setLotData] = useState(lot);
+  
   const [showReasonModal, setShowReasonModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [pendingStatus, setPendingStatus] = useState(null);
   const [showDrawMap, setShowDrawMap] = useState(false); // ✅ thêm state
   const [confirmResetOpen, setConfirmResetOpen] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
+
+  // Edit states
+  const [editingOperatingHours, setEditingOperatingHours] = useState(false);
+  const [editingHorizonTime, setEditingHorizonTime] = useState(false);
+  const [editingPolicy, setEditingPolicy] = useState(null); // policy object being edited
+  const [editingRule, setEditingRule] = useState(null); // pricing rule object being edited
+  const [operatingHoursForm, setOperatingHoursForm] = useState({
+    operatingHoursStart: "",
+    operatingHoursEnd: "",
+    is24Hour: false,
+  });
+  const [horizonTimeForm, setHorizonTimeForm] = useState({ horizonTime: "" });
+  const [policyForm, setPolicyForm] = useState({ value: "" });
+  const [ruleForm, setRuleForm] = useState({
+    ruleName: "",
+    vehicleType: "",
+    stepRate: "",
+    initialCharge: "",
+    initialDurationMinute: "",
+    stepMinute: "",
+    validFrom: "",
+    validTo: "",
+    isActive: true,
+  });
 
   const updateStatus = async (status, reason = null) => {
     try {
@@ -230,6 +260,226 @@ export default function ViewParkingLotModal({
     );
   };
 
+  // ========== EDIT FUNCTIONS ==========
+  
+  // Operating Hours
+  const startEditOperatingHours = () => {
+    setOperatingHoursForm({
+      operatingHoursStart: lotData.operatingHoursStart || lotData.openTime || "",
+      operatingHoursEnd: lotData.operatingHoursEnd || lotData.closeTime || "",
+      is24Hour: lotData.is24Hour || false,
+    });
+    setEditingOperatingHours(true);
+  };
+
+  const cancelEditOperatingHours = () => {
+    setEditingOperatingHours(false);
+  };
+
+  const saveOperatingHours = async () => {
+    try {
+      showInfo("⏳ Updating operating hours...");
+      await parkingLotApi.update(lotData.id, {
+        operatingHoursStart: operatingHoursForm.operatingHoursStart,
+        operatingHoursEnd: operatingHoursForm.operatingHoursEnd,
+        is24Hour: operatingHoursForm.is24Hour,
+      });
+      showSuccess("✅ Operating hours updated successfully!");
+      
+      // Update local state immediately
+      setLotData({
+        ...lotData,
+        operatingHoursStart: operatingHoursForm.operatingHoursStart,
+        operatingHoursEnd: operatingHoursForm.operatingHoursEnd,
+        is24Hour: operatingHoursForm.is24Hour,
+      });
+      
+      setEditingOperatingHours(false);
+    } catch (err) {
+      console.error("❌ Error updating operating hours:", err);
+      showError(err.response?.data?.message || "❌ Failed to update operating hours");
+    }
+  };
+
+  // Horizon Time
+  const startEditHorizonTime = () => {
+    setHorizonTimeForm({
+      horizonTime: lotData.horizonTime?.toString() || "",
+    });
+    setEditingHorizonTime(true);
+  };
+
+  const cancelEditHorizonTime = () => {
+    setEditingHorizonTime(false);
+  };
+
+  const saveHorizonTime = async () => {
+    try {
+      const horizonTimeValue = parseInt(horizonTimeForm.horizonTime);
+      if (isNaN(horizonTimeValue) || horizonTimeValue < 0) {
+        showError("❌ Please enter a valid horizon time (number of minutes)");
+        return;
+      }
+
+      showInfo("⏳ Updating horizon time...");
+      await parkingLotApi.update(lotData.id, {
+        horizonTime: horizonTimeValue,
+      });
+      showSuccess("✅ Horizon time updated successfully!");
+      
+      // Update local state immediately
+      setLotData({
+        ...lotData,
+        horizonTime: horizonTimeValue,
+      });
+      
+      setEditingHorizonTime(false);
+    } catch (err) {
+      console.error("❌ Error updating horizon time:", err);
+      showError(err.response?.data?.message || "❌ Failed to update horizon time");
+    }
+  };
+
+  // Policy
+  const startEditPolicy = (policyId) => {
+    // Find the latest policy data from lotData
+    const policy = lotData.policies.find(p => p.id === policyId);
+    if (!policy) return;
+    
+    setPolicyForm({ value: policy.value.toString() });
+    setEditingPolicy(policy);
+  };
+
+  const cancelEditPolicy = () => {
+    setEditingPolicy(null);
+  };
+
+  const savePolicy = async () => {
+    try {
+      showInfo("⏳ Updating policy...");
+      await policyApi.update(editingPolicy.id, {
+        value: parseInt(policyForm.value, 10),
+      });
+      showSuccess("✅ Policy updated successfully!");
+      
+      // Update local state immediately
+      setLotData({
+        ...lotData,
+        policies: lotData.policies.map(p => 
+          p.id === editingPolicy.id 
+            ? { ...p, value: parseInt(policyForm.value, 10) }
+            : p
+        ),
+      });
+      
+      setEditingPolicy(null);
+    } catch (err) {
+      console.error("❌ Error updating policy:", err);
+      showError(err.response?.data?.message || "❌ Failed to update policy");
+    }
+  };
+
+  // Pricing Rule
+  const startEditRule = (ruleId) => {
+    // Find the latest rule data from lotData
+    const rule = lotData.pricingRules.find(r => r.id === ruleId);
+    if (!rule) return;
+    
+    // Convert ISO datetime to datetime-local format (YYYY-MM-DDTHH:mm)
+    const formatDatetimeLocal = (isoString) => {
+      if (!isoString) return "";
+      try {
+        const date = new Date(isoString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+      } catch {
+        return "";
+      }
+    };
+
+    setRuleForm({
+      ruleName: rule.ruleName || "",
+      vehicleType: rule.vehicleType || "",
+      stepRate: rule.stepRate?.toString() || "",
+      initialCharge: rule.initialCharge?.toString() || "",
+      initialDurationMinute: rule.initialDurationMinute?.toString() || "",
+      stepMinute: rule.stepMinute?.toString() || "",
+      validFrom: formatDatetimeLocal(rule.validFrom),
+      validTo: formatDatetimeLocal(rule.validTo),
+      isActive: rule.isActive ?? true,
+    });
+    setEditingRule(rule);
+  };
+
+  const cancelEditRule = () => {
+    setEditingRule(null);
+  };
+
+  const saveRule = async () => {
+    try {
+      showInfo("⏳ Updating pricing rule...");
+      
+      // Convert datetime-local to ISO string
+      const formatToISO = (datetimeLocal) => {
+        if (!datetimeLocal) return null;
+        try {
+          const date = new Date(datetimeLocal);
+          return date.toISOString();
+        } catch {
+          return null;
+        }
+      };
+
+      const payload = {
+        ruleName: ruleForm.ruleName,
+        vehicleType: ruleForm.vehicleType,
+        stepRate: parseFloat(ruleForm.stepRate),
+        initialCharge: parseFloat(ruleForm.initialCharge),
+        initialDurationMinute: parseInt(ruleForm.initialDurationMinute, 10),
+        stepMinute: parseInt(ruleForm.stepMinute, 10),
+        isActive: ruleForm.isActive,
+      };
+
+      // Only add validFrom and validTo if they have values
+      if (ruleForm.validFrom) {
+        payload.validFrom = formatToISO(ruleForm.validFrom);
+      }
+      if (ruleForm.validTo) {
+        payload.validTo = formatToISO(ruleForm.validTo);
+      }
+
+      await pricingRuleApi.update(editingRule.id, payload);
+      showSuccess("✅ Pricing rule updated successfully!");
+      
+      // Update local state immediately
+      setLotData({
+        ...lotData,
+        pricingRules: lotData.pricingRules.map(rule => 
+          rule.id === editingRule.id 
+            ? { ...rule, ...payload }
+            : rule
+        ),
+      });
+      
+      setEditingRule(null);
+    } catch (err) {
+      console.error("❌ Error updating pricing rule:", err);
+      showError(err.response?.data?.message || "❌ Failed to update pricing rule");
+    }
+  };
+
+  const handleClose = () => {
+    // Call onActionDone to refresh parent data when closing
+    if (onActionDone) {
+      onActionDone();
+    }
+    onClose();
+  };
+
   return (
     <>
       {/* ================= MODAL CHÍNH (popup overlay) ================= */}
@@ -325,7 +575,60 @@ export default function ViewParkingLotModal({
               <strong>🏗 Floors:</strong> {lot.totalFloors}
             </p>
             <p>
-              <strong>📍 Latitude:</strong> {lot.latitude}
+              <strong>� Lot Square:</strong> {lotData.lotSquare ? `${lotData.lotSquare} m²` : "-"}
+            </p>
+            <p className="flex items-center gap-2">
+              <span>
+                <strong>⏱️ Horizon Time:</strong>{" "}
+                {editingHorizonTime ? (
+                  <input
+                    type="number"
+                    min="0"
+                    value={horizonTimeForm.horizonTime}
+                    onChange={(e) =>
+                      setHorizonTimeForm({
+                        ...horizonTimeForm,
+                        horizonTime: e.target.value,
+                      })
+                    }
+                    className="w-20 px-2 py-1 border rounded text-sm"
+                    placeholder="0"
+                  />
+                ) : (
+                  lotData.horizonTime ? `${lotData.horizonTime} minutes` : "-"
+                )}
+              </span>
+              {allowEdit && (
+                editingHorizonTime ? (
+                  <span className="flex gap-1">
+                    <button
+                      onClick={saveHorizonTime}
+                      className="px-2 py-0.5 text-xs bg-green-500 text-white rounded hover:bg-green-600"
+                      title="Save"
+                    >
+                      ✓
+                    </button>
+                    <button
+                      onClick={cancelEditHorizonTime}
+                      className="px-2 py-0.5 text-xs bg-gray-400 text-white rounded hover:bg-gray-500"
+                      title="Cancel"
+                    >
+                      ✕
+                    </button>
+                  </span>
+                ) : (
+                  <button
+                    onClick={startEditHorizonTime}
+                    className="px-2 py-0.5 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                    title="Edit Horizon Time"
+                  >
+                    ✏️
+                  </button>
+                )
+              )}
+            </p>
+            <p>
+              <strong>�📍 Latitude:</strong> {lot.latitude}
             </p>
             <p>
               <strong>📍 Longitude:</strong> {lot.longitude}
@@ -336,6 +639,104 @@ export default function ViewParkingLotModal({
             <p>
               <strong>⚙ Updated:</strong> {lot.updatedAt}
             </p>
+          </div>
+
+          {/* Operating Hours - Editable */}
+          <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-indigo-600 text-xl flex items-center gap-2">
+                🕐 Operating Hours
+              </h3>
+              {allowEdit && !editingOperatingHours && (
+                <button
+                  onClick={startEditOperatingHours}
+                  className="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                >
+                  ✏️ Edit
+                </button>
+              )}
+            </div>
+            {editingOperatingHours ? (
+              <div className="bg-white p-4 rounded-lg space-y-3">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Open Time
+                    </label>
+                    <input
+                      type="time"
+                      value={operatingHoursForm.operatingHoursStart}
+                      onChange={(e) =>
+                        setOperatingHoursForm({
+                          ...operatingHoursForm,
+                          operatingHoursStart: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border rounded-md text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Close Time
+                    </label>
+                    <input
+                      type="time"
+                      value={operatingHoursForm.operatingHoursEnd}
+                      onChange={(e) =>
+                        setOperatingHoursForm({
+                          ...operatingHoursForm,
+                          operatingHoursEnd: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border rounded-md text-sm"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="is24Hour"
+                    checked={operatingHoursForm.is24Hour}
+                    onChange={(e) =>
+                      setOperatingHoursForm({
+                        ...operatingHoursForm,
+                        is24Hour: e.target.checked,
+                      })
+                    }
+                    className="w-4 h-4"
+                  />
+                  <label htmlFor="is24Hour" className="text-sm text-gray-700">
+                    24 Hours Operation
+                  </label>
+                </div>
+                <div className="flex justify-end gap-2 mt-4">
+                  <button
+                    onClick={cancelEditOperatingHours}
+                    className="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={saveOperatingHours}
+                    className="px-4 py-2 text-sm bg-green-500 text-white rounded-md hover:bg-green-600"
+                  >
+                    💾 Save
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-4 text-sm">
+                <p>
+                  <strong>Open:</strong> {lotData.operatingHoursStart || lotData.openTime || "N/A"}
+                </p>
+                <p>
+                  <strong>Close:</strong> {lotData.operatingHoursEnd || lotData.closeTime || "N/A"}
+                </p>
+                <p>
+                  <strong>24 Hours:</strong> {lotData.is24Hour ? "✅ Yes" : "❌ No"}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Reason (if provided by partner) */}
@@ -378,69 +779,114 @@ export default function ViewParkingLotModal({
           )}
 
           {/* Pricing Rules */}
-          {lot.pricingRules?.length > 0 && (
+          {lotData.pricingRules?.length > 0 && (
             <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
               <h3 className="font-semibold text-indigo-600 mb-4 text-xl flex items-center gap-2">
                 💰 Pricing Rules
               </h3>
-              <table className="min-w-full text-xs border bg-white rounded-lg shadow-sm">
-                <thead className="bg-gray-100 text-gray-600">
-                  <tr>
-                    <th className="px-3 py-2 text-left">Rule Name</th>
-                    <th className="px-3 py-2 text-left">Vehicle Type</th>
-                    <th className="px-3 py-2 text-left">Step Rate</th>
-                    <th className="px-3 py-2 text-left">Initial Charge</th>
-                    <th className="px-3 py-2 text-left">
-                      Initial Duration (Minute)
-                    </th>
-                    <th className="px-3 py-2 text-left">
-                      Step Minute (Minute)
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {lot.pricingRules.map((r) => (
-                    <tr key={r.id} className="border-t text-gray-700">
-                      <td className="px-3 py-2">{r.ruleName}</td>
-                      <td className="px-3 py-2">{r.vehicleType}</td>
-                      <td className="px-3 py-2">
-                        {r.stepRate.toLocaleString()} ₫
-                      </td>
-                      <td className="px-3 py-2">
-                        {r.initialCharge.toLocaleString()} ₫
-                      </td>
-                      <td className="px-3 py-2">{r.initialDurationMinute}</td>
-                      <td className="px-3 py-2">{r.stepMinute}</td>
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-xs border bg-white rounded-lg shadow-sm">
+                  <thead className="bg-gray-100 text-gray-600">
+                    <tr>
+                      <th className="px-3 py-2 text-left">Rule Name</th>
+                      <th className="px-3 py-2 text-left">Vehicle Type</th>
+                      <th className="px-3 py-2 text-left">Initial Charge</th>
+                      <th className="px-3 py-2 text-left">Initial Duration</th>
+                      <th className="px-3 py-2 text-left">Step Rate</th>
+                      <th className="px-3 py-2 text-left">Step Minute</th>
+                      <th className="px-3 py-2 text-left">Valid From</th>
+                      <th className="px-3 py-2 text-left">Valid To</th>
+                      <th className="px-3 py-2 text-left">Status</th>
+                      {allowEdit && <th className="px-3 py-2 text-left">Actions</th>}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {lotData.pricingRules.map((r) => (
+                      <tr key={r.id} className="border-t text-gray-700">
+                        <td className="px-3 py-2">{r.ruleName}</td>
+                        <td className="px-3 py-2">
+                          <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-semibold">
+                            {r.vehicleType}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2 font-semibold text-green-600">
+                          {r.initialCharge.toLocaleString()} ₫
+                        </td>
+                        <td className="px-3 py-2">{r.initialDurationMinute} minutes</td>
+                        <td className="px-3 py-2 font-semibold text-orange-600">
+                          {r.stepRate.toLocaleString()} ₫
+                        </td>
+                        <td className="px-3 py-2">{r.stepMinute} minutes</td>
+                        <td className="px-3 py-2">
+                          {r.validFrom ? new Date(r.validFrom).toLocaleString('vi-VN', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          }) : 'N/A'}
+                        </td>
+                        <td className="px-3 py-2">
+                          {r.validTo ? new Date(r.validTo).toLocaleString('vi-VN', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          }) : 'N/A'}
+                        </td>
+                        <td className="px-3 py-2">
+                          <span className={`px-2 py-1 rounded-full text-[10px] font-semibold ${
+                            r.isActive 
+                              ? 'bg-green-100 text-green-700' 
+                              : 'bg-gray-100 text-gray-600'
+                          }`}>
+                            {r.isActive ? '✅ Active' : '❌ Inactive'}
+                          </span>
+                        </td>
+                        {allowEdit && (
+                          <td className="px-3 py-2">
+                            <button
+                              onClick={() => startEditRule(r.id)}
+                              className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                            >
+                              ✏️ Edit
+                            </button>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
           {/* Parking Policies */}
-          {lot.policies?.length > 0 && (
+          {lotData.policies?.length > 0 && (
             <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
               <h3 className="font-semibold text-indigo-600 mb-4 text-xl flex items-center gap-2">
                 🛡️ Parking Policies
               </h3>
               <div className="grid grid-cols-2 gap-4">
-                {lot.policies.map((policy, idx) => {
+                {lotData.policies.map((policy, idx) => {
                   const getPolicyLabel = (type) => {
                     switch (type) {
                       case "EARLY_CHECK_IN_BUFFER":
-                        return { label: "Early Check-in Buffer", icon: "🕐", desc: "Thời gian cho phép check-in sớm" };
+                        return { label: "Early Check-in Buffer", icon: "🕐", desc: "Allows guests to check in earlier than the booked time" };
                       case "LATE_CHECK_OUT_BUFFER":
-                        return { label: "Late Check-out Buffer", icon: "🕐", desc: "Thời gian cho phép check-out trễ" };
+                        return { label: "Late Check-out Buffer", icon: "🕐", desc: "Allows guests to check out later than the booked time" };
                       case "LATE_CHECK_IN_CANCEL_AFTER":
-                        return { label: "Late Check-in Cancel After", icon: "⏰", desc: "Tự động hủy nếu check-in trễ quá" };
+                        return { label: "Late Check-in Cancel After", icon: "⏰", desc: "Automatically cancels if check-in is too late" };
                       case "EARLY_CANCEL_REFUND_BEFORE":
-                        return { label: "Early Cancel Refund Before", icon: "💰", desc: "Hoàn tiền 100% nếu hủy trước" };
+                        return { label: "Early Cancel Refund Before", icon: "💰", desc: "100% refund if canceled before" };
                       default:
                         return { label: type, icon: "📋", desc: "" };
                     }
                   };
                   const policyInfo = getPolicyLabel(policy.policyType);
+                  const isEditing = editingPolicy?.id === policy.id;
+                  
                   return (
                     <div key={idx} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
                       <div className="flex items-center justify-between gap-2 mb-2">
@@ -448,9 +894,45 @@ export default function ViewParkingLotModal({
                           <span className="text-lg">{policyInfo.icon}</span>
                           <h4 className="font-semibold text-gray-900 text-sm">{policyInfo.label}</h4>
                         </div>
-                        <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
-                          {policy.value} phút
-                        </span>
+                        {isEditing ? (
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="number"
+                              value={policyForm.value}
+                              onChange={(e) =>
+                                setPolicyForm({ value: e.target.value })
+                              }
+                              className="w-20 px-2 py-1 border rounded text-xs"
+                            />
+                            <span className="text-xs text-gray-600">minutes</span>
+                            <button
+                              onClick={savePolicy}
+                              className="px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
+                            >
+                              💾
+                            </button>
+                            <button
+                              onClick={cancelEditPolicy}
+                              className="px-2 py-1 text-xs bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                            >
+                              ✖️
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
+                              {policy.value} minutes
+                            </span>
+                            {allowEdit && (
+                              <button
+                                onClick={() => startEditPolicy(policy.id)}
+                                className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                              >
+                                ✏️
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
                       <p className="text-xs text-gray-600 pl-7">{policyInfo.desc}</p>
                     </div>
@@ -506,7 +988,7 @@ export default function ViewParkingLotModal({
               </button>
             )}
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="bg-gray-100 text-gray-700 px-6 py-2 rounded-md text-sm font-medium hover:bg-gray-200"
             >
               Close
@@ -549,6 +1031,171 @@ export default function ViewParkingLotModal({
                 className="px-4 py-2 rounded-lg text-sm bg-red-600 text-white hover:bg-red-700"
               >
                 Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Pricing Rule Modal */}
+      {editingRule && (
+        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black/30 z-[60]">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-[600px] max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl font-semibold text-blue-600 mb-4">
+              ✏️ Edit Pricing Rule
+            </h2>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Rule Name
+                  </label>
+                  <input
+                    type="text"
+                    value={ruleForm.ruleName}
+                    onChange={(e) =>
+                      setRuleForm({ ...ruleForm, ruleName: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border rounded-md text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Vehicle Type
+                  </label>
+                  <select
+                    value={ruleForm.vehicleType}
+                    onChange={(e) =>
+                      setRuleForm({ ...ruleForm, vehicleType: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border rounded-md text-sm"
+                  >
+                    <option value="CAR_UP_TO_9_SEATS">🚗 Car (≤9 seats)</option>
+                    <option value="MOTORBIKE">🏍️ Motorbike</option>
+                    <option value="BIKE">🚲 Bike</option>
+                    <option value="OTHER">📦 Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Initial Charge (₫)
+                  </label>
+                  <input
+                    type="number"
+                    value={ruleForm.initialCharge}
+                    onChange={(e) =>
+                      setRuleForm({ ...ruleForm, initialCharge: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border rounded-md text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Initial Duration (Minutes)
+                  </label>
+                  <input
+                    type="number"
+                    value={ruleForm.initialDurationMinute}
+                    onChange={(e) =>
+                      setRuleForm({
+                        ...ruleForm,
+                        initialDurationMinute: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border rounded-md text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Step Rate (₫)
+                  </label>
+                  <input
+                    type="number"
+                    value={ruleForm.stepRate}
+                    onChange={(e) =>
+                      setRuleForm({ ...ruleForm, stepRate: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border rounded-md text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Step Minute (Minutes)
+                  </label>
+                  <input
+                    type="number"
+                    value={ruleForm.stepMinute}
+                    onChange={(e) =>
+                      setRuleForm({ ...ruleForm, stepMinute: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border rounded-md text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Valid From
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={ruleForm.validFrom}
+                    onChange={(e) =>
+                      setRuleForm({ ...ruleForm, validFrom: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border rounded-md text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Valid To
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={ruleForm.validTo}
+                    onChange={(e) =>
+                      setRuleForm({ ...ruleForm, validTo: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border rounded-md text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="isActive"
+                  checked={ruleForm.isActive}
+                  onChange={(e) =>
+                    setRuleForm({ ...ruleForm, isActive: e.target.checked })
+                  }
+                  className="w-4 h-4"
+                />
+                <label htmlFor="isActive" className="text-sm text-gray-700">
+                  Active
+                </label>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={cancelEditRule}
+                className="px-4 py-2 rounded-md text-sm bg-gray-200 text-gray-700 hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveRule}
+                className="px-4 py-2 rounded-md text-sm bg-green-500 text-white hover:bg-green-600"
+              >
+                💾 Save
               </button>
             </div>
           </div>

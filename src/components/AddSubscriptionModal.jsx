@@ -157,7 +157,6 @@ export default function AddSubscriptionModal({ onClose, onSuccess }) {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             required
           >
-            <option value="BIKE">Bike</option>
             <option value="MOTORBIKE">Motorbike</option>
             <option value="CAR_UP_TO_9_SEATS">Car (Up to 9 seats)</option>
           </select>
