@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import parkingLotApi from "../api/parkingLotApi";
 import floorApi from "../api/floorApi";
 import areaApi from "../api/areaApi";
@@ -18,6 +18,7 @@ export default function ViewParkingLotModal({
   statusOptions = null,
   showResetMapButton = false,
   allowEdit = false, // only show edit buttons when true (for Partner)
+  showPaymentBanner = true, // control payment banner visibility (default true for partners)
 }) {
   // Local state for lot data (for realtime updates)
   const [lotData, setLotData] = useState(lot);
@@ -28,6 +29,39 @@ export default function ViewParkingLotModal({
   const [showDrawMap, setShowDrawMap] = useState(false); // ✅ thêm state
   const [confirmResetOpen, setConfirmResetOpen] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentData, setPaymentData] = useState(null);
+  const [checkingPayment, setCheckingPayment] = useState(false);
+
+  // Auto-open payment modal if status is PENDING_PAYMENT
+  useEffect(() => {
+    if (lot.status === "PENDING_PAYMENT") {
+      const loadPaymentInfo = async () => {
+        try {
+          const qrCode = lot.paymentQrCode;
+          const paymentUrl = lot.paymentUrl;
+          
+          if (qrCode || paymentUrl) {
+            const data = {
+              qrCode,
+              paymentUrl,
+              totalFloors: lot.totalFloors,
+              openTime: lot.openTime,
+              closeTime: lot.closeTime,
+              operationalFee: lot.operationalFee || 12000,
+              paymentDueDate: lot.paymentDueDate,
+            };
+            setPaymentData(data);
+            setShowPaymentModal(true);
+          }
+        } catch (err) {
+          console.error("Error loading payment info:", err);
+        }
+      };
+      loadPaymentInfo();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Edit states
   const [editingOperatingHours, setEditingOperatingHours] = useState(false);
@@ -79,12 +113,69 @@ export default function ViewParkingLotModal({
   };
 
   const handleChangeStatus = async (newStatus) => {
+    // Check if trying to change to ACTIVE from PENDING_PAYMENT without payment
+    if (newStatus === "ACTIVE" && lot.status === "PENDING_PAYMENT") {
+      showError("❌ Please complete payment before activating the parking lot!");
+      return;
+    }
+
     // For statuses that require a reason from partner, open reason modal
     if (newStatus === "REJECTED" || newStatus === "MAP_DENIED") {
       setPendingStatus(newStatus);
       setShowReasonModal(true);
       return;
     }
+
+    // If changing to PENDING_PAYMENT, show payment modal
+    if (newStatus === "PENDING_PAYMENT") {
+      try {
+        const payloadStatus = newStatus.trim().toUpperCase();
+        showInfo(`⏳ Updating status to "${payloadStatus}"...`);
+        const res = await parkingLotApi.update(lot.id, {
+          status: payloadStatus,
+        });
+
+        if (res.status === 200) {
+          showSuccess(`✅ Status updated to "${payloadStatus}" successfully!`);
+          
+          const updatedLot = res.data?.data || res.data;
+          const qrCode = updatedLot.paymentQrCode;
+          const paymentUrl = updatedLot.paymentUrl;
+          
+          // Fix QR code format - ensure it has data:image prefix
+          let formattedQrCode = qrCode;
+          if (qrCode && !qrCode.startsWith('data:')) {
+            formattedQrCode = `data:image/png;base64,${qrCode}`;
+          }
+          
+          if (formattedQrCode || paymentUrl) {
+            const data = {
+              qrCode: formattedQrCode,
+              paymentUrl,
+              totalFloors: updatedLot.totalFloors || lot.totalFloors,
+              openTime: updatedLot.openTime || lot.openTime,
+              closeTime: updatedLot.closeTime || lot.closeTime,
+              operationalFee: updatedLot.operationalPaymentStartDate || lot.operationalFee || 12000,
+              paymentDueDate: updatedLot.paymentDueDate,
+            };
+            setPaymentData(data);
+            setShowPaymentModal(true);
+            startPaymentStatusCheck();
+          } else {
+            showError("Payment information not available. Please contact support.");
+          }
+          
+          onActionDone();
+        } else {
+          showError("⚠️ Failed to update status. Please try again.");
+        }
+      } catch (err) {
+        console.error("❌ Error updating status:", err);
+        showError(err.response?.data?.message || "❌ An unexpected error occurred!");
+      }
+      return;
+    }
+
     await updateStatus(newStatus, null);
   };
 
@@ -100,11 +191,89 @@ export default function ViewParkingLotModal({
         return "bg-blue-100 text-blue-700 border border-blue-300";
       case "PENDING":
         return "bg-orange-100 text-orange-700 border border-orange-300";
+      case "PENDING_PAYMENT":
+        return "bg-purple-100 text-purple-700 border border-purple-300";
       case "MAP_DENIED":
         return "bg-red-100 text-red-700 border border-red-300";
       default:
         return "bg-gray-100 text-gray-700 border border-gray-300";
     }
+  };
+
+  // Check payment status and open payment modal if PENDING_PAYMENT
+  const handlePaymentCheck = async () => {
+    if (lot.status === "PENDING_PAYMENT") {
+      try {
+        showInfo("⏳ Loading payment information...");
+        
+        const res = await parkingLotApi.update(lot.id, {
+          status: "PENDING_PAYMENT",
+        });
+        
+        if (res.status === 200) {
+          const freshLot = res.data?.data || res.data;
+          const qrCode = freshLot.paymentQrCode;
+          const paymentUrl = freshLot.paymentUrl;
+          
+          // Fix QR code format - ensure it has data:image prefix
+          let formattedQrCode = qrCode;
+          if (qrCode && !qrCode.startsWith('data:')) {
+            formattedQrCode = `data:image/png;base64,${qrCode}`;
+          }
+          
+          if (formattedQrCode || paymentUrl) {
+            const data = {
+              qrCode: formattedQrCode,
+              paymentUrl,
+              totalFloors: freshLot.totalFloors || lot.totalFloors,
+              openTime: freshLot.openTime || lot.openTime,
+              closeTime: freshLot.closeTime || lot.closeTime,
+              operationalFee: freshLot.operationalPaymentStartDate || lot.operationalFee || 12000,
+              paymentDueDate: freshLot.paymentDueDate,
+            };
+            setPaymentData(data);
+            setShowPaymentModal(true);
+            startPaymentStatusCheck();
+          } else {
+            showError("Payment information not available");
+          }
+        } else {
+          showError("Failed to load payment information");
+        }
+      } catch (err) {
+        console.error("Error loading payment info:", err);
+        showError("Failed to load payment information");
+      }
+    }
+  };
+
+  // Poll payment status
+  const startPaymentStatusCheck = () => {
+    setCheckingPayment(true);
+    const interval = setInterval(async () => {
+      try {
+        // Refresh lot data to check if status changed
+        const response = await parkingLotApi.getById(lot.id);
+        const updatedLot = response.data?.data || response.data;
+        
+        if (updatedLot.status === "ACTIVE") {
+          clearInterval(interval);
+          setCheckingPayment(false);
+          setShowPaymentModal(false);
+          showSuccess("✅ Payment confirmed! Your parking lot is now ACTIVE!");
+          onActionDone();
+          onClose();
+        }
+      } catch (err) {
+        console.error("Error checking payment status:", err);
+      }
+    }, 5000); // Check every 5 seconds
+
+    // Stop checking after 10 minutes
+    setTimeout(() => {
+      clearInterval(interval);
+      setCheckingPayment(false);
+    }, 600000);
   };
 
   // Only allow reset when lot status is PREPARING or MAP_DENIED
@@ -493,30 +662,42 @@ export default function ViewParkingLotModal({
 
             {/* Status Dropdown */}
             <div className="relative">
-              <details className="group">
+              <details className="group" disabled={lot.status === "PENDING_PAYMENT"}>
                 <summary
-                  className={`list-none flex items-center gap-2 px-4 py-1.5 text-sm font-semibold rounded-lg shadow-sm cursor-pointer select-none transition-all duration-200 ${getStatusStyle(
+                  className={`list-none flex items-center gap-2 px-4 py-1.5 text-sm font-semibold rounded-lg shadow-sm select-none transition-all duration-200 ${getStatusStyle(
                     lot.status
-                  )}`}
+                  )} ${lot.status === "PENDING_PAYMENT" ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
+                  onClick={(e) => {
+                    if (lot.status === "PENDING_PAYMENT") {
+                      e.preventDefault();
+                      showInfo("⚠️ Cannot change status while payment is pending. Please complete payment first.");
+                    }
+                  }}
                 >
                   {lot.status}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-4 h-4 transition-transform duration-200 group-open:rotate-180"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                    />
-                  </svg>
+                  {lot.status !== "PENDING_PAYMENT" && (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="w-4 h-4 transition-transform duration-200 group-open:rotate-180"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                      />
+                    </svg>
+                  )}
+                  {lot.status === "PENDING_PAYMENT" && (
+                    <i className="ri-lock-line text-sm"></i>
+                  )}
                 </summary>
 
-                <ul className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                {lot.status !== "PENDING_PAYMENT" && (
+                  <ul className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
                   {(
                     statusOptions || [
                       {
@@ -528,6 +709,11 @@ export default function ViewParkingLotModal({
                         key: "PARTNER_CONFIGURATION",
                         label: "Partner Configuration",
                         color: "text-blue-600",
+                      },
+                      {
+                        key: "PENDING_PAYMENT",
+                        label: "Pending Payment",
+                        color: "text-purple-600",
                       },
                       {
                         key: "REJECTED",
@@ -550,12 +736,47 @@ export default function ViewParkingLotModal({
                     </li>
                   ))}
                 </ul>
+                )}
               </details>
             </div>
           </div>
 
           {/* Content - Scrollable */}
           <div className="px-8 py-6 overflow-y-auto flex-1 custom-scrollbar">
+          
+          {/* PENDING_PAYMENT Banner - only show if showPaymentBanner is true */}
+          {showPaymentBanner && lot.status === "PENDING_PAYMENT" && (
+            <div className="mb-6 bg-indigo-50 p-6 rounded-2xl border-2 border-indigo-300 shadow-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="bg-indigo-500 text-white p-3 rounded-full">
+                    <i className="ri-qr-code-line text-2xl"></i>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-indigo-800 text-lg mb-1">
+                      💳 Payment Required
+                    </h3>
+                    <p className="text-indigo-700 text-sm">
+                      Complete payment to activate your parking lot
+                    </p>
+                    {lot.operationalFee && (
+                      <p className="text-indigo-900 font-semibold mt-1">
+                        Amount: {lot.operationalFee.toLocaleString()} ₫
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <button
+                  onClick={handlePaymentCheck}
+                  className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-all shadow-md flex items-center gap-2"
+                >
+                  <i className="ri-qr-scan-2-line text-xl"></i>
+                  View QR Code
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Basic Info */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-[15px] text-gray-700 mb-8">
             <p>
@@ -1212,6 +1433,167 @@ export default function ViewParkingLotModal({
         loading={resetLoading}
         confirmLabel="Reset"
       />
+
+      {/* Payment Modal */}
+      {showPaymentModal && paymentData && (
+        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black/50 z-[70]">
+          <div className="bg-white rounded-2xl shadow-2xl w-[600px] max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="bg-indigo-600 text-white px-8 py-6 rounded-t-2xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold mb-2">💳 Complete Payment</h2>
+                  <p className="text-indigo-100 text-sm">
+                    Scan QR code to activate your parking lot
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowPaymentModal(false)}
+                  className="text-white hover:bg-white/20 rounded-full p-2 transition"
+                >
+                  <i className="ri-close-line text-2xl"></i>
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="px-8 py-6">
+              {/* Payment Details */}
+              <div className="bg-indigo-50 rounded-xl p-5 mb-6 border border-indigo-200">
+                <h3 className="font-semibold text-indigo-900 mb-3 flex items-center gap-2">
+                  <i className="ri-file-list-3-line"></i>
+                  Payment Details
+                </h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Parking Lot:</span>
+                    <span className="font-semibold text-gray-900">{lot.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Total Floors:</span>
+                    <span className="font-semibold text-gray-900">{paymentData.totalFloors}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Operating Hours:</span>
+                    <span className="font-semibold text-gray-900">
+                      {paymentData.openTime} - {paymentData.closeTime}
+                    </span>
+                  </div>
+                  {paymentData.paymentDueDate && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Payment Due:</span>
+                      <span className="font-semibold text-red-600">
+                        {new Date(paymentData.paymentDueDate).toLocaleString('vi-VN')}
+                      </span>
+                    </div>
+                  )}
+                  <div className="pt-3 mt-3 border-t border-indigo-200 flex justify-between">
+                    <span className="text-gray-700 font-medium">Operational Fee:</span>
+                    <span className="font-bold text-indigo-700 text-lg">
+                      {paymentData.operationalFee.toLocaleString()} ₫
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* QR Code */}
+              <div className="flex flex-col items-center mb-6">
+                <div className="bg-white p-6 rounded-xl shadow-lg border-4 border-indigo-200">
+                  {paymentData.qrCode ? (
+                    <div className="w-64 h-64 flex items-center justify-center">
+                      <img
+                        src={paymentData.qrCode}
+                        alt="Payment QR Code"
+                        className="max-w-full max-h-full object-contain"
+                        style={{ imageRendering: 'crisp-edges' }}
+                        onError={(e) => {
+                          console.error('❌ QR Code failed to load');
+                          console.error('Base64 length:', paymentData.qrCode?.length);
+                          console.error('First 100 chars:', paymentData.qrCode?.substring(0, 100));
+                          e.target.onerror = null;
+                        }}
+                        onLoad={() => {
+                          console.log('✅ QR code image loaded successfully!');
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-64 h-64 flex items-center justify-center bg-gray-100 rounded">
+                      <div className="text-center">
+                        <i className="ri-qr-code-line text-6xl text-gray-400 mb-2"></i>
+                        <p className="text-gray-500">QR Code not available</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <p className="text-center text-sm text-gray-600 mt-4 max-w-md">
+                  <i className="ri-information-line text-indigo-600"></i>
+                  {' '}Scan this QR code with your banking app to complete the payment
+                </p>
+              </div>
+
+              {/* Payment URL */}
+              {paymentData.paymentUrl && (
+                <div className="mb-6">
+                  <a
+                    href={paymentData.paymentUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full px-4 py-3 bg-indigo-500 text-white text-center rounded-lg hover:bg-indigo-600 transition font-medium"
+                  >
+                    <i className="ri-external-link-line mr-2"></i>
+                    Open Payment Link
+                  </a>
+                </div>
+              )}
+
+              {/* Status Check */}
+              <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+                <div className="flex items-center gap-3">
+                  {checkingPayment ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                      <div>
+                        <p className="text-sm font-medium text-blue-900">
+                          Checking payment status...
+                        </p>
+                        <p className="text-xs text-blue-700 mt-1">
+                          Your parking lot will be activated automatically once payment is confirmed
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <i className="ri-information-line text-blue-600 text-xl"></i>
+                      <div>
+                        <p className="text-sm font-medium text-blue-900">
+                          Waiting for payment confirmation
+                        </p>
+                        <button
+                          onClick={startPaymentStatusCheck}
+                          className="text-xs text-blue-700 hover:text-blue-800 underline mt-1"
+                        >
+                          Start auto-checking →
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-8 pb-6">
+              <button
+                onClick={() => setShowPaymentModal(false)}
+                className="w-full px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ✅ Drawer vẽ map toàn màn hình */}
       {showDrawMap && (

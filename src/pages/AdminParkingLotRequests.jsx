@@ -44,7 +44,7 @@ export default function AdminParkingLotRequests() {
 
       // Initialize floor counts with 'undefined' for loading state
       const initialCounts = {};
-      lots.forEach(lot => {
+      lots.forEach((lot) => {
         initialCounts[lot.id] = undefined;
       });
       setFloorCounts(initialCounts);
@@ -54,20 +54,26 @@ export default function AdminParkingLotRequests() {
       await Promise.all(
         lots.map(async (lot) => {
           try {
-            console.log(`🔍 Fetching floors for lot ID: ${lot.id}, Name: ${lot.name}`);
+            console.log(
+              `🔍 Fetching floors for lot ID: ${lot.id}, Name: ${lot.name}`
+            );
             const floorsRes = await floorApi.getByLotId(lot.id);
             console.log(`📦 Raw response for ${lot.name}:`, floorsRes);
-            
+
             // Try multiple ways to extract floors array
-            const floors = floorsRes.data?.data?.content || 
-                          floorsRes.data?.data || 
-                          floorsRes.data?.content ||
-                          floorsRes.data || 
-                          [];
-            
+            const floors =
+              floorsRes.data?.data?.content ||
+              floorsRes.data?.data ||
+              floorsRes.data?.content ||
+              floorsRes.data ||
+              [];
+
             const floorCount = Array.isArray(floors) ? floors.length : 0;
             counts[lot.id] = floorCount;
-            console.log(`✅ Lot "${lot.name}": ${floorCount} floors drawn`, floors);
+            console.log(
+              `✅ Lot "${lot.name}": ${floorCount} floors drawn`,
+              floors
+            );
           } catch (error) {
             console.error(`❌ Error fetching floors for ${lot.name}:`, error);
             console.error(`   Error details:`, error.response?.data);
@@ -145,7 +151,8 @@ export default function AdminParkingLotRequests() {
 
   // ✅ Render status badge
   const renderStatus = (status) => {
-    const base = "px-2 py-1 text-xs font-semibold rounded-md border inline-block";
+    const base =
+      "px-2 py-1 text-xs font-semibold rounded-md border inline-block";
     const s = status?.toUpperCase();
     const colorMap = {
       PENDING: "bg-yellow-50 text-yellow-700 border-yellow-300",
@@ -155,15 +162,20 @@ export default function AdminParkingLotRequests() {
       INACTIVE: "bg-gray-50 text-gray-600 border-gray-300",
       MAP_DENIED: "bg-red-50 text-red-700 border-red-300",
       REJECTED: "bg-red-50 text-red-700 border-red-300",
+      PENDING_PAYMENT: "bg-purple-50 text-purple-700 border-purple-300",
     };
 
     // Capitalize only first letter
-    const displayText = status 
+    const displayText = status
       ? status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
       : "Unknown";
 
     return (
-      <span className={`${base} ${colorMap[s] || "bg-gray-50 text-gray-600 border-gray-300"}`}>
+      <span
+        className={`${base} ${
+          colorMap[s] || "bg-gray-50 text-gray-600 border-gray-300"
+        }`}
+      >
         {displayText}
       </span>
     );
@@ -260,7 +272,11 @@ export default function AdminParkingLotRequests() {
               stroke="currentColor"
               className="w-4 h-4 absolute right-3 top-3 text-gray-400 pointer-events-none"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+              />
             </svg>
           </div>
 
@@ -295,6 +311,7 @@ export default function AdminParkingLotRequests() {
               "Inactive",
               "Map Denied",
               "Rejected",
+              "Pending_Payment",
             ].map((s) => (
               <option key={s} value={s}>
                 {s}
@@ -344,7 +361,7 @@ export default function AdminParkingLotRequests() {
           {/* Import */}
           <label className="flex items-center gap-2 hover:bg-yellow-200 font-medium px-4 py-2 rounded-lg border transition cursor-pointer">
             <ArrowUpTrayIcon className="w-5 h-5 text-yellow-700" />
-            Import 
+            Import
             <input
               type="file"
               accept=".xlsx"
@@ -359,7 +376,7 @@ export default function AdminParkingLotRequests() {
             onClick={handleExport}
           >
             <ArrowDownTrayIcon className="w-5 h-5 text-green-700" />
-            Export 
+            Export
           </button>
         </div>
       </div>
@@ -384,7 +401,10 @@ export default function AdminParkingLotRequests() {
           <tbody className="text-gray-700 text-sm">
             {loading ? (
               <tr>
-                <td colSpan="9" className="text-center py-6 text-gray-500 italic">
+                <td
+                  colSpan="9"
+                  className="text-center py-6 text-gray-500 italic"
+                >
                   Loading...
                 </td>
               </tr>
@@ -403,7 +423,9 @@ export default function AdminParkingLotRequests() {
                   <td className="px-6 py-3">{lot.city}</td>
                   <td className="px-6 py-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-gray-600 font-medium">{lot.totalFloors} total</span>
+                      <span className="text-gray-600 font-medium">
+                        {lot.totalFloors} total
+                      </span>
                       <span className="text-gray-300">•</span>
                       {floorCounts[lot.id] !== undefined ? (
                         <span
@@ -414,13 +436,17 @@ export default function AdminParkingLotRequests() {
                               ? "bg-green-100 text-green-700"
                               : "bg-amber-100 text-amber-700"
                           }`}
-                          title={`${floorCounts[lot.id]} floor(s) drawn out of ${lot.totalFloors}`}
+                          title={`${
+                            floorCounts[lot.id]
+                          } floor(s) drawn out of ${lot.totalFloors}`}
                         >
                           {floorCounts[lot.id] === 0
                             ? "❌ Not drawn"
                             : floorCounts[lot.id] >= lot.totalFloors
                             ? `✅ ${floorCounts[lot.id]} drawn`
-                            : `⚠️ ${floorCounts[lot.id]}/${lot.totalFloors} drawn`}
+                            : `⚠️ ${floorCounts[lot.id]}/${
+                                lot.totalFloors
+                              } drawn`}
                         </span>
                       ) : (
                         <span className="px-2.5 py-1 bg-gray-50 text-gray-400 text-xs rounded-full animate-pulse">
@@ -511,9 +537,14 @@ export default function AdminParkingLotRequests() {
           onActionDone={fetchData}
           showDrawMapButton={true}
           showResetMapButton={true}
+          showPaymentBanner={false}
           statusOptions={[
             { key: "PREPARING", label: "Preparing", color: "text-yellow-600" },
-            { key: "PARTNER_CONFIGURATION", label: "Partner Configuration", color: "text-blue-600" },
+            {
+              key: "PARTNER_CONFIGURATION",
+              label: "Partner Configuration",
+              color: "text-blue-600",
+            },
             { key: "REJECTED", label: "Rejected", color: "text-red-600" },
           ]}
         />

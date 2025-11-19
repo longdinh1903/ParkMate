@@ -17,6 +17,11 @@ export default function AdminLayout({ children }) {
       path: "/admin/parking-lots",
       icon: "ri-parking-box-fill",
     },
+    {
+      name: "Fee Config",
+      path: "/admin/fee-config",
+      icon: "ri-money-dollar-circle-fill",
+    },
     { name: "Dashboard", path: "/admin/dashboard", icon: "ri-dashboard-fill" },
   ];
 

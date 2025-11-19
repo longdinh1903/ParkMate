@@ -141,8 +141,8 @@ export default function Login() {
               return;
             } else if (status === "APPROVED") {
               // Navigate to home for approved users
-              console.log("✅ Status is APPROVED, navigating to /home");
-              navigate("/home");
+              console.log("✅ Status is APPROVED, navigating to /dashboard");
+              navigate("/dashboard");
               return;
             }
           } else {

@@ -237,6 +237,12 @@ export default function PartnerHome() {
         icon: "ri-tools-fill",
         label: "Partner Config",
       },
+      PENDING_PAYMENT: {
+        bg: "bg-purple-100",
+        text: "text-purple-700",
+        icon: "ri-qr-code-line",
+        label: "Pending Payment",
+      },
       WAITING: {
         bg: "bg-yellow-100",
         text: "text-yellow-700",
@@ -643,6 +649,7 @@ export default function PartnerHome() {
           statusOptions={[
             { key: "ACTIVE", label: "Active", color: "text-green-600" },
             { key: "MAP_DENIED", label: "Map Denied", color: "text-red-600" },
+            { key: "PENDING_PAYMENT", label: "Pending Payment", color: "text-purple-600" },
           ]}
           allowEdit={true}
         />

@@ -400,10 +400,10 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
           floorHeight: Math.abs(height),
           tempFloorBounds: null,
         });
-        toast.success(`✅ Floor bounds set: ${Math.round(Math.abs(width))}×${Math.round(Math.abs(height))}`);
+        // Floor bounds set - visual feedback is enough
       } else {
         updateCurrentFloor({ tempFloorBounds: null });
-        toast.error("⚠️ Floor bounds too small! Minimum 50×50");
+        // toast.error("⚠️ Floor bounds too small! Minimum 50×50");
       }
       
       floorBoundsStartPos.current = null;
@@ -470,13 +470,13 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
 
   const handleAddSpotToArea = () => {
     if (!selectedAreaId) {
-      toast.error("⚠️ Please select an area first!");
+      // toast.error("⚠️ Please select an area first!");
       return;
     }
 
     const selectedArea = areas.find((a) => a.id === selectedAreaId);
     if (!selectedArea) {
-      toast.error("⚠️ Selected area not found!");
+      // toast.error("⚠️ Selected area not found!");
       return;
     }
 
@@ -518,19 +518,19 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
   // Bulk add spots
   const handleBulkAddSpots = () => {
     if (!selectedAreaId) {
-      toast.error("⚠️ Please select an area first!");
+      // toast.error("⚠️ Please select an area first!");
       return;
     }
 
     const count = parseInt(bulkSpotCount);
     if (!count || count < 1) {
-      toast.error("⚠️ Please enter a valid number of spots!");
+      // toast.error("⚠️ Please enter a valid number of spots!");
       return;
     }
 
     const selectedArea = areas.find((a) => a.id === selectedAreaId);
     if (!selectedArea) {
-      toast.error("⚠️ Selected area not found!");
+      // toast.error("⚠️ Selected area not found!");
       return;
     }
 
@@ -570,33 +570,33 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
       ),
     });
 
-    toast.success(`✅ Added ${count} spots to ${selectedArea.name}!`);
+    // Spots added - visual feedback is enough
     setBulkSpotCount(""); // Reset to empty
   };
 
   const handleDeleteArea = () => {
     if (!selectedAreaId) {
-      toast.error("⚠️ Please select an area to delete!");
+      // toast.error("⚠️ Please select an area to delete!");
       return;
     }
 
-    const areaName = areas.find(a => a.id === selectedAreaId)?.name;
+    // const areaName = areas.find(a => a.id === selectedAreaId)?.name;
     updateCurrentFloor({
       areas: areas.filter((a) => a.id !== selectedAreaId),
     });
     setSelectedAreaId(null);
     setSelectedSpotId(null);
-    toast.success(`🗑 Deleted ${areaName}!`);
+    // toast.success(`🗑 Deleted ${areaName}!`);
   };
 
   const handleDeleteSpot = () => {
     if (!selectedSpotId || !selectedAreaId) {
-      toast.error("⚠️ Please select a spot to delete!");
+      // toast.error("⚠️ Please select a spot to delete!");
       return;
     }
 
-    const area = areas.find(a => a.id === selectedAreaId);
-    const spotName = area?.spots.find(s => s.id === selectedSpotId)?.name;
+    // const area = areas.find(a => a.id === selectedAreaId);
+    // const spotName = area?.spots.find(s => s.id === selectedSpotId)?.name;
 
     updateCurrentFloor({
       areas: areas.map((a) =>
@@ -606,7 +606,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
       ),
     });
     setSelectedSpotId(null);
-    toast.success(`🗑 Deleted ${spotName}!`);
+    // toast.success(`🗑 Deleted ${spotName}!`);
   };
 
   const handleClearAll = () => {
@@ -621,7 +621,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     });
     setSelectedAreaId(null);
     setSelectedSpotId(null);
-    toast.success("🧹 Floor cleared!");
+    // Floor cleared - visual feedback is enough
   };
 
   // ===== KEYBOARD SHORTCUTS =====
@@ -703,8 +703,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     setCurrentFloor(newFloorNumber);
     setShowFloorModal(false);
     
-    const selectedCount = Object.values(selectedVehicleTypes).filter(v => v).length;
-    toast.success(`✅ Floor ${newFloorNumber} added with ${selectedCount} vehicle type(s)!`);
+    // Floor added - visual feedback is enough
   };
 
   // Edit vehicle types for current floor
@@ -779,7 +778,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     const remainingFloors = floors.filter((f) => f.floorNumber !== currentFloor);
     setCurrentFloor(remainingFloors[0].floorNumber);
     
-    toast.success(`🗑 Floor ${currentFloor} deleted!`);
+    // Floor deleted - visual feedback is enough
   };
 
   // ===== COPY FLOOR FUNCTION =====
@@ -823,7 +822,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
 
     setShowCopyModal(false);
     setCopySourceFloor(null);
-    toast.success(`✅ Copied ${copiedAreas.length} areas from Floor ${copySourceFloor}!`);
+    // Floor copied - visual feedback is enough
   };
 
   const handleCancelCopy = () => {
@@ -1588,7 +1587,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                     if (mode === "area") {
                       setSelectedAreaId(area.id);
                       setSelectedSpotId(null); // Deselect spot when selecting area
-                      toast(`✅ Selected: ${area.name}`);
+                      // toast(`✅ Selected: ${area.name}`);
                     }
                   }}
                   draggable={mode === "area"}
@@ -1671,7 +1670,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                         if (mode === "area") {
                           setSelectedSpotId(spot.id);
                           setSelectedAreaId(area.id); // Also select parent area
-                          toast(`🚗 Selected: ${spot.name}`);
+                          // toast(`🚗 Selected: ${spot.name}`);
                         }
                       }}
                       draggable={mode === "area"}

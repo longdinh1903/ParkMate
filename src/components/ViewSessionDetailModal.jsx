@@ -1,31 +1,41 @@
 import React, { useState, useEffect } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import pricingRuleApi from "../api/pricingRuleApi";
+import sessionApi from "../api/sessionApi";
 
 export default function ViewSessionDetailModal({ session, parkingLotName, onClose }) {
-  const [pricingRule, setPricingRule] = useState(null);
-  const [loadingPricingRule, setLoadingPricingRule] = useState(false);
+  const [sessionDetail, setSessionDetail] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPricingRule = async () => {
-      if (session?.pricingRuleId) {
-        setLoadingPricingRule(true);
-        try {
-          const response = await pricingRuleApi.getById(session.pricingRuleId);
-          // API trả về { success, message, data: {...} }
-          setPricingRule(response.data.data || response.data);
-        } catch (error) {
-          console.error("Error fetching pricing rule:", error);
-        } finally {
-          setLoadingPricingRule(false);
-        }
+    const fetchSessionDetail = async () => {
+      if (!session?.id) {
+        setSessionDetail(session);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const response = await sessionApi.getById(session.id);
+        const detail = response.data?.data || response.data;
+        console.log("Session detail from API:", detail);
+        setSessionDetail(detail);
+      } catch (error) {
+        console.error("Error fetching session detail:", error);
+        // Fallback to original session data if API fails
+        setSessionDetail(session);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchPricingRule();
-  }, [session?.pricingRuleId]);
+    fetchSessionDetail();
+  }, [session]);
 
   if (!session) return null;
+
+  // Use sessionDetail if loaded, otherwise use session
+  const displaySession = sessionDetail || session;
 
   const formatDateTime = (dateStr) => {
     if (!dateStr) return "-";
@@ -82,7 +92,7 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
     }
   };
 
-  const refType = getReferenceTypeBadge(session.referenceType);
+  const refType = getReferenceTypeBadge(displaySession.referenceType);
 
   const InfoRow = ({ label, value, children }) => (
     <div className="flex justify-between items-start py-3 border-b border-gray-100 last:border-b-0">
@@ -92,6 +102,18 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
       </div>
     </div>
   );
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black/50 z-50 p-4">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 text-center">
+          <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Loading session details...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black/50 z-50 p-4">
@@ -126,8 +148,8 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-sm">
                 <span className="font-medium text-gray-600 block mb-2">Session Status:</span>
-                <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ring-1 ring-inset ${getStatusBadge(session.status)}`}>
-                  {session.status || "UNKNOWN"}
+                <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ring-1 ring-inset ${getStatusBadge(displaySession.status)}`}>
+                  {displaySession.status || "UNKNOWN"}
                 </span>
               </div>
               <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-sm">
@@ -146,8 +168,8 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
               Vehicle & Parking Information
             </h3>
             <div className="space-y-1">
-              <InfoRow label="License Plate" value={session.licensePlate} />
-              <InfoRow label="Parking Lot" value={session.parkingLotName || parkingLotName} />
+              <InfoRow label="License Plate" value={displaySession.licensePlate} />
+              <InfoRow label="Parking Lot" value={displaySession.lotName || parkingLotName} />
             </div>
           </section>
 
@@ -158,11 +180,11 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
               Time Information
             </h3>
             <div className="space-y-1">
-              <InfoRow label="Entry Time" value={formatDateTime(session.entryTime)} />
-              <InfoRow label="Exit Time" value={formatDateTime(session.exitTime)} />
+              <InfoRow label="Entry Time" value={formatDateTime(displaySession.entryTime)} />
+              <InfoRow label="Exit Time" value={formatDateTime(displaySession.exitTime)} />
               <InfoRow label="Duration">
                 <span className="font-semibold text-indigo-600">
-                  {session.durationMinute ? `${session.durationMinute} min` : calculateDuration(session.entryTime, session.exitTime)}
+                  {displaySession.durationMinute ? `${displaySession.durationMinute} minutes` : calculateDuration(displaySession.entryTime, displaySession.exitTime)}
                 </span>
               </InfoRow>
             </div>
@@ -177,74 +199,183 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
             <div className="space-y-1">
               <InfoRow label="Total Amount">
                 <span className="text-lg font-bold text-green-600">
-                  {session.totalAmount ? `${session.totalAmount.toLocaleString()} ₫` : "-"}
+                  {displaySession.totalAmount ? `${displaySession.totalAmount.toLocaleString()} ₫` : "-"}
                 </span>
               </InfoRow>
-              {session.paymentMethod && (
-                <InfoRow label="Payment Method" value={session.paymentMethod} />
-              )}
-              {session.syncedPromoId && (
-                <InfoRow label="Synced Promo ID" value={session.syncedPromoId} />
-              )}
             </div>
           </section>
 
           {/* Pricing Rule Information */}
-          {session.pricingRuleId && (
+          {displaySession.pricingRule && (
             <section className="mb-6">
               <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
                 <i className="ri-price-tag-3-fill text-indigo-500"></i>
                 Pricing Rule
               </h3>
-              {loadingPricingRule ? (
-                <div className="p-4 text-center text-gray-500">
-                  <i className="ri-loader-4-line animate-spin text-2xl"></i>
-                  <p className="mt-2">Loading pricing rule...</p>
-                </div>
-              ) : pricingRule ? (
-                <div className="space-y-1">
-                  <InfoRow label="Vehicle Type" value={pricingRule.vehicleType} />
-                  <InfoRow label="Rule Name" value={pricingRule.ruleName} />
-                  <InfoRow label="Step Minute" value={pricingRule.stepMinute ? `${pricingRule.stepMinute} min` : null} />
-                  <InfoRow label="Step Rate">
-                    <span className="font-semibold text-blue-600">
-                      {pricingRule.stepRate ? `${pricingRule.stepRate.toLocaleString()} ₫` : "-"}
-                    </span>
-                  </InfoRow>
-                  <InfoRow label="Initial Charge">
-                    <span className="font-semibold text-green-600">
-                      {pricingRule.initialCharge ? `${pricingRule.initialCharge.toLocaleString()} ₫` : "-"}
-                    </span>
-                  </InfoRow>
-                  <InfoRow label="Initial Duration" value={pricingRule.initialDurationMinute ? `${pricingRule.initialDurationMinute} min` : null} />
-                  <InfoRow label="Status">
+              <div className="space-y-1">
+                <InfoRow label="Vehicle Type" value={displaySession.pricingRule.vehicleType} />
+                <InfoRow label="Rule Name" value={displaySession.pricingRule.ruleName} />
+                <InfoRow label="Step Rate">
+                  <span className="font-semibold text-blue-600">
+                    {displaySession.pricingRule.stepRate ? `${displaySession.pricingRule.stepRate.toLocaleString()} ₫` : "-"}
+                  </span>
+                </InfoRow>
+                <InfoRow label="Step Minute" value={displaySession.pricingRule.stepMinute ? `${displaySession.pricingRule.stepMinute} min` : "-"} />
+                <InfoRow label="Initial Charge">
+                  <span className="font-semibold text-green-600">
+                    {displaySession.pricingRule.initialCharge ? `${displaySession.pricingRule.initialCharge.toLocaleString()} ₫` : "-"}
+                  </span>
+                </InfoRow>
+                <InfoRow label="Initial Duration" value={displaySession.pricingRule.initialDurationMinute ? `${displaySession.pricingRule.initialDurationMinute} min` : "-"} />
+                <InfoRow label="Valid From" value={formatDateTime(displaySession.pricingRule.validFrom)} />
+                <InfoRow label="Valid Until" value={formatDateTime(displaySession.pricingRule.validUntil)} />
+                {displaySession.pricingRule.syncStatus && (
+                  <InfoRow label="Sync Status">
                     <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${
-                      pricingRule.isActive 
-                        ? "bg-green-100 text-green-700 ring-green-600/20" 
-                        : "bg-red-100 text-red-700 ring-red-600/20"
+                      displaySession.pricingRule.syncStatus === "SYNCED" 
+                        ? "bg-purple-100 text-purple-700 ring-purple-600/20" 
+                        : "bg-yellow-100 text-yellow-700 ring-yellow-600/20"
                     }`}>
-                      {pricingRule.isActive ? "ACTIVE" : "INACTIVE"}
+                      {displaySession.pricingRule.syncStatus}
                     </span>
                   </InfoRow>
-                  <InfoRow label="Valid From" value={formatDateTime(pricingRule.validFrom)} />
-                  <InfoRow label="Valid Until" value={formatDateTime(pricingRule.validUntil)} />
-                  {pricingRule.syncStatus && (
-                    <InfoRow label="Sync Status">
-                      <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${
-                        pricingRule.syncStatus === "SYNCED" 
-                          ? "bg-purple-100 text-purple-700 ring-purple-600/20" 
-                          : "bg-yellow-100 text-yellow-700 ring-yellow-600/20"
-                      }`}>
-                        {pricingRule.syncStatus}
-                      </span>
-                    </InfoRow>
-                  )}
-                </div>
-              ) : (
-                <div className="p-4 text-center text-gray-500">
-                  <p>No pricing rule information available</p>
-                </div>
-              )}
+                )}
+              </div>
+            </section>
+          )}
+
+          {/* Override Pricing Rule */}
+          {displaySession.overridePricingRule && (
+            <section className="mb-6">
+              <h3 className="text-lg font-semibold text-amber-600 mb-3 border-b-2 border-amber-100 pb-1 flex items-center gap-2">
+                <i className="ri-price-tag-3-line text-amber-500"></i>
+                Override Pricing Rule
+              </h3>
+              <div className="space-y-1 bg-amber-50 p-4 rounded-lg border border-amber-200">
+                <InfoRow label="Rule Name" value={displaySession.overridePricingRule.ruleName} />
+                <InfoRow label="Step Rate">
+                  <span className="font-semibold text-amber-700">
+                    {displaySession.overridePricingRule.stepRate ? `${displaySession.overridePricingRule.stepRate.toLocaleString()} ₫` : "-"}
+                  </span>
+                </InfoRow>
+                <InfoRow label="Step Minute" value={displaySession.overridePricingRule.stepMinute ? `${displaySession.overridePricingRule.stepMinute} min` : "-"} />
+                <InfoRow label="Initial Charge">
+                  <span className="font-semibold text-amber-700">
+                    {displaySession.overridePricingRule.initialCharge ? `${displaySession.overridePricingRule.initialCharge.toLocaleString()} ₫` : "-"}
+                  </span>
+                </InfoRow>
+                <InfoRow label="Initial Duration" value={displaySession.overridePricingRule.initialDurationMinute ? `${displaySession.overridePricingRule.initialDurationMinute} min` : "-"} />
+                <InfoRow label="Valid From" value={formatDateTime(displaySession.overridePricingRule.validFrom)} />
+                <InfoRow label="Valid Until" value={formatDateTime(displaySession.overridePricingRule.validUntil)} />
+              </div>
+            </section>
+          )}
+
+          {/* Entry Images */}
+          {displaySession.entryImage && (
+            <section className="mb-6">
+              <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
+                <i className="ri-image-fill text-indigo-500"></i>
+                Entry Image
+              </h3>
+              <div className="flex flex-col gap-3">
+                <img 
+                  src={displaySession.entryImage} 
+                  alt="Entry" 
+                  className="w-full max-w-2xl rounded-lg border-2 border-gray-300 shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                  onClick={() => window.open(displaySession.entryImage, '_blank')}
+                />
+                <a 
+                  href={displaySession.entryImage} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-fit"
+                >
+                  <i className="ri-external-link-line"></i>
+                  Open in New Tab
+                </a>
+              </div>
+            </section>
+          )}
+
+          {/* Entry Plate Image */}
+          {displaySession.entryPlateImage && (
+            <section className="mb-6">
+              <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
+                <i className="ri-image-fill text-indigo-500"></i>
+                Entry License Plate Image
+              </h3>
+              <div className="flex flex-col gap-3">
+                <img 
+                  src={displaySession.entryPlateImage} 
+                  alt="Entry License Plate" 
+                  className="w-full max-w-2xl rounded-lg border-2 border-gray-300 shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                  onClick={() => window.open(displaySession.entryPlateImage, '_blank')}
+                />
+                <a 
+                  href={displaySession.entryPlateImage} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-fit"
+                >
+                  <i className="ri-external-link-line"></i>
+                  Open in New Tab
+                </a>
+              </div>
+            </section>
+          )}
+
+          {/* Exit Images */}
+          {displaySession.exitImage && (
+            <section className="mb-6">
+              <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
+                <i className="ri-image-fill text-indigo-500"></i>
+                Exit Image
+              </h3>
+              <div className="flex flex-col gap-3">
+                <img 
+                  src={displaySession.exitImage} 
+                  alt="Exit" 
+                  className="w-full max-w-2xl rounded-lg border-2 border-gray-300 shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                  onClick={() => window.open(displaySession.exitImage, '_blank')}
+                />
+                <a 
+                  href={displaySession.exitImage} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-fit"
+                >
+                  <i className="ri-external-link-line"></i>
+                  Open in New Tab
+                </a>
+              </div>
+            </section>
+          )}
+
+          {/* Plate Images */}
+          {displaySession.exitPlateImage && (
+            <section className="mb-6">
+              <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
+                <i className="ri-image-fill text-indigo-500"></i>
+                Exit License Plate Image
+              </h3>
+              <div className="flex flex-col gap-3">
+                <img 
+                  src={displaySession.exitPlateImage} 
+                  alt="License Plate" 
+                  className="w-full max-w-2xl rounded-lg border-2 border-gray-300 shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                  onClick={() => window.open(displaySession.exitPlateImage, '_blank')}
+                />
+                <a 
+                  href={displaySession.exitPlateImage} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-fit"
+                >
+                  <i className="ri-external-link-line"></i>
+                  Open in New Tab
+                </a>
+              </div>
             </section>
           )}
 
@@ -264,26 +395,83 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
           </section>
 
           {/* Sync Information */}
+          {(displaySession.syncedFromLocal || displaySession.syncedPromoId || displaySession.syncStatus) && (
+            <section className="mb-6">
+              <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
+                <i className="ri-refresh-fill text-indigo-500"></i>
+                Sync Information
+              </h3>
+              <div className="space-y-1">
+                {displaySession.syncedFromLocal && (
+                  <InfoRow label="Synced From Local" value={displaySession.syncedFromLocal} />
+                )}
+                {displaySession.syncedPromoId && (
+                  <InfoRow label="Synced Promo ID" value={displaySession.syncedPromoId} />
+                )}
+                {displaySession.syncStatus && (
+                  <InfoRow label="Sync Status">
+                    <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${
+                      displaySession.syncStatus === "SYNCED" 
+                        ? "bg-purple-100 text-purple-700 ring-purple-600/20" 
+                        : "bg-yellow-100 text-yellow-700 ring-yellow-600/20"
+                    }`}>
+                      {displaySession.syncStatus}
+                    </span>
+                  </InfoRow>
+                )}
+              </div>
+            </section>
+          )}
+
+          {/* System Information */}
           <section className="mb-6">
             <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
-              <i className="ri-refresh-fill text-indigo-500"></i>
+              <i className="ri-information-fill text-indigo-500"></i>
               System Information
             </h3>
             <div className="space-y-1">
-              <InfoRow label="Created At" value={formatDateTime(session.createdAt)} />
-              <InfoRow label="Updated At" value={formatDateTime(session.updatedAt)} />
+              <InfoRow label="Created At" value={formatDateTime(displaySession.createdAt)} />
+              <InfoRow label="Updated At" value={formatDateTime(displaySession.updatedAt)} />
             </div>
           </section>
 
-          {/* Note Section */}
-          {session.note && (
-            <section>
-              <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
-                <i className="ri-sticky-note-fill text-indigo-500"></i>
-                Note
+          {/* Error Information */}
+          {displaySession.error && (
+            <section className="mb-6">
+              <h3 className="text-lg font-semibold text-red-600 mb-3 border-b-2 border-red-100 pb-1 flex items-center gap-2">
+                <i className="ri-error-warning-fill text-red-500"></i>
+                Error Information
               </h3>
-              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
-                <p className="text-sm text-gray-800 whitespace-pre-wrap">{session.note}</p>
+              <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
+                <p className="text-sm text-red-800 whitespace-pre-wrap">{displaySession.error}</p>
+              </div>
+            </section>
+          )}
+
+          {/* Metadata */}
+          {displaySession.meta && (
+            <section className="mb-6">
+              <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
+                <i className="ri-file-info-fill text-indigo-500"></i>
+                Metadata
+              </h3>
+              <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                <pre className="text-xs text-gray-800 whitespace-pre-wrap overflow-x-auto">
+                  {JSON.stringify(displaySession.meta, null, 2)}
+                </pre>
+              </div>
+            </section>
+          )}
+
+          {/* Timestamp */}
+          {displaySession.timestamp && (
+            <section className="mb-6">
+              <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
+                <i className="ri-calendar-fill text-indigo-500"></i>
+                Timestamp
+              </h3>
+              <div className="space-y-1">
+                <InfoRow label="Timestamp" value={formatDateTime(displaySession.timestamp)} />
               </div>
             </section>
           )}
@@ -302,3 +490,4 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
     </div>
   );
 }
+

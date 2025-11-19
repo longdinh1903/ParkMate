@@ -10,11 +10,13 @@ import PartnerSessions from "../pages/PartnerSessions";
 import PartnerReservations from "../pages/PartnerReservations";
 import PartnerDashboard from "../pages/PartnerDashboard";
 import PartnerProfile from "../pages/PartnerProfile";
+import PartnerWithdrawals from "../pages/PartnerWithdrawals";
 import AdminLogin from "../pages/AdminLogin";
 import AdminPartners from "../pages/AdminPartners";
 import AdminRequests from "../pages/AdminRequests";
 import AdminUsers from "../pages/AdminUsers";
 import AdminParkingLots from "../pages/AdminParkingLots";
+import AdminFeeConfig from "../pages/AdminFeeConfig";
 import ProtectedPartnerRoute from "../components/ProtectedPartnerRoute";
 
 export default function AppRoutes() {
@@ -30,6 +32,7 @@ export default function AppRoutes() {
       <Route path="/home" element={<ProtectedPartnerRoute><PartnerHome /></ProtectedPartnerRoute>} />
       <Route path="/register-lot" element={<ProtectedPartnerRoute><RegisterLot /></ProtectedPartnerRoute>} />
       <Route path="/subscriptions" element={<ProtectedPartnerRoute><PartnerSubscriptions /></ProtectedPartnerRoute>} />
+      <Route path="/withdrawals" element={<ProtectedPartnerRoute><PartnerWithdrawals /></ProtectedPartnerRoute>} />
       <Route path="/users" element={<ProtectedPartnerRoute><PartnerUsers /></ProtectedPartnerRoute>} />
       <Route path="/sessions" element={<ProtectedPartnerRoute><PartnerSessions /></ProtectedPartnerRoute>} />
       <Route path="/reservations" element={<ProtectedPartnerRoute><PartnerReservations /></ProtectedPartnerRoute>} />
@@ -41,6 +44,7 @@ export default function AppRoutes() {
       <Route path="/admin/users" element={<AdminUsers />} />
       <Route path="/admin/requests" element={<AdminRequests />} />
       <Route path="/admin/parking-lots" element={<AdminParkingLots />} />
+      <Route path="/admin/fee-config" element={<AdminFeeConfig />} />
     </Routes>
   );
 }
