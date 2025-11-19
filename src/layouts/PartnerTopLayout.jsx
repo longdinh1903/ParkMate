@@ -214,6 +214,22 @@ export default function PartnerTopLayout({ children }) {
           >
             Subscriptions
           </NavLink>
+          <NavLink
+            to="/withdrawals"
+            onClick={(e) => {
+              if (!isApproved) {
+                e.preventDefault();
+                toast.error("Vui lòng đợi tài khoản được duyệt để truy cập trang này");
+              }
+            }}
+            className={({ isActive }) =>
+              `hover:text-indigo-200 transition ${
+                isActive ? "underline text-indigo-200" : ""
+              } ${!isApproved ? "opacity-50 cursor-not-allowed" : ""}`
+            }
+          >
+            Withdrawals
+          </NavLink>
 
           {/* Management Dropdown */}
           <div className="relative" ref={managementRef}>
