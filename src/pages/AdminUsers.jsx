@@ -375,7 +375,7 @@ export default function AdminUsers() {
                 return (
                   <tr
                     key={idx}
-                    className="border-t border-gray-100 hover:bg-orange-50 transition-all cursor-pointer"
+                    className="border-t border-gray-100 hover:bg-gray-50 transition-all cursor-pointer"
                   >
                     <td className="px-6 py-3 text-gray-500">
                       {page * size + idx + 1}
@@ -428,7 +428,7 @@ export default function AdminUsers() {
                         <button
                           title="View Details"
                           onClick={() => handleViewClick(u)}
-                          className="p-2 rounded-full hover:bg-orange-100 transition cursor-pointer"
+                          className="p-2 rounded-full hover:bg-indigo-100 transition cursor-pointer"
                         >
                           <EyeIcon className="w-5 h-5" />
                         </button>

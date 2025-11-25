@@ -3,12 +3,14 @@ import { showError, showSuccess } from "../utils/toastUtils";
 import withdrawalApi from "../api/withdrawalApi";
 import parkingLotApi from "../api/parkingLotApi";
 
-export default function RequestWithdrawalModal({ onClose, onRequested }) {
+export default function RequestWithdrawalModal({ onClose, onRequested, isEmbedded = false }) {
   const [parkingLots, setParkingLots] = useState([]);
   const [selectedLotId, setSelectedLotId] = useState("");
   const [periods, setPeriods] = useState([]);
   const [selectedPeriods, setSelectedPeriods] = useState([]);
   const [banks, setBanks] = useState([]);
+  const [showBankDropdown, setShowBankDropdown] = useState(false);
+  const [bankSearchQuery, setBankSearchQuery] = useState("");
   const [form, setForm] = useState({
     bankCode: "",
     bankAccountNumber: "",
@@ -34,6 +36,18 @@ export default function RequestWithdrawalModal({ onClose, onRequested }) {
     }
   }, [selectedLotId]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showBankDropdown && !event.target.closest('.bank-dropdown-container')) {
+        setShowBankDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showBankDropdown]);
+
   const fetchParkingLots = async () => {
     try {
       const res = await parkingLotApi.getAll({
@@ -54,28 +68,38 @@ export default function RequestWithdrawalModal({ onClose, onRequested }) {
   const fetchPeriods = async (lotId) => {
     try {
       setLoadingPeriods(true);
+      console.log("🔍 Fetching periods for lotId:", lotId);
+      
       const res = await withdrawalApi.getPeriods({
         parkingLotId: lotId,
         page: 0,
         size: 100,
       });
       
+      console.log("📊 Full periods response:", res);
+      console.log("📊 res.data:", res.data);
+      
       // Handle response structure
       const responseData = res.data?.data || res.data;
       
       if (responseData?.content) {
         const periodsList = Array.isArray(responseData.content) ? responseData.content : [];
-        console.log("📊 Periods data:", periodsList);
+        console.log("✅ Periods list (from content):", periodsList);
+        console.log("✅ Number of periods:", periodsList.length);
+        // Check if periods are for the correct lot
+        periodsList.forEach((p, idx) => {
+          console.log(`Period ${idx + 1} - lotId:`, p.lotId, "| Expected:", lotId);
+        });
         setPeriods(periodsList);
       } else if (Array.isArray(responseData)) {
-        console.log("📊 Periods data (array):", responseData);
+        console.log("✅ Periods data (array):", responseData);
         setPeriods(responseData);
       } else {
         console.log("⚠️ No periods data found");
         setPeriods([]);
       }
     } catch (err) {
-      console.error("Error fetching periods:", err);
+      console.error("❌ Error fetching periods:", err);
       showError("Failed to load withdrawal periods");
       setPeriods([]);
     } finally {
@@ -174,17 +198,18 @@ export default function RequestWithdrawalModal({ onClose, onRequested }) {
     });
   };
 
-  return (
-    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black/50 z-50">
-      <div className="bg-white w-[900px] max-h-[90vh] overflow-y-auto rounded-xl shadow-xl">
+  const content = (
+    <>
+      {!isEmbedded && (
         <div className="bg-indigo-600 text-white py-8 px-6 shadow-md">
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <span className="text-3xl">💰</span>
             Request Withdrawal
           </h2>
         </div>
+      )}
 
-        <form className="p-6 space-y-6" onSubmit={handleSubmit}>
+      <form className={isEmbedded ? "space-y-6" : "p-6 space-y-6"} onSubmit={handleSubmit}>
           {/* Parking Lot Selection */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -205,124 +230,88 @@ export default function RequestWithdrawalModal({ onClose, onRequested }) {
             </select>
           </div>
 
-          {/* Withdrawal Periods */}
-          {selectedLotId && (
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Select Periods to Withdraw <span className="text-red-500">*</span>
-              </label>
-              {loadingPeriods ? (
-                <div className="text-center py-8 text-gray-500 text-lg">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-2"></div>
-                  Loading periods...
-                </div>
-              ) : periods.length > 0 ? (
-                <div className="border-2 border-gray-300 rounded-xl max-h-80 overflow-y-auto bg-gray-50">
-                  {periods.filter(p => !p.isWithdrawn).map((period) => (
-                    <div
-                      key={period.id}
-                      className="flex items-start justify-between p-5 border-b last:border-b-0 hover:bg-white transition-colors bg-white mb-2 mx-2 mt-2 rounded-lg shadow-sm"
-                    >
-                      <label className="flex items-start gap-4 cursor-pointer flex-1">
-                        <input
-                          type="checkbox"
-                          checked={selectedPeriods.includes(period.id)}
-                          onChange={() => handlePeriodToggle(period.id)}
-                          className="w-5 h-5 mt-1 text-indigo-600 rounded focus:ring-indigo-500 cursor-pointer"
-                        />
-                        <div className="flex-1">
-                          <div className="font-bold text-gray-900 text-lg mb-3">
-                            📅 {formatDate(period.periodStartDate)} → {formatDate(period.periodEndDate)}
-                          </div>
-                          <div className="grid grid-cols-2 gap-3 text-sm">
-                            <div className="flex justify-between p-2 bg-blue-50 rounded">
-                              <span className="text-gray-600">Reservation:</span>
-                              <span className="font-semibold text-blue-700">{formatCurrency(period.reservationRevenue)}</span>
-                            </div>
-                            <div className="flex justify-between p-2 bg-purple-50 rounded">
-                              <span className="text-gray-600">Subscription:</span>
-                              <span className="font-semibold text-purple-700">{formatCurrency(period.subscriptionRevenue)}</span>
-                            </div>
-                            <div className="flex justify-between p-2 bg-green-50 rounded">
-                              <span className="text-gray-600">Walk-in:</span>
-                              <span className="font-semibold text-green-700">{formatCurrency(period.walkInRevenue)}</span>
-                            </div>
-                            <div className="flex justify-between p-2 bg-indigo-50 rounded">
-                              <span className="font-gray-600 font-semibold">Gross Revenue:</span>
-                              <span className="font-bold text-indigo-700">{formatCurrency(period.grossRevenue)}</span>
-                            </div>
-                          </div>
-                          <div className="flex justify-between mt-3 pt-3 border-t-2 border-dashed">
-                            <span className="text-red-600 font-medium">Platform Fee:</span>
-                            <span className="font-bold text-red-600">-{formatCurrency(period.platformFee)}</span>
-                          </div>
-                        </div>
-                        <div className="text-right ml-6 flex flex-col items-end justify-center min-w-[180px]">
-                          <div className="text-sm text-gray-500 mb-2">
-                            Net Revenue
-                          </div>
-                          <div className="font-bold text-green-600 text-3xl mb-2">
-                            {formatCurrency(period.netRevenue)}
-                          </div>
-                          <div className="text-sm">
-                            {period.isWithdrawn ? (
-                              <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full font-medium">✓ Withdrawn</span>
-                            ) : (
-                              <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium">● Available</span>
-                            )}
-                          </div>
-                        </div>
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-4 text-gray-500 border border-gray-300 rounded-lg">
-                  No withdrawal periods available for this parking lot
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Total Amount */}
-          {selectedPeriods.length > 0 && (
-            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-300 rounded-xl p-6 shadow-md">
-              <div className="flex justify-between items-center">
-                <div>
-                  <span className="text-lg font-semibold text-gray-700">Total Withdrawal Amount:</span>
-                  <div className="text-sm text-gray-600 mt-1">
-                    {selectedPeriods.length} period(s) selected
-                  </div>
-                </div>
-                <span className="text-4xl font-bold text-indigo-700">
-                  {formatCurrency(calculateTotalAmount())}
-                </span>
-              </div>
-            </div>
-          )}
-
           {/* Bank Selection */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Bank <span className="text-red-500">*</span>
             </label>
-            <select
-              name="bankCode"
-              value={form.bankCode}
-              onChange={handleChange}
-              required
-              disabled={loadingBanks}
-              className="w-full border-2 border-gray-300 px-4 py-3 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-base"
-            >
-              <option value="">
-                {loadingBanks ? "Loading banks..." : "-- Select Bank --"}
-              </option>
-              {banks.map((bank) => (
-                <option key={bank.id} value={bank.code}>
-                  {bank.name} ({bank.shortName})
-                </option>
-              ))}
-            </select>
+            {loadingBanks ? (
+              <div className="w-full border-2 border-gray-300 px-4 py-3 rounded-lg bg-gray-50 text-gray-500">
+                Loading banks...
+              </div>
+            ) : (
+              <div className="relative bank-dropdown-container">
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={bankSearchQuery}
+                    onChange={(e) => {
+                      setBankSearchQuery(e.target.value);
+                      setShowBankDropdown(true);
+                    }}
+                    onFocus={() => setShowBankDropdown(true)}
+                    placeholder={form.bankCode ? banks.find(b => b.bin === form.bankCode)?.name : "Search bank..."}
+                    className="w-full border-2 border-gray-300 pl-4 pr-12 py-3 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-base"
+                  />
+                  {form.bankCode && (
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
+                      <img
+                        src={banks.find(b => b.bin === form.bankCode)?.logo}
+                        alt=""
+                        className="w-6 h-6 object-contain"
+                      />
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setShowBankDropdown(!showBankDropdown)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2"
+                  >
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                </div>
+                
+                {showBankDropdown && (() => {
+                  const filteredBanks = banks.filter(bank => 
+                    bank.name.toLowerCase().includes(bankSearchQuery.toLowerCase()) ||
+                    bank.shortName.toLowerCase().includes(bankSearchQuery.toLowerCase())
+                  );
+                  
+                  return filteredBanks.length > 0 ? (
+                    <div className="absolute z-50 w-full bottom-full mb-2 bg-white border-2 border-gray-300 rounded-lg shadow-xl max-h-80 overflow-y-auto custom-scrollbar">
+                      {filteredBanks.map((bank) => (
+                        <button
+                          key={bank.id}
+                          type="button"
+                          onClick={() => {
+                            setForm({ ...form, bankCode: bank.bin });
+                            setBankSearchQuery("");
+                            setShowBankDropdown(false);
+                          }}
+                          className="w-full px-4 py-3 hover:bg-indigo-50 flex items-center gap-3 transition-colors border-b last:border-b-0"
+                        >
+                          <img
+                            src={bank.logo}
+                            alt={bank.shortName}
+                            className="w-10 h-10 object-contain flex-shrink-0"
+                          />
+                          <div className="text-left flex-1">
+                            <div className="font-medium text-gray-900">{bank.name}</div>
+                            <div className="text-sm text-gray-500">{bank.shortName}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="absolute z-50 w-full bottom-full mb-2 bg-white border-2 border-gray-300 rounded-lg shadow-xl px-4 py-6 text-center text-gray-500">
+                      No banks found
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
           </div>
 
           {/* Bank Account Number */}
@@ -357,24 +346,131 @@ export default function RequestWithdrawalModal({ onClose, onRequested }) {
             />
           </div>
 
+          {/* Withdrawal Periods */}
+          {selectedLotId && (
+            <div className="mb-6">
+              <label className="block text-lg font-bold text-indigo-900 mb-4 flex items-center gap-2 px-5 py-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-indigo-200 rounded-xl">
+                <span className="text-2xl">📋</span>
+                Select Periods to Withdraw <span className="text-red-500">*</span>
+              </label>
+              {loadingPeriods ? (
+                <div className="text-center py-8 text-gray-500 text-lg">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-2"></div>
+                  Loading periods...
+                </div>
+              ) : (() => {
+                const availablePeriods = periods.filter(p => !p.isWithdrawn && p.lotId === parseInt(selectedLotId));
+                return availablePeriods.length > 0 ? (
+                <div className="space-y-3">
+                  {availablePeriods.map((period) => (
+                    <div
+                      key={period.id}
+                      className="bg-white border-2 border-indigo-200 rounded-xl p-4 hover:shadow-lg transition-all hover:border-indigo-400"
+                    >
+                      <label className="flex items-start gap-3 cursor-pointer flex-1">
+                        <input
+                          type="checkbox"
+                          checked={selectedPeriods.includes(period.id)}
+                          onChange={() => handlePeriodToggle(period.id)}
+                          className="w-5 h-5 mt-1 text-indigo-600 rounded focus:ring-indigo-500 cursor-pointer"
+                        />
+                        <div className="flex-1">
+                          <div className="font-bold text-gray-900 text-base mb-2">
+                            📅 {formatDate(period.periodStartDate)} → {formatDate(period.periodEndDate)}
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div className="flex justify-between p-1.5 bg-blue-50 rounded">
+                              <span className="text-gray-600 text-xs">Reservation:</span>
+                              <span className="font-semibold text-blue-700 text-xs">{formatCurrency(period.reservationRevenue)}</span>
+                            </div>
+                            <div className="flex justify-between p-1.5 bg-purple-50 rounded">
+                              <span className="text-gray-600 text-xs">Subscription:</span>
+                              <span className="font-semibold text-purple-700 text-xs">{formatCurrency(period.subscriptionRevenue)}</span>
+                            </div>
+                            <div className="flex justify-between p-1.5 bg-green-50 rounded">
+                              <span className="text-gray-600 text-xs">Walk-in:</span>
+                              <span className="font-semibold text-green-700 text-xs">{formatCurrency(period.walkInRevenue)}</span>
+                            </div>
+                            <div className="flex justify-between p-1.5 bg-indigo-50 rounded">
+                              <span className="font-gray-600 font-semibold text-xs">Gross Revenue:</span>
+                              <span className="font-bold text-indigo-700 text-xs">{formatCurrency(period.grossRevenue)}</span>
+                            </div>
+                          </div>
+                          <div className="flex justify-between mt-2 pt-2 border-t border-dashed">
+                            <span className="text-red-600 font-medium text-xs">Platform Fee:</span>
+                            <span className="font-bold text-red-600 text-xs">-{formatCurrency(period.platformFee)}</span>
+                          </div>
+                        </div>
+                        <div className="text-right ml-4 flex flex-col items-end justify-center min-w-[140px]">
+                          <div className="text-xs text-gray-500 mb-1">
+                            Net Revenue
+                          </div>
+                          <div className="font-bold text-green-600 text-2xl mb-1">
+                            {formatCurrency(period.netRevenue)}
+                          </div>
+                          <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium text-xs">● Available</span>
+                        </div>
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                ) : (
+                <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                  No withdrawal periods available for this parking lot
+                </div>
+                );
+              })()}
+            </div>
+          )}
+
+          {/* Total Amount */}
+          {selectedPeriods.length > 0 && (
+            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-300 rounded-xl p-6 shadow-md">
+              <div className="flex justify-between items-center">
+                <div>
+                  <span className="text-lg font-semibold text-gray-700">Total Withdrawal Amount:</span>
+                  <div className="text-sm text-gray-600 mt-1">
+                    {selectedPeriods.length} period(s) selected
+                  </div>
+                </div>
+                <span className="text-4xl font-bold text-indigo-700">
+                  {formatCurrency(calculateTotalAmount())}
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* Action Buttons */}
           <div className="flex justify-end gap-3 pt-4 border-t-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-6 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium transition text-base"
-            >
-              Cancel
-            </button>
+            {!isEmbedded && (
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-6 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium transition text-base"
+              >
+                Cancel
+              </button>
+            )}
             <button
               type="submit"
               disabled={loading || selectedPeriods.length === 0}
-              className="bg-indigo-600 text-white py-3 px-6 rounded-lg shadow-md"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-6 rounded-lg shadow-md font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Submitting..." : "Submit Request"}
+              {loading ? "Submitting..." : "Submit Withdrawal Request"}
             </button>
           </div>
         </form>
+    </>
+  );
+
+  if (isEmbedded) {
+    return content;
+  }
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black/50 z-50">
+      <div className="bg-white w-[900px] max-h-[90vh] overflow-y-auto custom-scrollbar rounded-xl shadow-xl">
+        {content}
       </div>
     </div>
   );

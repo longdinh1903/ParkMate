@@ -63,10 +63,10 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
   return (
     <>
       <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50 p-4">
-        <div className="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-[700px] max-h-[90vh] border border-gray-200 flex flex-col">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh] overflow-hidden">
           {/* Header - Fixed */}
-          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200 flex-shrink-0">
-            <h2 className="text-xl font-semibold text-orange-700 flex items-center gap-2">
+          <div className="flex items-center justify-between px-6 py-4 bg-orange-50 border-b border-orange-100">
+            <h2 className="text-xl font-bold text-orange-700 flex items-center gap-3">
               <i className="ri-building-fill text-orange-600 text-2xl"></i>
               Partner Details
             </h2>
@@ -79,7 +79,7 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
           </div>
 
           {/* Content - Scrollable */}
-          <div className="px-6 py-5 text-sm text-gray-700 space-y-3 overflow-y-auto flex-1">
+          <div className="overflow-y-auto p-6 text-gray-700 text-sm space-y-8 custom-scrollbar">
           
           {/* Company Information */}
           <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg p-4 border border-indigo-200">

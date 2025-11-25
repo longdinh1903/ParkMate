@@ -324,7 +324,7 @@ export default function AdminPartnerRequests() {
                       <button
                         title="View Details"
                         onClick={() => handleView(r.id)}
-                        className="p-2 rounded-full hover:bg-orange-100 transition cursor-pointer"
+                        className="p-2 rounded-full hover:bg-indigo-100 transition cursor-pointer"
                       >
                         <EyeIcon className="w-5 h-5" />
                       </button>

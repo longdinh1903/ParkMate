@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 
-export default function AddRuleModal({ open, onSave, onClose }) {
+export default function AddRuleModal({ open, onSave, onClose, variant = "partner" }) {
   const [rule, setRule] = useState({
     ruleName: "",
     vehicleType: "",
@@ -51,6 +51,12 @@ export default function AddRuleModal({ open, onSave, onClose }) {
 
   if (!open) return null;
 
+  const isAdmin = variant === "admin";
+
+  const primaryBg = isAdmin ? "bg-orange-600 hover:bg-orange-700" : "bg-indigo-600 hover:bg-indigo-700";
+  const primaryText = isAdmin ? "text-orange-700" : "text-indigo-700";
+  const focusRing = isAdmin ? "focus:ring-orange-400" : "focus:ring-indigo-400";
+
   return (
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50" onClick={onClose}>
       <form
@@ -67,7 +73,7 @@ export default function AddRuleModal({ open, onSave, onClose }) {
         <i className="ri-close-line text-2xl"></i>
       </button>
 
-      <h2 className="text-lg font-bold text-indigo-700 mb-3">
+      <h2 className={`text-lg font-bold ${primaryText} mb-3`}>
         ➕ Add New Pricing Rule
       </h2>
 
@@ -82,7 +88,7 @@ export default function AddRuleModal({ open, onSave, onClose }) {
             onChange={handleChange}
             required
             placeholder="Enter rule name"
-            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+            className={`w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 ${focusRing}`}
           />
         </div>
         <div>
@@ -92,7 +98,7 @@ export default function AddRuleModal({ open, onSave, onClose }) {
             value={rule.vehicleType}
             onChange={handleChange}
             required
-            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+            className={`w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 ${focusRing}`}
           >
             <option value="">Select type</option>
             <option value="CAR_UP_TO_9_SEATS">Car (≤9 seats)</option>
@@ -114,7 +120,7 @@ export default function AddRuleModal({ open, onSave, onClose }) {
             onChange={handleChange}
             placeholder="e.g. 15000"
             required
-            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+            className={`w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 ${focusRing}`}
           />
         </div>
         <div>
@@ -126,7 +132,7 @@ export default function AddRuleModal({ open, onSave, onClose }) {
             onChange={handleChange}
             placeholder="e.g. 10"
             required
-            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+            className={`w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 ${focusRing}`}
           />
         </div>
       </div>
@@ -141,7 +147,7 @@ export default function AddRuleModal({ open, onSave, onClose }) {
             value={rule.initialCharge}
             onChange={handleChange}
             placeholder="e.g. 5000"
-            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+            className={`w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 ${focusRing}`}
           />
         </div>
         <div>
@@ -196,7 +202,7 @@ export default function AddRuleModal({ open, onSave, onClose }) {
         </button>
         <button
           type="submit"
-          className="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+          className={`px-5 py-2 ${primaryBg} text-white rounded-lg transition`}
         >
           Save Rule
         </button>

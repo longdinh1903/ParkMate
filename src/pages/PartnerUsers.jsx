@@ -21,13 +21,9 @@ export default function PartnerUsers() {
   const [userSubscriptions, setUserSubscriptions] = useState([]);
   const [parkingLotsMap, setParkingLotsMap] = useState({});
   const [subscriptionPackagesMap, setSubscriptionPackagesMap] = useState({});
-  const [partnerLotIds, setPartnerLotIds] = useState([]); // Store partner's parking lot IDs
-  const [allFilteredData, setAllFilteredData] = useState([]); // Store all filtered data for pagination
   const [userCache, setUserCache] = useState({}); // Cache user details
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
-  const [filterVehicleType, setFilterVehicleType] = useState("");
   const [filterSubscriptionPackage, setFilterSubscriptionPackage] =
     useState("");
   const [filterParkingLot, setFilterParkingLot] = useState("");
@@ -36,7 +32,7 @@ export default function PartnerUsers() {
 
   // Pagination state
   const [page, setPage] = useState(0);
-  const [size] = useState(7); // 6 items per page
+  const [size] = useState(6); // 6 items per page
   const [pagination, setPagination] = useState({
     totalPages: 0,
     totalElements: 0,
@@ -47,19 +43,14 @@ export default function PartnerUsers() {
   const [selectedUserSubscription, setSelectedUserSubscription] =
     useState(null);
 
-  // Fetch partner's parking lots first to get all lot IDs
+  // Fetch partner's parking lots to get lot IDs and build map
   const fetchPartnerParkingLots = async () => {
     try {
-      console.log("Fetching partner's parking lots...");
       const response = await parkingLotApi.getAllByPartner();
-      console.log("Partner parking lots response:", response);
-
       const payload = response?.data?.data;
       if (payload) {
         const lots = payload.content || payload;
         const lotIds = Array.isArray(lots) ? lots.map((lot) => lot.id) : [];
-        console.log("Partner's parking lot IDs:", lotIds);
-        setPartnerLotIds(lotIds);
 
         // Build parking lots map
         const lotsMap = {};
@@ -71,293 +62,157 @@ export default function PartnerUsers() {
         return lotIds;
       }
       return [];
-    } catch (error) {
-      console.error("Error fetching partner's parking lots:", error);
+    } catch {
       toast.error("Failed to load parking lots");
+      return [];
+    }
+  };
+  
+  // Fetch all subscription packages from partner's parking lots
+  const fetchPartnerSubscriptions = async (lotIds) => {
+    try {
+      // Lấy tất cả subscription packages của partner (dùng ownedByMe=true)
+      const response = await subscriptionApi.getAll(
+        { page: 0, size: 1000 },
+        { ownedByMe: true }
+      );
+      const packages = response?.data?.data?.content || response?.data?.data || [];
+      
+      // Filter chỉ lấy packages thuộc về parking lots của partner
+      const partnerPackages = packages.filter(pkg => 
+        pkg.lotId && lotIds.includes(pkg.lotId)
+      );
+      
+      // Build map
+      const packagesMap = {};
+      const allPackageIds = [];
+      partnerPackages.forEach(pkg => {
+        if (pkg.id) {
+          packagesMap[pkg.id] = pkg;
+          allPackageIds.push(pkg.id);
+        }
+      });
+      
+      setSubscriptionPackagesMap(packagesMap);
+      return allPackageIds;
+    } catch {
+      toast.error("Failed to load subscription packages");
       return [];
     }
   };
 
   // Fetch all user subscriptions
   const fetchUserSubscriptions = useCallback(
-    async (currentPage = 0, lotIds = []) => {
+    async (lotIds = [], packageIds = []) => {
       try {
         setLoading(true);
 
-        // If we don't have lot IDs yet, can't fetch user subscriptions
-        if (lotIds.length === 0) {
-          console.log("No parking lots found for this partner");
+        if (lotIds.length === 0 || packageIds.length === 0) {
           setUserSubscriptions([]);
-          setPagination({
-            totalPages: 0,
-            totalElements: 0,
-          });
+          setPagination({ totalPages: 0, totalElements: 0 });
           setLoading(false);
           return;
         }
 
-        // Build params based on filters
-        const queryParams = {
-          page: currentPage,
-          size: 9999, // Get all to filter client-side
-          sortBy: sortBy,
-          sortOrder: sortOrder === "asc" ? "ASC" : "DESC",
-        };
+        // Fetch subscriptions for ALL combinations of lots x packages
+        const allPromises = [];
+        lotIds.forEach(lotId => {
+          packageIds.forEach(packageId => {
+            const queryParams = {
+              page: 0,
+              size: size,
+              sortBy: sortBy,
+              sortOrder: sortOrder === "asc" ? "ASC" : "DESC",
+              parkingLotId: lotId,
+              subscriptionPackageId: packageId,
+            };
+            allPromises.push(
+              subscriptionApi.getAllUserSubscriptions(queryParams)
+                .then(res => res?.data?.data?.content || [])
+                .catch(() => [])
+            );
+          });
+        });
 
-        // Add status filter if selected
-        if (filterStatus) {
-          queryParams.status = filterStatus;
+        // Wait for all API calls
+        const allResults = await Promise.all(allPromises);
+        const allData = allResults.flat();
+
+        // Build parking lots map from subscription data
+        const lotsMap = { ...parkingLotsMap };
+        allData.forEach((sub) => {
+          if (sub.parkingLotId && sub.lotName && !lotsMap[sub.parkingLotId]) {
+            lotsMap[sub.parkingLotId] = {
+              id: sub.parkingLotId,
+              name: sub.lotName,
+            };
+          }
+        });
+        if (Object.keys(lotsMap).length > Object.keys(parkingLotsMap).length) {
+          setParkingLotsMap(lotsMap);
         }
 
-        // Add vehicle type filter if selected
-        if (filterVehicleType) {
-          queryParams.vehicleType = filterVehicleType;
-        }
+        // Fetch user details for ALL subscriptions
+        const subscriptionsWithUsers = await Promise.all(
+          allData.map(async (sub) => {
+            if (!sub.userId) return sub;
+            
+            if (userCache[sub.userId]) {
+              return { ...sub, user: userCache[sub.userId] };
+            }
 
-        // Add optional filters from URL if present
-        if (subscriptionIdFromUrl) {
-          queryParams.subscriptionPackageId = subscriptionIdFromUrl;
-        }
-
-        if (lotIdFromUrl) {
-          queryParams.parkingLotId = lotIdFromUrl;
-        }
-
-        console.log("Fetching user subscriptions with params:", queryParams);
-
-        // Call API to get all user subscriptions
-        const response = await subscriptionApi.getAllUserSubscriptions(
-          queryParams
+            try {
+              const userResponse = await adminApi.getUserById(sub.userId);
+              const userData = userResponse?.data?.data;
+              setUserCache((prev) => ({ ...prev, [sub.userId]: userData }));
+              return { ...sub, user: userData };
+            } catch {
+              return sub;
+            }
+          })
         );
 
-        console.log("User subscriptions response:", response);
-
-        const payload = response?.data?.data;
-        const success = response?.data?.success;
-
-        if (!success || !payload) {
-          toast.error("Failed to load users");
-          setUserSubscriptions([]);
-          return;
-        }
-
-        if (payload.content !== undefined) {
-          console.log("User subscriptions found:", payload.content.length);
-
-          // ✅ FILTER by partner's parking lot IDs (client-side)
-          const filteredByPartnerLots = payload.content.filter((sub) => {
-            return lotIds.includes(sub.parkingLotId);
-          });
-          console.log(
-            `Filtered: ${filteredByPartnerLots.length} subscriptions belonging to partner's parking lots`
-          );
-
-          // ✅ Pagination FIRST - only get current page items
-          const startIdx = currentPage * size;
-          const endIdx = startIdx + size;
-          const currentPageItems = filteredByPartnerLots.slice(
-            startIdx,
-            endIdx
-          );
-
-          // ✅ Fetch user details ONLY for current page items (6 users max)
-          const subscriptionsWithUsers = await Promise.all(
-            currentPageItems.map(async (sub) => {
-              if (sub.userId && !sub.user) {
-                // Check cache first
-                if (userCache[sub.userId]) {
-                  return { ...sub, user: userCache[sub.userId] };
-                }
-
-                try {
-                  const userResponse = await adminApi.getUserById(sub.userId);
-                  const userData = userResponse?.data?.data;
-                  // Cache the user data
-                  setUserCache((prev) => ({ ...prev, [sub.userId]: userData }));
-                  return { ...sub, user: userData };
-                } catch (error) {
-                  console.error(`Error fetching user ${sub.userId}:`, error);
-                  return sub;
-                }
-              }
-              return sub;
-            })
-          );
-
-          // Store all filtered data (without user details) for pagination
-          setAllFilteredData(filteredByPartnerLots);
-          setUserSubscriptions(subscriptionsWithUsers);
-          setPagination({
-            totalPages: Math.ceil(filteredByPartnerLots.length / size),
-            totalElements: filteredByPartnerLots.length,
-          });
-        } else {
-          const data = Array.isArray(payload) ? payload : [];
-          const filteredByPartnerLots = data.filter((sub) =>
-            lotIds.includes(sub.parkingLotId)
-          );
-
-          setUserSubscriptions(filteredByPartnerLots);
-          setPagination({
-            totalPages: 1,
-            totalElements: filteredByPartnerLots.length,
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching user subscriptions:", error);
+        setUserSubscriptions(subscriptionsWithUsers);
+      } catch {
         toast.error("Failed to load users");
         setUserSubscriptions([]);
       } finally {
         setLoading(false);
       }
     },
-    [
-      sortBy,
-      sortOrder,
-      filterStatus,
-      filterVehicleType,
-      subscriptionIdFromUrl,
-      lotIdFromUrl,
-      size,
-      userCache,
-    ]
+    [sortBy, sortOrder, size, userCache]
   );
 
-  // Initial load: fetch parking lots first, then user subscriptions
+  // Initial load - fetch parking lots, then packages, then subscriptions
   useEffect(() => {
     const loadData = async () => {
       const lotIds = await fetchPartnerParkingLots();
       if (lotIds.length > 0) {
-        await fetchUserSubscriptions(page, lotIds);
+        const packageIds = await fetchPartnerSubscriptions(lotIds);
+        if (packageIds.length > 0) {
+          await fetchUserSubscriptions(lotIds, packageIds);
+        } else {
+          setLoading(false);
+        }
       } else {
         setLoading(false);
       }
     };
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run once on mount
-
-  // Refetch when filters or page changes
-  useEffect(() => {
-    if (partnerLotIds.length > 0) {
-      // Check if only page changed (not filters)
-      if (allFilteredData.length > 0) {
-        // Paginate and fetch user details for current page
-        const startIdx = page * size;
-        const endIdx = startIdx + size;
-        const currentPageItems = allFilteredData.slice(startIdx, endIdx);
-
-        // Fetch user details for current page items
-        const fetchPageUserDetails = async () => {
-          setLoading(true);
-          const subscriptionsWithUsers = await Promise.all(
-            currentPageItems.map(async (sub) => {
-              if (sub.userId && !sub.user) {
-                // Check cache first
-                if (userCache[sub.userId]) {
-                  return { ...sub, user: userCache[sub.userId] };
-                }
-
-                try {
-                  const userResponse = await adminApi.getUserById(sub.userId);
-                  const userData = userResponse?.data?.data;
-                  // Cache the user data
-                  setUserCache((prev) => ({ ...prev, [sub.userId]: userData }));
-                  return { ...sub, user: userData };
-                } catch (error) {
-                  console.error(`Error fetching user ${sub.userId}:`, error);
-                  return sub;
-                }
-              }
-              return sub;
-            })
-          );
-          setUserSubscriptions(subscriptionsWithUsers);
-          setLoading(false);
-        };
-
-        fetchPageUserDetails();
-      } else {
-        // Fetch data when filters change
-        fetchUserSubscriptions(page, partnerLotIds);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
-
-  // Refetch when filters change (and reset page to 0)
-  useEffect(() => {
-    if (partnerLotIds.length > 0) {
-      setPage(0); // Reset to first page
-      fetchUserSubscriptions(0, partnerLotIds);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    sortBy,
-    sortOrder,
-    filterStatus,
-    filterVehicleType,
-    subscriptionIdFromUrl,
-    lotIdFromUrl,
-    partnerLotIds,
-  ]);
-
-  // Fetch related data when subscriptions change
-  useEffect(() => {
-    const fetchRelatedData = async () => {
-      if (userSubscriptions.length === 0) return;
-
-      try {
-        // Get unique subscription package IDs (only for current page)
-        const packageIds = [
-          ...new Set(
-            userSubscriptions
-              .map((sub) => sub.subscriptionPackageId)
-              .filter((id) => id)
-          ),
-        ];
-
-        // Only fetch packages that we don't have yet
-        const missingPackageIds = packageIds.filter(
-          (id) => !subscriptionPackagesMap[id]
-        );
-
-        if (missingPackageIds.length === 0) return; // All packages already loaded
-
-        // Fetch subscription packages (parking lots already fetched)
-        const packagesMap = { ...subscriptionPackagesMap }; // Copy existing
-        await Promise.all(
-          missingPackageIds.map(async (packageId) => {
-            try {
-              const response = await subscriptionApi.getById(packageId);
-              if (response.data) {
-                if (response.data.name) {
-                  packagesMap[packageId] = response.data;
-                } else if (response.data.data && response.data.data.name) {
-                  packagesMap[packageId] = response.data.data;
-                }
-              }
-            } catch (error) {
-              console.error(`Error fetching package ${packageId}:`, error);
-            }
-          })
-        );
-
-        setSubscriptionPackagesMap(packagesMap);
-      } catch (error) {
-        console.error("Error fetching related data:", error);
-      }
-    };
-
-    fetchRelatedData();
-  }, [userSubscriptions, subscriptionPackagesMap]);
+  }, [sortBy, sortOrder]); // Refetch when sort changes
 
   // Helper function to refresh data
   const refreshData = async () => {
-    const lotIds = await fetchPartnerParkingLots();
-    if (lotIds.length > 0) {
-      await fetchUserSubscriptions(0, lotIds);
-      setPage(0);
+    setLoading(true);
+    try {
+      const lotIds = await fetchPartnerParkingLots();
+      const packageIds = await fetchPartnerSubscriptions(lotIds);
+      await fetchUserSubscriptions(lotIds, packageIds);
+    } catch {
+      toast.error("Refresh failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -395,9 +250,36 @@ export default function PartnerUsers() {
     return colors[status] || "bg-gray-100 text-gray-800";
   };
 
-  // Client-side filtering (only for current page data)
+  // Client-side filtering and pagination
   const filteredUserSubscriptions = useMemo(() => {
     let filtered = userSubscriptions;
+
+    // Apply URL filters first
+    if (subscriptionIdFromUrl) {
+      filtered = filtered.filter(
+        (sub) => sub.subscriptionPackageId === parseInt(subscriptionIdFromUrl)
+      );
+    }
+
+    if (lotIdFromUrl) {
+      filtered = filtered.filter(
+        (sub) => sub.parkingLotId === parseInt(lotIdFromUrl)
+      );
+    }
+
+    // Apply dropdown filters
+    if (filterSubscriptionPackage) {
+      filtered = filtered.filter(
+        (sub) =>
+          sub.subscriptionPackageId === parseInt(filterSubscriptionPackage)
+      );
+    }
+
+    if (filterParkingLot) {
+      filtered = filtered.filter(
+        (sub) => sub.parkingLotId === parseInt(filterParkingLot)
+      );
+    }
 
     // Apply search term filter
     if (searchTerm.trim()) {
@@ -420,29 +302,27 @@ export default function PartnerUsers() {
       });
     }
 
-    // Apply subscription package filter
-    if (filterSubscriptionPackage) {
-      filtered = filtered.filter(
-        (sub) =>
-          sub.subscriptionPackageId === parseInt(filterSubscriptionPackage)
-      );
-    }
+    // Update pagination
+    setPagination({
+      totalPages: Math.ceil(filtered.length / size),
+      totalElements: filtered.length,
+    });
 
-    // Apply parking lot filter
-    if (filterParkingLot) {
-      filtered = filtered.filter(
-        (sub) => sub.parkingLotId === parseInt(filterParkingLot)
-      );
-    }
-
-    return filtered;
+    // Paginate
+    const startIdx = page * size;
+    const endIdx = startIdx + size;
+    return filtered.slice(startIdx, endIdx);
   }, [
     userSubscriptions,
     searchTerm,
     filterSubscriptionPackage,
     filterParkingLot,
+    subscriptionIdFromUrl,
+    lotIdFromUrl,
     parkingLotsMap,
     subscriptionPackagesMap,
+    page,
+    size,
   ]);
 
   return (
@@ -500,8 +380,6 @@ export default function PartnerUsers() {
                 <button
                   onClick={() => {
                     setSearchTerm("");
-                    setFilterStatus("");
-                    setFilterVehicleType("");
                     setFilterSubscriptionPackage("");
                     setFilterParkingLot("");
                     setSortBy("createdAt");
@@ -524,22 +402,6 @@ export default function PartnerUsers() {
                 <div className="flex gap-3 items-center flex-wrap">
                   <FunnelIcon className="w-5 h-5 text-gray-500" />
 
-                  {/* Status Filter */}
-                  <select
-                    value={filterStatus}
-                    onChange={(e) => {
-                      setFilterStatus(e.target.value);
-                      setPage(0);
-                    }}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  >
-                    <option value="">All Status</option>
-                    <option value="PENDING_PAYMENT">Pending Payment</option>
-                    <option value="ACTIVE">Active</option>
-                    <option value="INACTIVE">Inactive</option>
-                    <option value="EXPIRED">Expired</option>
-                    <option value="CANCELLED">Cancelled</option>
-                  </select>
                   {/* Subscription Package Filter */}
                   <select
                     value={filterSubscriptionPackage}

@@ -9,7 +9,6 @@ const subscriptionApi = {
       ...queryParams,
       ...filterParams
     };
-    console.log("All params being sent:", allParams);
     return axiosClient.get(url, { params: allParams });
   },
 
@@ -54,24 +53,31 @@ const subscriptionApi = {
   },
 
   // Get all user subscriptions for partner's parking lots
-  // This will get all users who subscribed to any parking lot owned by the current partner
+  // REQUIRES: ownedByMe=false + parkingLotId + subscriptionPackageId
   getAllUserSubscriptions: (queryParams = {}) => {
     const url = `/api/v1/user-service/user-subscriptions`;
+    
+    // Return empty if missing REQUIRED params
+    if (!queryParams.parkingLotId || !queryParams.subscriptionPackageId) {
+      return Promise.resolve({ 
+        data: { 
+          success: true, 
+          data: { content: [], totalPages: 0, totalElements: 0 } 
+        } 
+      });
+    }
+    
+    // Build params directly (not wrapped in searchCriteria)
     const params = {
       page: queryParams.page || 0,
       size: queryParams.size || 10,
       sortBy: queryParams.sortBy || "createdAt",
-      sortOrder: queryParams.sortOrder || "asc",
-      ownedByMe: true, // Filter by partner's parking lots
+      sortOrder: queryParams.sortOrder || "desc",
+      ownedByMe: false, // MUST be false
+      parkingLotId: parseInt(queryParams.parkingLotId), // REQUIRED
+      subscriptionPackageId: parseInt(queryParams.subscriptionPackageId), // REQUIRED
     };
     
-    // Add optional filters
-    if (queryParams.status) params.status = queryParams.status;
-    if (queryParams.vehicleType) params.vehicleType = queryParams.vehicleType;
-    if (queryParams.subscriptionPackageId) params.subscriptionPackageId = queryParams.subscriptionPackageId;
-    if (queryParams.parkingLotId) params.parkingLotId = queryParams.parkingLotId;
-    
-    console.log("getAllUserSubscriptions params:", params);
     return axiosClient.get(url, { params });
   },
 

@@ -321,7 +321,7 @@ export default function AdminFeeConfig() {
                       <button
                         title="View Details"
                         onClick={(e) => handleView(f, e)}
-                        className="p-2 rounded-full hover:bg-orange-100 transition cursor-pointer"
+                        className="p-2 rounded-full hover:bg-indigo-100 transition cursor-pointer"
                       >
                         <EyeIcon className="w-5 h-5" />
                       </button>

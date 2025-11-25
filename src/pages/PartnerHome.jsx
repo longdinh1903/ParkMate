@@ -13,7 +13,7 @@ export default function PartnerHome() {
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
     page: 0,
-    size: 6,
+    size: 7,
     totalPages: 0,
     totalElements: 0,
   });
@@ -46,10 +46,8 @@ export default function PartnerHome() {
         size: pagination.size,
         sortBy: sortBy,
         sortOrder: sortOrder,
-        ownedByMe: true, // ✅ Thêm ownedByMe: true để lấy danh sách riêng
+        ownedByMe: true,
       });
-
-      console.log("API Response:", res);
 
       const payload = res?.data?.data;
       const success = res?.data?.success;
@@ -61,23 +59,6 @@ export default function PartnerHome() {
       }
 
       if (payload.content !== undefined) {
-        console.log("Parking lots found:", payload.content.length);
-        // Log unique status values returned by the API to help debugging
-        try {
-          const statuses = new Set(
-            payload.content.map((l) => {
-              const s = l?.status;
-              if (s === null || s === undefined) return "<NULL>";
-              if (typeof s === "string") return s;
-              return (
-                s.status || s.name || s.value || s.code || JSON.stringify(s)
-              );
-            })
-          );
-          console.log("Received statuses:", Array.from(statuses));
-        } catch (err) {
-          console.warn("Could not compute statuses set:", err);
-        }
         setLots(payload.content);
         setPagination({
           page: payload.number || 0,
@@ -96,8 +77,7 @@ export default function PartnerHome() {
       } else {
         setLots([]);
       }
-    } catch (err) {
-      console.error("Error fetching lots:", err);
+    } catch {
       toast.error("❌ Không thể tải danh sách bãi xe!");
       setLots([]);
     } finally {
@@ -124,8 +104,7 @@ export default function PartnerHome() {
       }
       setSelectedLot(data);
       setShowDetailModal(true);
-    } catch (err) {
-      console.error("Error fetching lot by id:", err);
+    } catch {
       toast.error("❌ Không thể tải chi tiết bãi xe!");
     } finally {
       setLoading(false);
@@ -362,6 +341,7 @@ export default function PartnerHome() {
               <option value="INACTIVE">Inactive</option>
               <option value="MAP_DENIED">Map Denied</option>
               <option value="REJECTED">Rejected</option>
+              <option value="PENDING_PAYMENT">Pending_Payment</option>
             </select>
 
             {/* Sort By Dropdown */}
@@ -544,13 +524,11 @@ export default function PartnerHome() {
                                           toast.loading("Loading parking lot details...", { id: "load-lot" });
                                           const detailRes = await parkingLotApi.getById(lot.id);
                                           const fullLot = detailRes?.data?.data || detailRes?.data || lot;
-                                          console.log("📥 Full lot details for map editor:", fullLot);
                                           
                                           setSelectedLotForMap(fullLot);
                                           setShowMapEditor(true);
                                           toast.dismiss("load-lot");
-                                        } catch (err) {
-                                          console.error("❌ Error loading lot details:", err);
+                                        } catch {
                                           toast.error("Failed to load parking lot details", { id: "load-lot" });
                                         }
                                       }}

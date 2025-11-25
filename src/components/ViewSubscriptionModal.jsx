@@ -1,7 +1,11 @@
 import React from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
-export default function ViewSubscriptionModal({ subscription, parkingLotName, onClose }) {
+export default function ViewSubscriptionModal({
+  subscription,
+  parkingLotName,
+  onClose,
+}) {
   if (!subscription) return null;
 
   // Format price
@@ -48,11 +52,16 @@ export default function ViewSubscriptionModal({ subscription, parkingLotName, on
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl relative overflow-hidden animate-fadeInScale">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-indigo-50">
-          <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <i className="ri-file-list-3-line text-indigo-600"></i>
-            Subscription Details
-          </h2>
+        <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+              <i className="ri-ticket-line text-2xl" aria-hidden="true"></i>
+            </div>
+            <div>
+              <h2 className="text-xl font-bold">Subscription Details</h2>
+            </div>
+          </div>
+
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors p-1 hover:bg-white rounded-full"
@@ -73,7 +82,9 @@ export default function ViewSubscriptionModal({ subscription, parkingLotName, on
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="text-gray-500 mb-1">Package Name</p>
-                  <p className="font-semibold text-gray-900">{subscription.name}</p>
+                  <p className="font-semibold text-gray-900">
+                    {subscription.name}
+                  </p>
                 </div>
                 <div>
                   <p className="text-gray-500 mb-1">Status</p>
