@@ -131,37 +131,31 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center transition-all duration-300 bg-black/50"
+      className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50 p-4"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto transition-all duration-300"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] relative overflow-hidden flex flex-col animate-fadeInScale"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-orange-600 to-orange-500 text-white px-8 py-6 rounded-t-2xl shadow-lg z-10">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                <i className="ri-parking-box-fill text-2xl"></i>
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold">Add New Parking Lot</h2>
-                <p className="text-orange-100 text-sm mt-1">Điền đầy đủ thông tin bên dưới</p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all"
-              disabled={loading}
-            >
-              <i className="ri-close-line text-2xl"></i>
-            </button>
-          </div>
+        {/* Header - match `ViewPartnerModal` layout */}
+        <div className="flex items-center justify-between px-6 py-4 bg-orange-50 border-b border-orange-100">
+          <h2 className="text-xl font-bold text-orange-700 flex items-center gap-3">
+            <i className="ri-parking-box-fill text-orange-600 text-2xl"></i>
+            Add New Parking Lot
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition hover:bg-gray-100 w-10 h-10 rounded-full flex items-center justify-center"
+            disabled={loading}
+          >
+            <i className="ri-close-line text-2xl"></i>
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-8">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1">
+          <div className="px-8 py-6 max-h-[70vh] overflow-y-auto custom-scrollbar space-y-8">
           {/* ---- BASIC INFORMATION ---- */}
           <section className="border-b border-gray-200 pb-8">
             <div className="flex items-center gap-3 mb-6">
@@ -459,8 +453,10 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
             )}
           </section>
 
+          </div>
+
           {/* ---- SUBMIT BUTTONS ---- */}
-          <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
+          <div className="px-8 py-4 border-t border-gray-200 bg-gray-50 flex justify-end">
             <button
               type="button"
               onClick={onClose}
@@ -589,6 +585,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
         open={showRuleModal}
         onClose={() => setShowRuleModal(false)}
         onSave={handleAddRule}
+        variant="admin"
       />
     </div>
   );

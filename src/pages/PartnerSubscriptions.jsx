@@ -84,11 +84,7 @@ export default function PartnerSubscriptions() {
         filterParams.durationType = filterDurationType;
       }
       
-      console.log("Query params:", queryParams);
-      console.log("Filter params:", filterParams);
-      
       const response = await subscriptionApi.getAll(queryParams, filterParams);
-      console.log("Subscription API response:", response);
 
       const payload = response?.data?.data;
       const success = response?.data?.success;
@@ -100,8 +96,6 @@ export default function PartnerSubscriptions() {
       }
 
       if (payload.content !== undefined) {
-        console.log("Subscriptions found:", payload.content.length);
-        console.log("First subscription object:", payload.content[0]);
         setSubscriptions(payload.content);
         setPagination({
           totalPages: payload.totalPages || 0,
@@ -116,8 +110,7 @@ export default function PartnerSubscriptions() {
           totalElements: data.length,
         });
       }
-    } catch (error) {
-      console.error("Error fetching subscriptions:", error);
+    } catch {
       toast.error("Failed to load subscription packages");
       setSubscriptions([]);
     } finally {
@@ -132,7 +125,6 @@ export default function PartnerSubscriptions() {
       const lotIds = [
         ...new Set(subs.map((sub) => sub.lotId).filter((id) => id)),
       ];
-      console.log("Fetching parking lots for IDs:", lotIds);
 
       // Fetch each parking lot by ID
       const lotsMap = {};
@@ -140,7 +132,6 @@ export default function PartnerSubscriptions() {
         lotIds.map(async (lotId) => {
           try {
             const response = await parkingLotApi.getById(lotId);
-            console.log(`Fetched lot ${lotId}:`, response.data);
             // Handle different response structures
             if (response.data) {
               if (response.data.name) {
@@ -149,16 +140,15 @@ export default function PartnerSubscriptions() {
                 lotsMap[lotId] = response.data.data;
               }
             }
-          } catch (error) {
-            console.error(`Error fetching lot ${lotId}:`, error);
+          } catch {
+            // Silently fail for individual lot fetches
           }
         })
       );
 
-      console.log("Parking lots map:", lotsMap);
       setParkingLotsMap(lotsMap);
-    } catch (error) {
-      console.error("Error fetching parking lots:", error);
+    } catch {
+      // Fail silently if parking lots can't be loaded
     }
   };
 
@@ -180,8 +170,7 @@ export default function PartnerSubscriptions() {
       toast.success("Subscription package deleted successfully!");
       fetchSubscriptions(page);
       setShowDeleteModal(false);
-    } catch (error) {
-      console.error("Error deleting subscription:", error);
+    } catch {
       toast.error("Failed to delete subscription package");
     }
   };
@@ -189,8 +178,7 @@ export default function PartnerSubscriptions() {
   // Get parking lot name by ID from map
   const getParkingLotName = (lotId) => {
     const lot = parkingLotsMap[lotId];
-    console.log(`Looking for lot ID ${lotId}, found:`, lot);
-    return lot ? lot.name : null; // Return null if not found
+    return lot ? lot.name : null;
   };
 
   // Format price
@@ -364,10 +352,7 @@ export default function PartnerSubscriptions() {
 
                 {/* Add Button */}
                 <button
-                  onClick={() => {
-                    console.log("Add Package clicked!");
-                    setShowAddModal(true);
-                  }}
+                  onClick={() => setShowAddModal(true)}
                   className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                 >
                   <PlusIcon className="w-5 h-5" />
@@ -390,10 +375,7 @@ export default function PartnerSubscriptions() {
                 </p>
                 {!searchTerm && (
                   <button
-                    onClick={() => {
-                      console.log("Create First Package clicked!");
-                      setShowAddModal(true);
-                    }}
+                    onClick={() => setShowAddModal(true)}
                     className="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                   >
                     Create First Package
@@ -589,18 +571,13 @@ export default function PartnerSubscriptions() {
       {/* Modals */}
       {showAddModal && (
         <AddSubscriptionModal
-          onClose={() => {
-            console.log("Closing AddSubscriptionModal");
-            setShowAddModal(false);
-          }}
+          onClose={() => setShowAddModal(false)}
           onSuccess={() => {
             fetchSubscriptions(page);
             setShowAddModal(false);
           }}
         />
       )}
-
-      {console.log("showAddModal state:", showAddModal)}
 
       {showEditModal && selectedSubscription && (
         <EditSubscriptionModal

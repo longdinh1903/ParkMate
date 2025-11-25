@@ -357,18 +357,18 @@ export default function AdminPartners() {
           <button
             type="button"
             onClick={handleImportClick}
-            className="flex items-center gap-2 bg-white text-gray-700 hover:bg-gray-100 border border-gray-300 font-medium px-4 py-2 rounded-lg transition cursor-pointer"
+            className="flex items-center gap-2 hover:bg-yellow-200 font-medium px-4 py-2 rounded-lg border transition transform hover:scale-105 hover:shadow-md cursor-pointer"
           >
-            <ArrowUpTrayIcon className="w-5 h-5 text-gray-700" />
+            <ArrowUpTrayIcon className="w-5 h-5 text-yellow-700" />
             Import
           </button>
 
           <button
             type="button"
             onClick={handleExport}
-            className="flex items-center gap-2 bg-white text-gray-700 hover:bg-gray-100 border border-gray-300 font-medium px-4 py-2 rounded-lg transition cursor-pointer"
+            className="flex items-center gap-2 hover:bg-green-200 font-medium px-4 py-2 rounded-lg border transition transform hover:scale-105 hover:shadow-md cursor-pointer"
           >
-            <ArrowDownTrayIcon className="w-5 h-5 text-gray-700" />
+            <ArrowDownTrayIcon className="w-5 h-5 text-green-700" />
             Export
           </button>
 
@@ -427,7 +427,7 @@ export default function AdminPartners() {
                       <button
                         title="View Details"
                         onClick={(e) => handleView(p, e)}
-                        className="p-2 rounded-full hover:bg-orange-100 transition cursor-pointer"
+                        className="p-2 rounded-full hover:bg-indigo-100 transition cursor-pointer"
                       >
                         <EyeIcon className="w-5 h-5" />
                       </button>

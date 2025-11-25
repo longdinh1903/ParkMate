@@ -7,7 +7,10 @@ import spotApi from "../api/spotApi";
 import adminApi from "../api/adminApi";
 import toast from "react-hot-toast";
 
-export default function ViewUserSubscriptionDetailModal({ userSubscription, onClose }) {
+export default function ViewUserSubscriptionDetailModal({
+  userSubscription,
+  onClose,
+}) {
   const [data, setData] = useState(null);
   const [userData, setUserData] = useState(null);
   const [vehicleData, setVehicleData] = useState(null);
@@ -19,63 +22,74 @@ export default function ViewUserSubscriptionDetailModal({ userSubscription, onCl
   useEffect(() => {
     const fetchDetail = async () => {
       if (!userSubscription?.id) return;
-      
+
       try {
         setLoading(true);
-        const response = await subscriptionApi.getUserSubscriptionById(userSubscription.id);
+        const response = await subscriptionApi.getUserSubscriptionById(
+          userSubscription.id
+        );
         const detailData = response?.data?.data;
-        
+
         if (detailData) {
           setData(detailData);
-          
+
           // Fetch all related data in parallel
           const promises = [];
-          
+
           // Fetch user details if userId exists
           if (detailData.userId) {
             promises.push(
-              adminApi.getUserById(detailData.userId)
-                .then(res => setUserData(res?.data?.data))
-                .catch(err => console.error("Error fetching user:", err))
+              adminApi
+                .getUserById(detailData.userId)
+                .then((res) => setUserData(res?.data?.data))
+                .catch((err) => console.error("Error fetching user:", err))
             );
           }
-          
+
           // Fetch vehicle details if vehicleId exists
           if (detailData.vehicleId) {
             promises.push(
-              vehicleApi.getById(detailData.vehicleId)
-                .then(res => setVehicleData(res?.data?.data))
-                .catch(err => console.error("Error fetching vehicle:", err))
+              vehicleApi
+                .getById(detailData.vehicleId)
+                .then((res) => setVehicleData(res?.data?.data))
+                .catch((err) => console.error("Error fetching vehicle:", err))
             );
           }
-          
+
           // Fetch subscription package details
           if (detailData.subscriptionPackageId) {
             promises.push(
-              subscriptionApi.getById(detailData.subscriptionPackageId)
-                .then(res => setSubscriptionPackage(res?.data?.data))
-                .catch(err => console.error("Error fetching subscription package:", err))
+              subscriptionApi
+                .getById(detailData.subscriptionPackageId)
+                .then((res) => setSubscriptionPackage(res?.data?.data))
+                .catch((err) =>
+                  console.error("Error fetching subscription package:", err)
+                )
             );
           }
-          
+
           // Fetch parking lot details
           if (detailData.parkingLotId) {
             promises.push(
-              parkingLotApi.getById(detailData.parkingLotId)
-                .then(res => setParkingLot(res?.data?.data))
-                .catch(err => console.error("Error fetching parking lot:", err))
+              parkingLotApi
+                .getById(detailData.parkingLotId)
+                .then((res) => setParkingLot(res?.data?.data))
+                .catch((err) =>
+                  console.error("Error fetching parking lot:", err)
+                )
             );
           }
-          
+
           // Fetch assigned spot details
           if (detailData.assignedSpotId) {
             promises.push(
-              spotApi.getById(detailData.assignedSpotId)
-                .then(res => setAssignedSpot(res?.data?.data))
-                .catch(err => console.error("Error fetching spot:", err))
+              spotApi
+                .getById(detailData.assignedSpotId)
+                .then((res) => setAssignedSpot(res?.data?.data))
+                .catch((err) => console.error("Error fetching spot:", err))
             );
           }
-          
+
           // Wait for all promises to complete
           await Promise.all(promises);
         } else {
@@ -118,12 +132,26 @@ export default function ViewUserSubscriptionDetailModal({ userSubscription, onCl
     const statusConfig = {
       ACTIVE: { bg: "bg-green-100", text: "text-green-800", label: "Active" },
       EXPIRED: { bg: "bg-red-100", text: "text-red-800", label: "Expired" },
-      CANCELLED: { bg: "bg-gray-100", text: "text-gray-800", label: "Cancelled" },
-      PENDING: { bg: "bg-yellow-100", text: "text-yellow-800", label: "Pending" },
+      CANCELLED: {
+        bg: "bg-gray-100",
+        text: "text-gray-800",
+        label: "Cancelled",
+      },
+      PENDING: {
+        bg: "bg-yellow-100",
+        text: "text-yellow-800",
+        label: "Pending",
+      },
     };
-    const config = statusConfig[status] || { bg: "bg-gray-100", text: "text-gray-800", label: status };
+    const config = statusConfig[status] || {
+      bg: "bg-gray-100",
+      text: "text-gray-800",
+      label: status,
+    };
     return (
-      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${config.bg} ${config.text}`}>
+      <span
+        className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${config.bg} ${config.text}`}
+      >
         {config.label}
       </span>
     );
@@ -136,8 +164,16 @@ export default function ViewUserSubscriptionDetailModal({ userSubscription, onCl
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-white flex-shrink-0">
-          <h2 className="text-xl font-bold text-indigo-700">User Subscription Details</h2>
+        <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white">
+          <div className="flex items-center gap-3">
+            <div className="w-10  h-10 bg-white/20 rounded-xl flex items-center justify-center">
+              <i className="ri-user-3-line text-2xl" aria-hidden="true"></i>
+            </div>
+            <div>
+              <h2 className="text-xl font-bold">User Subscription Details</h2>
+            </div>
+          </div>
+
           <button
             onClick={onClose}
             className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition"
@@ -180,15 +216,21 @@ export default function ViewUserSubscriptionDetailModal({ userSubscription, onCl
                     <div className="flex-1 grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-sm text-gray-500 mb-1">Full Name</p>
-                        <p className="font-bold text-gray-900 text-lg">{user?.fullName || "N/A"}</p>
+                        <p className="font-bold text-gray-900 text-lg">
+                          {user?.fullName || "N/A"}
+                        </p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500 mb-1">Phone</p>
-                        <p className="font-medium text-gray-900">{user?.phone || "-"}</p>
+                        <p className="font-medium text-gray-900">
+                          {user?.phone || "-"}
+                        </p>
                       </div>
                       <div className="col-span-2">
                         <p className="text-sm text-gray-500 mb-1">Email</p>
-                        <p className="font-medium text-gray-900">{user?.account?.email || user?.email || "-"}</p>
+                        <p className="font-medium text-gray-900">
+                          {user?.account?.email || user?.email || "-"}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -203,15 +245,21 @@ export default function ViewUserSubscriptionDetailModal({ userSubscription, onCl
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-purple-50 rounded-lg p-4">
                     <p className="text-sm text-purple-600 mb-1">Package</p>
-                    <p className="font-bold text-gray-900 text-xl">{subscriptionPackage?.name || "Loading..."}</p>
+                    <p className="font-bold text-gray-900 text-xl">
+                      {subscriptionPackage?.name || "Loading..."}
+                    </p>
                   </div>
                   <div className="bg-green-50 rounded-lg p-4">
                     <p className="text-sm text-green-600 mb-1">Parking Lot</p>
-                    <p className="font-bold text-gray-900 text-xl">{parkingLot?.name || "Loading..."}</p>
+                    <p className="font-bold text-gray-900 text-xl">
+                      {parkingLot?.name || "Loading..."}
+                    </p>
                   </div>
                   <div className="bg-orange-50 rounded-lg p-4 col-span-2">
                     <p className="text-sm text-orange-600 mb-1">Status</p>
-                    <div className="mt-1">{getStatusBadge(displayData?.status)}</div>
+                    <div className="mt-1">
+                      {getStatusBadge(displayData?.status)}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -225,39 +273,57 @@ export default function ViewUserSubscriptionDetailModal({ userSubscription, onCl
                   <div className="bg-gray-50 rounded-xl p-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-gray-500 mb-1">License Plate</p>
+                        <p className="text-sm text-gray-500 mb-1">
+                          License Plate
+                        </p>
                         <p className="font-bold text-gray-900 text-2xl">
-                          {vehicleData?.licensePlate || displayData?.vehicleLicensePlate || "-"}
+                          {vehicleData?.licensePlate ||
+                            displayData?.vehicleLicensePlate ||
+                            "-"}
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500 mb-1">Vehicle Type</p>
+                        <p className="text-sm text-gray-500 mb-1">
+                          Vehicle Type
+                        </p>
                         <p className="font-medium text-gray-900 text-lg">
-                          {vehicleData?.type === 1 ? "🏍️ Motorcycle" : 
-                           vehicleData?.type === 2 ? "🚗 Car (4-9 seats)" :
-                           vehicleData?.type === 3 ? "🚐 Van/Truck (>9 seats)" :
-                           displayData?.vehicleType === 1 ? "🏍️ Motorcycle" :
-                           displayData?.vehicleType === 2 ? "🚗 Car (4-9 seats)" :
-                           displayData?.vehicleType === 3 ? "🚐 Van/Truck (>9 seats)" :
-                           "-"}
+                          {vehicleData?.type === 1
+                            ? "🏍️ Motorcycle"
+                            : vehicleData?.type === 2
+                            ? "🚗 Car (4-9 seats)"
+                            : vehicleData?.type === 3
+                            ? "🚐 Van/Truck (>9 seats)"
+                            : displayData?.vehicleType === 1
+                            ? "🏍️ Motorcycle"
+                            : displayData?.vehicleType === 2
+                            ? "🚗 Car (4-9 seats)"
+                            : displayData?.vehicleType === 3
+                            ? "🚐 Van/Truck (>9 seats)"
+                            : "-"}
                         </p>
                       </div>
                       {vehicleData?.brand && (
                         <div>
                           <p className="text-sm text-gray-500 mb-1">Brand</p>
-                          <p className="font-medium text-gray-900">{vehicleData.brand}</p>
+                          <p className="font-medium text-gray-900">
+                            {vehicleData.brand}
+                          </p>
                         </div>
                       )}
                       {vehicleData?.model && (
                         <div>
                           <p className="text-sm text-gray-500 mb-1">Model</p>
-                          <p className="font-medium text-gray-900">{vehicleData.model}</p>
+                          <p className="font-medium text-gray-900">
+                            {vehicleData.model}
+                          </p>
                         </div>
                       )}
                       {vehicleData?.color && (
                         <div>
                           <p className="text-sm text-gray-500 mb-1">Color</p>
-                          <p className="font-medium text-gray-900">{vehicleData.color}</p>
+                          <p className="font-medium text-gray-900">
+                            {vehicleData.color}
+                          </p>
                         </div>
                       )}
                     </div>
@@ -274,17 +340,28 @@ export default function ViewUserSubscriptionDetailModal({ userSubscription, onCl
                   <div className="bg-indigo-50 rounded-xl p-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-indigo-600 mb-1">Spot Name</p>
-                        <p className="font-bold text-gray-900 text-2xl">{assignedSpot?.name || displayData?.assignedSpotName || "Loading..."}</p>
+                        <p className="text-sm text-indigo-600 mb-1">
+                          Spot Name
+                        </p>
+                        <p className="font-bold text-gray-900 text-2xl">
+                          {assignedSpot?.name ||
+                            displayData?.assignedSpotName ||
+                            "Loading..."}
+                        </p>
                       </div>
                       {assignedSpot?.status && (
                         <div>
-                          <p className="text-sm text-indigo-600 mb-1">Spot Status</p>
+                          <p className="text-sm text-indigo-600 mb-1">
+                            Spot Status
+                          </p>
                           <p className="font-medium text-gray-900 text-lg">
-                            {assignedSpot.status === "AVAILABLE" ? "🟢 Available" :
-                             assignedSpot.status === "OCCUPIED" ? "🔴 Occupied" :
-                             assignedSpot.status === "RESERVED" ? "🟡 Reserved" :
-                             assignedSpot.status}
+                            {assignedSpot.status === "AVAILABLE"
+                              ? "🟢 Available"
+                              : assignedSpot.status === "OCCUPIED"
+                              ? "🔴 Occupied"
+                              : assignedSpot.status === "RESERVED"
+                              ? "🟡 Reserved"
+                              : assignedSpot.status}
                           </p>
                         </div>
                       )}
@@ -300,20 +377,36 @@ export default function ViewUserSubscriptionDetailModal({ userSubscription, onCl
                 </h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                    <span className="text-sm font-medium text-blue-700">Created At</span>
-                    <span className="text-sm text-gray-900">{formatDate(displayData?.createdAt)}</span>
+                    <span className="text-sm font-medium text-blue-700">
+                      Created At
+                    </span>
+                    <span className="text-sm text-gray-900">
+                      {formatDate(displayData?.createdAt)}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                    <span className="text-sm font-medium text-green-700">Start Date</span>
-                    <span className="text-sm text-gray-900">{formatDate(displayData?.startDate)}</span>
+                    <span className="text-sm font-medium text-green-700">
+                      Start Date
+                    </span>
+                    <span className="text-sm text-gray-900">
+                      {formatDate(displayData?.startDate)}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
-                    <span className="text-sm font-medium text-orange-700">End Date</span>
-                    <span className="text-sm text-gray-900">{formatDate(displayData?.endDate)}</span>
+                    <span className="text-sm font-medium text-orange-700">
+                      End Date
+                    </span>
+                    <span className="text-sm text-gray-900">
+                      {formatDate(displayData?.endDate)}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <span className="text-sm font-medium text-gray-700">Last Updated</span>
-                    <span className="text-sm text-gray-900">{formatDate(displayData?.updatedAt)}</span>
+                    <span className="text-sm font-medium text-gray-700">
+                      Last Updated
+                    </span>
+                    <span className="text-sm text-gray-900">
+                      {formatDate(displayData?.updatedAt)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -327,13 +420,21 @@ export default function ViewUserSubscriptionDetailModal({ userSubscription, onCl
                   <div className="bg-green-50 rounded-xl p-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-green-600 mb-1">Paid Amount</p>
-                        <p className="font-bold text-2xl text-green-700">{formatCurrency(displayData?.paidAmount)}</p>
+                        <p className="text-sm text-green-600 mb-1">
+                          Paid Amount
+                        </p>
+                        <p className="font-bold text-2xl text-green-700">
+                          {formatCurrency(displayData?.paidAmount)}
+                        </p>
                       </div>
                       {displayData?.paymentTransactionId && (
                         <div>
-                          <p className="text-sm text-green-600 mb-1">Transaction ID</p>
-                          <p className="font-medium text-gray-900">{displayData?.paymentTransactionId}</p>
+                          <p className="text-sm text-green-600 mb-1">
+                            Transaction ID
+                          </p>
+                          <p className="font-medium text-gray-900">
+                            {displayData?.paymentTransactionId}
+                          </p>
                         </div>
                       )}
                     </div>
@@ -359,8 +460,12 @@ export default function ViewUserSubscriptionDetailModal({ userSubscription, onCl
                   </div>
                   {displayData?.cancellationReason && (
                     <div className="bg-red-50 rounded-lg p-4">
-                      <p className="text-sm text-red-600 mb-1">Cancellation Reason</p>
-                      <p className="font-medium text-gray-900">{displayData?.cancellationReason}</p>
+                      <p className="text-sm text-red-600 mb-1">
+                        Cancellation Reason
+                      </p>
+                      <p className="font-medium text-gray-900">
+                        {displayData?.cancellationReason}
+                      </p>
                     </div>
                   )}
                 </div>

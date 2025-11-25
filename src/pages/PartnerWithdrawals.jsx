@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import PartnerTopLayout from "../layouts/PartnerTopLayout";
 import withdrawalApi from "../api/withdrawalApi";
+import parkingLotApi from "../api/parkingLotApi";
 import {
   TrashIcon,
   PlusIcon,
@@ -12,7 +13,19 @@ import RequestWithdrawalModal from "../components/RequestWithdrawalModal";
 import ConfirmModal from "../components/ConfirmModal";
 
 export default function PartnerWithdrawals() {
+  const [activeTab, setActiveTab] = useState("request"); // "request" or "history" or "periods"
   const [withdrawals, setWithdrawals] = useState([]);
+  const [allPeriods, setAllPeriods] = useState([]);
+  const [parkingLots, setParkingLots] = useState([]);
+  const [selectedLotFilter, setSelectedLotFilter] = useState("");
+  const [loadingPeriods, setLoadingPeriods] = useState(false);
+  
+  // Periods tab filters
+  const [periodPage, setPeriodPage] = useState(0);
+  const [periodSize] = useState(3);
+  const [periodStatusFilter, setPeriodStatusFilter] = useState(""); // "" | "withdrawn" | "available"
+  const [periodStartDate, setPeriodStartDate] = useState("");
+  const [periodEndDate, setPeriodEndDate] = useState("");
   const [search, setSearch] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -87,6 +100,60 @@ export default function PartnerWithdrawals() {
   useEffect(() => {
     fetchWithdrawals();
   }, [fetchWithdrawals]);
+
+  // Fetch all periods
+  const fetchAllPeriods = useCallback(async () => {
+    try {
+      setLoadingPeriods(true);
+      
+      // Fetch periods and parking lots in parallel
+      const [periodsRes, lotsRes] = await Promise.all([
+        withdrawalApi.getPeriods({ page: 0, size: 1000 }),
+        parkingLotApi.getAllByPartner()
+      ]);
+
+      const responseData = periodsRes.data?.data || periodsRes.data;
+      let periodsList = [];
+
+      if (responseData?.content) {
+        periodsList = Array.isArray(responseData.content) ? responseData.content : [];
+      } else if (Array.isArray(responseData)) {
+        periodsList = responseData;
+      }
+
+      setAllPeriods(periodsList);
+      
+      // Extract parking lots from API response
+      const lotsData = lotsRes.data?.data || lotsRes.data;
+      let lotsList = [];
+      
+      if (lotsData?.content) {
+        lotsList = Array.isArray(lotsData.content) ? lotsData.content : [];
+      } else if (Array.isArray(lotsData)) {
+        lotsList = lotsData;
+      }
+      
+      // Filter to only show lots that have periods
+      const lotIdsWithPeriods = new Set(periodsList.map(p => p.lotId));
+      const filteredLots = lotsList
+        .filter(lot => lotIdsWithPeriods.has(lot.id))
+        .map(lot => ({ id: lot.id, name: lot.name || `Parking Lot ${lot.id}` }));
+      
+      setParkingLots(filteredLots);
+    } catch (err) {
+      console.error("Error fetching periods:", err);
+      showError("Failed to load periods");
+      setAllPeriods([]);
+    } finally {
+      setLoadingPeriods(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === "periods") {
+      fetchAllPeriods();
+    }
+  }, [activeTab, fetchAllPeriods]);
 
   // ✅ Format date
   const formatDate = (dateStr) => {
@@ -250,7 +317,301 @@ export default function PartnerWithdrawals() {
 
       <div className="bg-gradient-to-br from-gray-50 via-indigo-50/30 to-gray-50 min-h-[calc(100vh-13rem)]">
         <div className="max-w-7xl mx-auto px-6 py-6 pb-12">
-          {/* 🔹 Filters + Actions */}
+          
+          {/* Tabs Navigation */}
+          <div className="flex gap-2 mb-6 bg-white rounded-xl p-2 shadow-md border border-gray-200">
+            <button
+              onClick={() => setActiveTab("request")}
+              className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
+                activeTab === "request"
+                  ? "bg-indigo-600 text-white shadow-md"
+                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <PlusIcon className="w-5 h-5" />
+                <span>Request Withdrawal</span>
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab("periods")}
+              className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
+                activeTab === "periods"
+                  ? "bg-indigo-600 text-white shadow-md"
+                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                <span>All Periods</span>
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab("history")}
+              className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
+                activeTab === "history"
+                  ? "bg-indigo-600 text-white shadow-md"
+                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <BanknotesIcon className="w-5 h-5" />
+                <span>Withdrawal History</span>
+              </div>
+            </button>
+          </div>
+
+          {/* Request Withdrawal Tab */}
+          {activeTab === "request" && (
+            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+              <RequestWithdrawalModal
+                onClose={() => {}}
+                onRequested={() => {
+                  setActiveTab("history");
+                  fetchWithdrawals();
+                }}
+                isEmbedded={true}
+              />
+            </div>
+          )}
+
+          {/* All Periods Tab */}
+          {activeTab === "periods" && (
+            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+
+              {/* Filters */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                {/* Parking Lot Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Parking Lot</label>
+                  <select
+                    value={selectedLotFilter}
+                    onChange={(e) => {
+                      setSelectedLotFilter(e.target.value);
+                      setPeriodPage(0);
+                    }}
+                    className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all text-sm"
+                  >
+                    <option value="">All Parking Lots</option>
+                    {parkingLots.map((lot) => (
+                      <option key={lot.id} value={lot.id}>
+                        {lot.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Status Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                  <select
+                    value={periodStatusFilter}
+                    onChange={(e) => {
+                      setPeriodStatusFilter(e.target.value);
+                      setPeriodPage(0);
+                    }}
+                    className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all text-sm"
+                  >
+                    <option value="">All Status</option>
+                    <option value="available">Available</option>
+                    <option value="withdrawn">Withdrawn</option>
+                  </select>
+                </div>
+
+                {/* Start Date */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">From Date</label>
+                  <input
+                    type="date"
+                    value={periodStartDate}
+                    onChange={(e) => {
+                      setPeriodStartDate(e.target.value);
+                      setPeriodPage(0);
+                    }}
+                    className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all text-sm"
+                  />
+                </div>
+
+                {/* End Date */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">To Date</label>
+                  <input
+                    type="date"
+                    value={periodEndDate}
+                    onChange={(e) => {
+                      setPeriodEndDate(e.target.value);
+                      setPeriodPage(0);
+                    }}
+                    className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all text-sm"
+                  />
+                </div>
+              </div>
+
+              {loadingPeriods ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+                  <p className="text-gray-500">Loading periods...</p>
+                </div>
+              ) : (() => {
+                // Apply all filters
+                let filteredPeriods = allPeriods;
+
+                // Filter by parking lot
+                if (selectedLotFilter) {
+                  filteredPeriods = filteredPeriods.filter((p) => p.lotId === parseInt(selectedLotFilter));
+                }
+
+                // Filter by status
+                if (periodStatusFilter === "withdrawn") {
+                  filteredPeriods = filteredPeriods.filter((p) => p.isWithdrawn === true);
+                } else if (periodStatusFilter === "available") {
+                  filteredPeriods = filteredPeriods.filter((p) => p.isWithdrawn === false);
+                }
+
+                // Filter by date range
+                if (periodStartDate || periodEndDate) {
+                  filteredPeriods = filteredPeriods.filter((p) => {
+                    const periodStart = new Date(p.periodStartDate);
+                    const periodEnd = new Date(p.periodEndDate);
+
+                    if (periodStartDate) {
+                      const filterStart = new Date(periodStartDate);
+                      if (periodEnd < filterStart) return false;
+                    }
+
+                    if (periodEndDate) {
+                      const filterEnd = new Date(periodEndDate);
+                      if (periodStart > filterEnd) return false;
+                    }
+
+                    return true;
+                  });
+                }
+
+                // Calculate pagination
+                const totalItems = filteredPeriods.length;
+                const totalPages = Math.ceil(totalItems / periodSize);
+
+                // Get current page items
+                const startIdx = periodPage * periodSize;
+                const endIdx = startIdx + periodSize;
+                const paginatedPeriods = filteredPeriods.slice(startIdx, endIdx);
+                
+                return filteredPeriods.length > 0 ? (
+                  <>
+                    <div className="space-y-3">
+                      {paginatedPeriods.map((period, idx) => (
+                        <div
+                          key={period.id || idx}
+                          className={`border rounded-lg p-4 transition-all ${
+                            period.isWithdrawn
+                              ? 'bg-gray-50 border-gray-300'
+                              : 'bg-white border-indigo-200 hover:shadow-md hover:border-indigo-400'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-4">
+                            {/* Left: Date and Revenue Breakdown */}
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="text-lg">📅</span>
+                                <div className="font-bold text-gray-900">
+                                  {new Date(period.periodStartDate).toLocaleDateString('vi-VN')} → {new Date(period.periodEndDate).toLocaleDateString('vi-VN')}
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-4 gap-2 text-xs">
+                                <div className="flex flex-col p-2 bg-blue-50 rounded">
+                                  <span className="text-gray-600 mb-1">Reservation</span>
+                                  <span className="font-semibold text-blue-700">{formatCurrency(period.reservationRevenue)}</span>
+                                </div>
+                                <div className="flex flex-col p-2 bg-purple-50 rounded">
+                                  <span className="text-gray-600 mb-1">Subscription</span>
+                                  <span className="font-semibold text-purple-700">{formatCurrency(period.subscriptionRevenue)}</span>
+                                </div>
+                                <div className="flex flex-col p-2 bg-green-50 rounded">
+                                  <span className="text-gray-600 mb-1">Walk-in</span>
+                                  <span className="font-semibold text-green-700">{formatCurrency(period.walkInRevenue)}</span>
+                                </div>
+                                <div className="flex flex-col p-2 bg-indigo-50 rounded">
+                                  <span className="text-gray-600 font-medium mb-1">Gross</span>
+                                  <span className="font-bold text-indigo-700">{formatCurrency(period.grossRevenue)}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Middle: Platform Fee */}
+                            <div className="text-center px-4 border-l border-r border-gray-200">
+                              <div className="text-xs text-gray-500 mb-1">Platform Fee</div>
+                              <div className="font-bold text-red-600">-{formatCurrency(period.platformFee)}</div>
+                            </div>
+
+                            {/* Right: Net Revenue and Status */}
+                            <div className="text-right min-w-[140px]">
+                              <div className="text-xs text-gray-500 mb-1">Net Revenue</div>
+                              <div className="font-bold text-green-600 text-xl mb-2">
+                                {formatCurrency(period.netRevenue)}
+                              </div>
+                              <div>
+                                {period.isWithdrawn ? (
+                                  <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full font-semibold text-xs">✓ Withdrawn</span>
+                                ) : (
+                                  <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold text-xs">● Available</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                      <div className="flex justify-between items-center mt-6 pt-4 border-t">
+                        <button
+                          disabled={periodPage <= 0}
+                          onClick={() => setPeriodPage((p) => Math.max(p - 1, 0))}
+                          className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm"
+                        >
+                          ← Previous
+                        </button>
+
+                        <div className="text-center text-gray-600 text-sm">
+                          <div>
+                            Page <strong>{periodPage + 1}</strong> of <strong>{totalPages}</strong>
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            Showing {startIdx + 1}-{Math.min(endIdx, totalItems)} of {totalItems} periods
+                          </div>
+                        </div>
+
+                        <button
+                          disabled={periodPage >= totalPages - 1}
+                          onClick={() => setPeriodPage((p) => Math.min(p + 1, totalPages - 1))}
+                          className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm"
+                        >
+                          Next →
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="text-center py-12 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                    <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    <p className="text-lg font-medium">No periods found</p>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+
+          {/* Withdrawal History Tab */}
+          {activeTab === "history" && (
+            <>
+              {/* 🔹 Filters + Actions */}
         <div className="flex flex-wrap justify-between items-center mb-6 gap-3">
           <div className="flex flex-wrap items-center gap-3">
             {/* Search */}
@@ -333,13 +694,6 @@ export default function PartnerWithdrawals() {
 
           {/* ✅ Actions */}
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowRequestModal(true)}
-              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition cursor-pointer"
-            >
-              <PlusIcon className="w-5 h-5 text-white" />
-              Request Withdrawal
-            </button>
           </div>
         </div>
 
@@ -607,32 +961,38 @@ export default function PartnerWithdrawals() {
                       <h3 className="font-semibold text-gray-700 mb-3">
                         Withdrawal Periods ({viewingWithdrawal.periods.length})
                       </h3>
-                      <div className="space-y-2 max-h-[200px] overflow-y-auto">
-                        {viewingWithdrawal.periods.map((period, idx) => (
-                          <div
-                            key={idx}
-                            className="bg-gray-50 rounded-lg p-3 border border-gray-200"
-                          >
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <div className="text-sm font-medium text-gray-700">
-                                  {new Date(period.start).toLocaleDateString(
-                                    "vi-VN"
-                                  )}{" "}
-                                  -{" "}
-                                  {new Date(period.end).toLocaleDateString(
-                                    "vi-VN"
-                                  )}
+                      <div className="space-y-3 max-h-[200px] overflow-y-auto">
+                        {viewingWithdrawal.periods.map((period, idx) => {
+                          console.log("Period data:", period);
+                          return (
+                            <div
+                              key={idx}
+                              className="bg-gray-50 rounded-lg p-4 border border-gray-200"
+                            >
+                              <div className="flex justify-between items-center mb-2">
+                                <div className="text-sm font-semibold text-gray-800">
+                                  Period {idx + 1}
+                                </div>
+                                <div className="text-lg font-bold text-indigo-700">
+                                  {formatCurrency(period.amount || period.netRevenue || 0)}
                                 </div>
                               </div>
-                              <div className="text-right">
-                                <div className="text-sm font-semibold text-indigo-700">
-                                  {formatCurrency(period.amount)}
-                                </div>
+                              <div className="text-xs text-gray-600">
+                                {period.start && period.end ? (
+                                  <>
+                                    {new Date(period.start).toLocaleDateString("vi-VN")} - {new Date(period.end).toLocaleDateString("vi-VN")}
+                                  </>
+                                ) : period.periodStartDate && period.periodEndDate ? (
+                                  <>
+                                    {new Date(period.periodStartDate).toLocaleDateString("vi-VN")} - {new Date(period.periodEndDate).toLocaleDateString("vi-VN")}
+                                  </>
+                                ) : (
+                                  "Date not available"
+                                )}
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -650,6 +1010,8 @@ export default function PartnerWithdrawals() {
             </div>
           </div>
         )}
+            </>
+          )}
         </div>
       </div>
     </PartnerTopLayout>
