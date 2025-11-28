@@ -614,7 +614,7 @@ export default function PartnerUsers() {
                                   setSelectedUserSubscription(sub);
                                   setShowDetailModal(true);
                                 }}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+                                className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all text-xs font-medium"
                               >
                                 <EyeIcon className="w-4 h-4" />
                                 View Details

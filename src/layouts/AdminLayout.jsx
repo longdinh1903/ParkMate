@@ -18,6 +18,11 @@ export default function AdminLayout({ children }) {
       icon: "ri-parking-box-fill",
     },
     {
+      name: "Devices",
+      path: "/admin/devices",
+      icon: "ri-cpu-fill",
+    },
+    {
       name: "Fee Config",
       path: "/admin/fee-config",
       icon: "ri-money-dollar-circle-fill",
@@ -41,12 +46,12 @@ export default function AdminLayout({ children }) {
   };
 
   return (
-    // Container chính: Đảm bảo chiều cao đầy đủ và ngăn chặn tràn
-    <div className="flex min-h-screen bg-gray-50 text-gray-800 overflow-hidden">
+    // Container chính: Đảm bảo chiều cao đầy đủ
+    <div className="flex h-screen bg-gray-50 text-gray-800 overflow-hidden">
       
-      {/* Sidebar */}
+      {/* Sidebar - Cố định */}
       <aside
-        className={`relative bg-orange-700 text-white flex flex-col py-6 transition-all duration-300 shadow-lg ${
+        className={`fixed left-0 top-0 h-screen bg-orange-700 text-white flex flex-col py-6 transition-all duration-300 shadow-lg z-20 ${
           isExpanded ? "w-64" : "w-20 items-center"
         }`}
       >
@@ -150,10 +155,12 @@ export default function AdminLayout({ children }) {
         </div>
       </aside>
 
-      {/* Main content: Flex-1 để chiếm hết không gian còn lại */}
-      <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
-        {/* Nội dung trang: Đã thay đổi thành overflow-y-auto */}
-        <main className="flex-1 p-6 overflow-y-auto">
+      {/* Main content: Flex-1 để chiếm hết không gian còn lại với margin-left cho sidebar */}
+      <div className={`flex-1 flex flex-col h-screen overflow-hidden transition-all duration-300 ${
+        isExpanded ? "ml-64" : "ml-20"
+      }`}>
+        {/* Nội dung trang: Scroll độc lập */}
+        <main className="flex-1 p-6 overflow-y-auto bg-gray-50">
           {children}
 
           {/* Toaster Global */}

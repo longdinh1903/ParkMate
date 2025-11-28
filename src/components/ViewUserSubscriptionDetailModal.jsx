@@ -157,12 +157,21 @@ export default function ViewUserSubscriptionDetailModal({
     );
   };
 
+  const InfoRow = ({ label, value, children }) => (
+    <div className="flex justify-between items-start py-3 border-b border-gray-100 last:border-b-0">
+      <span className="font-medium text-gray-500 w-1/3 min-w-[150px]">{label}</span>
+      <div className="text-gray-800 w-2/3 break-words text-right">
+        {value !== undefined && value !== null ? value : children || <span className="text-gray-400 italic">N/A</span>}
+      </div>
+    </div>
+  );
+
   const user = userData || data?.user || userSubscription?.user;
   const displayData = data || userSubscription;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl relative overflow-hidden transform transition-all duration-300">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white">
           <div className="flex items-center gap-3">
@@ -171,19 +180,21 @@ export default function ViewUserSubscriptionDetailModal({
             </div>
             <div>
               <h2 className="text-xl font-bold">User Subscription Details</h2>
+              <p className="text-sm text-indigo-100">Subscription overview and related information</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition"
+            className="p-2 rounded-full text-white hover:bg-white/20 transition-colors duration-200"
+            aria-label="Close"
           >
             <XMarkIcon className="w-6 h-6" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+        <div className="p-6 text-sm text-gray-700 max-h-[70vh] overflow-y-auto custom-scrollbar">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-12">
               <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
@@ -193,8 +204,9 @@ export default function ViewUserSubscriptionDetailModal({
             <>
               {/* User Information Section */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                  👤 User Information
+                <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
+                  <i className="ri-user-3-line text-indigo-500"></i>
+                  User Information
                 </h3>
                 <div className="bg-gray-50 rounded-xl p-6">
                   <div className="flex items-start gap-6">
@@ -239,94 +251,30 @@ export default function ViewUserSubscriptionDetailModal({
 
               {/* Subscription Details Section */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                  📋 Subscription Details
+                <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
+                  <i className="ri-file-list-3-line text-indigo-500"></i>
+                  Subscription Details
                 </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-purple-50 rounded-lg p-4">
-                    <p className="text-sm text-purple-600 mb-1">Package</p>
-                    <p className="font-bold text-gray-900 text-xl">
-                      {subscriptionPackage?.name || "Loading..."}
-                    </p>
-                  </div>
-                  <div className="bg-green-50 rounded-lg p-4">
-                    <p className="text-sm text-green-600 mb-1">Parking Lot</p>
-                    <p className="font-bold text-gray-900 text-xl">
-                      {parkingLot?.name || "Loading..."}
-                    </p>
-                  </div>
-                  <div className="bg-orange-50 rounded-lg p-4 col-span-2">
-                    <p className="text-sm text-orange-600 mb-1">Status</p>
-                    <div className="mt-1">
-                      {getStatusBadge(displayData?.status)}
-                    </div>
-                  </div>
+                <div className="space-y-1">
+                  <InfoRow label="Package" value={subscriptionPackage?.name || "-"} />
+                  <InfoRow label="Parking Lot" value={parkingLot?.name || "-"} />
+                  <InfoRow label="Status">{getStatusBadge(displayData?.status)}</InfoRow>
                 </div>
               </div>
 
               {/* Vehicle Information Section */}
               {(displayData?.vehicleId || vehicleData) && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                    🚗 Vehicle Information
+                  <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
+                    <i className="ri-car-fill text-indigo-500"></i>
+                    Vehicle Information
                   </h3>
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-gray-500 mb-1">
-                          License Plate
-                        </p>
-                        <p className="font-bold text-gray-900 text-2xl">
-                          {vehicleData?.licensePlate ||
-                            displayData?.vehicleLicensePlate ||
-                            "-"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500 mb-1">
-                          Vehicle Type
-                        </p>
-                        <p className="font-medium text-gray-900 text-lg">
-                          {vehicleData?.type === 1
-                            ? "🏍️ Motorcycle"
-                            : vehicleData?.type === 2
-                            ? "🚗 Car (4-9 seats)"
-                            : vehicleData?.type === 3
-                            ? "🚐 Van/Truck (>9 seats)"
-                            : displayData?.vehicleType === 1
-                            ? "🏍️ Motorcycle"
-                            : displayData?.vehicleType === 2
-                            ? "🚗 Car (4-9 seats)"
-                            : displayData?.vehicleType === 3
-                            ? "🚐 Van/Truck (>9 seats)"
-                            : "-"}
-                        </p>
-                      </div>
-                      {vehicleData?.brand && (
-                        <div>
-                          <p className="text-sm text-gray-500 mb-1">Brand</p>
-                          <p className="font-medium text-gray-900">
-                            {vehicleData.brand}
-                          </p>
-                        </div>
-                      )}
-                      {vehicleData?.model && (
-                        <div>
-                          <p className="text-sm text-gray-500 mb-1">Model</p>
-                          <p className="font-medium text-gray-900">
-                            {vehicleData.model}
-                          </p>
-                        </div>
-                      )}
-                      {vehicleData?.color && (
-                        <div>
-                          <p className="text-sm text-gray-500 mb-1">Color</p>
-                          <p className="font-medium text-gray-900">
-                            {vehicleData.color}
-                          </p>
-                        </div>
-                      )}
-                    </div>
+                  <div className="space-y-1">
+                    <InfoRow label="License Plate" value={vehicleData?.licensePlate || displayData?.vehicleLicensePlate || "-"} />
+                    <InfoRow label="Vehicle Type" value={vehicleData?.type === 1 ? "Motorcycle" : vehicleData?.type === 2 ? "Car" : vehicleData?.type === 3 ? "Van/Truck" : displayData?.vehicleType || "-"} />
+                    {vehicleData?.brand && <InfoRow label="Brand" value={vehicleData.brand} />}
+                    {vehicleData?.model && <InfoRow label="Model" value={vehicleData.model} />}
+                    {vehicleData?.color && <InfoRow label="Color" value={vehicleData.color} />}
                   </div>
                 </div>
               )}
@@ -372,102 +320,43 @@ export default function ViewUserSubscriptionDetailModal({
 
               {/* Dates & Timeline Section */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                  📅 Timeline
+                <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
+                  <i className="ri-time-fill text-indigo-500"></i>
+                  Timeline
                 </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                    <span className="text-sm font-medium text-blue-700">
-                      Created At
-                    </span>
-                    <span className="text-sm text-gray-900">
-                      {formatDate(displayData?.createdAt)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                    <span className="text-sm font-medium text-green-700">
-                      Start Date
-                    </span>
-                    <span className="text-sm text-gray-900">
-                      {formatDate(displayData?.startDate)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
-                    <span className="text-sm font-medium text-orange-700">
-                      End Date
-                    </span>
-                    <span className="text-sm text-gray-900">
-                      {formatDate(displayData?.endDate)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <span className="text-sm font-medium text-gray-700">
-                      Last Updated
-                    </span>
-                    <span className="text-sm text-gray-900">
-                      {formatDate(displayData?.updatedAt)}
-                    </span>
-                  </div>
+                <div className="space-y-1">
+                  <InfoRow label="Created At" value={formatDate(displayData?.createdAt)} />
+                  <InfoRow label="Start Date" value={formatDate(displayData?.startDate)} />
+                  <InfoRow label="End Date" value={formatDate(displayData?.endDate)} />
+                  <InfoRow label="Last Updated" value={formatDate(displayData?.updatedAt)} />
                 </div>
               </div>
 
               {/* Payment Information Section */}
               {displayData?.paidAmount !== undefined && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                    💰 Payment Information
+                  <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
+                    <i className="ri-money-dollar-circle-fill text-indigo-500"></i>
+                    Payment Information
                   </h3>
-                  <div className="bg-green-50 rounded-xl p-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-green-600 mb-1">
-                          Paid Amount
-                        </p>
-                        <p className="font-bold text-2xl text-green-700">
-                          {formatCurrency(displayData?.paidAmount)}
-                        </p>
-                      </div>
-                      {displayData?.paymentTransactionId && (
-                        <div>
-                          <p className="text-sm text-green-600 mb-1">
-                            Transaction ID
-                          </p>
-                          <p className="font-medium text-gray-900">
-                            {displayData?.paymentTransactionId}
-                          </p>
-                        </div>
-                      )}
-                    </div>
+                  <div className="space-y-1">
+                    <InfoRow label="Paid Amount">
+                      <span className="text-lg font-bold text-green-600">{formatCurrency(displayData?.paidAmount)}</span>
+                    </InfoRow>
+                    {displayData?.paymentTransactionId && <InfoRow label="Transaction ID" value={displayData?.paymentTransactionId} />}
                   </div>
                 </div>
               )}
 
               {/* Auto Renew & Additional Info */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                  ⚙️ Additional Information
+                <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
+                  <i className="ri-settings-3-line text-indigo-500"></i>
+                  Additional Information
                 </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-sm text-gray-500 mb-1">Auto Renew</p>
-                    <p className="font-semibold text-gray-900">
-                      {displayData?.autoRenew ? (
-                        <span className="text-green-600">✓ Enabled</span>
-                      ) : (
-                        <span className="text-red-600">✗ Disabled</span>
-                      )}
-                    </p>
-                  </div>
-                  {displayData?.cancellationReason && (
-                    <div className="bg-red-50 rounded-lg p-4">
-                      <p className="text-sm text-red-600 mb-1">
-                        Cancellation Reason
-                      </p>
-                      <p className="font-medium text-gray-900">
-                        {displayData?.cancellationReason}
-                      </p>
-                    </div>
-                  )}
+                <div className="space-y-1">
+                  <InfoRow label="Auto Renew">{displayData?.autoRenew ? <span className="text-green-600">✓ Enabled</span> : <span className="text-red-600">✗ Disabled</span>}</InfoRow>
+                  {displayData?.cancellationReason && <InfoRow label="Cancellation Reason" value={displayData?.cancellationReason} />}
                 </div>
               </div>
             </>
@@ -475,7 +364,7 @@ export default function ViewUserSubscriptionDetailModal({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end px-6 py-4 border-t border-gray-200 bg-gray-50 flex-shrink-0">
+        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end">
           <button
             onClick={onClose}
             className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"

@@ -17,6 +17,8 @@ import AdminRequests from "../pages/AdminRequests";
 import AdminUsers from "../pages/AdminUsers";
 import AdminParkingLots from "../pages/AdminParkingLots";
 import AdminFeeConfig from "../pages/AdminFeeConfig";
+import AdminDashboard from "../pages/AdminDashboard";
+import AdminDevices from "../pages/AdminDevices";
 import ProtectedPartnerRoute from "../components/ProtectedPartnerRoute";
 
 export default function AppRoutes() {
@@ -40,11 +42,13 @@ export default function AppRoutes() {
 
       {/* Admin routes */}
       <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/admin/dashboard" element={<AdminDashboard />} />
       <Route path="/admin/partners" element={<AdminPartners />} />
       <Route path="/admin/users" element={<AdminUsers />} />
       <Route path="/admin/requests" element={<AdminRequests />} />
       <Route path="/admin/parking-lots" element={<AdminParkingLots />} />
       <Route path="/admin/fee-config" element={<AdminFeeConfig />} />
+      <Route path="/admin/devices" element={<AdminDevices />} />
     </Routes>
   );
 }

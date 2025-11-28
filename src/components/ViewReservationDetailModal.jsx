@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import vehicleApi from "../api/vehicleApi";
 
-export default function ViewReservationDetailModal({ reservation, parkingLotName, onClose }) {
+export default function ViewReservationDetailModal({
+  reservation,
+  parkingLotName,
+  onClose,
+}) {
   const [vehicleData, setVehicleData] = useState(null);
   const [loadingVehicle, setLoadingVehicle] = useState(false);
 
@@ -9,7 +14,7 @@ export default function ViewReservationDetailModal({ reservation, parkingLotName
     const fetchVehicle = async () => {
       console.log("Reservation data:", reservation);
       console.log("Vehicle ID:", reservation?.vehicleId);
-      
+
       if (reservation?.vehicleId) {
         setLoadingVehicle(true);
         try {
@@ -63,7 +68,10 @@ export default function ViewReservationDetailModal({ reservation, parkingLotName
 
   const getVehicleTypeBadge = (type) => {
     const typeMap = {
-      CAR_UP_TO_9_SEATS: { label: "Car (≤9 seats)", color: "bg-blue-100 text-blue-700" },
+      CAR_UP_TO_9_SEATS: {
+        label: "Car (≤9 seats)",
+        color: "bg-blue-100 text-blue-700",
+      },
       MOTORBIKE: { label: "Motorbike", color: "bg-purple-100 text-purple-700" },
       BIKE: { label: "Bike", color: "bg-green-100 text-green-700" },
       OTHER: { label: "Other", color: "bg-gray-100 text-gray-700" },
@@ -72,9 +80,14 @@ export default function ViewReservationDetailModal({ reservation, parkingLotName
       3: { label: "Bike", color: "bg-green-100 text-green-700" },
       4: { label: "Other", color: "bg-gray-100 text-gray-700" },
     };
-    const info = typeMap[type] || { label: type, color: "bg-gray-100 text-gray-700" };
+    const info = typeMap[type] || {
+      label: type,
+      color: "bg-gray-100 text-gray-700",
+    };
     return (
-      <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${info.color}`}>
+      <span
+        className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${info.color}`}
+      >
         {info.label}
       </span>
     );
@@ -91,44 +104,59 @@ export default function ViewReservationDetailModal({ reservation, parkingLotName
   );
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black/50 z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl relative overflow-hidden transform transition-all duration-300">
         {/* Header */}
         <div className="bg-gradient-to-r from-indigo-600 to-indigo-500 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
               <i className="ri-calendar-check-fill text-2xl text-white"></i>
             </div>
-            <h2 className="text-xl font-bold text-white">Reservation Details</h2>
+            <h2 className="text-xl font-bold text-white">
+              Reservation Details
+            </h2>
           </div>
           <button
             onClick={onClose}
-            className="text-white hover:bg-white/20 rounded-lg p-2 transition-colors"
+            className="p-2 rounded-full text-white hover:bg-white/20 transition-colors duration-200"
+            aria-label="Close"
           >
-            <i className="ri-close-line text-2xl"></i>
+            <XMarkIcon className="w-6 h-6" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)] custom-scrollbar">
+        <div className="p-6 text-sm text-gray-700 max-h-[70vh] overflow-y-auto custom-scrollbar">
           {/* Status Overview */}
           <section className="mb-6 grid grid-cols-3 gap-4">
             <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 border border-indigo-200">
               <p className="text-xs text-indigo-600 font-medium mb-2">STATUS</p>
-              <span className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getStatusBadge(reservation.status)}`}>
+              <span
+                className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getStatusBadge(
+                  reservation.status
+                )}`}
+              >
                 {reservation.status || "UNKNOWN"}
               </span>
             </div>
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
-              <p className="text-xs text-blue-600 font-medium mb-2">INITIAL FEE</p>
+              <p className="text-xs text-blue-600 font-medium mb-2">
+                INITIAL FEE
+              </p>
               <p className="text-2xl font-bold text-blue-700">
-                {reservation.initialFee ? `${reservation.initialFee.toLocaleString()} ₫` : "-"}
+                {reservation.initialFee
+                  ? `${reservation.initialFee.toLocaleString()} ₫`
+                  : "-"}
               </p>
             </div>
             <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
-              <p className="text-xs text-green-600 font-medium mb-2">TOTAL FEE</p>
+              <p className="text-xs text-green-600 font-medium mb-2">
+                TOTAL FEE
+              </p>
               <p className="text-2xl font-bold text-green-700">
-                {reservation.totalFee ? `${reservation.totalFee.toLocaleString()} ₫` : "-"}
+                {reservation.totalFee
+                  ? `${reservation.totalFee.toLocaleString()} ₫`
+                  : "-"}
               </p>
             </div>
           </section>
@@ -142,9 +170,9 @@ export default function ViewReservationDetailModal({ reservation, parkingLotName
               </h3>
               <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 flex flex-col items-center border border-gray-200">
                 <div className="bg-white p-4 rounded-lg shadow-lg">
-                  <img 
-                    src={reservation.qrCode} 
-                    alt="Reservation QR Code" 
+                  <img
+                    src={reservation.qrCode}
+                    alt="Reservation QR Code"
                     className="w-48 h-48 object-contain"
                   />
                 </div>
@@ -165,17 +193,23 @@ export default function ViewReservationDetailModal({ reservation, parkingLotName
             {loadingVehicle ? (
               <div className="flex items-center justify-center py-4">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                <span className="ml-3 text-gray-600">Loading vehicle details...</span>
+                <span className="ml-3 text-gray-600">
+                  Loading vehicle details...
+                </span>
               </div>
             ) : (
               <div className="space-y-1">
                 <InfoRow label="License Plate">
                   <span className="font-bold text-lg">
-                    {vehicleData?.licensePlate || reservation.vehicleLicensePlate || "-"}
+                    {vehicleData?.licensePlate ||
+                      reservation.vehicleLicensePlate ||
+                      "-"}
                   </span>
                 </InfoRow>
                 <InfoRow label="Vehicle Type">
-                  {getVehicleTypeBadge(vehicleData?.type || reservation.vehicleType)}
+                  {getVehicleTypeBadge(
+                    vehicleData?.type || reservation.vehicleType
+                  )}
                 </InfoRow>
                 {vehicleData?.vehicleBrand && (
                   <InfoRow label="Brand" value={vehicleData.vehicleBrand} />
@@ -187,7 +221,10 @@ export default function ViewReservationDetailModal({ reservation, parkingLotName
                   <InfoRow label="Color" value={vehicleData.vehicleColor} />
                 )}
                 {vehicleData?.description && (
-                  <InfoRow label="Description" value={vehicleData.description} />
+                  <InfoRow
+                    label="Description"
+                    value={vehicleData.description}
+                  />
                 )}
               </div>
             )}
@@ -212,10 +249,14 @@ export default function ViewReservationDetailModal({ reservation, parkingLotName
             </h3>
             <div className="space-y-1">
               <InfoRow label="Reserved From">
-                <span className="text-green-600">{formatDateTime(reservation.reservedFrom)}</span>
+                <span className="text-green-600">
+                  {formatDateTime(reservation.reservedFrom)}
+                </span>
               </InfoRow>
               <InfoRow label="Reserved Until">
-                <span className="text-red-600">{formatDateTime(reservation.reservedUntil)}</span>
+                <span className="text-red-600">
+                  {formatDateTime(reservation.reservedUntil)}
+                </span>
               </InfoRow>
             </div>
           </section>
@@ -228,14 +269,24 @@ export default function ViewReservationDetailModal({ reservation, parkingLotName
             </h3>
             <div className="space-y-1">
               <InfoRow label="Listing Status">
-                <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                  reservation.isListed ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                }`}>
+                <span
+                  className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                    reservation.isListed
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-100 text-gray-700"
+                  }`}
+                >
                   {reservation.isListed ? "✓ Listed" : "✗ Not Listed"}
                 </span>
               </InfoRow>
-              <InfoRow label="Created At" value={formatDateTime(reservation.createdAt)} />
-              <InfoRow label="Updated At" value={formatDateTime(reservation.updatedAt)} />
+              <InfoRow
+                label="Created At"
+                value={formatDateTime(reservation.createdAt)}
+              />
+              <InfoRow
+                label="Updated At"
+                value={formatDateTime(reservation.updatedAt)}
+              />
             </div>
           </section>
 
@@ -253,6 +304,16 @@ export default function ViewReservationDetailModal({ reservation, parkingLotName
               </div>
             </section>
           )}
+        </div>
+        
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end">
+          <button
+            onClick={onClose}
+            className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>

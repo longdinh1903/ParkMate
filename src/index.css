@@ -63,3 +63,36 @@
 .custom-scrollbar:hover {
   scrollbar-color: #c1c1c1 transparent;
 }
+
+/* Withdrawal modal: hide scrollbar visuals by default, reveal on hover */
+.withdrawal-modal-scroll {
+  overflow-y: auto;
+}
+
+/* WebKit: hide thumb until hover */
+.withdrawal-modal-scroll::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  background: transparent;
+}
+.withdrawal-modal-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.withdrawal-modal-scroll:hover::-webkit-scrollbar-thumb {
+  background: rgba(75,85,99,0.35); /* gray-600 @ 35% */
+}
+
+/* Firefox */
+.withdrawal-modal-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0) transparent;
+}
+.withdrawal-modal-scroll:hover {
+  scrollbar-color: rgba(75,85,99,0.35) transparent;
+}
+
+/* Utility to force inner containers to not produce their own scrollbars */
+.no-inner-scroll { overflow: visible !important; }

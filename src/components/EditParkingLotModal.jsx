@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { showSuccess, showError } from "../utils/toastUtils.jsx";
 import parkingLotApi from "../api/parkingLotApi";
 
@@ -18,6 +18,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
     reason: "",
   });
   const [loading, setLoading] = useState(false);
+  const formRef = useRef(null);
 
   useEffect(() => {
     if (lot) {
@@ -93,12 +94,26 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50">
-      <div className="bg-white rounded-2xl shadow-xl w-[600px] p-6 overflow-y-auto max-h-[90vh] animate-fadeIn">
-        <h2 className="text-xl font-semibold text-orange-700 mb-4">
-          Edit Parking Lot
-        </h2>
+      <div className="bg-white rounded-2xl shadow-xl w-[600px] overflow-hidden max-h-[90vh] animate-fadeIn">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 bg-orange-50 border-b border-orange-100">
+          <h2 className="text-xl font-bold text-orange-700 flex items-center gap-3">
+            <i className="ri-parking-box-fill text-orange-600 text-2xl" />
+            Edit Parking Lot
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors duration-200"
+            aria-label="Close"
+            disabled={loading}
+          >
+            <i className="ri-close-line text-2xl" />
+          </button>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="p-6 overflow-y-auto max-h-[70vh]">
+          <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
           {/* Row 1 */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Name</label>
@@ -247,24 +262,38 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
             </div>
           )}
 
-          {/* Buttons */}
-          <div className="flex justify-end gap-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition disabled:opacity-50"
-            >
-              {loading ? "Saving..." : "Save Changes"}
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition disabled:opacity-50"
+            disabled={loading}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => formRef.current?.requestSubmit?.() || formRef.current?.submit?.()}
+            disabled={loading}
+            className="px-6 py-2 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors disabled:opacity-50 flex items-center gap-2"
+          >
+            {loading ? (
+              <>
+                <i className="ri-loader-4-line animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <i className="ri-save-line" />
+                <span>Save</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );
