@@ -839,7 +839,7 @@ export default function PartnerWithdrawals() {
                 </h2>
               </div>
 
-              <div className="p-6 space-y-4 max-h-[600px] overflow-y-auto">
+              <div className="p-6 space-y-4 max-h-[600px] overflow-y-auto withdrawal-modal-scroll">
                 {/* Net Amount */}
                 <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-200">
                   <div className="flex justify-between items-center">
@@ -905,46 +905,34 @@ export default function PartnerWithdrawals() {
                 </div>
 
                 {/* Status */}
-                <div className="flex justify-between items-center py-2 border-b">
+                <div className="flex justify-between items-center py-2">
                   <span className="font-medium text-gray-600">Status:</span>
                   <span>{renderStatus(viewingWithdrawal.status)}</span>
                 </div>
 
                 {/* Dates */}
                 <div className="space-y-2">
-                  <div className="flex justify-between py-2 border-b">
-                    <span className="font-medium text-gray-600">
-                      Request Date:
-                    </span>
-                    <span className="text-gray-800">
-                      {formatDate(viewingWithdrawal.requestedAt)}
-                    </span>
+                  <div className="flex justify-between py-2">
+                    <span className="font-medium text-gray-600">Request Date:</span>
+                    <span className="text-gray-800">{formatDate(viewingWithdrawal.requestedAt)}</span>
                   </div>
                   {viewingWithdrawal.processedAt && (
-                    <div className="flex justify-between py-2 border-b">
-                      <span className="font-medium text-gray-600">
-                        Processed At:
-                      </span>
-                      <span className="text-gray-800">
-                        {formatDate(viewingWithdrawal.processedAt)}
-                      </span>
+                    <div className="flex justify-between py-2">
+                      <span className="font-medium text-gray-600">Processed At:</span>
+                      <span className="text-gray-800">{formatDate(viewingWithdrawal.processedAt)}</span>
                     </div>
                   )}
                   {viewingWithdrawal.completedAt && (
-                    <div className="flex justify-between py-2 border-b">
-                      <span className="font-medium text-gray-600">
-                        Completed At:
-                      </span>
-                      <span className="text-gray-800">
-                        {formatDate(viewingWithdrawal.completedAt)}
-                      </span>
+                    <div className="flex justify-between py-2">
+                      <span className="font-medium text-gray-600">Completed At:</span>
+                      <span className="text-gray-800">{formatDate(viewingWithdrawal.completedAt)}</span>
                     </div>
                   )}
                 </div>
 
                 {/* Transaction Info */}
                 {viewingWithdrawal.externalTransactionId && (
-                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                  <div className="bg-gray-50 rounded-lg p-3">
                     <div className="text-xs text-gray-600 font-medium mb-1">
                       Transaction ID
                     </div>
@@ -955,13 +943,10 @@ export default function PartnerWithdrawals() {
                 )}
 
                 {/* Periods */}
-                {viewingWithdrawal.periods &&
-                  viewingWithdrawal.periods.length > 0 && (
-                    <div className="border-t pt-4 mt-4">
-                      <h3 className="font-semibold text-gray-700 mb-3">
-                        Withdrawal Periods ({viewingWithdrawal.periods.length})
-                      </h3>
-                      <div className="space-y-3 max-h-[200px] overflow-y-auto">
+                {viewingWithdrawal.periods && viewingWithdrawal.periods.length > 0 && (
+                    <div className="pt-4 mt-4">
+                      <h3 className="font-semibold text-gray-700 mb-3">Withdrawal Periods ({viewingWithdrawal.periods.length})</h3>
+                        <div className="space-y-3">
                         {viewingWithdrawal.periods.map((period, idx) => {
                           console.log("Period data:", period);
                           return (
@@ -999,7 +984,7 @@ export default function PartnerWithdrawals() {
               </div>
 
               {/* Footer */}
-              <div className="bg-gray-50 px-6 py-4 flex justify-end border-t">
+              <div className="bg-gray-50 px-6 py-4 flex justify-end">
                 <button
                   onClick={() => setViewingWithdrawal(null)}
                   className="px-6 py-2 rounded-lg bg-gray-600 hover:bg-gray-700 text-white font-medium transition-all shadow-sm"

@@ -150,6 +150,12 @@ export default function AdminParkingLots() {
             Rejected
           </span>
         );
+        case "PENDING_PAYMENT":
+        return (
+          <span className={`${base} bg-purple-50 text-purple-700 border-purple-300`}>
+            Pending Payment
+          </span>
+        );
       default:
         return (
           <span className={`${base} text-gray-500 bg-gray-50 border-gray-300`}>
@@ -366,6 +372,7 @@ export default function AdminParkingLots() {
             <option value="INACTIVE">Inactive</option>
             <option value="MAP_DENIED">Map Denied</option>
             <option value="REJECTED">Rejected</option>
+            <option value="PENDING_PAYMENT">Pending Payment</option>
           </select>
 
           {/* Refresh Button */}

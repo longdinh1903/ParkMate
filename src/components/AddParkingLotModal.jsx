@@ -323,15 +323,15 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
           <section className="border-b border-gray-200 pb-8">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                  <i className="ri-car-fill text-green-600 text-xl"></i>
+                <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <i className="ri-car-fill text-orange-600 text-xl"></i>
                 </div>
                 <h3 className="text-xl font-bold text-gray-900">Capacity Configuration</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setShowCapacityModal(true)}
-                className="bg-gradient-to-r from-green-600 to-green-500 text-white px-6 py-2.5 rounded-xl hover:from-green-700 hover:to-green-600 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2"
+                className="bg-orange-600 text-white px-6 py-2.5 rounded-xl hover:bg-orange-700 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2"
               >
                 <i className="ri-add-line text-lg"></i>
                 Add 
@@ -392,15 +392,15 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
           <section>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-                  <i className="ri-money-dollar-circle-fill text-yellow-600 text-xl"></i>
+                <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <i className="ri-money-dollar-circle-fill text-orange-600 text-xl"></i>
                 </div>
                 <h3 className="text-xl font-bold text-gray-900">Pricing Rules</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setShowRuleModal(true)}
-                className="bg-gradient-to-r from-orange-600 to-orange-500 text-white px-6 py-2.5 rounded-xl hover:from-orange-700 hover:to-orange-600 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2"
+                className="bg-orange-600 text-white px-6 py-2.5 rounded-xl hover:bg-orange-700 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2"
               >
                 <i className="ri-add-line text-lg"></i>
                 Add Rule
@@ -468,17 +468,17 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
             <button
               type="submit"
               disabled={loading}
-              className="px-8 py-3 rounded-xl bg-gradient-to-r from-orange-600 to-orange-500 text-white font-semibold hover:from-orange-700 hover:to-orange-600 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 flex items-center gap-2"
+              className="px-8 py-3 rounded-xl bg-orange-600 text-white font-semibold hover:bg-orange-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 flex items-center gap-2"
             >
               {loading ? (
                 <>
                   <i className="ri-loader-4-line animate-spin"></i>
                   Saving...
                 </>
-              ) : (
+                ) : (
                 <>
-                  <i className="ri-save-line"></i>
-                  Save Parking Lot
+                  <i className="ri-add-line"></i>
+                  <span>Create</span>
                 </>
               )}
             </button>
@@ -498,7 +498,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
           >
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <i className="ri-car-fill text-green-600"></i>
+                <i className="ri-car-fill text-orange-600"></i>
                 Add Capacity Configuration
               </h3>
               <button
@@ -543,16 +543,16 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
               </div>
 
               <div>
-                <label className="flex items-center gap-3 p-4 bg-green-50 rounded-lg cursor-pointer hover:bg-green-100 transition-all">
+                <label className="flex items-center gap-3 p-4 bg-orange-50 rounded-lg cursor-pointer hover:bg-orange-100 transition-all">
                   <input
                     type="checkbox"
                     name="supportElectricVehicle"
                     checked={capacityForm.supportElectricVehicle}
                     onChange={handleCapacityChange}
-                    className="w-5 h-5 accent-green-600 cursor-pointer"
+                    className="w-5 h-5 accent-orange-600 cursor-pointer"
                   />
                   <div className="flex items-center gap-2">
-                    <i className="ri-flashlight-line text-green-600 text-lg"></i>
+                    <i className="ri-flashlight-line text-orange-600 text-lg"></i>
                     <span className="text-gray-800 font-medium">Support Electric Vehicle</span>
                   </div>
                 </label>
@@ -569,7 +569,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                 <button
                   type="button"
                   onClick={handleAddCapacity}
-                  className="px-6 py-2 rounded-lg bg-gradient-to-r from-green-600 to-green-500 text-white hover:from-green-700 hover:to-green-600 transition shadow-md hover:shadow-lg font-medium flex items-center gap-2"
+                  className="bg-orange-600 text-white px-6 py-2.5 rounded-xl hover:bg-orange-700 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2"
                 >
                   <i className="ri-add-line"></i>
                   Add Capacity

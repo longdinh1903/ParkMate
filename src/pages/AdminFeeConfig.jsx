@@ -303,11 +303,18 @@ export default function AdminFeeConfig() {
                     {f.pricePerSqm?.toLocaleString("vi-VN")}
                   </td>
                   <td className="px-6 py-3">{f.billingPeriodMonths} months</td>
-                  <td
-                    className="px-6 py-3 max-w-xs truncate"
-                    title={f.description}
-                  >
-                    {f.description}
+                  <td className="px-6 py-3 max-w-xs" title={f.description}>
+                    <div
+                      style={{
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                      }}
+                      className="text-sm text-gray-800 break-words"
+                    >
+                      {f.description}
+                    </div>
                   </td>
                   <td className="px-6 py-3 text-sm">
                     {formatDate(f.validFrom)}
@@ -412,64 +419,56 @@ export default function AdminFeeConfig() {
 
       {/* View Modal */}
       {viewingFeeConfig && (
-        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black/50 z-50">
-          <div className="bg-white w-[600px] rounded-xl shadow-xl p-6">
-            <h2 className="text-xl font-semibold text-orange-700 mb-4">
-              Fee Configuration Details
-            </h2>
-            <div className="space-y-3">
-              <div className="flex justify-between border-b pb-2">
-                <span className="font-medium text-gray-600">
-                  Price per sqm:
-                </span>
-                <span className="text-orange-600 font-semibold">
-                  {viewingFeeConfig.pricePerSqm?.toLocaleString("vi-VN")} VND
-                </span>
-              </div>
-              <div className="flex justify-between border-b pb-2">
-                <span className="font-medium text-gray-600">
-                  Billing Period:
-                </span>
-                <span className="text-gray-800">
-                  {viewingFeeConfig.billingPeriodMonths} months
-                </span>
-              </div>
-              <div className="flex justify-between border-b pb-2">
-                <span className="font-medium text-gray-600">Description:</span>
-                <span className="text-gray-800 text-right max-w-md">
-                  {viewingFeeConfig.description}
-                </span>
-              </div>
-              <div className="flex justify-between border-b pb-2">
-                <span className="font-medium text-gray-600">Valid From:</span>
-                <span className="text-gray-800">
-                  {formatDate(viewingFeeConfig.validFrom)}
-                </span>
-              </div>
-              <div className="flex justify-between border-b pb-2">
-                <span className="font-medium text-gray-600">Valid Until:</span>
-                <span className="text-gray-800">
-                  {formatDate(viewingFeeConfig.validUntil)}
-                </span>
-              </div>
-              <div className="flex justify-between border-b pb-2">
-                <span className="font-medium text-gray-600">Status:</span>
-                <span>{renderStatus(viewingFeeConfig)}</span>
-              </div>
-              <div className="flex justify-between border-b pb-2">
-                <span className="font-medium text-gray-600">Created At:</span>
-                <span className="text-gray-800">
-                  {formatDate(viewingFeeConfig.createdAt)}
-                </span>
-              </div>
-              <div className="flex justify-between border-b pb-2">
-                <span className="font-medium text-gray-600">Updated At:</span>
-                <span className="text-gray-800">
-                  {formatDate(viewingFeeConfig.updatedAt)}
-                </span>
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh] overflow-hidden">
+            {/* Header */}
+            <div className="flex justify-between items-center px-6 py-4 bg-orange-50">
+              <h2 className="text-xl font-bold text-orange-700 flex items-center gap-2"><i className="ri-money-dollar-circle-line text-orange-500"></i> Fee Configuration Details</h2>
+              <button
+                onClick={() => setViewingFeeConfig(null)}
+                className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="overflow-y-auto p-6 text-gray-700 text-sm space-y-6 custom-scrollbar divide-y-0">
+              <div className="grid grid-cols-2 gap-4 items-start">
+                <div>
+                  <p className="text-gray-500 text-xs border-0">Price per sqm:</p>
+                  <p className="font-medium text-orange-600 border-0">{viewingFeeConfig.pricePerSqm?.toLocaleString("vi-VN")} VND</p>
+                </div>
+                <div>
+                  <p className="text-gray-500 text-xs border-0">Billing Period:</p>
+                  <p className="font-medium border-0">{viewingFeeConfig.billingPeriodMonths} months</p>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-gray-500 text-xs border-0">Description:</p>
+                  <p className="font-medium text-gray-800 whitespace-pre-wrap break-words max-h-48 overflow-auto mt-1 border-0">{viewingFeeConfig.description}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500 text-xs border-0">Valid From:</p>
+                  <p className="font-medium border-0">{formatDate(viewingFeeConfig.validFrom)}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500 text-xs border-0">Valid Until:</p>
+                  <p className="font-medium border-0">{formatDate(viewingFeeConfig.validUntil)}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500 text-xs">Status:</p>
+                  <div className="mt-1">{renderStatus(viewingFeeConfig)}</div>
+                </div>
+                <div>
+                  <p className="text-gray-500 text-xs border-0">Created At:</p>
+                  <p className="font-medium border-0">{formatDate(viewingFeeConfig.createdAt)}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500 text-xs border-0">Updated At:</p>
+                  <p className="font-medium border-0">{formatDate(viewingFeeConfig.updatedAt)}</p>
+                </div>
               </div>
             </div>
-            <div className="flex justify-end mt-6">
+            <div className="bg-gray-50 px-6 py-4 flex justify-end gap-2">
               <button
                 onClick={() => setViewingFeeConfig(null)}
                 className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 transition"
