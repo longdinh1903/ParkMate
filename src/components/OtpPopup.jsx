@@ -63,7 +63,7 @@ export default function OtpPopup({ email, onVerified, onClose }) {
         {/* ✖ Nút đóng popup */}
         <button
           onClick={handleClose}
-          className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-lg"
+          className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-lg cursor-pointer"
         >
           ✖
         </button>
@@ -92,7 +92,7 @@ export default function OtpPopup({ email, onVerified, onClose }) {
         <button
           onClick={handleVerify}
           disabled={loading}
-          className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 disabled:opacity-50"
+          className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 disabled:opacity-50 cursor-pointer"
         >
           {loading ? "Verifying..." : "Verify OTP"}
         </button>
@@ -101,7 +101,7 @@ export default function OtpPopup({ email, onVerified, onClose }) {
         <button
           onClick={handleResend}
           disabled={resending}
-          className="mt-3 w-full border border-indigo-500 text-indigo-600 py-2 rounded-md hover:bg-indigo-50 disabled:opacity-50"
+          className="mt-3 w-full border border-indigo-500 text-indigo-600 py-2 rounded-md hover:bg-indigo-50 disabled:opacity-50 cursor-pointer"
         >
           {resending ? "Resending..." : "Resend OTP"}
         </button>

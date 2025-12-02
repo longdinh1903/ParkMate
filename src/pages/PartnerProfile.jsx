@@ -43,49 +43,129 @@ export default function PartnerProfile() {
           return;
         }
         
-        console.log("� Searching for registration with email:", userEmail);
+        console.log("📧 Searching for registration with email:", userEmail);
         
-        // Get all registrations and filter by email
-        const requestsResponse = await partnerApi.getRequests({});
-        console.log("📦 Requests response:", requestsResponse);
-      
-        let registrationsList = null;
-        if (requestsResponse?.data?.data?.content) {
-          registrationsList = requestsResponse.data.data.content;
-        } else if (requestsResponse?.data?.content) {
-          registrationsList = requestsResponse.data.content;
-        } else if (Array.isArray(requestsResponse?.data?.data)) {
-          registrationsList = requestsResponse.data.data;
-        } else if (requestsResponse?.data) {
-          registrationsList = requestsResponse.data;
+        // Strategy 1: Try to search by email filter first
+        let registrationsList = [];
+        
+        try {
+          // Try searching with email filter (if API supports it)
+          console.log("🔍 Trying to search with email filter...");
+          const emailFilterResponse = await partnerApi.getRequests({
+            email: userEmail,
+            size: 100 // Get more results
+          });
+          
+          let filteredList = null;
+          if (emailFilterResponse?.data?.data?.content) {
+            filteredList = emailFilterResponse.data.data.content;
+          } else if (emailFilterResponse?.data?.content) {
+            filteredList = emailFilterResponse.data.content;
+          } else if (Array.isArray(emailFilterResponse?.data?.data)) {
+            filteredList = emailFilterResponse.data.data;
+          } else if (Array.isArray(emailFilterResponse?.data)) {
+            filteredList = emailFilterResponse.data;
+          }
+          
+          if (filteredList && filteredList.length > 0) {
+            console.log("✅ Found registrations with email filter:", filteredList);
+            registrationsList = filteredList;
+          }
+        } catch {
+          console.log("⚠️ Email filter not supported or failed, will fetch all pages");
         }
         
-        console.log("📋 Registrations list:", registrationsList);
+        // Strategy 2: If email filter didn't work, fetch all pages
+        if (registrationsList.length === 0) {
+          console.log("🔄 Fetching all registration pages...");
+          let currentPage = 0;
+          let hasMore = true;
+          
+          while (hasMore && currentPage < 10) { // Max 10 pages to avoid infinite loop
+            const pageResponse = await partnerApi.getRequests({
+              page: currentPage,
+              size: 20 // Increase page size
+            });
+            
+            let pageContent = null;
+            if (pageResponse?.data?.data?.content) {
+              pageContent = pageResponse.data.data.content;
+              hasMore = !pageResponse.data.data.last;
+            } else if (pageResponse?.data?.content) {
+              pageContent = pageResponse.data.content;
+              hasMore = pageResponse.data.last === false;
+            } else if (Array.isArray(pageResponse?.data?.data)) {
+              pageContent = pageResponse.data.data;
+              hasMore = false;
+            } else if (Array.isArray(pageResponse?.data)) {
+              pageContent = pageResponse.data;
+              hasMore = false;
+            }
+            
+            if (pageContent && pageContent.length > 0) {
+              registrationsList = [...registrationsList, ...pageContent];
+              console.log(`📄 Fetched page ${currentPage}, total records: ${registrationsList.length}`);
+            } else {
+              hasMore = false;
+            }
+            
+            currentPage++;
+          }
+        }
+        
+        console.log("📋 Total registrations fetched:", registrationsList.length);
         
         // ✅ Debug: Log all emails in the list
         if (Array.isArray(registrationsList) && registrationsList.length > 0) {
-          console.log("📧 All emails in registrations:");
+          console.log("📧 All registrations with full objects:");
           registrationsList.forEach((r, index) => {
-            console.log(`  [${index}] partnerEmail: "${r.partnerEmail}", companyEmail: "${r.companyEmail}", contactPersonEmail: "${r.contactPersonEmail}"`);
+            console.log(`  [${index}] Full object:`, r);
+            console.log(`  [${index}] Emails - partnerEmail: "${r.partnerEmail}", companyEmail: "${r.companyEmail}", contactPersonEmail: "${r.contactPersonEmail}"`);
           });
         }
         
-        // Find registration matching user's email
+        // Find registration matching user's email (case-insensitive and trimmed)
         let registrationId = null;
         if (Array.isArray(registrationsList) && registrationsList.length > 0) {
-          const found = registrationsList.find(
-            r => r.companyEmail === userEmail || r.contactPersonEmail === userEmail
-          );
+          const normalizedUserEmail = userEmail?.toLowerCase().trim();
+          
+          const found = registrationsList.find(r => {
+            const companyEmail = r.companyEmail?.toLowerCase().trim();
+            const contactEmail = r.contactPersonEmail?.toLowerCase().trim();
+            const partnerEmail = r.partnerEmail?.toLowerCase().trim();
+            const email = r.email?.toLowerCase().trim();
+            
+            return companyEmail === normalizedUserEmail || 
+                   contactEmail === normalizedUserEmail || 
+                   partnerEmail === normalizedUserEmail ||
+                   email === normalizedUserEmail;
+          });
+          
           if (found) {
             registrationId = found.id;
             localStorage.setItem("registrationId", registrationId);
-            console.log("✅ Found registration by email:", registrationId);
+            console.log("✅ Found registration by email:", registrationId, "Matched object:", found);
+          } else {
+            console.warn("❌ No registration found matching userEmail:", userEmail);
+            console.log("💡 Available emails in registrations:", registrationsList.map(r => ({
+              id: r.id,
+              status: r.status,
+              companyEmail: r.companyEmail,
+              contactPersonEmail: r.contactPersonEmail,
+              partnerEmail: r.partnerEmail,
+              email: r.email
+            })));
+            
+            // Show detailed error message
+            toast.error(
+              `Không tìm thấy đơn đăng ký cho email: ${userEmail}. Vui lòng kiểm tra lại email đã đăng ký.`,
+              { duration: 5000 }
+            );
           }
         }
         
         if (!registrationId) {
           console.warn("⚠️ No registration found");
-          toast.error("Không tìm thấy đơn đăng ký");
           setLoading(false);
           return;
         }

@@ -19,6 +19,7 @@ export default function AdminParkingLotRequests() {
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [sortBy, setSortBy] = useState("createdAt");
@@ -41,6 +42,7 @@ export default function AdminParkingLotRequests() {
       const lots = Array.isArray(data?.content) ? data.content : data || [];
       setRequests(lots);
       setTotalPages(data?.totalPages || 1);
+      setTotalCount(data?.totalElements || lots.length);
 
       // Initialize floor counts with 'undefined' for loading state
       const initialCounts = {};
@@ -506,9 +508,15 @@ export default function AdminParkingLotRequests() {
         >
           ← Previous
         </button>
-        <span className="text-gray-600 text-sm">
-          Page <strong>{page + 1}</strong> of {totalPages}
-        </span>
+        <div className="text-center text-gray-600 text-sm">
+          <div>
+            Page <strong>{page + 1}</strong> of {totalPages}
+          </div>
+          <div className="text-sm text-gray-500 mt-1">
+            Total requests:{" "}
+            <strong className="text-orange-700">{totalCount}</strong>
+          </div>
+        </div>
         <button
           disabled={page >= totalPages - 1}
           onClick={() => setPage((p) => p + 1)}
