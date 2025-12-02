@@ -104,7 +104,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors duration-200"
+            className="p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
             aria-label="Close"
             disabled={loading}
           >
@@ -270,7 +270,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition disabled:opacity-50"
+            className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition disabled:opacity-50 cursor-pointer"
             disabled={loading}
           >
             Cancel
@@ -279,7 +279,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
             type="button"
             onClick={() => formRef.current?.requestSubmit?.() || formRef.current?.submit?.()}
             disabled={loading}
-            className="px-6 py-2 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors disabled:opacity-50 flex items-center gap-2"
+            className="px-6 py-2 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {loading ? (
               <>

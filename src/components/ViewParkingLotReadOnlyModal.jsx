@@ -304,7 +304,7 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
         <div className="flex justify-end px-8 pb-8 pt-5 border-t flex-shrink-0">
           <button
             onClick={onClose}
-            className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md font-medium transition"
+            className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md font-medium transition cursor-pointer"
           >
             Close
           </button>

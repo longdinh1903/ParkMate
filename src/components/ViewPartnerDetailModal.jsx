@@ -75,7 +75,7 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
           </h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors duration-200"
+            className="p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
             aria-label="Close"
           >
             {/* Icon đóng hiện đại */}
@@ -175,7 +175,7 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
           <div className="px-6 py-4 border-t border-gray-100 flex justify-end bg-gray-50">
             <button
               onClick={onClose}
-              className="px-6 py-2 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors duration-200"
+              className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
             >
               Close
             </button>

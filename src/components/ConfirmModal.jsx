@@ -39,14 +39,14 @@ export default function ConfirmModal({ open = true, title, message, onConfirm, o
             <button
               onClick={handleCancel}
               disabled={loading}
-              className={`px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}
+              className={`px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition cursor-pointer ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}
             >
               Cancel
             </button>
             <button
               onClick={handleConfirm}
               disabled={loading}
-              className={`px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition flex items-center gap-2 ${loading ? 'opacity-80 cursor-not-allowed' : ''}`}
+              className={`px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition flex items-center gap-2 cursor-pointer ${loading ? 'opacity-80 cursor-not-allowed' : ''}`}
             >
               {loading && (
                 <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

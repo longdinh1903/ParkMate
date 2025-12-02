@@ -119,7 +119,7 @@ export default function ViewDeviceModal({ device, onClose }) {
           </h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition"
+            className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition cursor-pointer"
             aria-label="Close"
           >
             ✕
@@ -214,7 +214,7 @@ export default function ViewDeviceModal({ device, onClose }) {
         <div className="px-6 py-4 border-t border-gray-100 flex justify-end bg-gray-50">
           <button
             onClick={onClose}
-            className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md font-medium transition"
+            className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
           >
             Close
           </button>

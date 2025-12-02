@@ -39,7 +39,7 @@ export default function ViewUserModal({ userId, user, onClose }) {
           <div className="mt-6 text-center">
             <button
               onClick={onClose}
-              className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
+              className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition cursor-pointer"
             >
               Đóng
             </button>
@@ -126,7 +126,7 @@ export default function ViewUserModal({ userId, user, onClose }) {
           </h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition"
+            className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition cursor-pointer"
           >
             ✕
           </button>
@@ -337,9 +337,9 @@ export default function ViewUserModal({ userId, user, onClose }) {
           <div className="px-6 py-4 border-t border-gray-100 flex justify-end bg-gray-50">
             <button
               onClick={onClose}
-              className="px-6 py-2 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors duration-200"
+              className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
             >
-              Close
+              <span>Close</span>
             </button>
           </div>
         )}

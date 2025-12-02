@@ -68,7 +68,7 @@ export default function AddRuleModal({ open, onSave, onClose, variant = "partner
       <button
         type="button"
         onClick={onClose}
-        className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
+        className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition cursor-pointer"
       >
         <i className="ri-close-line text-2xl"></i>
       </button>
@@ -92,13 +92,13 @@ export default function AddRuleModal({ open, onSave, onClose, variant = "partner
           />
         </div>
         <div>
-          <label className="text-sm font-medium">Vehicle Type *</label>
+          <label className="text-sm font-medium ">Vehicle Type *</label>
           <select
             name="vehicleType"
             value={rule.vehicleType}
             onChange={handleChange}
             required
-            className={`w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 ${focusRing}`}
+            className={`w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 cursor-pointer ${focusRing}`}
           >
             <option value="">Select type</option>
             <option value="CAR_UP_TO_9_SEATS">Car (≤9 seats)</option>
@@ -196,13 +196,13 @@ export default function AddRuleModal({ open, onSave, onClose, variant = "partner
         <button
           type="button"
           onClick={onClose}
-          className="px-5 py-2 border rounded-lg hover:bg-gray-100 transition"
+          className="px-5 py-2 border rounded-lg hover:bg-gray-100 transition cursor-pointer"
         >
           Cancel
         </button>
         <button
           type="submit"
-          className={`px-5 py-2 ${primaryBg} text-white rounded-lg transition`}
+          className={`px-5 py-2 ${primaryBg} text-white rounded-lg transition cursor-pointer`}
         >
           Save Rule
         </button>
