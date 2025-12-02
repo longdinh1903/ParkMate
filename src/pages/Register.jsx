@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import partnerApi from "../api/partnerApi";
 import OtpPopup from "../components/OtpPopup";
 import { showSuccess, showError, showInfo } from "../utils/toastUtils.jsx";
@@ -64,20 +63,7 @@ export default function Register() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // 🟢 Upload ảnh thật
-  const uploadBusinessLicense = async (entityId, file) => {
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const url = `http://parkmate-alb-942390189.ap-southeast-1.elb.amazonaws.com/api/v1/user-service/upload/image/entity?entityId=${entityId}&imageType=PARTNER_BUSINESS_LICENSE`;
-
-    const res = await axios.post(url, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-    return res.data;
-  };
-
-  // 🟢 Submit form
+  // 🟢 Handle initial form submit - Show OTP first
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
@@ -85,9 +71,16 @@ export default function Register() {
       return;
     }
 
+    // Show OTP popup immediately after validation
+    showInfo("Please verify your email to continue registration.");
+    setShowOtp(true);
+  };
+
+  // 🟢 Handle actual registration after OTP verified
+  const handleRegistrationAfterOTP = async () => {
     setUploading(true);
     try {
-      showInfo("Registering partner, please wait...");
+      showInfo("Submitting partner registration, please wait...");
 
       // 1️⃣ Đăng ký partner
       const registerPayload = {
@@ -115,16 +108,20 @@ export default function Register() {
       // 2️⃣ Upload ảnh giấy phép
       if (form.businessLicenseFile) {
         showInfo("Uploading business license...");
-        await uploadBusinessLicense(entityId, form.businessLicenseFile);
+        await partnerApi.uploadBusinessLicense(entityId, form.businessLicenseFile);
         showSuccess("Uploaded business license successfully!");
       }
 
       // 3️⃣ Thông báo thành công
-      showSuccess("Registration successful! Please verify your email.");
-      setShowOtp(true);
+      showSuccess("✅ Registration submitted successfully! Please wait for admin approval.");
+      
+      // Navigate to login after short delay
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
     } catch (err) {
       console.error("❌ Register failed:", err);
-      showError("Register failed. Please try again!");
+      showError("Registration failed. Please try again!");
     } finally {
       setUploading(false);
     }
@@ -294,10 +291,14 @@ export default function Register() {
             email={form.companyEmail}
             onVerified={() => {
               setShowOtp(false);
-              showSuccess("🎉 Verified! You can now login.");
-              navigate("/login");
+              showSuccess("✅ Email verified! Submitting registration...");
+              // Gọi hàm đăng ký sau khi verify OTP thành công
+              handleRegistrationAfterOTP();
             }}
-            onClose={() => setShowOtp(false)}
+            onClose={() => {
+              setShowOtp(false);
+              showInfo("Registration cancelled. Please verify your email to submit registration.");
+            }}
           />
         </div>
       )}

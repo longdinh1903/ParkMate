@@ -18,6 +18,7 @@ export default function AdminPartnerRequests() {
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [viewingPartner, setViewingPartner] = useState(null);
   const [confirmingPartner, setConfirmingPartner] = useState(null);
   const [startDate, setStartDate] = useState("");
@@ -47,6 +48,7 @@ export default function AdminPartnerRequests() {
       const data = res.data?.data;
       setRequests(Array.isArray(data?.content) ? data.content : data || []);
       setTotalPages(data?.totalPages || 1);
+      setTotalCount(data?.totalElements || (Array.isArray(data?.content) ? data.content.length : 0));
     } catch (err) {
       console.error("❌ Error fetching requests:", err);
       setRequests([]);
@@ -362,9 +364,15 @@ export default function AdminPartnerRequests() {
         >
           ← Previous
         </button>
-        <span className="text-gray-600 text-sm">
-          Page <strong>{page + 1}</strong> of {totalPages}
-        </span>
+        <div className="text-center text-gray-600 text-sm">
+          <div>
+            Page <strong>{page + 1}</strong> of {totalPages}
+          </div>
+          <div className="text-sm text-gray-500 mt-1">
+            Total requests:{" "}
+            <strong className="text-orange-700">{totalCount}</strong>
+          </div>
+        </div>
         <button
           disabled={page >= totalPages - 1}
           onClick={() => setPage((p) => p + 1)}
