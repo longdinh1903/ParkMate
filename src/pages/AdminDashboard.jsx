@@ -144,28 +144,82 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 w-full md:w-auto">
-            <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
-              <i className="ri-calendar-line text-orange-600 text-xl"></i>
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            {/* Month Filter Dropdown */}
+            <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-2 shadow-sm">
+              <i className="ri-calendar-2-line text-indigo-600 text-lg"></i>
+              <select
+                value={activeDateRange === 'month' ? new Date(dateRange.from).getMonth() + 1 : ''}
+                onChange={(e) => {
+                  const selectedMonth = parseInt(e.target.value);
+                  if (!selectedMonth) return;
+                  
+                  const year = new Date().getFullYear();
+                  
+                  // First day of selected month at 00:00:00
+                  const firstDay = new Date(year, selectedMonth - 1, 1, 0, 0, 0);
+                  
+                  // Last day of selected month at 23:59:59
+                  const lastDay = new Date(year, selectedMonth, 0, 23, 59, 59);
+                  
+                  // Format dates in local timezone (not UTC)
+                  const formatLocalDateTime = (date) => {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const hours = String(date.getHours()).padStart(2, '0');
+                    const minutes = String(date.getMinutes()).padStart(2, '0');
+                    const seconds = String(date.getSeconds()).padStart(2, '0');
+                    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+                  };
+                  
+                  setDateRange({
+                    from: formatLocalDateTime(firstDay),
+                    to: formatLocalDateTime(lastDay),
+                  });
+                  setActiveDateRange('month');
+                }}
+                className="text-sm bg-transparent border-none outline-none cursor-pointer font-medium text-gray-700"
+              >
+                <option value="">Filter by Month</option>
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+              </select>
+            </div>
+
+            {/* Date Range Picker */}
+            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+              <i className="ri-calendar-line text-orange-600 text-lg"></i>
               <div className="flex items-center gap-2">
                 <input
                   type="datetime-local"
                   value={dateRange.from.slice(0, 16)}
                   onChange={(e) => handleDateChange("from", e.target.value + ":00")}
-                  className="text-sm bg-transparent border-none p-0 focus:outline-none cursor-pointer"
+                  className="text-xs w-36 bg-transparent border-none p-0 focus:outline-none cursor-pointer font-medium"
                   aria-label="From date"
                 />
-                <span className="text-gray-400">—</span>
+                <span className="text-gray-400 text-sm">→</span>
                 <input
                   type="datetime-local"
                   value={dateRange.to.slice(0, 16)}
                   onChange={(e) => handleDateChange("to", e.target.value + ":00")}
-                  className="text-sm bg-transparent border-none p-0 focus:outline-none cursor-pointer"
+                  className="text-xs w-36 bg-transparent border-none p-0 focus:outline-none cursor-pointer font-medium"
                   aria-label="To date"
                 />
               </div>
             </div>
 
+            {/* Refresh Button */}
             <button
               onClick={() => {
                 const to = new Date();
@@ -177,37 +231,39 @@ export default function AdminDashboard() {
                 });
                 setActiveDateRange(30);
               }}
-              className="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-white border border-gray-200 hover:bg-gray-50 shadow-sm"
-              title="Reset filters"
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm bg-white border border-gray-200 hover:bg-gray-50 shadow-sm transition"
+              title="Reset to last 30 days"
             >
               <i className="ri-refresh-line"></i>
+              <span className="hidden sm:inline">Reset</span>
             </button>
 
-            <div className="flex items-center gap-2 bg-white rounded-full p-1.5 border border-gray-100 shadow-sm">
+            {/* Quick Date Range Buttons */}
+            <div className="flex items-center gap-1 bg-white rounded-lg p-1 border border-gray-100 shadow-sm">
               <button
                 onClick={() => setQuickDateRange(0)}
-                className={`text-sm px-3 py-1 rounded-full transition ${activeDateRange === 0 ? 'bg-indigo-600 text-white shadow' : 'text-indigo-600 hover:bg-indigo-50'}`}
+                className={`text-xs px-2.5 py-1.5 rounded-md transition font-medium ${activeDateRange === 0 ? 'bg-indigo-600 text-white shadow' : 'text-indigo-600 hover:bg-indigo-50'}`}
                 aria-pressed={activeDateRange === 0}
               >
                 Today
               </button>
               <button
                 onClick={() => setQuickDateRange(7)}
-                className={`text-sm px-3 py-1 rounded-full transition ${activeDateRange === 7 ? 'bg-indigo-600 text-white shadow' : 'text-indigo-600 hover:bg-indigo-50'}`}
+                className={`text-xs px-2.5 py-1.5 rounded-md transition font-medium ${activeDateRange === 7 ? 'bg-indigo-600 text-white shadow' : 'text-indigo-600 hover:bg-indigo-50'}`}
                 aria-pressed={activeDateRange === 7}
               >
                 7d
               </button>
               <button
                 onClick={() => setQuickDateRange(30)}
-                className={`text-sm px-3 py-1 rounded-full transition ${activeDateRange === 30 ? 'bg-indigo-600 text-white shadow' : 'text-indigo-600 hover:bg-indigo-50'}`}
+                className={`text-xs px-2.5 py-1.5 rounded-md transition font-medium ${activeDateRange === 30 ? 'bg-indigo-600 text-white shadow' : 'text-indigo-600 hover:bg-indigo-50'}`}
                 aria-pressed={activeDateRange === 30}
               >
                 30d
               </button>
               <button
                 onClick={() => setQuickDateRange(90)}
-                className={`text-sm px-3 py-1 rounded-full transition ${activeDateRange === 90 ? 'bg-indigo-600 text-white shadow' : 'text-indigo-600 hover:bg-indigo-50'}`}
+                className={`text-xs px-2.5 py-1.5 rounded-md transition font-medium ${activeDateRange === 90 ? 'bg-indigo-600 text-white shadow' : 'text-indigo-600 hover:bg-indigo-50'}`}
                 aria-pressed={activeDateRange === 90}
               >
                 90d
@@ -228,55 +284,51 @@ export default function AdminDashboard() {
               <>
                 {/* Revenue Overview with Charts */}
                 <section>
-                  <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <i className="ri-money-dollar-circle-line text-green-600"></i>
-                    Revenue Overview
-                  </h2>
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                      <i className="ri-money-dollar-circle-line text-green-600"></i>
+                      Revenue Overview
+                    </h2>
+                  </div>
 
-                  {/* Revenue Cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                    <StatCard
-                      title="Total Platform Revenue"
-                      value={formatCurrency(stats.revenue?.totalPlatformRevenue)}
-                      icon="ri-hand-coin-fill"
-                      gradient="bg-gradient-to-br from-green-500 to-emerald-600"
-                      growth={stats.revenue?.platformRevenueGrowthRate}
-                      trend={stats.revenue?.platformRevenueGrowthRate > 0 ? 'up' : 'down'}
-                    />
-                    <StatCard
-                      title="Operational Fee"
-                      value={formatCurrency(stats.revenue?.totalOperationalFee)}
-                      icon="ri-settings-3-fill"
-                      gradient="bg-gradient-to-br from-blue-500 to-indigo-600"
-                      growth={stats.revenue?.operationalGrowthRate}
-                      trend={stats.revenue?.operationalGrowthRate > 0 ? 'up' : 'down'}
-                    />
-                    <StatCard
-                      title="Subscription Revenue"
-                      value={formatCurrency(stats.revenue?.totalSubscription)}
-                      icon="ri-vip-crown-fill"
-                      gradient="bg-gradient-to-br from-purple-500 to-pink-600"
-                      growth={stats.revenue?.subscriptionGrowthRate}
-                      trend={stats.revenue?.subscriptionGrowthRate > 0 ? 'up' : 'down'}
-                    />
-                    <StatCard
-                      title="Session Revenue"
-                      value={formatCurrency(stats.revenue?.totalSessionRevenue)}
-                      icon="ri-time-fill"
-                      gradient="bg-gradient-to-br from-orange-500 to-red-600"
-                      growth={stats.revenue?.sessionRevenueGrowthRate}
-                      trend={stats.revenue?.sessionRevenueGrowthRate > 0 ? 'up' : 'down'}
-                    />
+                  {/* Total Revenue Card - Highlighted */}
+                  <div className="mb-6">
+                    <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl shadow-lg p-8 text-white">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-green-100 text-sm font-medium uppercase tracking-wide mb-2">
+                            Total Platform Revenue
+                          </p>
+                          <h3 className="text-5xl font-bold mb-2">
+                            {formatCurrency(stats.revenue?.totalPlatformRevenue)}
+                          </h3>
+                          {stats.revenue?.platformRevenueGrowthRate !== undefined && (
+                            <div className="flex items-center gap-2 mt-3">
+                              <span className={`flex items-center gap-1 text-sm font-semibold ${
+                                stats.revenue?.platformRevenueGrowthRate >= 0 ? 'text-green-200' : 'text-red-200'
+                              }`}>
+                                <i className={`ri-arrow-${stats.revenue?.platformRevenueGrowthRate >= 0 ? 'up' : 'down'}-line`}></i>
+                                {Math.abs(stats.revenue?.platformRevenueGrowthRate)}%
+                              </span>
+                              <span className="text-green-100 text-sm">vs last period</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="bg-white/20 rounded-full p-6">
+                          <i className="ri-hand-coin-fill text-6xl"></i>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Revenue Charts */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow">
                       <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                         <i className="ri-pie-chart-2-line text-orange-600"></i>
                         Revenue Distribution
                       </h3>
-                      <ResponsiveContainer width="100%" height={300}>
+                      <ResponsiveContainer width="100%" height={320}>
                         <PieChart>
                           <Pie
                             data={[
@@ -289,7 +341,7 @@ export default function AdminDashboard() {
                             cy="50%"
                             labelLine={false}
                             label={(entry) => `${entry.name}`}
-                            outerRadius={90}
+                            outerRadius={100}
                             fill="#8884d8"
                             dataKey="value"
                           >
@@ -303,26 +355,49 @@ export default function AdminDashboard() {
                       </ResponsiveContainer>
                     </div>
 
-                    <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow">
                       <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                         <i className="ri-bar-chart-box-line text-green-600"></i>
-                        Revenue Growth Rate (%)
+                        Revenue Breakdown & Growth
                       </h3>
-                      <ResponsiveContainer width="100%" height={300}>
+                      <ResponsiveContainer width="100%" height={320}>
                         <BarChart
                           data={[
-                            { name: 'Operational', growth: stats.revenue?.operationalGrowthRate || 0 },
-                            { name: 'Subscription', growth: stats.revenue?.subscriptionGrowthRate || 0 },
-                            { name: 'Session', growth: stats.revenue?.sessionRevenueGrowthRate || 0 },
-                            { name: 'Reservation', growth: stats.revenue?.reservationGrowthRate || 0 },
+                            { 
+                              name: 'Operational', 
+                              amount: stats.revenue?.totalOperationalFee || 0,
+                              growth: stats.revenue?.operationalGrowthRate || 0 
+                            },
+                            { 
+                              name: 'Subscription', 
+                              amount: stats.revenue?.totalSubscription || 0,
+                              growth: stats.revenue?.subscriptionGrowthRate || 0 
+                            },
+                            { 
+                              name: 'Session', 
+                              amount: stats.revenue?.totalSessionRevenue || 0,
+                              growth: stats.revenue?.sessionRevenueGrowthRate || 0 
+                            },
+                            { 
+                              name: 'Reservation', 
+                              amount: stats.revenue?.totalReservationRevenue || 0,
+                              growth: stats.revenue?.reservationGrowthRate || 0 
+                            },
                           ]}
                           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                         >
                           <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                           <XAxis dataKey="name" stroke="#6b7280" />
                           <YAxis stroke="#6b7280" />
-                          <Tooltip formatter={(value) => `${value}%`} contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }} />
-                          <Bar dataKey="growth" radius={[8, 8, 0, 0]}>
+                          <Tooltip 
+                            formatter={(value, name) => {
+                              if (name === 'amount') return formatCurrency(value);
+                              return `${value}%`;
+                            }}
+                            contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }} 
+                          />
+                          <Legend />
+                          <Bar dataKey="amount" name="Amount" radius={[8, 8, 0, 0]}>
                             {Object.values(COLORS).map((color, index) => (
                               <Cell key={`cell-${index}`} fill={color} />
                             ))}
@@ -335,22 +410,27 @@ export default function AdminDashboard() {
 
                 {/* Partners Overview with Chart */}
                 <section>
-                  <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <i className="ri-building-line text-orange-600"></i>
-                    Partners
-                  </h2>
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                      <i className="ri-building-line text-orange-600"></i>
+                      Partners & Parking Lots
+                    </h2>
+                  </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <StatCard title="Total Partners" value={formatNumber(stats.partners?.total)} icon="ri-building-fill" gradient="bg-gradient-to-br from-blue-500 to-cyan-600" accent="#3b82f6" />
-                        <StatCard title="Active Partners" value={formatNumber(stats.partners?.activeTotal)} icon="ri-checkbox-circle-fill" gradient="bg-gradient-to-br from-green-500 to-emerald-600" accent={PARTNER_COLORS[0]} />
-                        <StatCard title="Suspended Partners" value={formatNumber(stats.partners?.suspendedTotal)} icon="ri-pause-circle-fill" gradient="bg-gradient-to-br from-red-500 to-rose-600" accent={PARTNER_COLORS[1]} />
-                        <StatCard title="Pending Registrations" value={formatNumber(stats.partners?.pendingRegistrations)} icon="ri-time-fill" gradient="bg-gradient-to-br from-yellow-500 to-amber-600" accent={PARTNER_COLORS[2]} />
-                    </div>
-
-                    <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow cursor-pointer">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Partner Status</h3>
-                      <ResponsiveContainer width="100%" height={250}>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Partners Chart */}
+                    <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                          <i className="ri-building-fill text-blue-600"></i>
+                          Partners Status
+                        </h3>
+                        <div className="text-right">
+                          <p className="text-sm text-gray-500">Total</p>
+                          <p className="text-2xl font-bold text-blue-600">{formatNumber(stats.partners?.total)}</p>
+                        </div>
+                      </div>
+                      <ResponsiveContainer width="100%" height={300}>
                         <PieChart>
                           <Pie
                             data={[
@@ -361,10 +441,11 @@ export default function AdminDashboard() {
                             cx="50%"
                             cy="50%"
                             innerRadius={60}
-                            outerRadius={80}
+                            outerRadius={90}
                             fill="#8884d8"
                             paddingAngle={5}
                             dataKey="value"
+                            label={({ name, value }) => `${name}: ${value}`}
                           >
                             {PARTNER_COLORS.map((color, index) => (
                               <Cell key={`cell-${index}`} fill={color} />
@@ -375,39 +456,20 @@ export default function AdminDashboard() {
                         </PieChart>
                       </ResponsiveContainer>
                     </div>
-                  </div>
-                </section>
 
-                {/* Users Overview */}
-                <section>
-                  <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <i className="ri-user-3-line text-indigo-600"></i>
-                    Users
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <StatCard title="Total Users" value={formatNumber(stats.users?.total)} icon="ri-user-3-fill" gradient="bg-gradient-to-br from-indigo-500 to-purple-600" subValue={`${formatNumber(stats.users?.newThisPeriod)} new this period`} />
-                  </div>
-                </section>
-
-                {/* Parking Lots Overview with Chart */}
-                <section>
-                  <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <i className="ri-parking-box-line text-blue-600"></i>
-                    Parking Lots
-                  </h2>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      <StatCard title="Total Lots" value={formatNumber(stats.lots?.total)} icon="ri-parking-box-fill" gradient="bg-gradient-to-br from-blue-500 to-cyan-600" accent="#3b82f6" />
-                      <StatCard title="Active Lots" value={formatNumber(stats.lots?.activeTotal)} icon="ri-checkbox-circle-fill" gradient="bg-gradient-to-br from-green-500 to-emerald-600" accent={LOT_COLORS[0]} />
-                      <StatCard title="Pending Lots" value={formatNumber(stats.lots?.pendingTotal)} icon="ri-time-fill" gradient="bg-gradient-to-br from-yellow-500 to-amber-600" accent={LOT_COLORS[1]} />
-                      <StatCard title="Under Maintenance" value={formatNumber(stats.lots?.underMaintenanceTotal)} icon="ri-tools-fill" gradient="bg-gradient-to-br from-red-500 to-rose-600" accent={LOT_COLORS[2]} />
-                      <StatCard title="Preparing" value={formatNumber(stats.lots?.preparingTotal)} icon="ri-loader-fill" gradient="bg-gradient-to-br from-orange-500 to-red-600" accent={LOT_COLORS[3]} />
-                    </div>
-
-                    <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow cursor-pointer">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Lot Status</h3>
-                      <ResponsiveContainer width="100%" height={250}>
+                    {/* Parking Lots Chart */}
+                    <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                          <i className="ri-parking-box-fill text-blue-600"></i>
+                          Parking Lots Status
+                        </h3>
+                        <div className="text-right">
+                          <p className="text-sm text-gray-500">Total</p>
+                          <p className="text-2xl font-bold text-blue-600">{formatNumber(stats.lots?.total)}</p>
+                        </div>
+                      </div>
+                      <ResponsiveContainer width="100%" height={300}>
                         <PieChart>
                           <Pie
                             data={[
@@ -419,10 +481,11 @@ export default function AdminDashboard() {
                             cx="50%"
                             cy="50%"
                             innerRadius={60}
-                            outerRadius={80}
+                            outerRadius={90}
                             fill="#8884d8"
                             paddingAngle={5}
                             dataKey="value"
+                            label={({ name, value }) => `${name}: ${value}`}
                           >
                             {LOT_COLORS.map((color, index) => (
                               <Cell key={`cell-${index}`} fill={color} />
@@ -436,28 +499,60 @@ export default function AdminDashboard() {
                   </div>
                 </section>
 
-                {/* Quick Stats Summary */}
-                <section className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-6 border-2 border-orange-200">
-                  <h2 className="text-xl font-bold text-orange-900 mb-4 flex items-center gap-2">
-                    <i className="ri-pie-chart-fill"></i>
-                    Quick Statistics
+                {/* Platform Summary - Compact */}
+                <section className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-200">
+                  <h2 className="text-lg font-bold text-indigo-900 mb-4 flex items-center gap-2">
+                    <i className="ri-apps-line"></i>
+                    Platform Summary
                   </h2>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                      <p className="text-xs text-gray-600 mb-1">Total Revenue</p>
-                      <p className="text-xl font-bold text-orange-600">{formatCurrency(stats.revenue?.totalPlatformRevenue)}</p>
+                    <div className="bg-white/80 backdrop-blur rounded-xl p-4 border border-indigo-100 hover:shadow-md transition">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="bg-indigo-100 rounded-lg p-2">
+                          <i className="ri-user-3-fill text-xl text-indigo-600"></i>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-600">Total Users</p>
+                          <p className="text-xl font-bold text-indigo-600">{formatNumber(stats.users?.total)}</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500">{formatNumber(stats.users?.newThisPeriod)} new</p>
                     </div>
-                    <div className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                      <p className="text-xs text-gray-600 mb-1">Active Partners</p>
-                      <p className="text-xl font-bold text-green-600">{formatNumber(stats.partners?.activeTotal)}</p>
+                    <div className="bg-white/80 backdrop-blur rounded-xl p-4 border border-green-100 hover:shadow-md transition">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="bg-green-100 rounded-lg p-2">
+                          <i className="ri-building-fill text-xl text-green-600"></i>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-600">Partners</p>
+                          <p className="text-xl font-bold text-green-600">{formatNumber(stats.partners?.activeTotal)}</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500">{formatNumber(stats.partners?.pendingRegistrations)} pending</p>
                     </div>
-                    <div className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                      <p className="text-xs text-gray-600 mb-1">Total Users</p>
-                      <p className="text-xl font-bold text-indigo-600">{formatNumber(stats.users?.total)}</p>
+                    <div className="bg-white/80 backdrop-blur rounded-xl p-4 border border-blue-100 hover:shadow-md transition">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="bg-blue-100 rounded-lg p-2">
+                          <i className="ri-parking-box-fill text-xl text-blue-600"></i>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-600">Active Lots</p>
+                          <p className="text-xl font-bold text-blue-600">{formatNumber(stats.lots?.activeTotal)}</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500">of {formatNumber(stats.lots?.total)} total</p>
                     </div>
-                    <div className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                      <p className="text-xs text-gray-600 mb-1">Active Lots</p>
-                      <p className="text-xl font-bold text-green-600">{formatNumber(stats.lots?.activeTotal)}</p>
+                    <div className="bg-white/80 backdrop-blur rounded-xl p-4 border border-orange-100 hover:shadow-md transition">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="bg-orange-100 rounded-lg p-2">
+                          <i className="ri-money-dollar-circle-fill text-xl text-orange-600"></i>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-600">Revenue</p>
+                          <p className="text-lg font-bold text-orange-600">{formatCurrency(stats.revenue?.totalPlatformRevenue).slice(0, -2)}</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500">platform total</p>
                     </div>
                   </div>
                 </section>

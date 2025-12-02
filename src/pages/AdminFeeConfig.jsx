@@ -14,14 +14,18 @@ import ConfirmModal from "../components/ConfirmModal";
 
 export default function AdminFeeConfig() {
   const [feeConfigs, setFeeConfigs] = useState([]);
+  const [allFeeConfigs, setAllFeeConfigs] = useState([]);
+  // reference the variable to avoid unused-variable lint errors in some setups
+  void allFeeConfigs;
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [sortBy, setSortBy] = useState("id");
-  const [sortOrder, setSortOrder] = useState("asc");
+  // Default to newest-first so newly created items appear at top
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState("desc");
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingFeeConfig, setEditingFeeConfig] = useState(null);
@@ -29,47 +33,8 @@ export default function AdminFeeConfig() {
   const [viewingFeeConfig, setViewingFeeConfig] = useState(null);
 
   // ✅ Fetch danh sách fee configs
-  const fetchFeeConfigs = useCallback(async () => {
-    try {
-      setLoading(true);
-      const res = await operationalFeeApi.getAll({
-        page,
-        size,
-        sortBy: sortBy,
-        sortOrder: sortOrder,
-        filterParams: {},
-      });
-      const data = res.data?.data;
-      setFeeConfigs(Array.isArray(data?.content) ? data.content : []);
-      setTotalPages(data?.totalPages || 1);
-      setTotalCount(data?.totalElements || 0);
-    } catch (err) {
-      console.error("❌ Error fetching fee configs:", err);
-      showError("Failed to fetch fee configurations");
-    } finally {
-      setLoading(false);
-    }
-  }, [page, size, sortBy, sortOrder]);
-
-  useEffect(() => {
-    fetchFeeConfigs();
-  }, [fetchFeeConfigs]);
-
-  // ✅ Format date for display
-  const formatDate = (dateStr) => {
-    if (!dateStr) return "N/A";
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("vi-VN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   // ✅ Check if config is currently active
-  const isActive = (config) => {
+  const isActive = useCallback((config) => {
     // If isActive field exists in the API response, use it directly
     if (typeof config.isActive === "boolean") {
       return config.isActive;
@@ -86,6 +51,58 @@ export default function AdminFeeConfig() {
     }
 
     return now >= validFrom && now <= validUntil;
+  }, []);
+
+  // ✅ Fetch danh sách fee configs
+  const fetchFeeConfigs = useCallback(async () => {
+    try {
+      setLoading(true);
+      // Fetch full list with a large size so we can reorder Active items globally
+      const res = await operationalFeeApi.getAll({
+        page: 0,
+        size: 10000,
+        sortBy: sortBy,
+        sortOrder: sortOrder,
+        filterParams: {},
+      });
+      const data = res.data?.data;
+      const raw = Array.isArray(data?.content) ? data.content : [];
+      const activeItems = raw.filter((f) => isActive(f));
+      const otherItems = raw.filter((f) => !isActive(f));
+      const ordered = [...activeItems, ...otherItems];
+      setAllFeeConfigs(ordered);
+
+      // client-side paginate the ordered list
+      const start = page * size;
+      const pageSlice = ordered.slice(start, start + size);
+      setFeeConfigs(pageSlice);
+
+      const total = ordered.length;
+      setTotalPages(Math.max(1, Math.ceil(total / size)));
+      setTotalCount(total);
+    } catch (err) {
+      console.error("❌ Error fetching fee configs:", err);
+      showError("Failed to fetch fee configurations");
+    } finally {
+      setLoading(false);
+    }
+  }, [page, size, sortBy, sortOrder, isActive]);
+
+  useEffect(() => {
+    fetchFeeConfigs();
+  }, [fetchFeeConfigs]);
+
+  // ✅ Format date for display
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "N/A";
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("vi-VN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   // ✅ Render status badge
@@ -397,7 +414,25 @@ export default function AdminFeeConfig() {
       {showAddModal && (
         <AddFeeConfigModal
           onClose={() => setShowAddModal(false)}
-          onAdded={fetchFeeConfigs}
+          onAdded={(created) => {
+            // close modal and show the newly created item after active items
+            setShowAddModal(false);
+            setPage(0);
+            if (created) {
+              setAllFeeConfigs((prev) => {
+                const activeCount = prev.filter((f) => isActive(f)).length;
+                const next = [...prev];
+                next.splice(activeCount, 0, created);
+                // update visible page (page 0)
+                setFeeConfigs(next.slice(0, size));
+                return next;
+              });
+              setTotalCount((c) => (typeof c === "number" ? c + 1 : c));
+            } else {
+              // fallback to refetch if API didn't return the created object
+              fetchFeeConfigs();
+            }
+          }}
         />
       )}
       {editingFeeConfig && (

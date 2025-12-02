@@ -26,6 +26,7 @@ export default function AddFeeConfigModal({ onClose, onAdded }) {
       // Validate dates
       if (new Date(form.validFrom) >= new Date(form.validUntil)) {
         showError("Valid From date must be before Valid Until date");
+        setLoading(false);
         return;
       }
 
@@ -41,7 +42,16 @@ export default function AddFeeConfigModal({ onClose, onAdded }) {
 
       if (res.status === 200 || res.status === 201) {
         showSuccess("✅ Fee configuration created successfully!");
-        onAdded();
+        const created = res.data?.data || res.data;
+        // normalize and mark as active so it appears immediately at top
+        if (created) {
+          if (created.isActive === undefined) created.isActive = true;
+          if (!created.status) created.status = "ACTIVE";
+          if (!created.validFrom) created.validFrom = new Date().toISOString();
+          if (!created.createdAt) created.createdAt = new Date().toISOString();
+        }
+        // pass created object back to parent so it can update UI optimistically
+        onAdded?.(created);
         onClose();
       } else {
         showError("❌ Failed to create fee configuration!");
@@ -142,25 +152,23 @@ export default function AddFeeConfigModal({ onClose, onAdded }) {
             </div>
           </div>
 
+            <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-6 py-2 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors disabled:opacity-50"
+              >
+                {loading ? "Creating..." : "Create"}
+              </button>
+            </div>
           </form>
-        </div>
-
-        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 transition"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={() => formRef.current?.requestSubmit?.() || formRef.current?.submit?.()}
-            disabled={loading}
-            className="px-6 py-2 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors disabled:opacity-50"
-          >
-            {loading ? "Creating..." : "Create"}
-          </button>
         </div>
       </div>
     </div>
