@@ -1,5 +1,5 @@
 import axiosClient from "../api/axiosClient";
-import axios from 'axios';
+// import axios from 'axios';
 
 
 const authApi = {
@@ -9,7 +9,7 @@ const authApi = {
   verifyOtp: (verifyCode) =>
     axiosClient.put("/api/v1/user-service/auth/verify", null, { params: { verifyCode } }),
 
-  login: (data) => axios.post("/api/v1/user-service/auth/login", data),
+  login: (data) => axiosClient.post("/api/v1/user-service/auth/login", data),
 
   logout: (refreshToken) =>
     axiosClient.post("/api/v1/user-service/auth/logout", { refreshToken }),
