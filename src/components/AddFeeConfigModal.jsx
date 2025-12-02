@@ -73,7 +73,7 @@ export default function AddFeeConfigModal({ onClose, onAdded }) {
         <div className="flex items-center justify-between px-6 py-4 bg-orange-50 border-b border-orange-100">
           <h2 className="text-xl font-bold text-orange-700 flex items-center gap-3">
             <i className="ri-money-dollar-circle-line text-2xl text-orange-500"></i>
-            Add New Fee Configuration
+            Thêm Cấu Hình Phí Mới
           </h2>
           <button
             onClick={onClose}
@@ -90,7 +90,7 @@ export default function AddFeeConfigModal({ onClose, onAdded }) {
         <form id="add-fee-form" ref={formRef} className="p-6 space-y-4 max-h-[calc(90vh-180px)] overflow-y-auto custom-scrollbar" onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Price per sqm (VND)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Giá/m² (VND)</label>
               <input
                 type="number"
                 name="pricePerSqm"
@@ -103,7 +103,7 @@ export default function AddFeeConfigModal({ onClose, onAdded }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Billing Period (Months)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Kỳ Thanh Toán (Tháng)</label>
               <input
                 type="number"
                 name="billingPeriodMonths"
@@ -117,7 +117,7 @@ export default function AddFeeConfigModal({ onClose, onAdded }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Mô Tả</label>
             <textarea
               name="description"
               value={form.description}
@@ -130,7 +130,7 @@ export default function AddFeeConfigModal({ onClose, onAdded }) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Valid From</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Hiệu Lực Từ</label>
               <input
                 type="datetime-local"
                 name="validFrom"
@@ -141,7 +141,7 @@ export default function AddFeeConfigModal({ onClose, onAdded }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Valid Until</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Hiệu Lực Đến</label>
               <input
                 type="datetime-local"
                 name="validUntil"
@@ -161,7 +161,7 @@ export default function AddFeeConfigModal({ onClose, onAdded }) {
             onClick={onClose}
             className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
           >
-            Cancel
+            Hủy
           </button>
           <button
             type="submit"
@@ -170,7 +170,7 @@ export default function AddFeeConfigModal({ onClose, onAdded }) {
             className="px-6 py-2 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             <i className="ri-add-line"></i>
-            <span>{loading ? "Creating..." : "Create"}</span>
+            <span>{loading ? "Đang thêm..." : "Thêm"}</span>
           </button>
         </div>
       </div>

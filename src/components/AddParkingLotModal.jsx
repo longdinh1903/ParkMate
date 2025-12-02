@@ -118,9 +118,10 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
 
       await parkingLotApi.register(payload);
 
-      showSuccess("✅ Parking lot created successfully!");
-      onCreated?.();
       onClose();
+      if (onCreated) {
+        await onCreated();
+      }
     } catch (err) {
       console.error("❌ Error creating parking lot:", err);
       showError(err.response?.data?.message || "Failed to create parking lot!");
@@ -142,7 +143,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
         <div className="flex items-center justify-between px-6 py-4 bg-orange-50 border-b border-orange-100">
           <h2 className="text-xl font-bold text-orange-700 flex items-center gap-3">
             <i className="ri-parking-box-fill text-orange-600 text-2xl"></i>
-            Add New Parking Lot
+            Thêm Bãi Đỗ Xe Mới
           </h2>
           <button
             type="button"
@@ -162,13 +163,13 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
               <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
                 <i className="ri-building-2-fill text-orange-600 text-xl"></i>
               </div>
-              <h3 className="text-xl font-bold text-gray-900">Basic Information</h3>
+              <h3 className="text-xl font-bold text-gray-900">Thông Tin Cơ Bản</h3>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Name <span className="text-red-500">*</span>
+                  Tên <span className="text-red-500">*</span>
                 </label>
                 <input
                   name="name"
@@ -176,14 +177,14 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                   value={form.name}
                   onChange={handleChange}
                   required
-                  placeholder="Enter parking lot name"
+                  placeholder="Nhập tên bãi đỗ xe"
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Street Address <span className="text-red-500">*</span>
+                  Địa Chỉ <span className="text-red-500">*</span>
                 </label>
                 <input
                   name="streetAddress"
@@ -191,14 +192,14 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                   value={form.streetAddress}
                   onChange={handleChange}
                   required
-                  placeholder="Enter street address"
+                  placeholder="Nhập địa chỉ đường phố"
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Ward <span className="text-red-500">*</span>
+                  Phường/Xã <span className="text-red-500">*</span>
                 </label>
                 <input
                   name="ward"
@@ -206,14 +207,14 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                   value={form.ward}
                   onChange={handleChange}
                   required
-                  placeholder="Enter ward"
+                  placeholder="Nhập phường/xã"
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  City <span className="text-red-500">*</span>
+                  Thành Phố <span className="text-red-500">*</span>
                 </label>
                 <input
                   name="city"
@@ -221,14 +222,14 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                   value={form.city}
                   onChange={handleChange}
                   required
-                  placeholder="Enter city"
+                  placeholder="Nhập thành phố"
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Latitude <span className="text-red-500">*</span>
+                  Vĩ Độ <span className="text-red-500">*</span>
                 </label>
                 <input
                   name="latitude"
@@ -237,14 +238,14 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                   value={form.latitude}
                   onChange={handleChange}
                   required
-                  placeholder="Latitude"
+                  placeholder="Vĩ độ"
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Longitude <span className="text-red-500">*</span>
+                  Kinh Độ <span className="text-red-500">*</span>
                 </label>
                 <input
                   name="longitude"
@@ -253,7 +254,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                   value={form.longitude}
                   onChange={handleChange}
                   required
-                  placeholder="Longitude"
+                  placeholder="Kinh độ"
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none"
                 />
               </div>
@@ -262,7 +263,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Total Floors <span className="text-red-500">*</span>
+                  Số Tầng <span className="text-red-500">*</span>
                 </label>
                 <input
                   name="totalFloors"
@@ -270,14 +271,14 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                   value={form.totalFloors}
                   onChange={handleChange}
                   required
-                  placeholder="e.g., 3"
+                  placeholder="Ví dụ: 3"
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Operating Hours Start
+                  Giờ Bắt Đầu
                 </label>
                 <input
                   name="operatingHoursStart"
@@ -291,7 +292,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Operating Hours End
+                  Giờ Kết Thúc
                 </label>
                 <input
                   name="operatingHoursEnd"
@@ -314,7 +315,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
               />
               <div className="flex items-center gap-2">
                 <i className="ri-time-line text-orange-600 text-lg"></i>
-                <span className="text-gray-800 font-medium">24-hour Operation</span>
+                <span className="text-gray-800 font-medium">Hoạt động 24/7</span>
               </div>
             </label>
           </section>
@@ -326,7 +327,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                 <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
                   <i className="ri-car-fill text-orange-600 text-xl"></i>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">Capacity Configuration</h3>
+                <h3 className="text-xl font-bold text-gray-900">Cấu Hình Sức Chứa</h3>
               </div>
               <button
                 type="button"
@@ -334,7 +335,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                 className="bg-orange-600 text-white px-6 py-2.5 rounded-xl hover:bg-orange-700 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2 cursor-pointer"
               >
                 <i className="ri-add-line text-lg"></i>
-                Add 
+                Thêm 
               </button>
             </div>
 
@@ -343,10 +344,10 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                 <table className="min-w-full">
                   <thead className="bg-gradient-to-r from-gray-100 to-gray-50">
                     <tr>
-                      <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">Vehicle Type</th>
-                      <th className="px-6 py-4 text-center text-sm font-bold text-gray-700">Capacity</th>
-                      <th className="px-6 py-4 text-center text-sm font-bold text-gray-700">EV Support</th>
-                      <th className="px-6 py-4 text-center text-sm font-bold text-gray-700">Action</th>
+                      <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">Loại Xe</th>
+                      <th className="px-6 py-4 text-center text-sm font-bold text-gray-700">Sức Chứa</th>
+                      <th className="px-6 py-4 text-center text-sm font-bold text-gray-700">Hỗ Trợ EV</th>
+                      <th className="px-6 py-4 text-center text-sm font-bold text-gray-700">Thao Tác</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -357,11 +358,11 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                         <td className="px-6 py-4 text-center">
                           {c.supportElectricVehicle ? (
                             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                              <i className="ri-flashlight-fill mr-1"></i> Yes
+                              <i className="ri-flashlight-fill mr-1"></i> Có
                             </span>
                           ) : (
                             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                              No
+                              Không
                             </span>
                           )}
                         </td>
@@ -371,7 +372,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                             onClick={() => handleRemoveCapacity(i)}
                             className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-all"
                           >
-                            <i className="ri-delete-bin-line mr-1"></i> Remove
+                            <i className="ri-delete-bin-line mr-1"></i> Xóa
                           </button>
                         </td>
                       </tr>
@@ -382,8 +383,8 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
             ) : (
               <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
                 <i className="ri-car-line text-5xl text-gray-400 mb-3"></i>
-                <p className="text-gray-500 font-medium">No capacity configurations added yet</p>
-                <p className="text-gray-400 text-sm mt-1">Click "Add Capacity" button above to create one</p>
+                <p className="text-gray-500 font-medium">Chưa thêm cấu hình sức chứa nào</p>
+                <p className="text-gray-400 text-sm mt-1">Nhấp nút "Thêm" bên trên để tạo mới</p>
               </div>
             )}
           </section>
@@ -395,7 +396,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                 <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
                   <i className="ri-money-dollar-circle-fill text-orange-600 text-xl"></i>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">Pricing Rules</h3>
+                <h3 className="text-xl font-bold text-gray-900">Quy Tắc Giá</h3>
               </div>
               <button
                 type="button"
@@ -403,7 +404,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                 className="bg-orange-600 text-white px-6 py-2.5 rounded-xl hover:bg-orange-700 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2 cursor-pointer"
               >
                 <i className="ri-add-line text-lg"></i>
-                Add Rule
+                Thêm Quy Tắc
               </button>
             </div>
 
@@ -412,13 +413,13 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                 <table className="min-w-full">
                   <thead className="bg-gradient-to-r from-gray-100 to-gray-50">
                     <tr>
-                      <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase">Rule Name</th>
-                      <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase">Vehicle Type</th>
-                      <th className="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase">Step Rate</th>
-                      <th className="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase">Step Min</th>
-                      <th className="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase">Valid From</th>
-                      <th className="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase">Valid To</th>
-                      <th className="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase">Action</th>
+                      <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase">Tên Quy Tắc</th>
+                      <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase">Loại Xe</th>
+                      <th className="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase">Phí Bước</th>
+                      <th className="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase">Phút/Bước</th>
+                      <th className="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase">Hiệu Lực Từ</th>
+                      <th className="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase">Hiệu Lực Đến</th>
+                      <th className="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase">Thao Tác</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -436,7 +437,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                             onClick={() => handleRemoveRule(idx)}
                             className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-all"
                           >
-                            <i className="ri-delete-bin-line mr-1"></i> Remove
+                            <i className="ri-delete-bin-line mr-1"></i> Xóa
                           </button>
                         </td>
                       </tr>
@@ -447,8 +448,8 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
             ) : (
               <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
                 <i className="ri-file-list-line text-5xl text-gray-400 mb-3"></i>
-                <p className="text-gray-500 font-medium">No pricing rules added yet</p>
-                <p className="text-gray-400 text-sm mt-1">Click "Add Rule" button above to create one</p>
+                <p className="text-gray-500 font-medium">Chưa thêm quy tắc giá nào</p>
+                <p className="text-gray-400 text-sm mt-1">Nhấp nút "Thêm Quy Tắc" bên trên để tạo mới</p>
               </div>
             )}
           </section>
@@ -463,7 +464,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
               className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
               disabled={loading}
             >
-              Cancel
+              Hủy
             </button>
             <button
               type="submit"
@@ -473,12 +474,12 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
               {loading ? (
                 <>
                   <i className="ri-loader-4-line animate-spin"></i>
-                  Saving...
+                  Đang lưu...
                 </>
                 ) : (
                 <>
                   <i className="ri-add-line"></i>
-                  <span>Create</span>
+                  <span>Tạo Mới</span>
                 </>
               )}
             </button>
@@ -499,7 +500,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <i className="ri-car-fill text-orange-600"></i>
-                Add Capacity Configuration
+                Thêm Cấu Hình Sức Chứa
               </h3>
               <button
                 onClick={() => setShowCapacityModal(false)}
@@ -512,12 +513,12 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Capacity <span className="text-red-500">*</span>
+                  Sức Chứa <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
                   name="capacity"
-                  placeholder="e.g., 50"
+                  placeholder="Ví dụ: 50"
                   value={capacityForm.capacity}
                   onChange={handleCapacityChange}
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none"
@@ -526,7 +527,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Vehicle Type <span className="text-red-500">*</span>
+                  Loại Xe <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="vehicleType"
@@ -534,11 +535,11 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                   onChange={handleCapacityChange}
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none cursor-pointer"
                 >
-                  <option value="">Select Type</option>
-                  <option value="CAR_UP_TO_9_SEATS">🚗 Car (≤9 seats)</option>
-                  <option value="MOTORBIKE">🏍️ Motorbike</option>
-                  <option value="BICYCLE">🚲 Bicycle</option>
-                  <option value="OTHER">🚙 Other</option>
+                  <option value="">Chọn Loại</option>
+                  <option value="CAR_UP_TO_9_SEATS">🚗 Ôtô (≤9 chỗ)</option>
+                  <option value="MOTORBIKE">🏍️ Xe máy</option>
+                  <option value="BICYCLE">🚲 Xe đạp</option>
+                  <option value="OTHER">🚙 Khác</option>
                 </select>
               </div>
 
@@ -553,7 +554,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                   />
                   <div className="flex items-center gap-2">
                     <i className="ri-flashlight-line text-orange-600 text-lg"></i>
-                    <span className="text-gray-800 font-medium">Support Electric Vehicle</span>
+                    <span className="text-gray-800 font-medium">Hỗ Trợ Xe Điện</span>
                   </div>
                 </label>
               </div>
@@ -564,7 +565,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                   onClick={() => setShowCapacityModal(false)}
                   className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition cursor-pointer"
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button
                   type="button"
@@ -572,7 +573,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                   className="bg-orange-600 text-white px-6 py-2.5 rounded-xl hover:bg-orange-700 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2 cursor-pointer"
                 >
                   <i className="ri-add-line"></i>
-                  Add Capacity
+                  Thêm Sức Chứa
                 </button>
               </div>
             </div>

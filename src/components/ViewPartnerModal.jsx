@@ -68,7 +68,7 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
           <div className="flex items-center justify-between px-6 py-4 bg-orange-50 border-b border-orange-100">
             <h2 className="text-xl font-bold text-orange-700 flex items-center gap-3">
               <i className="ri-building-fill text-orange-600 text-2xl"></i>
-              Partner Details
+              Thông Tin Chi Tiết
             </h2>
             <button
               onClick={onClose}
@@ -85,25 +85,25 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
           <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg p-4 border border-indigo-200">
             <h3 className="font-semibold text-indigo-900 mb-3 flex items-center gap-2">
               <i className="ri-building-line"></i>
-              Company Information
+              Thông Tin Công Ty
             </h3>
             <div className="space-y-2">
               <div>
-                <span className="text-gray-600 text-xs">Company Name:</span>
+                <span className="text-gray-600 text-xs">Tên Công Ty:</span>
                 <p className="font-medium text-gray-900">{partner.companyName || "N/A"}</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <span className="text-gray-600 text-xs">Tax Number:</span>
+                  <span className="text-gray-600 text-xs">Mã Số Thuế:</span>
                   <p className="font-medium text-gray-900">{partner.taxNumber || "N/A"}</p>
                 </div>
                 <div>
-                  <span className="text-gray-600 text-xs">Business License:</span>
+                  <span className="text-gray-600 text-xs">Giấy Phép KD:</span>
                   <p className="font-medium text-gray-900">{partner.businessLicenseNumber || "N/A"}</p>
                 </div>
               </div>
               <div>
-                <span className="text-gray-600 text-xs">Address:</span>
+                <span className="text-gray-600 text-xs">Địa Chỉ:</span>
                 <p className="font-medium text-gray-900">{partner.companyAddress || "N/A"}</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -112,7 +112,7 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
                   <p className="font-medium text-gray-900 truncate">{partner.companyEmail || "N/A"}</p>
                 </div>
                 <div>
-                  <span className="text-gray-600 text-xs">Phone:</span>
+                  <span className="text-gray-600 text-xs">Số Điện Thoại:</span>
                   <p className="font-medium text-gray-900">{partner.companyPhone || "N/A"}</p>
                 </div>
               </div>
@@ -131,7 +131,7 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
               )}
               {partner.businessDescription && (
                 <div>
-                  <span className="text-gray-600 text-xs">Business Description:</span>
+                  <span className="text-gray-600 text-xs">Mô Tả Kinh Doanh:</span>
                   <p className="text-gray-700 text-sm mt-1">{partner.businessDescription}</p>
                 </div>
               )}
@@ -142,11 +142,11 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
           <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-200">
             <h3 className="font-semibold text-purple-900 mb-3 flex items-center gap-2">
               <i className="ri-user-line"></i>
-              Contact Person
+              Người Liên Hệ
             </h3>
             <div className="space-y-2">
               <div>
-                <span className="text-gray-600 text-xs">Full Name:</span>
+                <span className="text-gray-600 text-xs">Họ Tên:</span>
                 <p className="font-medium text-gray-900">{partner.contactPersonName || "N/A"}</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -155,7 +155,7 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
                   <p className="font-medium text-gray-900 truncate">{partner.contactPersonEmail || "N/A"}</p>
                 </div>
                 <div>
-                  <span className="text-gray-600 text-xs">Phone:</span>
+                  <span className="text-gray-600 text-xs">Số Điện Thoại:</span>
                   <p className="font-medium text-gray-900">{partner.contactPersonPhone || "N/A"}</p>
                 </div>
               </div>
@@ -166,7 +166,7 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
           <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg p-4 border border-orange-200">
             <h3 className="font-semibold text-orange-900 mb-3 flex items-center gap-2">
               <i className="ri-file-text-line"></i>
-              Business License Document
+              Giấy Phép Kinh Doanh
             </h3>
             {partner.businessLicenseFileUrl ? (
               <div className="space-y-3">
@@ -177,13 +177,13 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
                   className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition text-sm font-medium"
                 >
                   <i className="ri-file-download-line"></i>
-                  View/Download License
+                  Xem/Tải Giấy Phép
                 </a>
                 
                 {/* Image Preview */}
                 {partner.businessLicenseFileUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) && (
                   <div className="border border-orange-200 rounded-lg overflow-hidden bg-white p-2">
-                    <p className="text-xs text-gray-600 mb-2">Preview:</p>
+                    <p className="text-xs text-gray-600 mb-2">Xem trước:</p>
                     <img
                       src={partner.businessLicenseFileUrl}
                       alt="Business License"
@@ -195,13 +195,13 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
                     />
                     <div style={{display: 'none'}} className="text-center p-4 bg-gray-50 rounded">
                       <i className="ri-image-line text-3xl text-gray-400"></i>
-                      <p className="text-xs text-gray-500 mt-2">Cannot load image preview</p>
+                      <p className="text-xs text-gray-500 mt-2">Không thể tải xem trước hình ảnh</p>
                     </div>
                   </div>
                 )}
               </div>
             ) : (
-              <p className="text-gray-500 text-sm">No license file uploaded</p>
+              <p className="text-gray-500 text-sm">Chưa tải lên giấy phép</p>
             )}
           </div>
 
@@ -227,11 +227,11 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
                   ? "ri-close-circle-line"
                   : "ri-time-line"
               }`}></i>
-              Registration Status
+              Trạng Thái Đăng Ký
             </h3>
             <div className="space-y-2">
               <div>
-                <span className="text-gray-600 text-xs">Status:</span>
+                <span className="text-gray-600 text-xs">Trạng Thái:</span>
                 <p>
                   <span className={`inline-flex items-center gap-1 px-3 py-1 text-xs rounded-full font-semibold ${
                     partner.status === "APPROVED"
@@ -246,7 +246,7 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
               </div>
               {partner.rejectionReason && (
                 <div>
-                  <span className="text-gray-600 text-xs">Rejection Reason:</span>
+                  <span className="text-gray-600 text-xs">Lý Do Từ Chối:</span>
                   <p className="text-red-700 bg-red-100 px-3 py-2 rounded border border-red-200 text-sm mt-1">
                     {partner.rejectionReason}
                   </p>
@@ -254,7 +254,7 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
               )}
               {partner.submittedAt && (
                 <div>
-                  <span className="text-gray-600 text-xs">Submitted At:</span>
+                  <span className="text-gray-600 text-xs">Ngày Nộp:</span>
                   <p className="font-medium text-gray-900 text-sm">
                     {new Date(partner.submittedAt).toLocaleString()}
                   </p>
@@ -274,7 +274,7 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
                 className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
               >
                 <i className="ri-close-line"></i>
-                Reject
+                Từ Chối
               </button>
               <button
                 onClick={() => setShowApproveModal(true)}
@@ -282,7 +282,7 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
                 className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
               >
                 <i className="ri-check-line"></i>
-                Approve
+                Phê Duyệt
               </button>
             </>
           )}
@@ -290,7 +290,7 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
             onClick={onClose}
             className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
           >
-            Close
+            Đóng
           </button>
         </div>
       </div>
@@ -301,12 +301,12 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
         <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50">
           <div className="bg-white rounded-xl shadow-lg p-6 w-[400px] animate-fadeIn">
             <h2 className="text-lg font-semibold text-red-600 mb-3">
-              🚫  Enter Reason for Rejection
+              🚫  Nhập Lý Do Từ Chối
             </h2>
             <textarea
               className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-400"
               rows="4"
-              placeholder="Enter detailed reason..."
+              placeholder="Nhập lý do chi tiết..."
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
             ></textarea>
@@ -316,14 +316,14 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
                 onClick={() => setShowRejectModal(false)}
                 className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
               >
-                Cancel
+                Hủy
               </button>
               <button
                 onClick={handleRejectSubmit}
                 disabled={isProcessing}
                 className="px-4 py-2 rounded-lg text-sm bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 cursor-pointer"
               >
-                Confirm
+                Xác Nhận
               </button>
             </div>
           </div>
@@ -335,10 +335,10 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
         <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50">
           <div className="bg-white rounded-xl shadow-lg p-6 w-[400px] animate-fadeIn">
             <h2 className="text-lg font-semibold text-green-700 mb-3">
-              ✅ Confirm Approval
+              ✅ Xác Nhận Phê Duyệt
             </h2>
             <p className="text-gray-600 text-sm mb-4">
-              Are you sure you want to approve the partner{" "}
+              Bạn có chắc chắn muốn phê duyệt đối tác{" "}
               <strong>{partner.companyName}</strong>?
             </p>
             <div className="flex justify-end gap-3">
@@ -346,14 +346,14 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
                 onClick={() => setShowApproveModal(false)}
                 className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
               >
-                Cancel
+                Hủy
               </button>
               <button
                 onClick={handleApproveSubmit}
                 disabled={isProcessing}
                 className="px-4 py-2 rounded-lg text-sm bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 cursor-pointer"
               >
-                Confirm
+                Xác Nhận
               </button>
             </div>
           </div>

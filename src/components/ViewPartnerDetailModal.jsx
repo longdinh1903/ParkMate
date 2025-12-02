@@ -71,7 +71,7 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-orange-500">
                 <path fillRule="evenodd" d="M3.75 3.75L7.5 7.5L3.75 11.25V3.75ZM7.5 7.5L11.25 3.75H18.75A2.25 2.25 0 0121 6V18A2.25 2.25 0 0118.75 20.25H5.25A2.25 2.25 0 013 18.75V15L7.5 10.5V7.5ZM15 15.75A1.5 1.5 0 1112 15.75A1.5 1.5 0 0115 15.75Z" clipRule="evenodd" />
             </svg>
-            Partner Details
+            Thông Tin Chi Tiết
           </h2>
           <button
             onClick={onClose}
@@ -95,9 +95,9 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
             
             {/* --- General Status Section --- */}
             <div className="mb-6 pb-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-700 mb-3">General Status</h3>
+                <h3 className="text-lg font-semibold text-gray-700 mb-3">Tình Trạng Chung</h3>
                 <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
-                    <span className="font-bold text-base text-gray-600">Status:</span>
+                    <span className="font-bold text-base text-gray-600">Trạng thái:</span>
                     <span
                         className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ring-1 ring-inset ${getStatusClasses(data.status)}`}
                     >
@@ -106,7 +106,7 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
                 </div>
                 {data.rejectionReason && (
                     <div className="mt-4 p-3 bg-red-50 border-l-4 border-red-400 text-red-700 rounded-r-lg">
-                        <p className="font-semibold">Reason for rejection/suspension:</p>
+                        <p className="font-semibold">Lý do từ chối/tạm ngưng:</p>
                         <p className="text-sm italic">{data.rejectionReason}</p>
                     </div>
                 )}
@@ -114,15 +114,15 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
 
             {/* --- Company Info Section --- */}
             <section className="mb-6">
-                <h3 className="text-lg font-semibold text-orange-600 mb-3 border-b-2 border-orange-100 pb-1">Company Information</h3>
+                <h3 className="text-lg font-semibold text-orange-600 mb-3 border-b-2 border-orange-100 pb-1">Thông Tin Công Ty</h3>
                 <div className="space-y-1">
-                    <InfoRow label="Company Name" value={data.companyName} />
-                    <InfoRow label="Tax Number" value={data.taxNumber} />
-                    <InfoRow label="Business License" value={data.businessLicenseNumber} />
-                    <InfoRow label="Address" value={data.companyAddress} />
-                    <InfoRow label="Company Email" value={data.companyEmail} />
-                    <InfoRow label="Company Phone" value={data.companyPhone} />
-                    <InfoRow label="Business License File">
+                    <InfoRow label="Tên Công Ty" value={data.companyName} />
+                    <InfoRow label="Mã Số Thuế" value={data.taxNumber} />
+                    <InfoRow label="Giấy Phép KD" value={data.businessLicenseNumber} />
+                    <InfoRow label="Địa Chỉ" value={data.companyAddress} />
+                    <InfoRow label="Email Công Ty" value={data.companyEmail} />
+                    <InfoRow label="SĐT Công Ty" value={data.companyPhone} />
+                    <InfoRow label="File Giấy Phép">
                         {data.businessLicenseFileUrl ? (
                             <a
                                 href={data.businessLicenseFileUrl}
@@ -130,16 +130,16 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
                                 rel="noreferrer"
                                 className="text-orange-600 hover:text-orange-800 font-semibold transition underline"
                             >
-                                View Attachment
+                                Xem Tệp Đính Kèm
                             </a>
                         ) : (
-                            <span className="text-gray-400">No file available</span>
+                            <span className="text-gray-400">Không có file</span>
                         )}
                     </InfoRow>
                     <div className="pt-2">
-                        <span className="font-medium text-gray-500 block mb-1">Business Description:</span>
+                        <span className="font-medium text-gray-500 block mb-1">Mô tả kinh doanh:</span>
                         <p className="p-3 bg-gray-50 border rounded-md whitespace-pre-wrap text-gray-800">
-                            {data.businessDescription || "No detailed description available."}
+                            {data.businessDescription || "Không có mô tả chi tiết."}
                         </p>
                     </div>
                 </div>
@@ -147,26 +147,26 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
 
             {/* --- Contact Info Section --- */}
             <section>
-                <h3 className="text-lg font-semibold text-orange-600 mb-3 border-b-2 border-orange-100 pb-1">Contact Information</h3>
+                <h3 className="text-lg font-semibold text-orange-600 mb-3 border-b-2 border-orange-100 pb-1">Thông Tin Liên Hệ</h3>
                 {Array.isArray(data.accounts) && data.accounts.length > 0 ? (
                     (() => {
                         const contact = data.accounts[0];
                         return (
                             <div className="space-y-1">
-                                <InfoRow label="Contact Name" value={contact.fullName} />
-                                <InfoRow label="Contact Email" value={contact.email} />
-                                <InfoRow label="Contact Phone" value={contact.phone} />
+                                <InfoRow label="Tên Liên Hệ" value={contact.fullName} />
+                                <InfoRow label="Email Liên Hệ" value={contact.email} />
+                                <InfoRow label="SĐT Liên Hệ" value={contact.phone} />
                             </div>
                         );
                     })()  
                 ) : (
-                    <p className="p-3 bg-yellow-50 text-yellow-700 rounded-lg italic">No contact information linked.</p>
+                    <p className="p-3 bg-yellow-50 text-yellow-700 rounded-lg italic">Không có thông tin liên hệ được liên kết.</p>
                 )}
             </section>
           </div>
         ) : (
           <div className="px-6 py-12 text-center text-red-500 italic text-lg">
-            No data found for this partner.
+            Không tìm thấy dữ liệu cho đối tác này.
           </div>
         )}
 
@@ -177,7 +177,7 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
               onClick={onClose}
               className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
             >
-              Close
+              Đóng
             </button>
           </div>
         )}

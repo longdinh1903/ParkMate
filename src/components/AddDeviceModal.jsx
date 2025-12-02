@@ -165,7 +165,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
         <div className="flex justify-between items-center px-6 py-4 bg-orange-50 border-b border-orange-100">
           <h2 className="text-xl font-bold text-orange-700 flex items-center gap-2">
             <CpuChipIcon className="w-6 h-6 text-orange-500" />
-            Add New Device
+            Thêm Thiết Bị Mới
           </h2>
           <button
             onClick={handleClose}
@@ -182,7 +182,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
             {/* Partner */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Partner
+                Đối Tác
               </label>
               <select
                 name="partnerId"
@@ -190,7 +190,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
               >
-                <option value="">Select partner</option>
+                <option value="">Chọn đối tác</option>
                 {partners.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.companyName || p.name || `Partner ${p.id}`}
@@ -202,7 +202,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
             {/* Parking Lot */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Parking Lot <span className="text-red-500">*</span>
+                Bãi Đỗ Xe <span className="text-red-500">*</span>
               </label>
               <select
                 name="lotId"
@@ -211,7 +211,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
                 required
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
               >
-                <option value="">Select parking lot</option>
+                <option value="">Chọn bãi đỗ xe</option>
                 {parkingLots.map((lot) => (
                   <option key={lot.id} value={lot.id}>
                     {lot.name} - {lot.city}
@@ -223,7 +223,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
             {/* Device ID */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Device ID <span className="text-red-500">*</span>
+                ID Thiết Bị <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -232,7 +232,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
                 onChange={handleChange}
                 required
                 maxLength={50}
-                placeholder="e.g., CAM-ENTRY-01"
+                placeholder="ví dụ: CAM-ENTRY-01"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
               />
             </div>
@@ -240,7 +240,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
             {/* Device Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Device Name
+                Tên Thiết Bị
               </label>
               <input
                 type="text"
@@ -248,7 +248,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
                 value={formData.deviceName}
                 onChange={handleChange}
                 maxLength={255}
-                placeholder="Friendly name for the device"
+                placeholder="Tên thân thiện cho thiết bị"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
               />
             </div>
@@ -256,7 +256,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
             {/* Device Type */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Device Type <span className="text-red-500">*</span>
+                Loại Thiết Bị <span className="text-red-500">*</span>
               </label>
               <select
                 name="deviceType"
@@ -265,7 +265,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
                 required
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
               >
-                <option value="">Select type</option>
+                <option value="">Chọn loại</option>
                 {deviceTypes.map((type) => (
                   <option key={type} value={type}>
                     {type}
@@ -285,7 +285,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
                 value={formData.model}
                 onChange={handleChange}
                 maxLength={100}
-                placeholder="Device model/brand"
+                placeholder="Model/thương hiệu thiết bị"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
               />
             </div>
@@ -293,7 +293,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
             {/* Serial Number */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Serial Number
+                Số Seri
               </label>
               <input
                 type="text"
@@ -301,7 +301,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
                 value={formData.serialNumber}
                 onChange={handleChange}
                 maxLength={100}
-                placeholder="Serial number"
+                placeholder="Số seri"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
               />
             </div>
@@ -309,14 +309,14 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
             {/* Notes */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Notes
+                Ghi Chú
               </label>
               <textarea
                 name="notes"
                 value={formData.notes}
                 onChange={handleChange}
                 rows={3}
-                placeholder="Installation notes, issues, etc."
+                placeholder="Ghi chú lắp đặt, sự cố, v.v."
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
               />
             </div>
@@ -331,7 +331,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
               onClick={handleClose}
               className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
             >
-              Cancel
+              Hủy
             </button>
             <button
               onClick={handleSubmit}
@@ -339,7 +339,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
               className="px-6 py-2 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 cursor-pointer"
             >
               <i className="ri-add-line"></i>
-              {loading ? "Creating..." : "Create "}
+              {loading ? "Đang thêm..." : "Thêm"}
             </button>
           </div>
         </div>

@@ -31,7 +31,7 @@ export default function ViewUserModal({ userId, user, onClose }) {
       <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50 p-4">
         <div className="bg-white rounded-xl shadow-xl w-full max-w-lg relative p-6">
           <h2 className="text-lg font-semibold text-orange-700 mb-4">
-            User Details
+            Thông Tin Chi Tiết
           </h2>
           <p className="text-center text-red-500 italic">
             Không tìm thấy người dùng này.
@@ -122,7 +122,7 @@ export default function ViewUserModal({ userId, user, onClose }) {
                 clipRule="evenodd"
               />
             </svg>
-            User Details
+            Thông Tin Chi Tiết
           </h2>
           <button
             onClick={onClose}
@@ -166,10 +166,10 @@ export default function ViewUserModal({ userId, user, onClose }) {
             <h3 className="text-lg font-semibold">
               {data.fullName ||
                 `${data.firstName || ""} ${data.lastName || ""}`.trim() ||
-                "Anonymous User"}
+                "Người dùng ẩn danh"}
             </h3>
             <p className="text-gray-500">
-              {data.phoneNumber || data.phone || "No phone number"}
+              {data.phoneNumber || data.phone || "Không có số điện thoại"}
             </p>
             <div className="flex justify-center gap-3 mt-2">
               <Badge
@@ -195,33 +195,33 @@ export default function ViewUserModal({ userId, user, onClose }) {
           {/* Contact & Address */}
           <section>
             <h4 className="text-orange-600 font-semibold border-b border-orange-200 pb-1 mb-3">
-              Contact & Address
+              Liên Hệ & Địa Chỉ
             </h4>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-gray-500 text-xs">Phone Number</p>
+                <p className="text-gray-500 text-xs">Số Điện Thoại</p>
                 <p className="font-medium">
                   {data.phoneNumber || data.phone || "-"}
                 </p>
               </div>
               <div>
-                <p className="text-gray-500 text-xs">First Name</p>
+                <p className="text-gray-500 text-xs">Tên</p>
                 <p className="font-medium">{data.firstName || "-"}</p>
               </div>
               <div>
-                <p className="text-gray-500 text-xs">Last Name</p>
+                <p className="text-gray-500 text-xs">Họ</p>
                 <p className="font-medium">{data.lastName || "-"}</p>
               </div>
               <div>
-                <p className="text-gray-500 text-xs">Gender</p>
+                <p className="text-gray-500 text-xs">Giới Tính</p>
                 <p className="font-medium">{data.gender || "-"}</p>
               </div>
               <div className="col-span-2">
-                <p className="text-gray-500 text-xs">Address</p>
+                <p className="text-gray-500 text-xs">Địa Chỉ</p>
                 <p className="font-medium">{data.address || "-"}</p>
               </div>
               <div>
-                <p className="text-gray-500 text-xs">Nationality</p>
+                <p className="text-gray-500 text-xs">Quốc Tịch</p>
                 <p className="font-medium">{data.nationality || "-"}</p>
               </div>
             </div>
@@ -230,31 +230,31 @@ export default function ViewUserModal({ userId, user, onClose }) {
           {/* Personal & ID */}
           <section>
             <h4 className="text-orange-600 font-semibold border-b border-orange-200 pb-1 mb-3">
-              Personal & Identity Card
+              Thông Tin Cá Nhân & CMND/CCCD
             </h4>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-gray-500 text-xs">Date of Birth</p>
+                <p className="text-gray-500 text-xs">Ngày Sinh</p>
                 <p className="font-medium">{formatDate(data.dateOfBirth)}</p>
               </div>
               <div>
-                <p className="text-gray-500 text-xs">ID Number</p>
+                <p className="text-gray-500 text-xs">Số CMND/CCCD</p>
                 <p className="font-medium">{data.idNumber || "-"}</p>
               </div>
               <div>
-                <p className="text-gray-500 text-xs">Issue By</p>
+                <p className="text-gray-500 text-xs">Nơi Cấp</p>
                 <p className="font-medium">
                   {data.issueBy || data.issuePlace || "-"}
                 </p>
               </div>
               <div>
-                <p className="text-gray-500 text-xs">Issue Date</p>
+                <p className="text-gray-500 text-xs">Ngày Cấp</p>
                 <p className="font-medium">
                   {formatDate(data.issueOn || data.issueDate)}
                 </p>
               </div>
               <div>
-                <p className="text-gray-500 text-xs">Expired Date</p>
+                <p className="text-gray-500 text-xs">Ngày Hết Hạn</p>
                 <p className="font-medium">
                   {formatDate(data.expiredDate || data.expiryDate)}
                 </p>
@@ -267,7 +267,7 @@ export default function ViewUserModal({ userId, user, onClose }) {
                 {data.frontPhotoPresignedUrl && (
                   <div>
                     <p className="text-gray-500 text-xs mb-1">
-                      Front of ID Card
+                      Mặt Trước CMND/CCCD
                     </p>
                     <img
                       src={data.frontPhotoPresignedUrl}
@@ -287,7 +287,7 @@ export default function ViewUserModal({ userId, user, onClose }) {
                 {data.backPhotoPresignedUrl && (
                   <div>
                     <p className="text-gray-500 text-xs mb-1">
-                      Back of ID Card
+                      Mặt Sau CMND/CCCD
                     </p>
                     <img
                       src={data.backPhotoPresignedUrl}
@@ -311,21 +311,21 @@ export default function ViewUserModal({ userId, user, onClose }) {
           {/* History */}
           <section>
             <h4 className="text-orange-600 font-semibold border-b border-orange-200 pb-1 mb-3">
-              Account Information
+              Thông Tin Tài Khoản
             </h4>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-gray-500 text-xs">Email Address</p>
+                <p className="text-gray-500 text-xs">Địa Chỉ Email</p>
                 <p className="font-medium">
                   {data.account?.email || data.email || "-"}
                 </p>
               </div>
               <div>
-                <p className="text-gray-500 text-xs">Created At</p>
+                <p className="text-gray-500 text-xs">Ngày Tạo</p>
                 <p className="font-medium">{formatDateTime(data.createdAt)}</p>
               </div>
               <div>
-                <p className="text-gray-500 text-xs">Updated At</p>
+                <p className="text-gray-500 text-xs">Ngày Cập Nhật</p>
                 <p className="font-medium">{formatDateTime(data.updatedAt)}</p>
               </div>
             </div>
@@ -339,7 +339,7 @@ export default function ViewUserModal({ userId, user, onClose }) {
               onClick={onClose}
               className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
             >
-              <span>Close</span>
+              <span>Đóng</span>
             </button>
           </div>
         )}

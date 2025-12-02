@@ -14,8 +14,8 @@ export default function AdminLogin() {
     e.preventDefault();
 
     let newErrors = {};
-    if (!email) newErrors.email = "Email is required";
-    if (!password) newErrors.password = "Password is required";
+    if (!email) newErrors.email = "Vui lòng nhập email";
+    if (!password) newErrors.password = "Vui lòng nhập mật khẩu";
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
@@ -56,7 +56,7 @@ export default function AdminLogin() {
         const isAdmin = rolesFromToken.map(r => String(r).toLowerCase()).some(r => r.includes('admin'));
 
         if (!isAdmin) {
-          alert('Access denied: this login is not an admin account.');
+          alert('Truy cập bị từ chối: Tài khoản này không phải là admin.');
           console.warn('Non-admin attempted admin login. Token payload:', payload);
           return;
         }
@@ -75,7 +75,7 @@ export default function AdminLogin() {
         navigate("/admin/partners");
       } catch (error) {
         console.error("❌ Login failed:", error);
-        alert("Login failed. Please check your credentials.");
+        alert("Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.");
       }
     }
   };
@@ -86,8 +86,8 @@ export default function AdminLogin() {
         <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center mb-3">
           <span className="text-white text-xl font-bold">A</span>
         </div>
-        <h2 className="text-xl font-semibold">Admin Login</h2>
-        <p className="text-sm text-gray-500">Welcome to Parking Admin System</p>
+        <h2 className="text-xl font-semibold">Đăng Nhập Admin</h2>
+        <p className="text-sm text-gray-500">Chào mừng đến hệ thống quản trị bãi đỗ xe</p>
       </div>
 
       <form className="space-y-4" onSubmit={handleSubmit}>
@@ -95,7 +95,7 @@ export default function AdminLogin() {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email address"
+          placeholder="Địa chỉ email"
           error={errors.email}
         />
 
@@ -103,16 +103,16 @@ export default function AdminLogin() {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
+          placeholder="Mật khẩu"
           error={errors.password}
         />
 
         <div className="flex items-center justify-between text-sm">
           <label className="flex items-center">
-            <input type="checkbox" className="mr-2" /> Remember me
+            <input type="checkbox" className="mr-2" /> Ghi nhớ đăng nhập
           </label>
           <a href="#" className="text-orange-600 hover:underline">
-            Forgot password?
+            Quên mật khẩu?
           </a>
         </div>
 
@@ -120,7 +120,7 @@ export default function AdminLogin() {
           type="submit"
           className="w-full bg-orange-600 text-white py-2 rounded-md hover:bg-orange-700"
         >
-          Log in
+          Đăng Nhập
         </button>
       </form>
     </AuthLayout>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { showSuccess, showError } from "../utils/toastUtils.jsx";
+import { showError } from "../utils/toastUtils.jsx";
 import parkingLotApi from "../api/parkingLotApi";
 
 export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
@@ -75,17 +75,18 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
       const res = await parkingLotApi.update(lot.id, payload);
 
       if (res.status === 200 || res.status === 204) {
-        showSuccess(`✅ Updated "${form.name}" successfully!`);
-        onUpdated();
         onClose();
+        if (onUpdated) {
+          await onUpdated();
+        }
       } else {
-        showError("❌ Failed to update parking lot.");
+        showError("❌ Không cập nhật được bãi đậu xe. Vui lòng thử lại.");
       }
     } catch (err) {
       console.error(err);
       const msg =
         err.response?.data?.message ||
-        "❌ Error occurred while updating parking lot.";
+        "❌ Đã xảy ra lỗi trong quá trình cập nhật bãi đậu xe.";
       showError(msg);
     } finally {
       setLoading(false);
@@ -99,7 +100,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
         <div className="flex items-center justify-between px-6 py-4 bg-orange-50 border-b border-orange-100">
           <h2 className="text-xl font-bold text-orange-700 flex items-center gap-3">
             <i className="ri-parking-box-fill text-orange-600 text-2xl" />
-            Edit Parking Lot
+            Chỉnh Sửa
           </h2>
           <button
             type="button"
@@ -116,7 +117,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
           <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
           {/* Row 1 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Name</label>
+            <label className="block text-sm font-medium text-gray-700">Tên</label>
             <input
               type="text"
               name="name"
@@ -130,7 +131,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
           {/* Row 2 */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Street Address</label>
+              <label className="block text-sm font-medium text-gray-700">Địa Chỉ</label>
               <input
                 type="text"
                 name="streetAddress"
@@ -140,7 +141,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Ward</label>
+              <label className="block text-sm font-medium text-gray-700">Phường/Xã</label>
               <input
                 type="text"
                 name="ward"
@@ -154,7 +155,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
           {/* Row 3 */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700">City</label>
+              <label className="block text-sm font-medium text-gray-700">Thành Phố</label>
               <input
                 type="text"
                 name="city"
@@ -164,7 +165,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Total Floors</label>
+              <label className="block text-sm font-medium text-gray-700">Số Tầng</label>
               <input
                 type="number"
                 name="totalFloors"
@@ -178,7 +179,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
           {/* Row 4 */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Latitude</label>
+              <label className="block text-sm font-medium text-gray-700">Vĩ Độ</label>
               <input
                 type="number"
                 step="any"
@@ -189,7 +190,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Longitude</label>
+              <label className="block text-sm font-medium text-gray-700">Kinh Độ</label>
               <input
                 type="number"
                 step="any"
@@ -205,7 +206,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Opening Time (HH:mm:ss)
+                Giờ Bắt Đầu (HH:mm:ss)
               </label>
               <input
                 type="text"
@@ -218,7 +219,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Closing Time (HH:mm:ss)
+                Giờ Kết Thúc (HH:mm:ss)
               </label>
               <input
                 type="text"
@@ -240,7 +241,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
               onChange={handleChange}
               className="h-4 w-4 text-orange-600 border-gray-300 rounded"
             />
-            <label className="text-sm font-medium text-gray-700">24 Hour</label>
+            <label className="text-sm font-medium text-gray-700">Hoạt động 24/7</label>
           </div>
 
           
@@ -249,7 +250,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
           {["REJECTED", "MAP_DENIED"].includes(form.status) && (
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Reason (required for REJECTED or MAP_DENIED)
+                Lý Do (bắt buộc cho REJECTED hoặc MAP_DENIED)
               </label>
               <textarea
                 name="reason"
@@ -273,7 +274,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
             className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition disabled:opacity-50 cursor-pointer"
             disabled={loading}
           >
-            Cancel
+            Hủy
           </button>
           <button
             type="button"
@@ -284,12 +285,12 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
             {loading ? (
               <>
                 <i className="ri-loader-4-line animate-spin" />
-                Saving...
+                Đang lưu...
               </>
             ) : (
               <>
                 <i className="ri-save-line" />
-                <span>Save</span>
+                <span>Lưu</span>
               </>
             )}
           </button>

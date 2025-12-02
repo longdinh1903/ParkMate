@@ -206,7 +206,7 @@ export default function AdminDevices() {
           <span
             className={`${base} bg-yellow-50 text-yellow-700 border-yellow-300`}
           >
-            Pending
+            Chờ Xử Lý
           </span>
         );
       case "ACTIVE":
@@ -214,13 +214,13 @@ export default function AdminDevices() {
           <span
             className={`${base} bg-green-50 text-green-700 border-green-300`}
           >
-            Active
+            Hoạt Động
           </span>
         );
       case "OFFLINE":
         return (
           <span className={`${base} bg-gray-50 text-gray-600 border-gray-300`}>
-            Offline
+            Ngoại Tuyến
           </span>
         );
       case "MAINTENANCE":
@@ -228,13 +228,13 @@ export default function AdminDevices() {
           <span
             className={`${base} bg-orange-50 text-orange-700 border-orange-300`}
           >
-            Maintenance
+            Bảo Trì
           </span>
         );
       case "FAULTY":
         return (
           <span className={`${base} bg-red-50 text-red-700 border-red-300`}>
-            Faulty
+            Lỗi
           </span>
         );
       case "DEACTIVATED":
@@ -242,13 +242,13 @@ export default function AdminDevices() {
           <span
             className={`${base} bg-gray-50 text-gray-500 border-gray-300`}
           >
-            Deactivated
+            Vô Hiệu Hóa
           </span>
         );
       default:
         return (
           <span className={`${base} text-gray-500 bg-gray-50 border-gray-300`}>
-            Unknown
+            Không Xác Định
           </span>
         );
     }
@@ -260,7 +260,7 @@ export default function AdminDevices() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-orange-700 flex items-center gap-2">
           <CpuChipIcon className="w-8 h-8" />
-          Device Management
+          Quản Lý Thiết Bị
         </h2>
       </div>
 
@@ -271,7 +271,7 @@ export default function AdminDevices() {
           <div className="relative">
             <input
               type="text"
-              placeholder="Search by ID, name, model, manufacturer..."
+              placeholder="Tìm kiếm theo ID, tên, model, nhà sản xuất..."
               className="border border-gray-300 pl-10 pr-4 py-2 rounded-lg w-80 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -299,10 +299,10 @@ export default function AdminDevices() {
               onChange={(e) => setSortBy(e.target.value)}
               className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
             >
-              <option value="createdAt">Created Date</option>
-              <option value="deviceId">Device ID</option>
-              <option value="deviceName">Device Name</option>
-              <option value="deviceType">Device Type</option>
+              <option value="createdAt">Ngày Tạo</option>
+              <option value="deviceId">ID Thiết Bị</option>
+              <option value="deviceName">Tên Thiết Bị</option>
+              <option value="deviceType">Loại Thiết Bị</option>
             </select>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -324,7 +324,7 @@ export default function AdminDevices() {
           <button
             onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
             className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
-            title={sortOrder === "asc" ? "Ascending" : "Descending"}
+            title={sortOrder === "asc" ? "Tăng dần" : "Giảm dần"}
           >
             {sortOrder === "asc" ? (
               <i className="ri-sort-asc text-lg text-gray-600"></i>
@@ -332,7 +332,7 @@ export default function AdminDevices() {
               <i className="ri-sort-desc text-lg text-gray-600"></i>
             )}
             <span className="text-sm text-gray-600">
-              {sortOrder === "asc" ? "Asc" : "Desc"}
+              {sortOrder === "asc" ? "Tăng" : "Giảm"}
             </span>
           </button>
 
@@ -342,7 +342,7 @@ export default function AdminDevices() {
             value={deviceType}
             onChange={(e) => setDeviceType(e.target.value)}
           >
-            <option value="">All Types</option>
+            <option value="">Tất Cả Loại</option>
             {deviceTypes.map((type) => (
               <option key={type} value={type}>
                 {type}
@@ -356,7 +356,7 @@ export default function AdminDevices() {
             value={lotFilter}
             onChange={(e) => setLotFilter(e.target.value)}
           >
-            <option value="">All Lots</option>
+            <option value="">Tất Cả Bãi Đỗ</option>
             {parkingLots.map((lot) => (
               <option key={lot.id} value={String(lot.id)}>
                 {lot.name}
@@ -370,13 +370,13 @@ export default function AdminDevices() {
             value={deviceStatus}
             onChange={(e) => setDeviceStatus(e.target.value)}
           >
-            <option value="">All Status</option>
-            <option value="PENDING">Pending</option>
-            <option value="ACTIVE">Active</option>
-            <option value="OFFLINE">Offline</option>
-            <option value="MAINTENANCE">Maintenance</option>
-            <option value="FAULTY">Faulty</option>
-            <option value="DEACTIVATED">Deactivated</option>
+            <option value="">Tất Cả Trạng Thái</option>
+            <option value="PENDING">Chờ Xử Lý</option>
+            <option value="ACTIVE">Hoạt Động</option>
+            <option value="OFFLINE">Ngoại Tuyến</option>
+            <option value="MAINTENANCE">Bảo Trì</option>
+            <option value="FAULTY">Lỗi</option>
+            <option value="DEACTIVATED">Vô Hiệu Hóa</option>
           </select>
 
           {/* Refresh Button */}
@@ -392,10 +392,10 @@ export default function AdminDevices() {
               fetchDevices();
             }}
             className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
-            title="Reset filters"
+            title="Làm mới bộ lọc"
           >
             <i className="ri-refresh-line text-lg text-gray-600"></i>
-            <span className="text-sm text-gray-600">Refresh</span>
+            <span className="text-sm text-gray-600">Làm Mới</span>
           </button>
         </div>
 
@@ -406,7 +406,7 @@ export default function AdminDevices() {
             className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition transform hover:scale-105 hover:shadow-md cursor-pointer"
           >
             <PlusIcon className="w-5 h-5 text-white" />
-            Add Device
+            Thêm Thiết Bị
           </button>
         </div>
       </div>
@@ -417,15 +417,15 @@ export default function AdminDevices() {
           <thead className="bg-orange-50 text-orange-700 uppercase text-sm font-semibold">
             <tr>
               <th className="px-6 py-3 text-left">#</th>
-              <th className="px-6 py-3 text-left">Device ID</th>
-              <th className="px-6 py-3 text-left">Device Name</th>
-              <th className="px-6 py-3 text-left">Type</th>
+              <th className="px-6 py-3 text-left">ID Thiết Bị</th>
+              <th className="px-6 py-3 text-left">Tên Thiết Bị</th>
+              <th className="px-6 py-3 text-left">Loại</th>
               <th className="px-6 py-3 text-left">Model</th>
-              <th className="px-6 py-3 text-left">Serial Number</th>
-              <th className="px-6 py-3 text-left">Parking Lot</th>
-              <th className="px-6 py-3 text-left">Status</th>
-              <th className="px-6 py-3 text-left">Created At</th>
-              <th className="px-6 py-3 text-center">Actions</th>
+              <th className="px-6 py-3 text-left">Số Seri</th>
+              <th className="px-6 py-3 text-left">Bãi Đỗ Xe</th>
+              <th className="px-6 py-3 text-left">Trạng Thái</th>
+              <th className="px-6 py-3 text-left">Ngày Tạo</th>
+              <th className="px-6 py-3 text-center">Thao Tác</th>
             </tr>
           </thead>
           <tbody className="text-gray-700 text-sm">
@@ -435,7 +435,7 @@ export default function AdminDevices() {
                   colSpan="9"
                   className="px-6 py-6 text-center text-gray-500 italic"
                 >
-                  Loading...
+                  Đang tải...
                 </td>
               </tr>
             ) : filteredDevices.length > 0 ? (
@@ -511,15 +511,15 @@ export default function AdminDevices() {
           onClick={() => setPage((p) => Math.max(p - 1, 0))}
           className="px-4 py-2 bg-white border rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 cursor-pointer"
         >
-          ← Previous
+          ← Trước
         </button>
 
         <div className="text-center text-gray-600 text-sm">
           <div>
-            Page <strong>{page + 1}</strong> of {totalPages}
+            Trang <strong>{page + 1}</strong> / {totalPages}
           </div>
           <div className="text-sm text-gray-500 mt-1">
-            Total devices:{" "}
+            Tổng thiết bị:{" "}
             <strong className="text-orange-700">{totalCount}</strong>
           </div>
         </div>
@@ -529,7 +529,7 @@ export default function AdminDevices() {
           onClick={() => setPage((p) => p + 1)}
           className="px-4 py-2 bg-white border rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 cursor-pointer"
         >
-          Next →
+          Sau →
         </button>
       </div>
 
@@ -557,14 +557,14 @@ export default function AdminDevices() {
       {/* Confirm Delete Modal */}
       <ConfirmModal
         open={!!deletingDevice}
-        title="Confirm Delete Device"
-        message={`Are you sure you want to delete device "${
-          deletingDevice?.deviceName || deletingDevice?.deviceId || "this device"
-        }"? This action cannot be undone.`}
+        title="Xác Nhận Xóa Thiết Bị"
+        message={`Bạn có chắc chắn muốn xóa thiết bị "${
+          deletingDevice?.deviceName || deletingDevice?.deviceId || "thiết bị này"
+        }"? Hành động này không thể hoàn tác.`}
         onConfirm={handleConfirmDelete}
         onCancel={() => setDeletingDevice(null)}
         loading={deleteLoading}
-        confirmLabel="Delete"
+        confirmLabel="Xóa"
       />
     </AdminLayout>
   );

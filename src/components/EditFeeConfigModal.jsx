@@ -111,7 +111,7 @@ export default function EditFeeConfigModal({ feeConfig, onClose, onUpdated }) {
         <div className="flex items-center justify-between px-6 py-4 bg-orange-50 border-b border-orange-100">
           <h2 className="text-xl font-bold text-orange-700 flex items-center gap-3">
             <i className="ri-money-dollar-circle-line text-orange-500 text-xl" />
-            Edit Fee Configuration
+            Chỉnh Sửa
           </h2>
           <button
             onClick={onClose}
@@ -137,7 +137,7 @@ export default function EditFeeConfigModal({ feeConfig, onClose, onUpdated }) {
           <form ref={formRef} className="space-y-4" onSubmit={handleSubmit}>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Price per sqm (VND)
+                Giá/m² (VND)
               </label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -156,7 +156,7 @@ export default function EditFeeConfigModal({ feeConfig, onClose, onUpdated }) {
                 />
               </div>
               <p className="text-xs text-gray-400 mt-1">
-                Price per square meter (VND){" "}
+                Giá mỗi mét vuông (VND){" "}
                 {form.pricePerSqm && (
                   <span className="ml-2 font-medium text-gray-700">
                     • {formatVnd(form.pricePerSqm)}
@@ -168,7 +168,7 @@ export default function EditFeeConfigModal({ feeConfig, onClose, onUpdated }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Billing Period (Months)
+                  Kỳ Thanh Toán (Tháng)
                 </label>
                 <input
                   type="number"
@@ -184,13 +184,13 @@ export default function EditFeeConfigModal({ feeConfig, onClose, onUpdated }) {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Description (optional)
+                Mô Tả (tùy chọn)
               </label>
               <textarea
                 name="description"
                 value={form.description}
                 onChange={handleChange}
-                placeholder="Short note about the fee"
+                placeholder="Ghi chú ngắn về phí"
                 rows={3}
                 aria-label="Description"
                 className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none transition bg-gray-50 resize-y max-h-40 overflow-auto"
@@ -202,7 +202,7 @@ export default function EditFeeConfigModal({ feeConfig, onClose, onUpdated }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Valid From
+                  Hiệu Lực Từ
                 </label>
                 <input
                   type="datetime-local"
@@ -215,7 +215,7 @@ export default function EditFeeConfigModal({ feeConfig, onClose, onUpdated }) {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Valid Until
+                  Hiệu Lực Đến
                 </label>
                 <input
                   type="datetime-local"
@@ -235,7 +235,7 @@ export default function EditFeeConfigModal({ feeConfig, onClose, onUpdated }) {
             onClick={onClose}
             className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
           >
-            Cancel
+            Hủy
           </button>
           <button
             type="submit"
@@ -243,7 +243,7 @@ export default function EditFeeConfigModal({ feeConfig, onClose, onUpdated }) {
             className="px-6 py-2 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors disabled:opacity-50 cursor-pointer"
           >
             <i className="ri-save-line"></i>
-            {loading ? "Updating..." : "Save"}
+            {loading ? "Đang cập nhật..." : "Lưu"}
           </button>
         </div>
       </div>

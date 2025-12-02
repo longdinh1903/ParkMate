@@ -11,7 +11,7 @@ export default function AdminRequests() {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-orange-700">
-          Partner & Parking Lot Requests
+          Yêu Cầu Đối Tác & Bãi Đỗ Xe
         </h2>
       </div>
 
@@ -25,7 +25,7 @@ export default function AdminRequests() {
           }`}
           onClick={() => setActiveTab("partner")}
         >
-          Partner Account Requests
+          Yêu Cầu Tài Khoản Đối Tác
         </button>
 
         <button
@@ -36,7 +36,7 @@ export default function AdminRequests() {
           }`}
           onClick={() => setActiveTab("parkingLot")}
         >
-          Parking Lot Requests
+          Yêu Cầu Bãi Đỗ Xe
         </button>
       </div>
 

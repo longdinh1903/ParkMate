@@ -99,7 +99,6 @@ export default function AdminUsers() {
 
   const handleSaveEdit = async (updatedUser) => {
     try {
-      toast.loading("Đang cập nhật người dùng...");
       const payload = {
         userId: updatedUser.userId || updatedUser.id,
         fullName: updatedUser.fullName,
@@ -110,7 +109,6 @@ export default function AdminUsers() {
       };
       await adminApi.updateUser(payload.userId, payload);
       toast.dismiss();
-      showSuccess("Cập nhật người dùng thành công!");
       setEditingUser(null);
       fetchUsers();
     } catch (err) {
@@ -205,7 +203,7 @@ export default function AdminUsers() {
     <AdminLayout>
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-orange-700">User Management</h2>
+        <h2 className="text-2xl font-bold text-orange-700">Quản Lý Người Dùng</h2>
       </div>
 
       {/* Filters */}
@@ -215,7 +213,7 @@ export default function AdminUsers() {
           <div className="relative">
             <input
               type="text"
-              placeholder="Search by any field..."
+              placeholder="Tìm kiếm theo bất kỳ trường nào..."
               className="border border-gray-300 pl-10 pr-4 py-2 rounded-lg w-80 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -243,10 +241,10 @@ export default function AdminUsers() {
               onChange={(e) => setSortBy(e.target.value)}
               className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
             >
-              <option value="createdAt">Created Date</option>
-              <option value="fullName">Full Name</option>
+              <option value="createdAt">Ngày Tạo</option>
+              <option value="fullName">Họ Tên</option>
               {/* <option value="email">Email</option> */}
-              <option value="phone">Phone</option>
+              <option value="phone">Số Điện Thoại</option>
             </select>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -264,7 +262,7 @@ export default function AdminUsers() {
           <button
             onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
             className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
-            title={sortOrder === "asc" ? "Ascending" : "Descending"}
+            title={sortOrder === "asc" ? "Tăng dần" : "Giảm dần"}
           >
             {sortOrder === "asc" ? (
               <i className="ri-sort-asc text-lg text-gray-600"></i>
@@ -272,7 +270,7 @@ export default function AdminUsers() {
               <i className="ri-sort-desc text-lg text-gray-600"></i>
             )}
             <span className="text-sm text-gray-600">
-              {sortOrder === "asc" ? "Asc" : "Desc"}
+              {sortOrder === "asc" ? "Tăng dần" : "Giảm dần"}
             </span>
           </button>
 
@@ -284,7 +282,7 @@ export default function AdminUsers() {
               onChange={(e) => setStartDate(e.target.value)}
               className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all cursor-pointer"
             />
-            <span className="text-gray-500">to</span>
+            <span className="text-gray-500">đến</span>
             <input
               type="date"
               value={endDate}
@@ -305,10 +303,10 @@ export default function AdminUsers() {
               fetchUsers();
             }}
             className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
-            title="Reset filters"
+            title="Làm mới bộ lọc"
           >
             <i className="ri-refresh-line text-lg text-gray-600"></i>
-            <span className="text-sm text-gray-600">Refresh</span>
+            <span className="text-sm text-gray-600">Làm Mới</span>
           </button>
         </div>
 
@@ -319,13 +317,13 @@ export default function AdminUsers() {
             className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition transform hover:scale-105 hover:shadow-md cursor-pointer"
           >
             <PlusIcon className="w-5 h-5 text-white" />
-            Add User
+            Thêm Người Dùng
           </button>
 
           {/* ✅ Import */}
           <label className="flex items-center gap-2 hover:bg-yellow-200 font-medium px-4 py-2 rounded-lg border transition transform hover:scale-105 hover:shadow-md cursor-pointer">
             <ArrowUpTrayIcon className="w-5 h-5 text-yellow-700" />
-            Import
+            Nhập Excel
             <input
               type="file"
               accept=".xlsx,.xls"
@@ -340,7 +338,7 @@ export default function AdminUsers() {
             className="flex items-center gap-2 hover:bg-green-200 font-medium px-4 py-2 rounded-lg border transition transform hover:scale-105 hover:shadow-md cursor-pointer"
           >
             <ArrowDownTrayIcon className="w-5 h-5 text-green-700" />
-            Export
+            Xuất Excel
           </button>
         </div>
       </div>
@@ -351,12 +349,12 @@ export default function AdminUsers() {
           <thead className="bg-orange-50 text-orange-700 uppercase text-sm font-semibold">
             <tr>
               <th className="px-6 py-3 text-left">#</th>
-              <th className="px-6 py-3 text-left">Full Name</th>
+              <th className="px-6 py-3 text-left">Họ Tên</th>
               <th className="px-6 py-3 text-left">Email</th>
-              <th className="px-6 py-3 text-left">Phone</th>
-              <th className="px-6 py-3 text-left">Address</th>
-              <th className="px-6 py-3 text-left">Registered At</th>
-              <th className="px-6 py-3 text-center">Actions</th>
+              <th className="px-6 py-3 text-left">Số Điện Thoại</th>
+              <th className="px-6 py-3 text-left">Địa Chỉ</th>
+              <th className="px-6 py-3 text-left">Ngày Đăng Ký</th>
+              <th className="px-6 py-3 text-center">Thao Tác</th>
             </tr>
           </thead>
           <tbody className="text-gray-700 text-sm">
@@ -366,7 +364,7 @@ export default function AdminUsers() {
                   colSpan="7"
                   className="px-6 py-6 text-center text-gray-500 italic"
                 >
-                  Loading...
+                  Đang tải...
                 </td>
               </tr>
             ) : filteredUsers.length > 0 ? (
@@ -426,21 +424,21 @@ export default function AdminUsers() {
                     <td className="px-6 py-3 text-center">
                       <div className="flex justify-center items-center gap-3">
                         <button
-                          title="View Details"
+                          title="Xem Chi Tiết"
                           onClick={() => handleViewClick(u)}
                           className="p-2 rounded-full hover:bg-indigo-100 transition cursor-pointer"
                         >
                           <EyeIcon className="w-5 h-5" />
                         </button>
                         <button
-                          title="Edit User"
+                          title="Chỉnh Sửa Người Dùng"
                           onClick={() => handleEditClick(u)}
                           className="p-2 rounded-full hover:bg-yellow-100 transition cursor-pointer"
                         >
                           <PencilSquareIcon className="w-5 h-5 " />
                         </button>
                         <button
-                          title="Delete User"
+                          title="Xóa Người Dùng"
                           onClick={() => handleDeleteClick(u)}
                           className="p-2 rounded-full hover:bg-red-100 transition cursor-pointer"
                         >
@@ -472,15 +470,15 @@ export default function AdminUsers() {
           onClick={() => setPage((p) => Math.max(p - 1, 0))}
           className="px-4 py-2 bg-white border rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 cursor-pointer"
         >
-          ← Previous
+          ← Trước
         </button>
 
         <div className="text-center text-gray-600 text-sm">
           <div>
-            Page <strong>{page + 1}</strong> of {totalPages}
+            Trang <strong>{page + 1}</strong> / {totalPages}
           </div>
           <div className="text-sm text-gray-500 mt-1">
-            Total users: <strong className="text-orange-700">{totalCount}</strong>
+            Tổng người dùng: <strong className="text-orange-700">{totalCount}</strong>
           </div>
         </div>
 
@@ -489,7 +487,7 @@ export default function AdminUsers() {
           onClick={() => setPage((p) => p + 1)}
           className="px-4 py-2 bg-white border rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 cursor-pointer"
         >
-          Next →
+          Sau →
         </button>
       </div>
 
@@ -513,7 +511,7 @@ export default function AdminUsers() {
       {loadingView && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
           <div className="bg-white px-6 py-4 rounded-lg shadow-lg text-orange-700 font-medium">
-            Loading user details...
+            Đang tải chi tiết người dùng...
           </div>
         </div>
       )}
@@ -521,16 +519,16 @@ export default function AdminUsers() {
       {/* Confirm Delete Modal */}
       <ConfirmModal
         open={!!deletingUser}
-        title="Confirm Delete User"
-        message={`Are you sure you want to delete user "${
+        title="Xác Nhận Xóa Người Dùng"
+        message={`Bạn có chắc chắn muốn xóa người dùng "${
           deletingUser?.fullName ||
           `${deletingUser?.firstName || ""} ${deletingUser?.lastName || ""}`.trim() ||
-          "this user"
-        }"? This action cannot be undone.`}
+          "người dùng này"
+        }"? Hành động này không thể hoàn tác.`}
         onConfirm={handleConfirmDelete}
         onCancel={() => setDeletingUser(null)}
         loading={deleteLoading}
-        confirmLabel="Delete"
+        confirmLabel="Xóa"
       />
     </AdminLayout>
   );

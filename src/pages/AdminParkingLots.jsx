@@ -103,7 +103,7 @@ export default function AdminParkingLots() {
       case "PENDING":
         return (
           <span className={`${base} bg-yellow-50 text-yellow-700 border-yellow-300`}>
-            Pending
+            Chờ Duyệt
           </span>
         );
       case "PREPARING":
@@ -111,7 +111,7 @@ export default function AdminParkingLots() {
           <span
             className={`${base} bg-orange-50 text-orange-700 border-orange-300`}
           >
-            Preparing
+            Đang Chuẩn Bị
           </span>
         );
       case "PARTNER_CONFIGURATION":
@@ -119,7 +119,7 @@ export default function AdminParkingLots() {
           <span
             className={`${base} bg-orange-50 text-orange-700 border-orange-300`}
           >
-            Partner Configuration
+            Cấu Hình Đối Tác
           </span>
         );
       case "ACTIVE":
@@ -127,13 +127,13 @@ export default function AdminParkingLots() {
           <span
             className={`${base} bg-green-50 text-green-700 border-green-300`}
           >
-            Active
+            Hoạt Động
           </span>
         );
       case "INACTIVE":
         return (
           <span className={`${base} bg-gray-50 text-gray-600 border-gray-300`}>
-            Inactive
+            Ngừng Hoạt Động
           </span>
         );
       case "MAP_DENIED":
@@ -141,25 +141,25 @@ export default function AdminParkingLots() {
           <span
             className={`${base} bg-red-50 text-red-700 border-red-300`}
           >
-            Map Denied
+            Từ Chối Bản Đồ
           </span>
         );
       case "REJECTED":
         return (
           <span className={`${base} bg-red-50 text-red-700 border-red-300`}>
-            Rejected
+            Bị Từ Chối
           </span>
         );
         case "PENDING_PAYMENT":
         return (
           <span className={`${base} bg-purple-50 text-purple-700 border-purple-300`}>
-            Pending Payment
+            Chờ Thanh Toán
           </span>
         );
       default:
         return (
           <span className={`${base} text-gray-500 bg-gray-50 border-gray-300`}>
-            Unknown
+            Không Xác Định
           </span>
         );
     }
@@ -192,7 +192,7 @@ export default function AdminParkingLots() {
         // close modal after successful delete
         setConfirmingLot(null);
       } else {
-        showError("❌ Failed to delete parking lot (invalid status code).");
+        showError("❌ Không xóa được bãi đậu xe (mã trạng thái không hợp lệ).");
       }
     } catch (err) {
       console.error("❌ Delete error:", err);
@@ -284,7 +284,7 @@ export default function AdminParkingLots() {
       {/* 🔹 Header */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-orange-700">
-          Parking Lot Management
+          Quản Lý Bãi Đỗ Xe
         </h2>
       </div>
 
@@ -296,7 +296,7 @@ export default function AdminParkingLots() {
           <div className="relative">
             <input
               type="text"
-              placeholder="Search by name, city, address, floors, or 24h..."
+              placeholder="Tìm kiếm theo tên, thành phố, địa chỉ, số tầng hoặc 24h..."
               className="border border-gray-300 pl-10 pr-4 py-2 rounded-lg w-80 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -324,11 +324,11 @@ export default function AdminParkingLots() {
               onChange={(e) => setSortBy(e.target.value)}
               className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
             >
-              <option value="createdAt">Created Date</option>
-              <option value="name">Name</option>
-              <option value="city">City</option>
-              <option value="totalFloors">Total Floors</option>
-              <option value="status">Status</option>
+              <option value="createdAt">Ngày Tạo</option>
+              <option value="name">Tên</option>
+              <option value="city">Thành Phố</option>
+              <option value="totalFloors">Số Tầng</option>
+              <option value="status">Trạng Thái</option>
             </select>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -346,7 +346,7 @@ export default function AdminParkingLots() {
           <button
             onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
             className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
-            title={sortOrder === "asc" ? "Ascending" : "Descending"}
+            title={sortOrder === "asc" ? "Tăng dần" : "Giảm dần"}
           >
             {sortOrder === "asc" ? (
               <i className="ri-sort-asc text-lg text-gray-600"></i>
@@ -354,7 +354,7 @@ export default function AdminParkingLots() {
               <i className="ri-sort-desc text-lg text-gray-600"></i>
             )}
             <span className="text-sm text-gray-600">
-              {sortOrder === "asc" ? "Asc" : "Desc"}
+              {sortOrder === "asc" ? "Tăng" : "Giảm"}
             </span>
           </button>
 
@@ -364,15 +364,15 @@ export default function AdminParkingLots() {
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
-            <option value="">All Status</option>
-            <option value="PENDING">Pending</option>
-            <option value="PREPARING">Preparing</option>
-            <option value="PARTNER_CONFIGURATION">Partner Configuration</option>
-            <option value="ACTIVE">Active</option>
-            <option value="INACTIVE">Inactive</option>
-            <option value="MAP_DENIED">Map Denied</option>
-            <option value="REJECTED">Rejected</option>
-            <option value="PENDING_PAYMENT">Pending Payment</option>
+            <option value="">Tất Cả Trạng Thái</option>
+            <option value="PENDING">Chờ Duyệt</option>
+            <option value="PREPARING">Đang Chuẩn Bị</option>
+            <option value="PARTNER_CONFIGURATION">Cấu Hình Đối Tác</option>
+            <option value="ACTIVE">Hoạt Động</option>
+            <option value="INACTIVE">Ngừng Hoạt Động</option>
+            <option value="MAP_DENIED">Từ Chối Bản Đồ</option>
+            <option value="REJECTED">Bị Từ Chối</option>
+            <option value="PENDING_PAYMENT">Chờ Thanh Toán</option>
           </select>
 
           {/* Refresh Button */}
@@ -386,10 +386,10 @@ export default function AdminParkingLots() {
               fetchLots();
             }}
             className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
-            title="Reset filters"
+            title="Làm mới bộ lọc"
           >
             <i className="ri-refresh-line text-lg text-gray-600"></i>
-            <span className="text-sm text-gray-600">Refresh</span>
+            <span className="text-sm text-gray-600">Làm Mới</span>
           </button>
         </div>
 
@@ -400,13 +400,13 @@ export default function AdminParkingLots() {
             className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition cursor-pointer"
           >
             <PlusIcon className="w-5 h-5 text-white" />
-            Add Parking Lot
+            Thêm Bãi Đỗ Xe
           </button>
 
           {/* ✅ Import */}
           <label className="flex items-center hover:bg-yellow-200 font-medium px-4 py-2 rounded-lg border transition cursor-pointer">
             <ArrowUpTrayIcon className="w-5 h-5 text-yellow-700" />
-            Import 
+            Nhập 
             <input
               type="file"
               accept=".xlsx"
@@ -421,7 +421,7 @@ export default function AdminParkingLots() {
             className="flex items-center hover:bg-green-200 font-medium px-4 py-2 rounded-lg border transition cursor-pointer"
           >
             <ArrowDownTrayIcon className="w-5 h-5 text-green-700" />
-            Export 
+            Xuất 
           </button>
         </div>
       </div>
@@ -432,13 +432,13 @@ export default function AdminParkingLots() {
           <thead className="bg-orange-50 text-orange-700 uppercase text-sm font-semibold">
             <tr>
               <th className="px-6 py-3 text-left w-16">#</th>
-              <th className="px-6 py-3 text-left">Name</th>
-              <th className="px-6 py-3 text-left">City</th>
-              <th className="px-6 py-3 text-left">Address</th>
-              <th className="px-6 py-3 text-left">Floors</th>
-              <th className="px-6 py-3 text-left">24 Hours</th>
-              <th className="px-6 py-3 text-left">Status</th>
-              <th className="px-6 py-3 text-center">Actions</th>
+              <th className="px-6 py-3 text-left">Tên</th>
+              <th className="px-6 py-3 text-left">Thành Phố</th>
+              <th className="px-6 py-3 text-left">Địa Chỉ</th>
+              <th className="px-6 py-3 text-left">Số Tầng</th>
+              <th className="px-6 py-3 text-left">24 Giờ</th>
+              <th className="px-6 py-3 text-left">Trạng Thái</th>
+              <th className="px-6 py-3 text-center">Thao Tác</th>
             </tr>
           </thead>
 
@@ -449,7 +449,7 @@ export default function AdminParkingLots() {
                   colSpan="8"
                   className="text-center py-8 text-gray-500 italic"
                 >
-                  Loading data...
+                  Đang tải dữ liệu...
                 </td>
               </tr>
             ) : filtered.length > 0 ? (
@@ -470,9 +470,9 @@ export default function AdminParkingLots() {
                   <td className="px-6 py-3">{lot.totalFloors}</td>
                   <td className="px-6 py-3">
                     {lot.is24Hour ? (
-                      <span className="text-green-600 font-medium">Yes</span>
+                      <span className="text-green-600 font-medium">Có</span>
                     ) : (
-                      <span className="text-gray-500">No</span>
+                      <span className="text-gray-500">Không</span>
                     )}
                   </td>
                   <td className="px-6 py-3">{renderStatus(lot.status)}</td>
@@ -516,7 +516,7 @@ export default function AdminParkingLots() {
                   colSpan="8"
                   className="px-6 py-6 text-center text-gray-500 italic"
                 >
-                  No parking lots found.
+                  Không tìm thấy bãi đỗ xe.
                 </td>
               </tr>
             )}
@@ -531,15 +531,15 @@ export default function AdminParkingLots() {
           onClick={() => setPage((p) => Math.max(p - 1, 0))}
           className="px-4 py-2 bg-white border rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
-          ← Previous
+          ← Trước
         </button>
 
         <div className="text-center text-gray-600 text-sm">
           <div>
-            Page <strong>{page + 1}</strong> of {totalPages}
+            Trang <strong>{page + 1}</strong> / {totalPages}
           </div>
           <div className="text-sm text-gray-500 mt-1">
-            Total lots: <strong className="text-orange-700">{totalCount}</strong>
+            Tổng bãi đỗ: <strong className="text-orange-700">{totalCount}</strong>
           </div>
         </div>
 
@@ -548,19 +548,19 @@ export default function AdminParkingLots() {
           onClick={() => setPage((p) => p + 1)}
           className="px-4 py-2 bg-white border rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
-          Next →
+          Sau →
         </button>
       </div>
 
       {/* ✅ Confirm Delete Modal */}
       <ConfirmModal
         open={!!confirmingLot}
-        title="Deactivate Parking Lot"
-        message={`This will set the parking lot "${confirmingLot?.name}" to INACTIVE (soft delete). Continue?`}
+        title="Vô Hiệu Hóa Bãi Đỗ Xe"
+        message={`Điều này sẽ đặt bãi đỗ xe "${confirmingLot?.name}" thành NGỪNG HOẠT ĐỘNG (xóa mềm). Tiếp tục?`}
         onConfirm={confirmDelete}
         onCancel={() => setConfirmingLot(null)}
         loading={deleting}
-        confirmLabel="Deactivate"
+        confirmLabel="Vô Hiệu Hóa"
       />
 
       {/* ✅ Popup Edit */}
@@ -568,7 +568,11 @@ export default function AdminParkingLots() {
         open={!!editingLot}
         lot={editingLot}
         onClose={() => setEditingLot(null)}
-        onUpdated={fetchLots}
+        onUpdated={async () => {
+          showSuccess("✅ Cập nhật bãi đỗ xe thành công!");
+          await fetchLots();
+          setEditingLot(null);
+        }}
       />
 
       {/* ✅ Popup View (open only after details fetched, like AdminParkingLotRequests) */}
@@ -583,7 +587,11 @@ export default function AdminParkingLots() {
       <AddParkingLotModal
         open={showAddModal}
         onClose={() => setShowAddModal(false)}
-        onCreated={fetchLots}
+        onCreated={async () => {
+          showSuccess("✅ Thêm bãi đỗ xe mới thành công!");
+          await fetchLots();
+          setShowAddModal(false);
+        }}
       />
     </AdminLayout>
   );

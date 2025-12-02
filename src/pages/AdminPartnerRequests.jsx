@@ -85,7 +85,7 @@ export default function AdminPartnerRequests() {
       setViewingPartner(res.data?.data || null);
     } catch (err) {
       console.error("❌ Error fetching details:", err);
-      showError("Failed to fetch details");
+      showError("Không thể tải chi tiết!");
     }
   };
 
@@ -98,12 +98,12 @@ export default function AdminPartnerRequests() {
     try {
       const res = await partnerApi.deleteRegister(item.id);
       if (res.status === 200 || res.status === 204) {
-        showSuccess(`🗑️ Deleted "${item.companyName}" successfully!`);
+        showSuccess(`🗑️ Đã xóa "${item.companyName}" thành công!`);
         fetchData();
-      } else showError("❌ Failed to delete item.");
+      } else showError("❌ Xóa thất bại.");
     } catch (err) {
       console.error("❌ Error deleting item:", err);
-      showError(err.response?.data?.message || "❌ Failed to delete item.");
+      showError(err.response?.data?.message || "❌ Xóa thất bại.");
     } finally {
       setConfirmingPartner(null);
     }
@@ -117,25 +117,25 @@ export default function AdminPartnerRequests() {
       case "APPROVED":
         return (
           <span className={`${base} text-green-600 bg-green-50 border-green-300`}>
-            Approved
+            Đã Duyệt
           </span>
         );
       case "REJECTED":
         return (
           <span className={`${base} bg-red-50 text-red-700 border-red-300`}>
-            Rejected
+            Bị Từ Chối
           </span>
         );
       case "PENDING":
         return (
           <span className={`${base} bg-yellow-50 text-yellow-700 border-yellow-300`}>
-            Pending
+            Chờ Duyệt
           </span>
         );
       default:
         return (
           <span className={`${base} bg-gray-50 text-gray-600 border-gray-300`}>
-            Unknown
+            Không xác định
           </span>
         );
     }
@@ -150,7 +150,7 @@ export default function AdminPartnerRequests() {
           <div className="relative">
             <input
               type="text"
-              placeholder="Search by name, email, phone, or company..."
+              placeholder="Tìm kiếm theo tên, email, số điện thoại, công ty..."
               className="border border-gray-300 pl-10 pr-4 py-2 rounded-lg w-80 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -178,11 +178,11 @@ export default function AdminPartnerRequests() {
               onChange={(e) => setSortBy(e.target.value)}
               className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
             >
-              <option value="createdAt">Created Date</option>
-              <option value="companyName">Company Name</option>
-              <option value="contactPersonName">Contact Person</option>
-              <option value="companyPhone">Phone</option>
-              <option value="status">Status</option>
+              <option value="createdAt">Ngày Tạo</option>
+              <option value="companyName">Tên Công Ty</option>
+              <option value="contactPersonName">Người Liên Hệ</option>
+              <option value="companyPhone">Số Điện Thoại</option>
+              <option value="status">Trạng Thái</option>
             </select>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -200,7 +200,7 @@ export default function AdminPartnerRequests() {
           <button
             onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
             className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
-            title={sortOrder === "asc" ? "Ascending" : "Descending"}
+            title={sortOrder === "asc" ? "Tăng dần" : "Giảm dần"}
           >
             {sortOrder === "asc" ? (
               <i className="ri-sort-asc text-lg text-gray-600"></i>
@@ -208,7 +208,7 @@ export default function AdminPartnerRequests() {
               <i className="ri-sort-desc text-lg text-gray-600"></i>
             )}
             <span className="text-sm text-gray-600">
-              {sortOrder === "asc" ? "Asc" : "Desc"}
+              {sortOrder === "asc" ? "Tăng dần" : "Giảm dần"}
             </span>
           </button>
 
@@ -218,10 +218,10 @@ export default function AdminPartnerRequests() {
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
-            <option value="">All Status</option>
-            <option value="PENDING">Pending</option>
-            <option value="APPROVED">Approved</option>
-            <option value="REJECTED">Rejected</option>
+            <option value="">Tất Cả Trạng Thái</option>
+            <option value="PENDING">Chờ Duyệt</option>
+            <option value="APPROVED">Đã Duyệt</option>
+            <option value="REJECTED">Bị Từ Chối</option>
           </select>
 
           {/* Date Range */}
@@ -232,7 +232,7 @@ export default function AdminPartnerRequests() {
               onChange={(e) => setStartDate(e.target.value)}
               className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all cursor-pointer"
             />
-            <span className="text-gray-500">to</span>
+            <span className="text-gray-500">đến</span>
             <input
               type="date"
               value={endDate}
@@ -254,10 +254,10 @@ export default function AdminPartnerRequests() {
               fetchData();
             }}
             className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
-            title="Reset filters"
+            title="Làm mới bộ lọc"
           >
             <i className="ri-refresh-line text-lg text-gray-600"></i>
-            <span className="text-sm text-gray-600">Refresh</span>
+            <span className="text-sm text-gray-600">Làm Mới</span>
           </button>
         </div>
 
@@ -265,11 +265,11 @@ export default function AdminPartnerRequests() {
         <div className="flex gap-2">
           <button className="flex items-center gap-2 hover:bg-yellow-200 font-medium px-4 py-2 rounded-lg border transition cursor-pointer">
             <ArrowUpTrayIcon className="w-5 h-5 text-yellow-700" />
-            Import
+            Nhập Excel
           </button>
           <button className="flex items-center gap-2 hover:bg-green-200 font-medium px-4 py-2 rounded-lg border transition cursor-pointer">
             <ArrowDownTrayIcon className="w-5 h-5 text-green-700" />
-            Export
+            Xuất Excel
           </button>
         </div>
       </div>
@@ -280,13 +280,13 @@ export default function AdminPartnerRequests() {
           <thead className="bg-orange-50 text-orange-700 uppercase text-sm font-semibold">
             <tr>
               <th className="px-6 py-3 text-left">#</th>
-              <th className="px-6 py-3 text-left">Partner</th>
+              <th className="px-6 py-3 text-left">Đối Tác</th>
               <th className="px-6 py-3 text-left">Email</th>
-              <th className="px-6 py-3 text-left">Company</th>
-              <th className="px-6 py-3 text-left">Phone</th>
-              <th className="px-6 py-3 text-left">Submitted At</th>
-              <th className="px-6 py-3 text-left">Status</th>
-              <th className="px-6 py-3 text-center">Actions</th>
+              <th className="px-6 py-3 text-left">Công Ty</th>
+              <th className="px-6 py-3 text-left">Số Điện Thoại</th>
+              <th className="px-6 py-3 text-left">Ngày Nộp</th>
+              <th className="px-6 py-3 text-left">Trạng Thái</th>
+              <th className="px-6 py-3 text-center">Thao Tác</th>
             </tr>
           </thead>
 
@@ -297,7 +297,7 @@ export default function AdminPartnerRequests() {
                   colSpan="8"
                   className="px-6 py-6 text-center text-gray-500 italic"
                 >
-                  Loading...
+                  Đang tải...
                 </td>
               </tr>
             ) : filtered.length > 0 ? (
@@ -324,14 +324,14 @@ export default function AdminPartnerRequests() {
                   <td className="px-6 py-3 text-center">
                     <div className="flex justify-center items-center gap-3">
                       <button
-                        title="View Details"
+                        title="Xem Chi Tiết"
                         onClick={() => handleView(r.id)}
                         className="p-2 rounded-full hover:bg-indigo-100 transition cursor-pointer"
                       >
                         <EyeIcon className="w-5 h-5" />
                       </button>
                       <button
-                        title="Delete Request"
+                        title="Xóa Yêu Cầu"
                         onClick={() => handleDelete(r)}
                         className="p-2 rounded-full hover:bg-red-100 transition cursor-pointer"
                       >
@@ -347,7 +347,7 @@ export default function AdminPartnerRequests() {
                   colSpan="8"
                   className="px-6 py-6 text-center text-gray-500 italic"
                 >
-                  No requests found.
+                  Không tìm thấy yêu cầu nào.
                 </td>
               </tr>
             )}
@@ -362,14 +362,14 @@ export default function AdminPartnerRequests() {
           onClick={() => setPage((p) => Math.max(p - 1, 0))}
           className="px-4 py-2 bg-white border rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
-          ← Previous
+          ← Trước
         </button>
         <div className="text-center text-gray-600 text-sm">
           <div>
-            Page <strong>{page + 1}</strong> of {totalPages}
+            Trang <strong>{page + 1}</strong> / {totalPages}
           </div>
           <div className="text-sm text-gray-500 mt-1">
-            Total requests:{" "}
+            Tổng yêu cầu:{" "}
             <strong className="text-orange-700">{totalCount}</strong>
           </div>
         </div>
@@ -378,7 +378,7 @@ export default function AdminPartnerRequests() {
           onClick={() => setPage((p) => p + 1)}
           className="px-4 py-2 bg-white border rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
-          Next →
+          Sau →
         </button>
       </div>
 
@@ -386,8 +386,8 @@ export default function AdminPartnerRequests() {
       {confirmingPartner && (
         <ConfirmModal
           open={!!confirmingPartner}
-          title="Confirm Deletion"
-          message={`Are you sure you want to delete "${confirmingPartner?.companyName}"?`}
+          title="Xác Nhận Xóa"
+          message={`Bạn có chắc chắn muốn xóa "${confirmingPartner?.companyName}"?`}
           onConfirm={confirmDelete}
           onCancel={() => setConfirmingPartner(null)}
         />
