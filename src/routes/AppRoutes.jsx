@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ConfirmEmail from "../pages/ConfirmEmail";
@@ -24,6 +24,9 @@ import ProtectedPartnerRoute from "../components/ProtectedPartnerRoute";
 export default function AppRoutes() {
   return (
     <Routes>
+      {/* Default route - redirect to login */}
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      
       {/* Partner/User routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
