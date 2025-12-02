@@ -25,6 +25,7 @@ export default function Register() {
 
   const [showOtp, setShowOtp] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [registrationId, setRegistrationId] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -63,7 +64,7 @@ export default function Register() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // 🟢 Handle initial form submit - Show OTP first
+  // 🟢 Handle initial form submit - Create registration and send OTP
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
@@ -71,18 +72,11 @@ export default function Register() {
       return;
     }
 
-    // Show OTP popup immediately after validation
-    showInfo("Please verify your email to continue registration.");
-    setShowOtp(true);
-  };
-
-  // 🟢 Handle actual registration after OTP verified
-  const handleRegistrationAfterOTP = async () => {
     setUploading(true);
     try {
-      showInfo("Submitting partner registration, please wait...");
+      showInfo("Creating registration and sending OTP...");
 
-      // 1️⃣ Đăng ký partner
+      // 1️⃣ Tạo đơn đăng ký (backend sẽ gửi OTP)
       const registerPayload = {
         companyName: form.companyName,
         password: form.password,
@@ -105,23 +99,45 @@ export default function Register() {
         registerRes.data?.data?.id || registerRes.data?.id || null;
       if (!entityId) throw new Error("Missing entityId from register response");
 
-      // 2️⃣ Upload ảnh giấy phép
+      setRegistrationId(entityId);
+      
+      // 2️⃣ Show OTP popup (backend đã gửi OTP qua email)
+      showSuccess("OTP sent to your email. Please verify to complete registration.");
+      setShowOtp(true);
+    } catch (err) {
+      console.error("❌ Registration creation failed:", err);
+      showError("Failed to create registration. Please try again!");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // 🟢 Handle file upload after OTP verified
+  const handleUploadAfterOTP = async () => {
+    if (!registrationId) {
+      showError("Registration ID not found");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      // Upload ảnh giấy phép
       if (form.businessLicenseFile) {
         showInfo("Uploading business license...");
-        await partnerApi.uploadBusinessLicense(entityId, form.businessLicenseFile);
+        await partnerApi.uploadBusinessLicense(registrationId, form.businessLicenseFile);
         showSuccess("Uploaded business license successfully!");
       }
 
-      // 3️⃣ Thông báo thành công
-      showSuccess("✅ Registration submitted successfully! Please wait for admin approval.");
+      // Thông báo thành công
+      showSuccess("✅ Registration completed! Please wait for admin approval.");
       
       // Navigate to login after short delay
       setTimeout(() => {
         navigate("/login");
       }, 2000);
     } catch (err) {
-      console.error("❌ Register failed:", err);
-      showError("Registration failed. Please try again!");
+      console.error("❌ Upload failed:", err);
+      showError("Upload failed. Please try again!");
     } finally {
       setUploading(false);
     }
@@ -291,13 +307,13 @@ export default function Register() {
             email={form.companyEmail}
             onVerified={() => {
               setShowOtp(false);
-              showSuccess("✅ Email verified! Submitting registration...");
-              // Gọi hàm đăng ký sau khi verify OTP thành công
-              handleRegistrationAfterOTP();
+              showSuccess("✅ Email verified! Uploading documents...");
+              // Upload file sau khi verify OTP thành công
+              handleUploadAfterOTP();
             }}
             onClose={() => {
               setShowOtp(false);
-              showInfo("Registration cancelled. Please verify your email to submit registration.");
+              showInfo("Registration incomplete. Please verify your email to complete registration.");
             }}
           />
         </div>
