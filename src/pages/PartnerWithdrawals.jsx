@@ -106,22 +106,8 @@ export default function PartnerWithdrawals() {
     try {
       setLoadingPeriods(true);
       
-      // Fetch periods and parking lots in parallel
-      const [periodsRes, lotsRes] = await Promise.all([
-        withdrawalApi.getPeriods({ page: 0, size: 1000 }),
-        parkingLotApi.getAllByPartner()
-      ]);
-
-      const responseData = periodsRes.data?.data || periodsRes.data;
-      let periodsList = [];
-
-      if (responseData?.content) {
-        periodsList = Array.isArray(responseData.content) ? responseData.content : [];
-      } else if (Array.isArray(responseData)) {
-        periodsList = responseData;
-      }
-
-      setAllPeriods(periodsList);
+      // First, fetch parking lots of current partner
+      const lotsRes = await parkingLotApi.getAllByPartner();
       
       // Extract parking lots from API response
       const lotsData = lotsRes.data?.data || lotsRes.data;
@@ -133,8 +119,27 @@ export default function PartnerWithdrawals() {
         lotsList = lotsData;
       }
       
+      // Get list of parking lot IDs that belong to current partner
+      const partnerLotIds = new Set(lotsList.map(lot => lot.id));
+      
+      // Now fetch periods
+      const periodsRes = await withdrawalApi.getPeriods({ page: 0, size: 1000 });
+      const responseData = periodsRes.data?.data || periodsRes.data;
+      let periodsList = [];
+
+      if (responseData?.content) {
+        periodsList = Array.isArray(responseData.content) ? responseData.content : [];
+      } else if (Array.isArray(responseData)) {
+        periodsList = responseData;
+      }
+
+      // ✅ FILTER: Only show periods that belong to current partner's parking lots
+      const filteredPeriods = periodsList.filter(period => partnerLotIds.has(period.lotId));
+      
+      setAllPeriods(filteredPeriods);
+      
       // Filter to only show lots that have periods
-      const lotIdsWithPeriods = new Set(periodsList.map(p => p.lotId));
+      const lotIdsWithPeriods = new Set(filteredPeriods.map(p => p.lotId));
       const filteredLots = lotsList
         .filter(lot => lotIdsWithPeriods.has(lot.id))
         .map(lot => ({ id: lot.id, name: lot.name || `Parking Lot ${lot.id}` }));

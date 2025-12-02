@@ -84,11 +84,6 @@ export default function PartnerDashboard() {
           [];
         console.log("Parking lots:", lots);
         setParkingLots(lots);
-
-        // Auto-select first lot if available
-        if (lots.length > 0) {
-          setSelectedLotId(lots[0].id);
-        }
       } catch (error) {
         console.error("Error fetching parking lots:", error);
         showError("Failed to load parking lots");
@@ -238,7 +233,7 @@ export default function PartnerDashboard() {
             <div className="flex gap-2 items-center">
               <button
                 onClick={async () => {
-                  // Reset everything to initial state
+                  // Reset all fields to initial state
                   const to = new Date();
                   const from = new Date();
                   from.setDate(from.getDate() - 7);
@@ -248,6 +243,15 @@ export default function PartnerDashboard() {
                     to: to.toISOString().split("T")[0] + "T23:59:59",
                   });
                   setActiveDateRange(7);
+                  
+                  // Clear parking lot selection
+                  setSelectedLotId(null);
+                  
+                  // Clear statistics
+                  setStatistics(null);
+                  
+                  // Clear any expanded sections
+                  setShowRevenueBreakdown(false);
 
                   // Refresh parking lots list
                   try {
@@ -259,53 +263,13 @@ export default function PartnerDashboard() {
                       [];
                     console.log("Refreshed parking lots:", lots);
                     setParkingLots(lots);
-
-                    // Reset to first lot or keep current if it still exists
-                    let lotToSelect = selectedLotId;
-                    if (lots.length > 0) {
-                      // Check if current lot still exists
-                      const currentLotExists = lots.find(lot => lot.id === selectedLotId);
-                      if (!currentLotExists) {
-                        lotToSelect = lots[0].id;
-                        setSelectedLotId(lotToSelect);
-                      }
-                    } else {
-                      lotToSelect = null;
-                      setSelectedLotId(null);
-                    }
-
-                    // Fetch statistics with reset date range and selected lot
-                    if (lotToSelect) {
-                      setLoading(true);
-                      try {
-                        const statsResponse = await statisticsApi.getParkingLotStats(
-                          lotToSelect,
-                          {
-                            from: from.toISOString().split("T")[0] + "T00:00:00",
-                            to: to.toISOString().split("T")[0] + "T23:59:59",
-                          }
-                        );
-
-                        const data = statsResponse.data?.data || statsResponse.data;
-                        console.log("Statistics data:", data);
-                        setStatistics(data);
-                      } catch (error) {
-                        console.error("Error fetching statistics:", error);
-                        showError(
-                          error.response?.data?.message ||
-                            "Failed to load statistics"
-                        );
-                      } finally {
-                        setLoading(false);
-                      }
-                    }
                   } catch (error) {
                     console.error("Error refreshing parking lots:", error);
                     showError("Failed to refresh parking lots");
                   }
                 }}
                 className="px-4 py-2 text-sm rounded-lg transition font-medium bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 flex items-center gap-2"
-                title="Reset filters and refresh all data"
+                title="Reset all filters and refresh data"
               >
                 <i className="ri-refresh-line"></i>
                 Refresh
@@ -364,55 +328,211 @@ export default function PartnerDashboard() {
           {/* Statistics Cards */}
           {!loading && statistics && (
             <>
-              {/* Charts Section - Hiển thị đầu tiên */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                {/* Session Distribution Pie Chart */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    <i className="ri-pie-chart-line text-indigo-600"></i>
-                    Session Distribution
-                  </h3>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={getSessionPieData()}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, value }) => `${name}: ${value}`}
-                        outerRadius={100}
-                        fill="#8884d8"
-                        dataKey="value"
-                      >
-                        {getSessionPieData().map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
+              {/* Revenue Cards - 3 cards in a row */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                {/* Total Revenue */}
+                <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg p-6 text-white">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <p className="text-orange-100 text-xs font-medium uppercase tracking-wide">
+                        Total Revenue
+                      </p>
+                      <p className="text-4xl font-bold mt-2">
+                        {formatCurrency((statistics.sessionStatistics || statistics.sessionStatistic)?.sessionTotalAmount || 0)}
+                      </p>
+                    </div>
+                    <div className="bg-white/20 rounded-full p-3">
+                      <i className="ri-money-dollar-circle-line text-4xl"></i>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Vehicle Type Distribution */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    <i className="ri-car-line text-indigo-600"></i>
-                    Vehicle Types
-                  </h3>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={getVehicleTypeData()}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="type" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="count" fill="#8b5cf6">
-                        {getVehicleTypeData().map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
+                {/* Member Revenue */}
+                <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <p className="text-purple-100 text-xs font-medium uppercase tracking-wide">
+                        Member Revenue
+                      </p>
+                      <p className="text-3xl font-bold mt-2">
+                        {formatCurrency((statistics.sessionStatistics || statistics.sessionStatistic)?.memberTotalAmount || 0)}
+                      </p>
+                      {(statistics.sessionStatistics || statistics.sessionStatistic)?.memberTotalAmountGrowthRate !== undefined && (
+                        <p className={`text-xs mt-2 flex items-center gap-1 ${
+                          (statistics.sessionStatistics || statistics.sessionStatistic).memberTotalAmountGrowthRate >= 0 ? 'text-green-200' : 'text-red-200'
+                        }`}>
+                          <i className={`ri-arrow-${
+                            (statistics.sessionStatistics || statistics.sessionStatistic).memberTotalAmountGrowthRate >= 0 ? 'up' : 'down'
+                          }-line`}></i>
+                          {Math.abs((statistics.sessionStatistics || statistics.sessionStatistic).memberTotalAmountGrowthRate)}%
+                        </p>
+                      )}
+                    </div>
+                    <div className="bg-white/20 rounded-full p-3">
+                      <i className="ri-vip-crown-line text-4xl"></i>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Occasional Revenue */}
+                <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <p className="text-blue-100 text-xs font-medium uppercase tracking-wide">
+                        Occasional Revenue
+                      </p>
+                      <p className="text-3xl font-bold mt-2">
+                        {formatCurrency((statistics.sessionStatistics || statistics.sessionStatistic)?.occasionalTotalAmount || 0)}
+                      </p>
+                      {(statistics.sessionStatistics || statistics.sessionStatistic)?.occasionalTotalAmountGrowthRate !== undefined && (
+                        <p className={`text-xs mt-2 flex items-center gap-1 ${
+                          (statistics.sessionStatistics || statistics.sessionStatistic).occasionalTotalAmountGrowthRate >= 0 ? 'text-green-200' : 'text-red-200'
+                        }`}>
+                          <i className={`ri-arrow-${
+                            (statistics.sessionStatistics || statistics.sessionStatistic).occasionalTotalAmountGrowthRate >= 0 ? 'up' : 'down'
+                          }-line`}></i>
+                          {Math.abs((statistics.sessionStatistics || statistics.sessionStatistic).occasionalTotalAmountGrowthRate)}%
+                        </p>
+                      )}
+                    </div>
+                    <div className="bg-white/20 rounded-full p-3">
+                      <i className="ri-user-line text-4xl"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Key Metrics Row - Sessions & Average Duration */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                {/* Active Sessions */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-blue-100 rounded-lg p-3">
+                      <i className="ri-time-line text-2xl text-blue-600"></i>
+                    </div>
+                    <div>
+                      <p className="text-gray-600 text-xs font-medium">Active Sessions</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {(statistics.sessionStatistics || statistics.sessionStatistic)?.activeSessions || 0}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Completed Sessions */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-green-100 rounded-lg p-3">
+                      <i className="ri-checkbox-circle-line text-2xl text-green-600"></i>
+                    </div>
+                    <div>
+                      <p className="text-gray-600 text-xs font-medium">Completed</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {(statistics.sessionStatistics || statistics.sessionStatistic)?.completedSessions || 0}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Total Sessions */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-indigo-100 rounded-lg p-3">
+                      <i className="ri-file-list-line text-2xl text-indigo-600"></i>
+                    </div>
+                    <div>
+                      <p className="text-gray-600 text-xs font-medium">Total Sessions</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {((statistics.sessionStatistics || statistics.sessionStatistic)?.completedSessions || 0) +
+                          ((statistics.sessionStatistics || statistics.sessionStatistic)?.activeSessions || 0)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Average Duration */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-teal-100 rounded-lg p-3">
+                      <i className="ri-timer-line text-2xl text-teal-600"></i>
+                    </div>
+                    <div>
+                      <p className="text-gray-600 text-xs font-medium">Avg Duration</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {(statistics.sessionStatistics || statistics.sessionStatistic)?.averageDurationMinute
+                          ? `${Math.round((statistics.sessionStatistics || statistics.sessionStatistic).averageDurationMinute)}m`
+                          : "N/A"}
+                      </p>
+                      {(statistics.sessionStatistics || statistics.sessionStatistic)?.averageDurationMinuteGrowthRate !== undefined && (
+                        <p className={`text-xs mt-1 flex items-center gap-1 ${
+                          (statistics.sessionStatistics || statistics.sessionStatistic).averageDurationMinuteGrowthRate >= 0 ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          <i className={`ri-arrow-${
+                            (statistics.sessionStatistics || statistics.sessionStatistic).averageDurationMinuteGrowthRate >= 0 ? 'up' : 'down'
+                          }-line`}></i>
+                          {Math.abs((statistics.sessionStatistics || statistics.sessionStatistic).averageDurationMinuteGrowthRate)}%
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Analytics Charts */}
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <i className="ri-bar-chart-box-line text-indigo-600"></i>
+                  Analytics Overview
+                </h2>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Session Distribution Pie Chart */}
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h3 className="text-base font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                      <i className="ri-pie-chart-line text-indigo-500"></i>
+                      Session Distribution
+                    </h3>
+                    <ResponsiveContainer width="100%" height={280}>
+                      <PieChart>
+                        <Pie
+                          data={getSessionPieData()}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, value }) => `${name}: ${value}`}
+                          outerRadius={90}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {getSessionPieData().map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  {/* Vehicle Type Distribution */}
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h3 className="text-base font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                      <i className="ri-car-line text-indigo-500"></i>
+                      Vehicle Types
+                    </h3>
+                    <ResponsiveContainer width="100%" height={280}>
+                      <BarChart data={getVehicleTypeData()}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="type" />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar dataKey="count" fill="#8b5cf6">
+                          {getVehicleTypeData().map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               </div>
 
@@ -466,484 +586,108 @@ export default function PartnerDashboard() {
                 </div>
               )}
 
-              {/* Session Statistics */}
-              <div className="mb-6">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                  <i className="ri-file-list-3-line text-indigo-600"></i>
-                  Session Statistics
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {/* Completed Sessions */}
-                  <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-green-100 text-sm font-medium uppercase tracking-wide">
-                          Completed Sessions
-                        </p>
-                        <p className="text-5xl font-bold mt-3">
-                          {(
-                            statistics.sessionStatistics ||
-                            statistics.sessionStatistic
-                          )?.completedSessions || 0}
-                        </p>
-                      </div>
-                      <div className="bg-white/20 rounded-full p-4">
-                        <i className="ri-checkbox-circle-line text-5xl"></i>
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Active Sessions */}
-                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-blue-100 text-sm font-medium uppercase tracking-wide">
-                          Active Sessions
-                        </p>
-                        <p className="text-5xl font-bold mt-3">
-                          {(
-                            statistics.sessionStatistics ||
-                            statistics.sessionStatistic
-                          )?.activeSessions || 0}
-                        </p>
-                      </div>
-                      <div className="bg-white/20 rounded-full p-4">
-                        <i className="ri-time-line text-5xl"></i>
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Total Sessions */}
-                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-purple-100 text-sm font-medium uppercase tracking-wide">
-                          Total Sessions
-                        </p>
-                        <p className="text-5xl font-bold mt-3">
-                          {((
-                            statistics.sessionStatistics ||
-                            statistics.sessionStatistic
-                          )?.completedSessions || 0) +
-                            ((
-                              statistics.sessionStatistics ||
-                              statistics.sessionStatistic
-                            )?.activeSessions || 0)}
-                        </p>
-                      </div>
-                      <div className="bg-white/20 rounded-full p-4">
-                        <i className="ri-file-list-line text-5xl"></i>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Average Duration */}
-                  <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl shadow-lg p-6 text-white">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-teal-100 text-sm font-medium uppercase tracking-wide">
-                          Avg Duration
-                        </p>
-                        <p className="text-5xl font-bold mt-3">
-                          {(statistics.sessionStatistics || statistics.sessionStatistic)?.averageDurationMinute
-                            ? `${Math.round((statistics.sessionStatistics || statistics.sessionStatistic).averageDurationMinute)}m`
-                            : "N/A"}
-                        </p>
-                        {(statistics.sessionStatistics || statistics.sessionStatistic)?.averageDurationMinuteGrowthRate !== undefined && (
-                          <p className={`text-xs mt-2 flex items-center gap-1 ${
-                            (statistics.sessionStatistics || statistics.sessionStatistic).averageDurationMinuteGrowthRate >= 0 ? 'text-green-200' : 'text-red-200'
-                          }`}>
-                            <i className={`ri-arrow-${
-                              (statistics.sessionStatistics || statistics.sessionStatistic).averageDurationMinuteGrowthRate >= 0 ? 'up' : 'down'
-                            }-line`}></i>
-                            {Math.abs((statistics.sessionStatistics || statistics.sessionStatistic).averageDurationMinuteGrowthRate)}%
-                          </p>
-                        )}
-                      </div>
-                      <div className="bg-white/20 rounded-full p-4">
-                        <i className="ri-time-line text-5xl"></i>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Revenue Breakdown */}
-              <div className="mb-6">
-                <div 
-                  onClick={() => setShowRevenueBreakdown(!showRevenueBreakdown)}
-                  className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-xl shadow-lg p-6 text-white cursor-pointer hover:shadow-xl transition-shadow"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <i className="ri-money-dollar-circle-line text-3xl"></i>
-                        <h2 className="text-2xl font-bold">Revenue Breakdown</h2>
-                      </div>
-                      <p className="text-orange-100 text-sm">
-                        Total Session Revenue: {formatCurrency((statistics.sessionStatistics || statistics.sessionStatistic)?.sessionTotalAmount || 0)}
-                      </p>
-                    </div>
-                    <div className="ml-4">
-                      <i className={`ri-arrow-${showRevenueBreakdown ? 'up' : 'down'}-s-line text-3xl`}></i>
-                    </div>
-                  </div>
-                </div>
-
-                {showRevenueBreakdown && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                    {/* Member Revenue */}
-                    <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg p-6 text-white">
-                      <div className="flex flex-col">
-                        <div className="flex items-center justify-between mb-3">
-                          <p className="text-orange-100 text-xs font-medium uppercase tracking-wide">
-                            Member Revenue
-                          </p>
-                          <div className="bg-white/20 rounded-full p-2">
-                            <i className="ri-vip-crown-line text-2xl"></i>
-                          </div>
-                        </div>
-                        <p className="text-3xl font-bold">
-                          {formatCurrency(
-                            (statistics.sessionStatistics || statistics.sessionStatistic)?.memberTotalAmount || 0
-                          )}
-                        </p>
-                        {(statistics.sessionStatistics || statistics.sessionStatistic)?.memberTotalAmountGrowthRate !== undefined && (
-                          <p className={`text-xs mt-2 flex items-center gap-1 ${
-                            (statistics.sessionStatistics || statistics.sessionStatistic).memberTotalAmountGrowthRate >= 0 ? 'text-green-200' : 'text-red-200'
-                          }`}>
-                            <i className={`ri-arrow-${
-                              (statistics.sessionStatistics || statistics.sessionStatistic).memberTotalAmountGrowthRate >= 0 ? 'up' : 'down'
-                            }-line`}></i>
-                            {Math.abs((statistics.sessionStatistics || statistics.sessionStatistic).memberTotalAmountGrowthRate)}%
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Occasional Revenue */}
-                    <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl shadow-lg p-6 text-white">
-                      <div className="flex flex-col">
-                        <div className="flex items-center justify-between mb-3">
-                          <p className="text-amber-100 text-xs font-medium uppercase tracking-wide">
-                            Occasional Revenue
-                          </p>
-                          <div className="bg-white/20 rounded-full p-2">
-                            <i className="ri-user-line text-2xl"></i>
-                          </div>
-                        </div>
-                        <p className="text-3xl font-bold">
-                          {formatCurrency(
-                            (statistics.sessionStatistics || statistics.sessionStatistic)?.occasionalTotalAmount || 0
-                          )}
-                        </p>
-                        {(statistics.sessionStatistics || statistics.sessionStatistic)?.occasionalTotalAmountGrowthRate !== undefined && (
-                          <p className={`text-xs mt-2 flex items-center gap-1 ${
-                            (statistics.sessionStatistics || statistics.sessionStatistic).occasionalTotalAmountGrowthRate >= 0 ? 'text-green-200' : 'text-red-200'
-                          }`}>
-                            <i className={`ri-arrow-${
-                              (statistics.sessionStatistics || statistics.sessionStatistic).occasionalTotalAmountGrowthRate >= 0 ? 'up' : 'down'
-                            }-line`}></i>
-                            {Math.abs((statistics.sessionStatistics || statistics.sessionStatistic).occasionalTotalAmountGrowthRate)}%
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Vehicle Types */}
-              <div className="mb-6">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                  <i className="ri-car-line text-indigo-600"></i>
-                  Vehicle Types
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-
-                  {/* Motorbike Count */}
-                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
-                    <div className="flex flex-col">
-                      <div className="flex items-center justify-between mb-3">
-                        <p className="text-purple-100 text-xs font-medium uppercase tracking-wide">
-                          Motorbikes
-                        </p>
-                        <div className="bg-white/20 rounded-full p-2">
-                          <i className="ri-motorbike-line text-2xl"></i>
-                        </div>
-                      </div>
-                      <p className="text-4xl font-bold">
-                        {(statistics.sessionStatistics || statistics.sessionStatistic)?.motorbikeCount || 0}
-                      </p>
-                      {(statistics.sessionStatistics || statistics.sessionStatistic)?.motorbikeCountGrowthRate !== undefined && (
-                        <p className={`text-xs mt-2 flex items-center gap-1 ${
-                          (statistics.sessionStatistics || statistics.sessionStatistic).motorbikeCountGrowthRate >= 0 ? 'text-green-200' : 'text-red-200'
-                        }`}>
-                          <i className={`ri-arrow-${
-                            (statistics.sessionStatistics || statistics.sessionStatistic).motorbikeCountGrowthRate >= 0 ? 'up' : 'down'
-                          }-line`}></i>
-                          {Math.abs((statistics.sessionStatistics || statistics.sessionStatistic).motorbikeCountGrowthRate)}%
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Car Count */}
-                  <div className="bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl shadow-lg p-6 text-white">
-                    <div className="flex flex-col">
-                      <div className="flex items-center justify-between mb-3">
-                        <p className="text-pink-100 text-xs font-medium uppercase tracking-wide">
-                          Cars
-                        </p>
-                        <div className="bg-white/20 rounded-full p-2">
-                          <i className="ri-car-line text-2xl"></i>
-                        </div>
-                      </div>
-                      <p className="text-4xl font-bold">
-                        {(statistics.sessionStatistics || statistics.sessionStatistic)?.carCount || 0}
-                      </p>
-                      {(statistics.sessionStatistics || statistics.sessionStatistic)?.carCountGrowthRate !== undefined && (
-                        <p className={`text-xs mt-2 flex items-center gap-1 ${
-                          (statistics.sessionStatistics || statistics.sessionStatistic).carCountGrowthRate >= 0 ? 'text-green-200' : 'text-red-200'
-                        }`}>
-                          <i className={`ri-arrow-${
-                            (statistics.sessionStatistics || statistics.sessionStatistic).carCountGrowthRate >= 0 ? 'up' : 'down'
-                          }-line`}></i>
-                          {Math.abs((statistics.sessionStatistics || statistics.sessionStatistic).carCountGrowthRate)}%
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Bike Count */}
-                  <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl shadow-lg p-6 text-white">
-                    <div className="flex flex-col">
-                      <div className="flex items-center justify-between mb-3">
-                        <p className="text-yellow-100 text-xs font-medium uppercase tracking-wide">
-                          Bikes
-                        </p>
-                        <div className="bg-white/20 rounded-full p-2">
-                          <i className="ri-bike-line text-2xl"></i>
-                        </div>
-                      </div>
-                      <p className="text-4xl font-bold">
-                        {(statistics.sessionStatistics || statistics.sessionStatistic)?.bikeCount || 0}
-                      </p>
-                      {(statistics.sessionStatistics || statistics.sessionStatistic)?.bikeCountGrowthRate !== undefined && (
-                        <p className={`text-xs mt-2 flex items-center gap-1 ${
-                          (statistics.sessionStatistics || statistics.sessionStatistic).bikeCountGrowthRate >= 0 ? 'text-green-200' : 'text-red-200'
-                        }`}>
-                          <i className={`ri-arrow-${
-                            (statistics.sessionStatistics || statistics.sessionStatistic).bikeCountGrowthRate >= 0 ? 'up' : 'down'
-                          }-line`}></i>
-                          {Math.abs((statistics.sessionStatistics || statistics.sessionStatistic).bikeCountGrowthRate)}%
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Other Count */}
-                  <div className="bg-gradient-to-br from-gray-500 to-gray-600 rounded-xl shadow-lg p-6 text-white">
-                    <div className="flex flex-col">
-                      <div className="flex items-center justify-between mb-3">
-                        <p className="text-gray-100 text-xs font-medium uppercase tracking-wide">
-                          Others
-                        </p>
-                        <div className="bg-white/20 rounded-full p-2">
-                          <i className="ri-truck-line text-2xl"></i>
-                        </div>
-                      </div>
-                      <p className="text-4xl font-bold">
-                        {(statistics.sessionStatistics || statistics.sessionStatistic)?.otherCount || 0}
-                      </p>
-                      {(statistics.sessionStatistics || statistics.sessionStatistic)?.otherCountGrowthRate !== undefined && (
-                        <p className={`text-xs mt-2 flex items-center gap-1 ${
-                          (statistics.sessionStatistics || statistics.sessionStatistic).otherCountGrowthRate >= 0 ? 'text-green-200' : 'text-red-200'
-                        }`}>
-                          <i className={`ri-arrow-${
-                            (statistics.sessionStatistics || statistics.sessionStatistic).otherCountGrowthRate >= 0 ? 'up' : 'down'
-                          }-line`}></i>
-                          {Math.abs((statistics.sessionStatistics || statistics.sessionStatistic).otherCountGrowthRate)}%
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Additional Info */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                  <i className="ri-information-line text-indigo-600"></i>
-                  Period Details
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-gray-600 text-sm mb-1">From:</p>
-                    <p className="font-semibold text-gray-900">
-                      {new Date(dateRange.from).toLocaleString("vi-VN")}
-                    </p>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-gray-600 text-sm mb-1">To:</p>
-                    <p className="font-semibold text-gray-900">
-                      {new Date(dateRange.to).toLocaleString("vi-VN")}
-                    </p>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-gray-600 text-sm mb-1">
-                      Total Sessions:
-                    </p>
-                    <p className="font-semibold text-gray-900 text-2xl">
-                      {((
-                        statistics.sessionStatistics ||
-                        statistics.sessionStatistic
-                      )?.completedSessions || 0) +
-                        ((
-                          statistics.sessionStatistics ||
-                          statistics.sessionStatistic
-                        )?.activeSessions || 0)}
-                    </p>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-gray-600 text-sm mb-1">
-                      Avg per Session:
-                    </p>
-                    <p className="font-semibold text-gray-900 text-lg">
-                      {(
-                        statistics.sessionStatistics ||
-                        statistics.sessionStatistic
-                      )?.completedSessions > 0
-                        ? formatCurrency(
-                            ((
-                              statistics.sessionStatistics ||
-                              statistics.sessionStatistic
-                            )?.sessionTotalAmount || 0) /
-                              (
-                                statistics.sessionStatistics ||
-                                statistics.sessionStatistic
-                              ).completedSessions
-                          )
-                        : formatCurrency(0)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Reservation Statistics */}
+              {/* Reservation Statistics - Collapsible */}
               {statistics?.reservationStatistic && (
                 <div className="mb-6">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    <i className="ri-calendar-check-line text-indigo-600"></i>
-                    Reservation Statistics
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                    {/* Pending Reservations */}
-                    <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl shadow-lg p-6 text-white">
-                      <div className="flex items-center justify-between">
+                  <div
+                    onClick={() => setShowRevenueBreakdown(!showRevenueBreakdown)}
+                    className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 cursor-pointer hover:shadow-md transition"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-indigo-100 rounded-lg p-2">
+                          <i className="ri-calendar-check-line text-2xl text-indigo-600"></i>
+                        </div>
                         <div>
-                          <p className="text-yellow-100 text-sm font-medium uppercase tracking-wide">
-                            Pending
+                          <h3 className="text-base font-semibold text-gray-800">
+                            Reservation Statistics
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            Total: {(statistics.reservationStatistic?.pendingCount || 0) +
+                              (statistics.reservationStatistic?.activeCount || 0) +
+                              (statistics.reservationStatistic?.completedCount || 0) +
+                              (statistics.reservationStatistic?.expiredCount || 0) +
+                              (statistics.reservationStatistic?.cancelledCount || 0)} reservations • 
+                            Revenue: {formatCurrency(statistics.reservationStatistic?.totalRevenue || 0)}
                           </p>
-                          <p className="text-5xl font-bold mt-3">
+                        </div>
+                      </div>
+                      <i className={`ri-arrow-${showRevenueBreakdown ? 'up' : 'down'}-s-line text-2xl text-gray-400`}></i>
+                    </div>
+                  </div>
+
+                  {showRevenueBreakdown && (
+                    <div className="mt-4">
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        {/* Pending */}
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="bg-yellow-100 rounded p-2">
+                              <i className="ri-time-line text-xl text-yellow-600"></i>
+                            </div>
+                            <p className="text-xs font-medium text-gray-600">Pending</p>
+                          </div>
+                          <p className="text-2xl font-bold text-gray-900">
                             {statistics.reservationStatistic?.pendingCount || 0}
                           </p>
                         </div>
-                        <div className="bg-white/20 rounded-full p-4">
-                          <i className="ri-time-line text-5xl"></i>
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* Active Reservations */}
-                    <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-blue-100 text-sm font-medium uppercase tracking-wide">
-                            Active
-                          </p>
-                          <p className="text-5xl font-bold mt-3">
+                        {/* Active */}
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="bg-blue-100 rounded p-2">
+                              <i className="ri-calendar-check-line text-xl text-blue-600"></i>
+                            </div>
+                            <p className="text-xs font-medium text-gray-600">Active</p>
+                          </div>
+                          <p className="text-2xl font-bold text-gray-900">
                             {statistics.reservationStatistic?.activeCount || 0}
                           </p>
                         </div>
-                        <div className="bg-white/20 rounded-full p-4">
-                          <i className="ri-calendar-check-line text-5xl"></i>
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* Completed Reservations */}
-                    <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-green-100 text-sm font-medium uppercase tracking-wide">
-                            Completed
-                          </p>
-                          <p className="text-5xl font-bold mt-3">
-                            {statistics.reservationStatistic?.completedCount ||
-                              0}
+                        {/* Completed */}
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="bg-green-100 rounded p-2">
+                              <i className="ri-checkbox-circle-line text-xl text-green-600"></i>
+                            </div>
+                            <p className="text-xs font-medium text-gray-600">Completed</p>
+                          </div>
+                          <p className="text-2xl font-bold text-gray-900">
+                            {statistics.reservationStatistic?.completedCount || 0}
                           </p>
                         </div>
-                        <div className="bg-white/20 rounded-full p-4">
-                          <i className="ri-checkbox-circle-line text-5xl"></i>
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* Expired Reservations */}
-                    <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg p-6 text-white">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-orange-100 text-sm font-medium uppercase tracking-wide">
-                            Expired
-                          </p>
-                          <p className="text-5xl font-bold mt-3">
+                        {/* Expired */}
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="bg-orange-100 rounded p-2">
+                              <i className="ri-calendar-close-line text-xl text-orange-600"></i>
+                            </div>
+                            <p className="text-xs font-medium text-gray-600">Expired</p>
+                          </div>
+                          <p className="text-2xl font-bold text-gray-900">
                             {statistics.reservationStatistic?.expiredCount || 0}
                           </p>
                         </div>
-                        <div className="bg-white/20 rounded-full p-4">
-                          <i className="ri-calendar-close-line text-5xl"></i>
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* Cancelled Reservations */}
-                    <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg p-6 text-white">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-red-100 text-sm font-medium uppercase tracking-wide">
-                            Cancelled
-                          </p>
-                          <p className="text-5xl font-bold mt-3">
-                            {statistics.reservationStatistic?.cancelledCount ||
-                              0}
+                        {/* Cancelled */}
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="bg-red-100 rounded p-2">
+                              <i className="ri-close-circle-line text-xl text-red-600"></i>
+                            </div>
+                            <p className="text-xs font-medium text-gray-600">Cancelled</p>
+                          </div>
+                          <p className="text-2xl font-bold text-gray-900">
+                            {statistics.reservationStatistic?.cancelledCount || 0}
                           </p>
                         </div>
-                        <div className="bg-white/20 rounded-full p-4">
-                          <i className="ri-close-circle-line text-5xl"></i>
-                        </div>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Reservation Revenue */}
-                  <div className="mt-4 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-gray-600 text-sm font-medium uppercase tracking-wide mb-2">
-                          Total Reservation Revenue
-                        </p>
-                        <p className="text-4xl font-bold text-indigo-600">
-                          {formatCurrency(
-                            statistics.reservationStatistic?.totalRevenue || 0
-                          )}
-                        </p>
-                      </div>
-                      <div className="bg-indigo-100 rounded-full p-4">
-                        <i className="ri-money-dollar-circle-line text-5xl text-indigo-600"></i>
-                      </div>
-                    </div>
-                  </div>
+                  )}
                 </div>
               )}
 

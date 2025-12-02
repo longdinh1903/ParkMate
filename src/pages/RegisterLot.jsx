@@ -39,11 +39,11 @@ export default function RegisterLot() {
       label: "Early Check-in Buffer",
       description: "🕐 Early check-in time allowed",
     },
-    {
-      type: "LATE_CHECK_OUT_BUFFER",
-      label: "Late Check-out Buffer",
-      description: "🕐 Late check-out time allowed",
-    },
+    // {
+    //   type: "LATE_CHECK_OUT_BUFFER",
+    //   label: "Late Check-out Buffer",
+    //   description: "🕐 Late check-out time allowed",
+    // },
     {
       type: "LATE_CHECK_IN_CANCEL_AFTER",
       label: "Late Check-in Cancel After",
@@ -710,10 +710,10 @@ export default function RegisterLot() {
                         • <strong>Early Check-in Buffer:</strong> Allows guests
                         to check in earlier than the booked time
                       </li>
-                      <li>
+                      {/* <li>
                         • <strong>Late Check-out Buffer:</strong> Allows guests
                         to check out later than the booked time
-                      </li>
+                      </li> */}
                       <li>
                         • <strong>Late Check-in Cancel After:</strong> Automatically
                         cancels the booking if the guest does not check in
