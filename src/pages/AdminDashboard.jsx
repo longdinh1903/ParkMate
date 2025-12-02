@@ -37,7 +37,7 @@ export default function AdminDashboard() {
       setStats(response?.data?.data || response?.data);
     } catch (error) {
       console.error("Error fetching platform statistics:", error);
-      showError("Failed to load dashboard statistics");
+      showError("Không thể tải thống kê tổng quan");
     } finally {
       setLoading(false);
     }
@@ -123,7 +123,7 @@ export default function AdminDashboard() {
             {trend === "down" && <i className="ri-arrow-down-line"></i>}
             {growth}%
           </span>
-          <span className="text-xs text-gray-500">vs last period</span>
+          <span className="text-xs text-gray-500">so với kỳ trước</span>
         </div>
       )}
     </div>
@@ -139,8 +139,8 @@ export default function AdminDashboard() {
               <i className="ri-dashboard-fill text-2xl"></i>
             </div>
             <div className="min-w-0">
-              <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 truncate">Platform Dashboard</h1>
-              <p className="text-sm text-gray-500 mt-0.5 truncate">Comprehensive overview of ParkMate ecosystem performance</p>
+              <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 truncate">Tổng Quan Hệ Thống</h1>
+              <p className="text-sm text-gray-500 mt-0.5 truncate">Tổng quan toàn diện về hiệu suất hệ sinh thái ParkMate</p>
             </div>
           </div>
 
@@ -181,19 +181,19 @@ export default function AdminDashboard() {
                 }}
                 className="text-sm bg-transparent border-none outline-none cursor-pointer font-medium text-gray-700"
               >
-                <option value="">Filter by Month</option>
-                <option value="1">January</option>
-                <option value="2">February</option>
-                <option value="3">March</option>
-                <option value="4">April</option>
-                <option value="5">May</option>
-                <option value="6">June</option>
-                <option value="7">July</option>
-                <option value="8">August</option>
-                <option value="9">September</option>
-                <option value="10">October</option>
-                <option value="11">November</option>
-                <option value="12">December</option>
+                <option value="">Lọc Theo Tháng</option>
+                <option value="1">Tháng 1</option>
+                <option value="2">Tháng 2</option>
+                <option value="3">Tháng 3</option>
+                <option value="4">Tháng 4</option>
+                <option value="5">Tháng 5</option>
+                <option value="6">Tháng 6</option>
+                <option value="7">Tháng 7</option>
+                <option value="8">Tháng 8</option>
+                <option value="9">Tháng 9</option>
+                <option value="10">Tháng 10</option>
+                <option value="11">Tháng 11</option>
+                <option value="12">Tháng 12</option>
               </select>
             </div>
 
@@ -206,7 +206,7 @@ export default function AdminDashboard() {
                   value={dateRange.from.slice(0, 16)}
                   onChange={(e) => handleDateChange("from", e.target.value + ":00")}
                   className="text-xs w-36 bg-transparent border-none p-0 focus:outline-none cursor-pointer font-medium"
-                  aria-label="From date"
+                  aria-label="Từ ngày"
                 />
                 <span className="text-gray-400 text-sm">→</span>
                 <input
@@ -214,7 +214,7 @@ export default function AdminDashboard() {
                   value={dateRange.to.slice(0, 16)}
                   onChange={(e) => handleDateChange("to", e.target.value + ":00")}
                   className="text-xs w-36 bg-transparent border-none p-0 focus:outline-none cursor-pointer font-medium"
-                  aria-label="To date"
+                  aria-label="Đến ngày"
                 />
               </div>
             </div>
@@ -232,10 +232,10 @@ export default function AdminDashboard() {
                 setActiveDateRange(30);
               }}
               className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm bg-white border border-gray-200 hover:bg-gray-50 shadow-sm transition"
-              title="Reset to last 30 days"
+              title="Đặt lại về 30 ngày trước"
             >
               <i className="ri-refresh-line"></i>
-              <span className="hidden sm:inline">Reset</span>
+              <span className="hidden sm:inline">Đặt Lại</span>
             </button>
 
             {/* Quick Date Range Buttons */}
@@ -245,28 +245,28 @@ export default function AdminDashboard() {
                 className={`text-xs px-2.5 py-1.5 rounded-md transition font-medium ${activeDateRange === 0 ? 'bg-indigo-600 text-white shadow' : 'text-indigo-600 hover:bg-indigo-50'}`}
                 aria-pressed={activeDateRange === 0}
               >
-                Today
+                Hôm Nay
               </button>
               <button
                 onClick={() => setQuickDateRange(7)}
                 className={`text-xs px-2.5 py-1.5 rounded-md transition font-medium ${activeDateRange === 7 ? 'bg-indigo-600 text-white shadow' : 'text-indigo-600 hover:bg-indigo-50'}`}
                 aria-pressed={activeDateRange === 7}
               >
-                7d
+                7 ngày
               </button>
               <button
                 onClick={() => setQuickDateRange(30)}
                 className={`text-xs px-2.5 py-1.5 rounded-md transition font-medium ${activeDateRange === 30 ? 'bg-indigo-600 text-white shadow' : 'text-indigo-600 hover:bg-indigo-50'}`}
                 aria-pressed={activeDateRange === 30}
               >
-                30d
+                30 ngày
               </button>
               <button
                 onClick={() => setQuickDateRange(90)}
                 className={`text-xs px-2.5 py-1.5 rounded-md transition font-medium ${activeDateRange === 90 ? 'bg-indigo-600 text-white shadow' : 'text-indigo-600 hover:bg-indigo-50'}`}
                 aria-pressed={activeDateRange === 90}
               >
-                90d
+                90 ngày
               </button>
             </div>
           </div>
@@ -278,7 +278,7 @@ export default function AdminDashboard() {
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20">
                 <div className="w-16 h-16 border-4 border-orange-200 border-t-orange-600 rounded-full animate-spin"></div>
-                <p className="text-gray-600 mt-4 font-medium">Loading dashboard data...</p>
+                <p className="text-gray-600 mt-4 font-medium">Đang tải dữ liệu tổng quan...</p>
               </div>
             ) : stats ? (
               <>
@@ -287,7 +287,7 @@ export default function AdminDashboard() {
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                       <i className="ri-money-dollar-circle-line text-green-600"></i>
-                      Revenue Overview
+                      Tổng Quan Doanh Thu
                     </h2>
                   </div>
 
@@ -297,7 +297,7 @@ export default function AdminDashboard() {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-green-100 text-sm font-medium uppercase tracking-wide mb-2">
-                            Total Platform Revenue
+                            Tổng Doanh Thu Nền Tảng
                           </p>
                           <h3 className="text-5xl font-bold mb-2">
                             {formatCurrency(stats.revenue?.totalPlatformRevenue)}
@@ -310,7 +310,7 @@ export default function AdminDashboard() {
                                 <i className={`ri-arrow-${stats.revenue?.platformRevenueGrowthRate >= 0 ? 'up' : 'down'}-line`}></i>
                                 {Math.abs(stats.revenue?.platformRevenueGrowthRate)}%
                               </span>
-                              <span className="text-green-100 text-sm">vs last period</span>
+                              <span className="text-green-100 text-sm">so với kỳ trước</span>
                             </div>
                           )}
                         </div>
@@ -326,16 +326,16 @@ export default function AdminDashboard() {
                     <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow">
                       <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                         <i className="ri-pie-chart-2-line text-orange-600"></i>
-                        Revenue Distribution
+                        Phân Bổ Doanh Thu
                       </h3>
                       <ResponsiveContainer width="100%" height={320}>
                         <PieChart>
                           <Pie
                             data={[
-                              { name: 'Operational', value: stats.revenue?.totalOperationalFee || 0 },
-                              { name: 'Subscription', value: stats.revenue?.totalSubscription || 0 },
-                              { name: 'Session', value: stats.revenue?.totalSessionRevenue || 0 },
-                              { name: 'Reservation', value: stats.revenue?.totalReservationRevenue || 0 },
+                              { name: 'Phí Vận Hành', value: stats.revenue?.totalOperationalFee || 0 },
+                              { name: 'Gói Đăng Ký', value: stats.revenue?.totalSubscription || 0 },
+                              { name: 'Phiên Đỗ Xe', value: stats.revenue?.totalSessionRevenue || 0 },
+                              { name: 'Đặt Chỗ', value: stats.revenue?.totalReservationRevenue || 0 },
                             ]}
                             cx="50%"
                             cy="50%"
@@ -358,28 +358,28 @@ export default function AdminDashboard() {
                     <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow">
                       <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                         <i className="ri-bar-chart-box-line text-green-600"></i>
-                        Revenue Breakdown & Growth
+                        Chi Tiết & Tăng Trưởng Doanh Thu
                       </h3>
                       <ResponsiveContainer width="100%" height={320}>
                         <BarChart
                           data={[
                             { 
-                              name: 'Operational', 
+                              name: 'Phí Vận Hành', 
                               amount: stats.revenue?.totalOperationalFee || 0,
                               growth: stats.revenue?.operationalGrowthRate || 0 
                             },
                             { 
-                              name: 'Subscription', 
+                              name: 'Gói Đăng Ký', 
                               amount: stats.revenue?.totalSubscription || 0,
                               growth: stats.revenue?.subscriptionGrowthRate || 0 
                             },
                             { 
-                              name: 'Session', 
+                              name: 'Phiên Đỗ Xe', 
                               amount: stats.revenue?.totalSessionRevenue || 0,
                               growth: stats.revenue?.sessionRevenueGrowthRate || 0 
                             },
                             { 
-                              name: 'Reservation', 
+                              name: 'Đặt Chỗ', 
                               amount: stats.revenue?.totalReservationRevenue || 0,
                               growth: stats.revenue?.reservationGrowthRate || 0 
                             },
@@ -397,7 +397,7 @@ export default function AdminDashboard() {
                             contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }} 
                           />
                           <Legend />
-                          <Bar dataKey="amount" name="Amount" radius={[8, 8, 0, 0]}>
+                          <Bar dataKey="amount" name="Số Tiền" radius={[8, 8, 0, 0]}>
                             {Object.values(COLORS).map((color, index) => (
                               <Cell key={`cell-${index}`} fill={color} />
                             ))}
@@ -413,7 +413,7 @@ export default function AdminDashboard() {
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                       <i className="ri-building-line text-orange-600"></i>
-                      Partners & Parking Lots
+                      Đối Tác & Bãi Đỗ Xe
                     </h2>
                   </div>
 
@@ -423,10 +423,10 @@ export default function AdminDashboard() {
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                           <i className="ri-building-fill text-blue-600"></i>
-                          Partners Status
+                          Trạng Thái Đối Tác
                         </h3>
                         <div className="text-right">
-                          <p className="text-sm text-gray-500">Total</p>
+                          <p className="text-sm text-gray-500">Tổng</p>
                           <p className="text-2xl font-bold text-blue-600">{formatNumber(stats.partners?.total)}</p>
                         </div>
                       </div>
@@ -434,9 +434,9 @@ export default function AdminDashboard() {
                         <PieChart>
                           <Pie
                             data={[
-                              { name: 'Active', value: stats.partners?.activeTotal || 0 },
-                              { name: 'Suspended', value: stats.partners?.suspendedTotal || 0 },
-                              { name: 'Pending', value: stats.partners?.pendingRegistrations || 0 },
+                              { name: 'Hoạt Động', value: stats.partners?.activeTotal || 0 },
+                              { name: 'Tạm Ngưng', value: stats.partners?.suspendedTotal || 0 },
+                              { name: 'Chờ Duyệt', value: stats.partners?.pendingRegistrations || 0 },
                             ]}
                             cx="50%"
                             cy="50%"
@@ -462,10 +462,10 @@ export default function AdminDashboard() {
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                           <i className="ri-parking-box-fill text-blue-600"></i>
-                          Parking Lots Status
+                          Trạng Thái Bãi Đỗ Xe
                         </h3>
                         <div className="text-right">
-                          <p className="text-sm text-gray-500">Total</p>
+                          <p className="text-sm text-gray-500">Tổng</p>
                           <p className="text-2xl font-bold text-blue-600">{formatNumber(stats.lots?.total)}</p>
                         </div>
                       </div>
@@ -473,10 +473,10 @@ export default function AdminDashboard() {
                         <PieChart>
                           <Pie
                             data={[
-                              { name: 'Active', value: stats.lots?.activeTotal || 0 },
-                              { name: 'Pending', value: stats.lots?.pendingTotal || 0 },
-                              { name: 'Maintenance', value: stats.lots?.underMaintenanceTotal || 0 },
-                              { name: 'Preparing', value: stats.lots?.preparingTotal || 0 },
+                              { name: 'Hoạt Động', value: stats.lots?.activeTotal || 0 },
+                              { name: 'Chờ Duyệt', value: stats.lots?.pendingTotal || 0 },
+                              { name: 'Bảo Trì', value: stats.lots?.underMaintenanceTotal || 0 },
+                              { name: 'Đang Chuẩn Bị', value: stats.lots?.preparingTotal || 0 },
                             ]}
                             cx="50%"
                             cy="50%"
@@ -503,7 +503,7 @@ export default function AdminDashboard() {
                 <section className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-200">
                   <h2 className="text-lg font-bold text-indigo-900 mb-4 flex items-center gap-2">
                     <i className="ri-apps-line"></i>
-                    Platform Summary
+                    Tóm Tắt Nền Tảng
                   </h2>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="bg-white/80 backdrop-blur rounded-xl p-4 border border-indigo-100 hover:shadow-md transition">
@@ -512,11 +512,11 @@ export default function AdminDashboard() {
                           <i className="ri-user-3-fill text-xl text-indigo-600"></i>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-600">Total Users</p>
+                          <p className="text-xs text-gray-600">Tổng Người Dùng</p>
                           <p className="text-xl font-bold text-indigo-600">{formatNumber(stats.users?.total)}</p>
                         </div>
                       </div>
-                      <p className="text-xs text-gray-500">{formatNumber(stats.users?.newThisPeriod)} new</p>
+                      <p className="text-xs text-gray-500">{formatNumber(stats.users?.newThisPeriod)} mới</p>
                     </div>
                     <div className="bg-white/80 backdrop-blur rounded-xl p-4 border border-green-100 hover:shadow-md transition">
                       <div className="flex items-center gap-3 mb-2">
@@ -524,11 +524,11 @@ export default function AdminDashboard() {
                           <i className="ri-building-fill text-xl text-green-600"></i>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-600">Partners</p>
+                          <p className="text-xs text-gray-600">Đối Tác</p>
                           <p className="text-xl font-bold text-green-600">{formatNumber(stats.partners?.activeTotal)}</p>
                         </div>
                       </div>
-                      <p className="text-xs text-gray-500">{formatNumber(stats.partners?.pendingRegistrations)} pending</p>
+                      <p className="text-xs text-gray-500">{formatNumber(stats.partners?.pendingRegistrations)} chờ duyệt</p>
                     </div>
                     <div className="bg-white/80 backdrop-blur rounded-xl p-4 border border-blue-100 hover:shadow-md transition">
                       <div className="flex items-center gap-3 mb-2">
@@ -536,11 +536,11 @@ export default function AdminDashboard() {
                           <i className="ri-parking-box-fill text-xl text-blue-600"></i>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-600">Active Lots</p>
+                          <p className="text-xs text-gray-600">Bãi Đang Hoạt Động</p>
                           <p className="text-xl font-bold text-blue-600">{formatNumber(stats.lots?.activeTotal)}</p>
                         </div>
                       </div>
-                      <p className="text-xs text-gray-500">of {formatNumber(stats.lots?.total)} total</p>
+                      <p className="text-xs text-gray-500">trong {formatNumber(stats.lots?.total)} tổng số</p>
                     </div>
                     <div className="bg-white/80 backdrop-blur rounded-xl p-4 border border-orange-100 hover:shadow-md transition">
                       <div className="flex items-center gap-3 mb-2">
@@ -548,11 +548,11 @@ export default function AdminDashboard() {
                           <i className="ri-money-dollar-circle-fill text-xl text-orange-600"></i>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-600">Revenue</p>
+                          <p className="text-xs text-gray-600">Doanh Thu</p>
                           <p className="text-lg font-bold text-orange-600">{formatCurrency(stats.revenue?.totalPlatformRevenue).slice(0, -2)}</p>
                         </div>
                       </div>
-                      <p className="text-xs text-gray-500">platform total</p>
+                      <p className="text-xs text-gray-500">tổng nền tảng</p>
                     </div>
                   </div>
                 </section>
@@ -560,7 +560,7 @@ export default function AdminDashboard() {
             ) : (
               <div className="text-center py-20">
                 <i className="ri-database-2-line text-6xl text-gray-300 mb-4"></i>
-                <p className="text-gray-500">No data available</p>
+                <p className="text-gray-500">Không có dữ liệu</p>
               </div>
             )}
       </div>

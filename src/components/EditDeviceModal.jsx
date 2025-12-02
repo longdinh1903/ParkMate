@@ -90,7 +90,7 @@ export default function EditDeviceModal({ open, device, onClose, onUpdated }) {
         <div className="flex justify-between items-center px-6 py-4 bg-orange-50 border-b border-orange-100">
           <h2 className="text-xl font-bold text-orange-700 flex items-center gap-2">
             <CpuChipIcon className="w-6 h-6 text-orange-500" />
-            Edit Device
+            Chỉnh Sửa 
           </h2>
           <button
             onClick={onClose}
@@ -107,7 +107,7 @@ export default function EditDeviceModal({ open, device, onClose, onUpdated }) {
             {/* Device ID (read-only in edit mode - usually shouldn't change) */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Device ID <span className="text-red-500">*</span>
+                ID Thiết Bị <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -118,13 +118,13 @@ export default function EditDeviceModal({ open, device, onClose, onUpdated }) {
                 maxLength={50}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
               />
-              <p className="text-xs text-gray-500 mt-1">Changing deviceId requires uniqueness validation</p>
+              <p className="text-xs text-gray-500 mt-1">Thay đổi deviceId yêu cầu xác thực tính duy nhất</p>
             </div>
 
             {/* Device Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Device Name
+                Tên Thiết Bị
               </label>
               <input
                 type="text"
@@ -132,14 +132,14 @@ export default function EditDeviceModal({ open, device, onClose, onUpdated }) {
                 value={formData.deviceName}
                 onChange={handleChange}
                 maxLength={255}
-                placeholder="Friendly name for the device"
+                placeholder="Tên thân thiện cho thiết bị"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
               />
             </div>
 
             {/* Read-only fields */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Device Type</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Loại Thiết Bị</label>
               <input
                 type="text"
                 value={device?.deviceType || device?.deviceType || "-"}
@@ -148,7 +148,7 @@ export default function EditDeviceModal({ open, device, onClose, onUpdated }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Partner</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Đối Tác</label>
               <input
                 type="text"
                 value={partnerName || device?.partner?.companyName || device?.companyName || device?.partnerName || (device?.partnerId ? `#${device.partnerId}` : "-")}
@@ -157,7 +157,7 @@ export default function EditDeviceModal({ open, device, onClose, onUpdated }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Parking Lot</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Bãi Đỗ Xe</label>
               <input
                 type="text"
                 value={device?.parkingLot?.name || device?.lotName || "-"}
@@ -168,19 +168,19 @@ export default function EditDeviceModal({ open, device, onClose, onUpdated }) {
 
             {/* Device Status */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Device Status</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Trạng Thái Thiết Bị</label>
               <select
                 name="deviceStatus"
                 value={formData.deviceStatus}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
               >
-                <option value="PENDING">PENDING</option>
-                <option value="ACTIVE">ACTIVE</option>
-                <option value="OFFLINE">OFFLINE</option>
-                <option value="MAINTENANCE">MAINTENANCE</option>
-                <option value="FAULTY">FAULTY</option>
-                <option value="DEACTIVATED">DEACTIVATED</option>
+                <option value="PENDING">CHỞ XỬ LÝ</option>
+                <option value="ACTIVE">HOẠT ĐỘNG</option>
+                <option value="OFFLINE">NGOẠI TUYẾN</option>
+                <option value="MAINTENANCE">BẢO TRÌ</option>
+                <option value="FAULTY">LỖI</option>
+                <option value="DEACTIVATED">VÔ HIỆU HÓA</option>
               </select>
             </div>
 
@@ -195,34 +195,34 @@ export default function EditDeviceModal({ open, device, onClose, onUpdated }) {
                 value={formData.model}
                 onChange={handleChange}
                 maxLength={100}
-                placeholder="Device model/brand"
+                placeholder="Model/thương hiệu thiết bị"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
               />
             </div>
 
             {/* Serial Number */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Serial Number</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Số Seri</label>
               <input
                 type="text"
                 name="serialNumber"
                 value={formData.serialNumber}
                 onChange={handleChange}
                 maxLength={100}
-                placeholder="Serial number"
+                placeholder="Số seri"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
               />
             </div>
 
             {/* Notes */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Ghi Chú</label>
               <textarea
                 name="notes"
                 value={formData.notes}
                 onChange={handleChange}
                 rows={3}
-                placeholder="Installation notes, issues, etc."
+                placeholder="Ghi chú lắp đặt, sự cố, v.v."
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
               />
             </div>
@@ -237,7 +237,7 @@ export default function EditDeviceModal({ open, device, onClose, onUpdated }) {
               onClick={onClose}
               className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
             >
-              Cancel
+              Hủy
             </button>
             <button
               onClick={handleSubmit}
@@ -245,7 +245,7 @@ export default function EditDeviceModal({ open, device, onClose, onUpdated }) {
               className="px-6 py-2 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 cursor-pointer"
             >
               <i className="ri-save-line"></i>
-              <span>Save</span>
+              <span>Lưu</span>
             </button>
           </div>
         </div>

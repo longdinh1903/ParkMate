@@ -23,11 +23,11 @@ export default function EditUserModal({ user, onClose, onSave }) {
     e.preventDefault();
     try {
       await onSave(form);
-      showSuccess("User updated successfully!");
+      showSuccess("Cập nhật người dùng thành công!");
       onClose();
     } catch (err) {
       console.error(err);
-      showError("Failed to update user!");
+      showError("Cập nhật người dùng thất bại!");
     }
   };
 
@@ -41,7 +41,7 @@ export default function EditUserModal({ user, onClose, onSave }) {
         <div className="flex items-center justify-between px-6 py-4 bg-orange-50 border-b border-orange-100">
           <h2 className="text-xl font-bold text-orange-700 flex items-center gap-3">
             <i className="ri-user-settings-line text-2xl text-orange-500"></i>
-            Edit User
+            Chỉnh Sửa 
           </h2>
           <button
             onClick={onClose}
@@ -57,12 +57,12 @@ export default function EditUserModal({ user, onClose, onSave }) {
         {/* Content */}
         <form id="edit-user-form" onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[calc(90vh-180px)] overflow-y-auto custom-scrollbar">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Họ Tên</label>
             <input
               name="fullName"
               value={form.fullName || ""}
               onChange={handleChange}
-              placeholder="Enter full name"
+              placeholder="Nhập họ tên"
               className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition"
             />
           </div>
@@ -73,37 +73,37 @@ export default function EditUserModal({ user, onClose, onSave }) {
               type="email"
               value={form.email || ""}
               onChange={handleChange}
-              placeholder="Enter email address"
+              placeholder="Nhập địa chỉ email"
               className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Số Điện Thoại</label>
             <input
               name="phone"
               value={form.phone || ""}
               onChange={handleChange}
-              placeholder="Enter phone number"
+              placeholder="Nhập số điện thoại"
               className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Địa Chỉ</label>
             <input
               name="address"
               value={form.address || ""}
               onChange={handleChange}
-              placeholder="Enter address"
+              placeholder="Nhập địa chỉ"
               className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Vai Trò</label>
             <input
               name="role"
               value={form.role || ""}
               onChange={handleChange}
-              placeholder="Enter role"
+              placeholder="Nhập vai trò"
               className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition"
             />
           </div>
@@ -116,7 +116,7 @@ export default function EditUserModal({ user, onClose, onSave }) {
             onClick={onClose}
             className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
           >
-            Cancel
+            Hủy
           </button>
           <button
             type="submit"
@@ -124,7 +124,7 @@ export default function EditUserModal({ user, onClose, onSave }) {
             className="px-6 py-2 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
           >
             <i className="ri-save-line"></i>
-            <span>Save</span>
+            <span>Lưu</span>
           </button>
         </div>
       </div>

@@ -9,25 +9,25 @@ export default function AdminLayout({ children }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const menuItems = [
-    { name: "Partners", path: "/admin/partners", icon: "ri-building-fill" },
-    { name: "Users", path: "/admin/users", icon: "ri-user-3-fill" },
-    { name: "Requests", path: "/admin/requests", icon: "ri-file-list-3-fill" },
+    { name: "Đối Tác", path: "/admin/partners", icon: "ri-building-fill" },
+    { name: "Người Dùng", path: "/admin/users", icon: "ri-user-3-fill" },
+    { name: "Yêu Cầu", path: "/admin/requests", icon: "ri-file-list-3-fill" },
     {
-      name: "Parking Lots",
+      name: "Bãi Đỗ Xe",
       path: "/admin/parking-lots",
       icon: "ri-parking-box-fill",
     },
     {
-      name: "Devices",
+      name: "Thiết Bị",
       path: "/admin/devices",
       icon: "ri-cpu-fill",
     },
     {
-      name: "Fee Config",
+      name: "Cấu Hình Phí",
       path: "/admin/fee-config",
       icon: "ri-money-dollar-circle-fill",
     },
-    { name: "Dashboard", path: "/admin/dashboard", icon: "ri-dashboard-fill" },
+    { name: "Tổng Quan", path: "/admin/dashboard", icon: "ri-dashboard-fill" },
   ];
 
   const handleLogout = async () => {
@@ -41,7 +41,7 @@ export default function AdminLayout({ children }) {
       navigate("/admin/login");
     } catch (err) {
       console.error("❌ Logout failed:", err);
-      alert("Logout failed. Please try again.");
+      alert("Đăng xuất thất bại. Vui lòng thử lại.");
     }
   };
 
@@ -64,7 +64,7 @@ export default function AdminLayout({ children }) {
           <i className="ri-parking-fill text-3xl"></i>
           {isExpanded && (
             <span className="ml-3 text-lg font-bold whitespace-nowrap transition-opacity">
-              Parking Admin
+              Quản Trị Viên
             </span>
           )}
         </div>
@@ -117,7 +117,7 @@ export default function AdminLayout({ children }) {
           <button
             onClick={() => setIsExpanded((prev) => !prev)}
             className="flex items-center justify-center w-12 h-12 rounded-lg bg-orange-600 hover:bg-orange-500 transition"
-            title={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
+            title={isExpanded ? "Thu gọn thanh bên" : "Mở rộng thanh bên"}
           >
             <i
               className={`ri-arrow-${
@@ -136,7 +136,7 @@ export default function AdminLayout({ children }) {
             >
               <i className="ri-logout-box-r-line text-2xl"></i>
               {isExpanded && (
-                <span className="text-sm font-medium">Logout</span>
+                <span className="text-sm font-medium">Đăng Xuất</span>
               )}
             </button>
 
@@ -147,7 +147,7 @@ export default function AdminLayout({ children }) {
                 pointer-events-none bg-gray-900 text-white text-sm px-3 py-1.5 rounded-lg shadow-lg 
                 whitespace-nowrap transition-all duration-300 translate-x-2"
               >
-                Logout
+                Đăng Xuất
                 <div className="absolute left-[-6px] top-1/2 -translate-y-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
               </div>
             )}

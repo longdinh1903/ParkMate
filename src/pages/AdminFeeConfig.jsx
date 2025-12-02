@@ -119,7 +119,7 @@ export default function AdminFeeConfig() {
             : "bg-gray-50 text-gray-600 border-gray-300"
         }`}
       >
-        {active ? "Active" : "Inactive"}
+        {active ? "Hoạt Động" : "Không Hoạt Động"}
       </span>
     );
   };
@@ -177,7 +177,7 @@ export default function AdminFeeConfig() {
       {/* 🔹 Header */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-orange-700">
-          Operational Fee Configuration
+          Cấu Hình Phí Hoạt Động
         </h2>
       </div>
 
@@ -188,7 +188,7 @@ export default function AdminFeeConfig() {
           <div className="relative">
             <input
               type="text"
-              placeholder="Search by description, price, or period..."
+              placeholder="Tìm kiếm theo mô tả, giá, hoặc kỳ..."
               className="border border-gray-300 pl-10 pr-4 py-2 rounded-lg w-80 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -216,10 +216,10 @@ export default function AdminFeeConfig() {
               onChange={(e) => setSortBy(e.target.value)}
               className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
             >
-              <option value="pricePerSqm">Price per sqm</option>
-              <option value="billingPeriodMonths">Billing Period</option>
-              <option value="validFrom">Valid From</option>
-              <option value="validUntil">Valid Until</option>
+              <option value="pricePerSqm">Giá/m²</option>
+              <option value="billingPeriodMonths">Kỳ Thanh Toán</option>
+              <option value="validFrom">Hiệu Lực Từ</option>
+              <option value="validUntil">Hiệu Lực Đến</option>
             </select>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -241,7 +241,7 @@ export default function AdminFeeConfig() {
           <button
             onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
             className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
-            title={sortOrder === "asc" ? "Ascending" : "Descending"}
+            title={sortOrder === "asc" ? "Tăng dần" : "Giảm dần"}
           >
             {sortOrder === "asc" ? (
               <i className="ri-sort-asc text-lg text-gray-600"></i>
@@ -249,7 +249,7 @@ export default function AdminFeeConfig() {
               <i className="ri-sort-desc text-lg text-gray-600"></i>
             )}
             <span className="text-sm text-gray-600">
-              {sortOrder === "asc" ? "Asc" : "Desc"}
+              {sortOrder === "asc" ? "Tăng" : "Giảm"}
             </span>
           </button>
 
@@ -263,10 +263,10 @@ export default function AdminFeeConfig() {
               fetchFeeConfigs();
             }}
             className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
-            title="Reset filters"
+            title="Làm mới bộ lọc"
           >
             <i className="ri-refresh-line text-lg text-gray-600"></i>
-            <span className="text-sm text-gray-600">Refresh</span>
+            <span className="text-sm text-gray-600">Làm Mới</span>
           </button>
         </div>
 
@@ -277,7 +277,7 @@ export default function AdminFeeConfig() {
             className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition cursor-pointer"
           >
             <PlusIcon className="w-5 h-5 text-white" />
-            Add Fee Config
+            Thêm Cấu Hình Phí
           </button>
         </div>
       </div>
@@ -288,13 +288,13 @@ export default function AdminFeeConfig() {
           <thead className="bg-orange-50 text-orange-700 uppercase text-sm font-semibold">
             <tr>
               <th className="px-6 py-3 text-left w-16">#</th>
-              <th className="px-6 py-3 text-left">Price/sqm (VND)</th>
-              <th className="px-6 py-3 text-left">Billing Period</th>
-              <th className="px-6 py-3 text-left">Description</th>
-              <th className="px-6 py-3 text-left">Valid From</th>
-              <th className="px-6 py-3 text-left">Valid Until</th>
-              <th className="px-6 py-3 text-left">Status</th>
-              <th className="px-6 py-3 text-center">Actions</th>
+              <th className="px-6 py-3 text-left">Giá/m² (VND)</th>
+              <th className="px-6 py-3 text-left">Kỳ Thanh Toán</th>
+              <th className="px-6 py-3 text-left">Mô Tả</th>
+              <th className="px-6 py-3 text-left">Hiệu Lực Từ</th>
+              <th className="px-6 py-3 text-left">Hiệu Lực Đến</th>
+              <th className="px-6 py-3 text-left">Trạng Thái</th>
+              <th className="px-6 py-3 text-center">Thao Tác</th>
             </tr>
           </thead>
           <tbody className="text-gray-700 text-sm">
@@ -304,7 +304,7 @@ export default function AdminFeeConfig() {
                   colSpan="8"
                   className="px-6 py-6 text-center text-gray-500 italic"
                 >
-                  Loading...
+                  Đang tải...
                 </td>
               </tr>
             ) : filtered.length > 0 ? (
@@ -319,7 +319,7 @@ export default function AdminFeeConfig() {
                   <td className="px-6 py-3 font-semibold text-orange-600">
                     {f.pricePerSqm?.toLocaleString("vi-VN")}
                   </td>
-                  <td className="px-6 py-3">{f.billingPeriodMonths} months</td>
+                  <td className="px-6 py-3">{f.billingPeriodMonths} tháng</td>
                   <td className="px-6 py-3 max-w-xs" title={f.description}>
                     <div
                       style={{
@@ -343,21 +343,21 @@ export default function AdminFeeConfig() {
                   <td className="px-6 py-3 text-center">
                     <div className="flex justify-center items-center gap-3">
                       <button
-                        title="View Details"
+                        title="Xem Chi Tiết"
                         onClick={(e) => handleView(f, e)}
                         className="p-2 rounded-full hover:bg-indigo-100 transition cursor-pointer"
                       >
                         <EyeIcon className="w-5 h-5" />
                       </button>
                       <button
-                        title="Edit Fee Config"
+                        title="Chỉnh Sửa"
                         onClick={(e) => handleEdit(f, e)}
                         className="p-2 rounded-full hover:bg-yellow-100 transition cursor-pointer"
                       >
                         <PencilSquareIcon className="w-5 h-5" />
                       </button>
                       <button
-                        title="Delete Fee Config"
+                        title="Xóa"
                         onClick={(e) => handleDelete(f, e)}
                         className="p-2 rounded-full hover:bg-red-100 transition cursor-pointer"
                       >
@@ -373,7 +373,7 @@ export default function AdminFeeConfig() {
                   colSpan="8"
                   className="px-6 py-6 text-center text-gray-500 italic"
                 >
-                  No fee configurations found.
+                  Không tìm thấy cấu hình phí nào.
                 </td>
               </tr>
             )}
@@ -388,15 +388,15 @@ export default function AdminFeeConfig() {
           onClick={() => setPage((p) => Math.max(p - 1, 0))}
           className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
-          ← Previous
+          ← Trước
         </button>
 
         <div className="text-center text-gray-600 text-sm">
           <div>
-            Page <strong>{page + 1}</strong> of {totalPages}
+            Trang <strong>{page + 1}</strong> / {totalPages}
           </div>
           <div className="text-sm text-gray-500 mt-1">
-            Total configurations:{" "}
+            Tổng cấu hình:{" "}
             <strong className="text-orange-700">{totalCount}</strong>
           </div>
         </div>
@@ -406,7 +406,7 @@ export default function AdminFeeConfig() {
           onClick={() => setPage((p) => p + 1)}
           className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
-          Next →
+          Sau →
         </button>
       </div>
 
@@ -445,8 +445,8 @@ export default function AdminFeeConfig() {
       {confirmingFeeConfig && (
         <ConfirmModal
           open={!!confirmingFeeConfig}
-          title="Confirm Deletion"
-          message={`Are you sure you want to delete this fee configuration?`}
+          title="Xác Nhận Xóa"
+          message={`Bạn có chắc chắn muốn xóa cấu hình phí này?`}
           onConfirm={confirmDelete}
           onCancel={() => setConfirmingFeeConfig(null)}
         />
@@ -458,7 +458,7 @@ export default function AdminFeeConfig() {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh] overflow-hidden">
             {/* Header */}
             <div className="flex justify-between items-center px-6 py-4 bg-orange-50">
-              <h2 className="text-xl font-bold text-orange-700 flex items-center gap-2"><i className="ri-money-dollar-circle-line text-orange-500"></i> Fee Configuration Details</h2>
+              <h2 className="text-xl font-bold text-orange-700 flex items-center gap-2"><i className="ri-money-dollar-circle-line text-orange-500"></i> Thông Tin Chi Tiết</h2>
               <button
                 onClick={() => setViewingFeeConfig(null)}
                 className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition cursor-pointer"
@@ -470,35 +470,35 @@ export default function AdminFeeConfig() {
             <div className="overflow-y-auto p-6 text-gray-700 text-sm space-y-6 custom-scrollbar divide-y-0">
               <div className="grid grid-cols-2 gap-4 items-start">
                 <div>
-                  <p className="text-gray-500 text-xs border-0">Price per sqm:</p>
+                  <p className="text-gray-500 text-xs border-0">Giá/m²:</p>
                   <p className="font-medium text-orange-600 border-0">{viewingFeeConfig.pricePerSqm?.toLocaleString("vi-VN")} VND</p>
                 </div>
                 <div>
-                  <p className="text-gray-500 text-xs border-0">Billing Period:</p>
-                  <p className="font-medium border-0">{viewingFeeConfig.billingPeriodMonths} months</p>
+                  <p className="text-gray-500 text-xs border-0">Kỳ Thanh Toán:</p>
+                  <p className="font-medium border-0">{viewingFeeConfig.billingPeriodMonths} tháng</p>
                 </div>
                 <div className="col-span-2">
-                  <p className="text-gray-500 text-xs border-0">Description:</p>
+                  <p className="text-gray-500 text-xs border-0">Mô Tả:</p>
                   <p className="font-medium text-gray-800 whitespace-pre-wrap break-words max-h-48 overflow-auto mt-1 border-0">{viewingFeeConfig.description}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500 text-xs border-0">Valid From:</p>
+                  <p className="text-gray-500 text-xs border-0">Hiệu Lực Từ:</p>
                   <p className="font-medium border-0">{formatDate(viewingFeeConfig.validFrom)}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500 text-xs border-0">Valid Until:</p>
+                  <p className="text-gray-500 text-xs border-0">Hiệu Lực Đến:</p>
                   <p className="font-medium border-0">{formatDate(viewingFeeConfig.validUntil)}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500 text-xs">Status:</p>
+                  <p className="text-gray-500 text-xs">Trạng Thái:</p>
                   <div className="mt-1">{renderStatus(viewingFeeConfig)}</div>
                 </div>
                 <div>
-                  <p className="text-gray-500 text-xs border-0">Created At:</p>
+                  <p className="text-gray-500 text-xs border-0">Ngày Tạo:</p>
                   <p className="font-medium border-0">{formatDate(viewingFeeConfig.createdAt)}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500 text-xs border-0">Updated At:</p>
+                  <p className="text-gray-500 text-xs border-0">Ngày Cập Nhật:</p>
                   <p className="font-medium border-0">{formatDate(viewingFeeConfig.updatedAt)}</p>
                 </div>
               </div>
@@ -508,7 +508,7 @@ export default function AdminFeeConfig() {
                 onClick={() => setViewingFeeConfig(null)}
                 className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
               >
-                Close
+                Đóng
               </button>
             </div>
           </div>

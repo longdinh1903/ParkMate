@@ -105,7 +105,7 @@ export default function AdminParkingLotRequests() {
       setViewingLot(lotData || null);
     } catch (err) {
       console.error("❌ Error fetching details:", err);
-      showError("Failed to fetch parking lot details!");
+      showError("Không thể tải thông tin bãi đỗ xe!");
     }
   };
 
@@ -118,12 +118,12 @@ export default function AdminParkingLotRequests() {
     try {
       const res = await parkingLotApi.deleteRegister(lot.id);
       if (res.status === 200 || res.status === 204) {
-        showSuccess(`🗑️ Deleted "${lot.name}" successfully!`);
+        showSuccess(`🗑️ Đã xóa "${lot.name}" thành công!`);
         fetchData();
-      } else showError("❌ Failed to delete item.");
+      } else showError("❌ Xóa thất bại.");
     } catch (err) {
       console.error("❌ Error deleting lot:", err);
-      showError(err.response?.data?.message || "❌ Failed to delete lot.");
+      showError(err.response?.data?.message || "❌ Xóa bãi đỗ xe thất bại.");
     } finally {
       setConfirmingLot(null);
     }
@@ -167,10 +167,19 @@ export default function AdminParkingLotRequests() {
       PENDING_PAYMENT: "bg-purple-50 text-purple-700 border-purple-300",
     };
 
-    // Capitalize only first letter
-    const displayText = status
-      ? status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
-      : "Unknown";
+    // Map to Vietnamese
+    const statusMap = {
+      PENDING: "Chờ Duyệt",
+      PREPARING: "Đang Chuẩn Bị",
+      PARTNER_CONFIGURATION: "Cấu Hình Đối Tác",
+      ACTIVE: "Hoạt Động",
+      INACTIVE: "Ngừng Hoạt Động",
+      MAP_DENIED: "Từ Chối Bản Đồ",
+      REJECTED: "Bị Từ Chối",
+      PENDING_PAYMENT: "Chờ Thanh Toán",
+    };
+
+    const displayText = statusMap[s] || "Không xác định";
 
     return (
       <span
@@ -188,13 +197,13 @@ export default function AdminParkingLotRequests() {
     const file = e.target.files[0];
     if (!file) return;
     try {
-      showSuccess("📤 Importing...");
+      showSuccess("📤 Đang nhập dữ liệu...");
       await parkingLotApi.importExcel(file);
-      showSuccess("✅ Import Excel successfully!");
+      showSuccess("✅ Nhập Excel thành công!");
       fetchData();
     } catch (err) {
       console.error("❌ Import error:", err);
-      showError(err.response?.data?.message || "Failed to import Excel file!");
+      showError(err.response?.data?.message || "Nhập file Excel thất bại!");
     } finally {
       e.target.value = null;
     }
@@ -203,7 +212,7 @@ export default function AdminParkingLotRequests() {
   // ✅ Export Excel
   const handleExport = async () => {
     try {
-      showSuccess("📥 Exporting Excel...");
+      showSuccess("📥 Đang xuất file Excel...");
       const res = await parkingLotApi.exportExcel();
       const blob = new Blob([res.data], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -216,10 +225,10 @@ export default function AdminParkingLotRequests() {
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
-      showSuccess("✅ Export Excel successfully!");
+      showSuccess("✅ Xuất file Excel thành công!");
     } catch (err) {
       console.error("❌ Export error:", err);
-      showError("Failed to export Excel file!");
+      showError("Xuất file thất bại!");
     }
   };
 
@@ -232,7 +241,7 @@ export default function AdminParkingLotRequests() {
           <div className="relative">
             <input
               type="text"
-              placeholder="Search by name, city, ward, or status..."
+              placeholder="Tìm kiếm theo tên, thành phố, phường, hoặc trạng thái..."
               className="border border-gray-300 pl-10 pr-4 py-2 rounded-lg w-80 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -260,11 +269,11 @@ export default function AdminParkingLotRequests() {
               onChange={(e) => setSortBy(e.target.value)}
               className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
             >
-              <option value="createdAt">Created Date</option>
-              <option value="name">Name</option>
-              <option value="city">City</option>
-              <option value="status">Status</option>
-              <option value="totalFloors">Total Floors</option>
+              <option value="createdAt">Ngày Tạo</option>
+              <option value="name">Tên</option>
+              <option value="city">Thành Phố</option>
+              <option value="status">Trạng Thái</option>
+              <option value="totalFloors">Tổng Số Tầng</option>
             </select>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -286,7 +295,7 @@ export default function AdminParkingLotRequests() {
           <button
             onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
             className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
-            title={sortOrder === "asc" ? "Ascending" : "Descending"}
+            title={sortOrder === "asc" ? "Tăng dần" : "Giảm dần"}
           >
             {sortOrder === "asc" ? (
               <i className="ri-sort-asc text-lg text-gray-600"></i>
@@ -294,7 +303,7 @@ export default function AdminParkingLotRequests() {
               <i className="ri-sort-desc text-lg text-gray-600"></i>
             )}
             <span className="text-sm text-gray-600">
-              {sortOrder === "asc" ? "Asc" : "Desc"}
+              {sortOrder === "asc" ? "Tăng dần" : "Giảm dần"}
             </span>
           </button>
 
@@ -304,19 +313,19 @@ export default function AdminParkingLotRequests() {
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
-            <option value="">All Status</option>
+            <option value="">Tất Cả Trạng Thái</option>
             {[
-              "Pending",
-              "Preparing",
-              "Partner Configuration",
-              "Active",
-              "Inactive",
-              "Map Denied",
-              "Rejected",
-              "Pending_Payment",
+              { value: "Chờ Duyệt", label: "Chờ Duyệt" },
+              { value: "Preparing", label: "Đang Chuẩn Bị" },
+              { value: "Partner Configuration", label: "Cấu Hình Đối Tác" },
+              { value: "Active", label: "Hoạt Động" },
+              { value: "Inactive", label: "Ngừng Hoạt Động" },
+              { value: "Map Denied", label: "Từ Chối Bản Đồ" },
+              { value: "Rejected", label: "Bị Từ Chối" },
+              { value: "Pending_Payment", label: "Chờ Thanh Toán" },
             ].map((s) => (
-              <option key={s} value={s}>
-                {s}
+              <option key={s.value} value={s.value}>
+                {s.label}
               </option>
             ))}
           </select>
@@ -329,7 +338,7 @@ export default function AdminParkingLotRequests() {
               onChange={(e) => setStartDate(e.target.value)}
               className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all cursor-pointer"
             />
-            <span className="text-gray-500">to</span>
+            <span className="text-gray-500">đến</span>
             <input
               type="date"
               value={endDate}
@@ -351,10 +360,10 @@ export default function AdminParkingLotRequests() {
               fetchData();
             }}
             className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
-            title="Reset filters"
+            title="Làm mới bộ lọc"
           >
             <i className="ri-refresh-line text-lg text-gray-600"></i>
-            <span className="text-sm text-gray-600">Refresh</span>
+            <span className="text-sm text-gray-600">Làm Mới</span>
           </button>
         </div>
 
@@ -363,7 +372,7 @@ export default function AdminParkingLotRequests() {
           {/* Import */}
           <label className="flex items-center gap-2 hover:bg-yellow-200 font-medium px-4 py-2 rounded-lg border transition cursor-pointer">
             <ArrowUpTrayIcon className="w-5 h-5 text-yellow-700" />
-            Import
+            Nhập
             <input
               type="file"
               accept=".xlsx"
@@ -378,7 +387,7 @@ export default function AdminParkingLotRequests() {
             onClick={handleExport}
           >
             <ArrowDownTrayIcon className="w-5 h-5 text-green-700" />
-            Export
+            Xuất
           </button>
         </div>
       </div>
@@ -389,14 +398,14 @@ export default function AdminParkingLotRequests() {
           <thead className="bg-orange-50 text-orange-700 uppercase text-sm font-semibold">
             <tr>
               <th className="px-6 py-3 text-left">#</th>
-              <th className="px-6 py-3 text-left">Name</th>
-              <th className="px-6 py-3 text-left">Address</th>
-              <th className="px-6 py-3 text-left">Ward</th>
-              <th className="px-6 py-3 text-left">City</th>
-              <th className="px-6 py-3 text-left">Floors</th>
-              <th className="px-6 py-3 text-left">Open - Close</th>
-              <th className="px-6 py-3 text-left">Status</th>
-              <th className="px-6 py-3 text-center">Actions</th>
+              <th className="px-6 py-3 text-left">Tên</th>
+              <th className="px-6 py-3 text-left">Địa Chỉ</th>
+              <th className="px-6 py-3 text-left">Phường</th>
+              <th className="px-6 py-3 text-left">Thành Phố</th>
+              <th className="px-6 py-3 text-left">Số Tầng</th>
+              <th className="px-6 py-3 text-left">Giờ Mở - Đóng</th>
+              <th className="px-6 py-3 text-left">Trạng Thái</th>
+              <th className="px-6 py-3 text-center">Thao Tác</th>
             </tr>
           </thead>
 
@@ -407,7 +416,7 @@ export default function AdminParkingLotRequests() {
                   colSpan="9"
                   className="text-center py-6 text-gray-500 italic"
                 >
-                  Loading...
+                  Đang tải...
                 </td>
               </tr>
             ) : filtered.length > 0 ? (
@@ -426,7 +435,7 @@ export default function AdminParkingLotRequests() {
                   <td className="px-6 py-3">
                     <div className="flex items-center gap-2">
                       <span className="text-gray-600 font-medium">
-                        {lot.totalFloors} total
+                        {lot.totalFloors} tầng
                       </span>
                       <span className="text-gray-300">•</span>
                       {floorCounts[lot.id] !== undefined ? (
@@ -440,26 +449,26 @@ export default function AdminParkingLotRequests() {
                           }`}
                           title={`${
                             floorCounts[lot.id]
-                          } floor(s) drawn out of ${lot.totalFloors}`}
+                          } tầng đã vẽ trong tổng số ${lot.totalFloors}`}
                         >
                           {floorCounts[lot.id] === 0
-                            ? "❌ Not drawn"
+                            ? "❌ Chưa vẽ"
                             : floorCounts[lot.id] >= lot.totalFloors
-                            ? `✅ ${floorCounts[lot.id]} drawn`
+                            ? `✅ ${floorCounts[lot.id]} đã vẽ`
                             : `⚠️ ${floorCounts[lot.id]}/${
                                 lot.totalFloors
-                              } drawn`}
+                              } đã vẽ`}
                         </span>
                       ) : (
                         <span className="px-2.5 py-1 bg-gray-50 text-gray-400 text-xs rounded-full animate-pulse">
-                          Loading...
+                          Đang tải...
                         </span>
                       )}
                     </div>
                   </td>
                   <td className="px-6 py-3">
                     {lot.is24Hour
-                      ? "24-hour Open"
+                      ? "Mở cửa 24/7"
                       : `${lot.operatingHoursStart || "-"} - ${
                           lot.operatingHoursEnd || "-"
                         }`}
@@ -468,14 +477,14 @@ export default function AdminParkingLotRequests() {
                   <td className="px-6 py-3 text-center">
                     <div className="flex justify-center gap-3">
                       <button
-                        title="View Details"
+                        title="Xem Chi Tiết"
                         onClick={() => handleView(lot.id)}
                         className="p-2 rounded-full hover:bg-indigo-100 transition cursor-pointer"
                       >
                         <EyeIcon className="w-5 h-5" />
                       </button>
                       <button
-                        title="Delete Request"
+                        title="Xóa Yêu Cầu"
                         onClick={() => handleDelete(lot)}
                         className="p-2 rounded-full hover:bg-red-100 transition cursor-pointer"
                       >
@@ -491,7 +500,7 @@ export default function AdminParkingLotRequests() {
                   colSpan="9"
                   className="px-6 py-6 text-center text-gray-500 italic"
                 >
-                  No parking lots found.
+                  Không tìm thấy bãi đỗ xe nào.
                 </td>
               </tr>
             )}
@@ -506,14 +515,14 @@ export default function AdminParkingLotRequests() {
           onClick={() => setPage((p) => Math.max(p - 1, 0))}
           className="px-4 py-2 bg-white border rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
-          ← Previous
+          ← Trước
         </button>
         <div className="text-center text-gray-600 text-sm">
           <div>
-            Page <strong>{page + 1}</strong> of {totalPages}
+            Trang <strong>{page + 1}</strong> / {totalPages}
           </div>
           <div className="text-sm text-gray-500 mt-1">
-            Total requests:{" "}
+            Tổng yêu cầu:{" "}
             <strong className="text-orange-700">{totalCount}</strong>
           </div>
         </div>
@@ -522,7 +531,7 @@ export default function AdminParkingLotRequests() {
           onClick={() => setPage((p) => p + 1)}
           className="px-4 py-2 bg-white border rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
-          Next →
+          Sau →
         </button>
       </div>
 
@@ -530,8 +539,8 @@ export default function AdminParkingLotRequests() {
       {confirmingLot && (
         <ConfirmModal
           open={!!confirmingLot}
-          title="Confirm Deletion"
-          message={`Are you sure you want to delete "${confirmingLot?.name}"?`}
+          title="Xác Nhận Xóa"
+          message={`Bạn có chắc chắn muốn xóa "${confirmingLot?.name}"?`}
           onConfirm={confirmDelete}
           onCancel={() => setConfirmingLot(null)}
         />
@@ -547,13 +556,13 @@ export default function AdminParkingLotRequests() {
           showResetMapButton={true}
           showPaymentBanner={false}
           statusOptions={[
-            { key: "PREPARING", label: "Preparing", color: "text-yellow-600" },
+            { key: "PREPARING", label: "Đang Chuẩn Bị", color: "text-yellow-600" },
             {
               key: "PARTNER_CONFIGURATION",
-              label: "Partner Configuration",
+              label: "Cấu Hình Đối Tác",
               color: "text-blue-600",
             },
-            { key: "REJECTED", label: "Rejected", color: "text-red-600" },
+            { key: "REJECTED", label: "Bị Từ Chối", color: "text-red-600" },
           ]}
         />
       )}

@@ -94,10 +94,15 @@ export default function AdminPartners() {
       APPROVED: "bg-green-50 text-green-700 border-green-300",
     };
 
-    // Capitalize only first letter
-    const displayText = status
-      ? status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
-      : "Unknown";
+    const statusMap = {
+      PENDING: "Chờ duyệt",
+      ACTIVE: "Hoạt động",
+      INACTIVE: "Ngưng hoạt động",
+      REJECTED: "Bị từ chối",
+      APPROVED: "Đã duyệt",
+    };
+
+    const displayText = statusMap[s] || "Không rõ";
 
     return (
       <span
@@ -133,7 +138,7 @@ export default function AdminPartners() {
   // ✅ EXPORT Excel
   const handleExport = async () => {
     try {
-      showInfo("⏳ Exporting partners...");
+      showInfo("⏳ Đang xuất dữ liệu...");
       const res = await partnerApi.exportPartners();
 
       const blob = new Blob([res.data], {
@@ -148,17 +153,17 @@ export default function AdminPartners() {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
 
-      showSuccess("✅ Export successful!");
+      showSuccess("✅ Xuất dữ liệu thành công!");
     } catch (err) {
       console.error("❌ Export error:", err);
-      showError(err.response?.data?.message || "Export failed!");
+      showError(err.response?.data?.message || "Xuất dữ liệu thất bại!");
     }
   };
 
   // ✅ IMPORT Excel
   const handleImportClick = () => {
     if (fileInputRef.current) fileInputRef.current.click();
-    else showError("⚠️ File input not ready!");
+    else showError("⚠️ File input chưa sẵn sàng!");
   };
 
   const handleImportFile = async (e) => {
@@ -166,7 +171,7 @@ export default function AdminPartners() {
     if (!file) return;
 
     try {
-      showInfo("⏳ Uploading file...");
+      showInfo("⏳ Đang tải file lên...");
       const formData = new FormData();
       formData.append("file", file);
 
@@ -177,13 +182,13 @@ export default function AdminPartners() {
         const success = res.data?.successCount || 0;
         const failed = res.data?.failedCount || 0;
         showSuccess(
-          `✅ Import done: ${success}/${total} rows (failed: ${failed})`
+          `✅ Nhập dữ liệu thành công: ${success}/${total} dòng (thất bại: ${failed})`
         );
         fetchPartners();
-      } else showError("❌ Import failed!");
+      } else showError("❌ Nhập dữ liệu thất bại!");
     } catch (err) {
       console.error("❌ Import error:", err);
-      showError(err.response?.data?.message || "Failed to import file!");
+      showError(err.response?.data?.message || "Không thể nhập file!");
     } finally {
       e.target.value = "";
     }
@@ -213,14 +218,14 @@ export default function AdminPartners() {
     try {
       const res = await partnerApi.delete(partnerId);
       if (res.status === 200 || res.status === 204) {
-        showSuccess(`Deleted "${partner.companyName}" successfully!`);
+        showSuccess(`Xóa "${partner.companyName}" thành công!`);
         fetchPartners();
-      } else showError("❌ Failed to delete partner (invalid status code).");
+      } else showError("❌ Không thể xóa đối tác (mã lỗi không hợp lệ).");
     } catch (err) {
       console.error("❌ Delete partner error:", err);
       showError(
         err.response?.data?.message ||
-          "❌ Failed to delete partner. Please check logs."
+          "❌ Không thể xóa đối tác. Vui lòng kiểm tra logs."
       );
     } finally {
       setConfirmingPartner(null);
@@ -232,7 +237,7 @@ export default function AdminPartners() {
       {/* 🔹 Header */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-orange-700">
-          Partner Management
+          Quản Lý Đối Tác
         </h2>
       </div>
 
@@ -243,7 +248,7 @@ export default function AdminPartners() {
           <div className="relative">
             <input
               type="text"
-              placeholder="Search by name, email, phone, or address..."
+              placeholder="Tìm kiếm theo tên, email, số điện thoại hoặc địa chỉ..."
               className="border border-gray-300 pl-10 pr-4 py-2 rounded-lg w-80 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -271,10 +276,10 @@ export default function AdminPartners() {
               onChange={(e) => setSortBy(e.target.value)}
               className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
             >
-              <option value="createdAt">Created Date</option>
-              <option value="companyName">Company Name</option>
+              <option value="createdAt">Ngày tạo</option>
+              <option value="companyName">Tên công ty</option>
               <option value="companyEmail">Email</option>
-              <option value="companyPhone">Phone</option>
+              <option value="companyPhone">Số điện thoại</option>
             </select>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -296,7 +301,7 @@ export default function AdminPartners() {
           <button
             onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
             className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
-            title={sortOrder === "asc" ? "Ascending" : "Descending"}
+            title={sortOrder === "asc" ? "Tăng dần" : "Giảm dần"}
           >
             {sortOrder === "asc" ? (
               <i className="ri-sort-asc text-lg text-gray-600"></i>
@@ -304,7 +309,7 @@ export default function AdminPartners() {
               <i className="ri-sort-desc text-lg text-gray-600"></i>
             )}
             <span className="text-sm text-gray-600">
-              {sortOrder === "asc" ? "Asc" : "Desc"}
+              {sortOrder === "asc" ? "Tăng" : "Giảm"}
             </span>
           </button>
 
@@ -316,7 +321,7 @@ export default function AdminPartners() {
               onChange={(e) => setStartDate(e.target.value)}
               className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all"
             />
-            <span className="text-gray-500">to</span>
+            <span className="text-gray-500">đến</span>
             <input
               type="date"
               value={endDate}
@@ -337,10 +342,10 @@ export default function AdminPartners() {
               fetchPartners();
             }}
             className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
-            title="Reset filters"
+            title="Đặt lại bộ lọc"
           >
             <i className="ri-refresh-line text-lg text-gray-600"></i>
-            <span className="text-sm text-gray-600">Refresh</span>
+            <span className="text-sm text-gray-600">Làm mới</span>
           </button>
         </div>
 
@@ -351,7 +356,7 @@ export default function AdminPartners() {
             className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition cursor-pointer"
           >
             <PlusIcon className="w-5 h-5 text-white" />
-            Add Partner
+            Thêm Đối Tác
           </button>
 
           <button
@@ -360,7 +365,7 @@ export default function AdminPartners() {
             className="flex items-center gap-2 hover:bg-yellow-200 font-medium px-4 py-2 rounded-lg border transition transform hover:scale-105 hover:shadow-md cursor-pointer"
           >
             <ArrowUpTrayIcon className="w-5 h-5 text-yellow-700" />
-            Import
+            Nhập Excel
           </button>
 
           <button
@@ -369,7 +374,7 @@ export default function AdminPartners() {
             className="flex items-center gap-2 hover:bg-green-200 font-medium px-4 py-2 rounded-lg border transition transform hover:scale-105 hover:shadow-md cursor-pointer"
           >
             <ArrowDownTrayIcon className="w-5 h-5 text-green-700" />
-            Export
+            Xuất Excel
           </button>
 
           <input
@@ -388,13 +393,13 @@ export default function AdminPartners() {
           <thead className="bg-orange-50 text-orange-700 uppercase text-sm font-semibold">
             <tr>
               <th className="px-6 py-3 text-left w-16">#</th>
-              <th className="px-6 py-3 text-left">Company Name</th>
-              <th className="px-6 py-3 text-left">Tax Number</th>
+              <th className="px-6 py-3 text-left">Tên Công Ty</th>
+              <th className="px-6 py-3 text-left">Mã Số Thuế</th>
               <th className="px-6 py-3 text-left">Email</th>
-              <th className="px-6 py-3 text-left">Phone</th>
-              <th className="px-6 py-3 text-left">Address</th>
-              <th className="px-6 py-3 text-left">Status</th>
-              <th className="px-6 py-3 text-center">Actions</th>
+              <th className="px-6 py-3 text-left">Số Điện Thoại</th>
+              <th className="px-6 py-3 text-left">Địa Chỉ</th>
+              <th className="px-6 py-3 text-left">Trạng Thái</th>
+              <th className="px-6 py-3 text-center">Thao Tác</th>
             </tr>
           </thead>
           <tbody className="text-gray-700 text-sm">
@@ -404,7 +409,7 @@ export default function AdminPartners() {
                   colSpan="8"
                   className="px-6 py-6 text-center text-gray-500 italic"
                 >
-                  Loading...
+                  Đang tải...
                 </td>
               </tr>
             ) : filtered.length > 0 ? (
@@ -425,21 +430,21 @@ export default function AdminPartners() {
                   <td className="px-6 py-3 text-center">
                     <div className="flex justify-center items-center gap-3">
                       <button
-                        title="View Details"
+                        title="Xem chi tiết"
                         onClick={(e) => handleView(p, e)}
                         className="p-2 rounded-full hover:bg-indigo-100 transition cursor-pointer"
                       >
                         <EyeIcon className="w-5 h-5" />
                       </button>
                       <button
-                        title="Edit Partner"
+                        title="Chỉnh sửa"
                         onClick={(e) => handleEdit(p, e)}
                         className="p-2 rounded-full hover:bg-yellow-100 transition cursor-pointer"
                       >
                         <PencilSquareIcon className="w-5 h-5" />
                       </button>
                       <button
-                        title="Delete Partner"
+                        title="Xóa"
                         onClick={(e) => handleDelete(p, e)}
                         className="p-2 rounded-full hover:bg-red-100 transition cursor-pointer"
                       >
@@ -455,7 +460,7 @@ export default function AdminPartners() {
                   colSpan="8"
                   className="px-6 py-6 text-center text-gray-500 italic"
                 >
-                  No partners found.
+                  Không tìm thấy đối tác nào.
                 </td>
               </tr>
             )}
@@ -470,15 +475,15 @@ export default function AdminPartners() {
           onClick={() => setPage((p) => Math.max(p - 1, 0))}
           className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
-          ← Previous
+          ← Trước
         </button>
 
         <div className="text-center text-gray-600 text-sm">
           <div>
-            Page <strong>{page + 1}</strong> of {totalPages}
+            Trang <strong>{page + 1}</strong> / {totalPages}
           </div>
           <div className="text-sm text-gray-500 mt-1">
-            Total partners:{" "}
+            Tổng đối tác:{" "}
             <strong className="text-orange-700">{totalCount}</strong>
           </div>
         </div>
@@ -488,7 +493,7 @@ export default function AdminPartners() {
           onClick={() => setPage((p) => p + 1)}
           className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
-          Next →
+          Sau →
         </button>
       </div>
 
@@ -509,8 +514,8 @@ export default function AdminPartners() {
       {confirmingPartner && (
         <ConfirmModal
           open={!!confirmingPartner}
-          title="Confirm Deletion"
-          message={`Are you sure you want to delete "${confirmingPartner?.companyName}"?`}
+          title="Xác Nhận Xóa"
+          message={`Bạn có chắc chắn muốn xóa "${confirmingPartner?.companyName}"?`}
           onConfirm={confirmDelete}
           onCancel={() => setConfirmingPartner(null)}
         />

@@ -27,15 +27,15 @@ export default function EditPartnerModal({ partner, onClose, onUpdated }) {
       const id = partner.partnerId || partner.id;
       const res = await partnerApi.update(id, form);
       if (res.status === 200) {
-        showSuccess("✅ Partner updated successfully!");
+        showSuccess("✅ Cập nhật đối tác thành công!");
         onUpdated();
         onClose();
       } else {
-        showError("❌ Failed to update partner.");
+        showError("❌ Không thể cập nhật đối tác.");
       }
     } catch (err) {
       console.error(err);
-      showError(err.response?.data?.message || "❌ Update failed!");
+      showError(err.response?.data?.message || "❌ Cập nhật thất bại!");
     }
   };
 
@@ -47,7 +47,7 @@ export default function EditPartnerModal({ partner, onClose, onUpdated }) {
         <div className="flex items-center justify-between px-6 py-4 bg-orange-50 border-b border-orange-100">
           <h2 className="text-xl font-bold text-orange-700 flex items-center gap-3">
             <i className="ri-edit-box-line text-2xl text-orange-500"></i>
-            Edit Partner
+            Chỉnh Sửa 
           </h2>
           <button
             onClick={onClose}
@@ -63,10 +63,10 @@ export default function EditPartnerModal({ partner, onClose, onUpdated }) {
         {/* Content */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[calc(90vh-180px)] overflow-y-auto custom-scrollbar">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Tên Công Ty</label>
             <input
               name="companyName"
-              placeholder="Enter company name"
+              placeholder="Nhập tên công ty"
               value={form.companyName}
               onChange={handleChange}
               className="border border-gray-300 w-full px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition"
@@ -74,10 +74,10 @@ export default function EditPartnerModal({ partner, onClose, onUpdated }) {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Tax Number</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Mã Số Thuế</label>
             <input
               name="taxNumber"
-              placeholder="Enter tax number"
+              placeholder="Nhập mã số thuế"
               value={form.taxNumber}
               onChange={handleChange}
               className="border border-gray-300 w-full px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition"
@@ -88,7 +88,7 @@ export default function EditPartnerModal({ partner, onClose, onUpdated }) {
             <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
             <input
               name="companyEmail"
-              placeholder="Enter email address"
+              placeholder="Nhập địa chỉ email"
               value={form.companyEmail}
               onChange={handleChange}
               className="border border-gray-300 w-full px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition"
@@ -96,10 +96,10 @@ export default function EditPartnerModal({ partner, onClose, onUpdated }) {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Số Điện Thoại</label>
             <input
               name="companyPhone"
-              placeholder="Enter phone number"
+              placeholder="Nhập số điện thoại"
               value={form.companyPhone}
               onChange={handleChange}
               className="border border-gray-300 w-full px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition"
@@ -107,10 +107,10 @@ export default function EditPartnerModal({ partner, onClose, onUpdated }) {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Địa Chỉ</label>
             <input
               name="companyAddress"
-              placeholder="Enter company address"
+              placeholder="Nhập địa chỉ công ty"
               value={form.companyAddress}
               onChange={handleChange}
               className="border border-gray-300 w-full px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition"
@@ -118,10 +118,10 @@ export default function EditPartnerModal({ partner, onClose, onUpdated }) {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Business Description</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Mô Tả Kinh Doanh</label>
             <textarea
               name="businessDescription"
-              placeholder="Enter business description"
+              placeholder="Nhập mô tả kinh doanh"
               value={form.businessDescription}
               onChange={handleChange}
               rows="3"
@@ -130,10 +130,10 @@ export default function EditPartnerModal({ partner, onClose, onUpdated }) {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Suspension Reason</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Lý Do Tạm Ngưng</label>
             <textarea
               name="suspensionReason"
-              placeholder="Enter suspension reason (if applicable)"
+              placeholder="Nhập lý do tạm ngưng (nếu có)"
               value={form.suspensionReason}
               onChange={handleChange}
               rows="2"
@@ -149,7 +149,7 @@ export default function EditPartnerModal({ partner, onClose, onUpdated }) {
             onClick={onClose}
             className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
           >
-            Cancel
+            Hủy
           </button>
           <button
             type="submit"
@@ -157,7 +157,7 @@ export default function EditPartnerModal({ partner, onClose, onUpdated }) {
             className="px-6 py-2 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
           >
             <i className="ri-save-line"></i>
-            <span>Save</span>
+            <span>Lưu</span>
           </button>
         </div>
       </div>

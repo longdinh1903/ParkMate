@@ -3,6 +3,29 @@ import React from "react";
 export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
   if (!lot) return null;
 
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case "ACTIVE":
+        return "Hoạt Động";
+      case "REJECTED":
+        return "Bị Từ Chối";
+      case "PREPARING":
+        return "Đang Chuẩn Bị";
+      case "PARTNER_CONFIGURATION":
+        return "Cấu Hình Đối Tác";
+      case "PENDING":
+        return "Chờ Duyệt";
+      case "PENDING_PAYMENT":
+        return "Chờ Thanh Toán";
+      case "MAP_DENIED":
+        return "Từ Chối Bản Đồ";
+      case "INACTIVE":
+        return "Không Hoạt Động";
+      default:
+        return status;
+    }
+  };
+
   const getStatusStyle = (status) => {
     switch (status) {
       case "ACTIVE":
@@ -33,7 +56,7 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
               lot.status
             )}`}
           >
-            {lot.status}
+            {getStatusLabel(lot.status)}
           </span>
         </div>
 
@@ -47,35 +70,35 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
             {lot.city ? `, ${lot.city}` : ""}
           </p>
           <p>
-            <strong>🕒 Open:</strong> {lot.openTime ?? "-"}
+            <strong>🕒 Mở:</strong> {lot.openTime ?? "-"}
           </p>
           <p>
-            <strong>🕕 Close:</strong> {lot.closeTime ?? "-"}
+            <strong>🕕 Đóng:</strong> {lot.closeTime ?? "-"}
           </p>
           <p>
-            <strong>🌙 24 Hours:</strong> {lot.is24Hour ? "Yes" : "No"}
+            <strong>🌙 24 Giờ:</strong> {lot.is24Hour ? "Có" : "Không"}
           </p>
           <p>
-            <strong>🏗 Floors:</strong> {lot.totalFloors ?? "-"}
+            <strong>🏗 Tầng:</strong> {lot.totalFloors ?? "-"}
           </p>
           <p>
-            <strong>� Lot Square:</strong> {lot.lotSquare ? `${lot.lotSquare} m²` : "-"}
+            <strong>� Diện Tích Bãi:</strong> {lot.lotSquare ? `${lot.lotSquare} m²` : "-"}
           </p>
           <p>
-            <strong>⏱️ Horizon Time:</strong> {lot.horizonTime ? `${lot.horizonTime} minutes` : "-"}
+            <strong>⏱️ Thời Gian Chờ:</strong> {lot.horizonTime ? `${lot.horizonTime} phút` : "-"}
           </p>
           <p>
-            <strong>�📍 Latitude:</strong> {lot.latitude ?? "-"}
+            <strong>�📍 Vĩ Độ:</strong> {lot.latitude ?? "-"}
           </p>
           <p>
-            <strong>📍 Longitude:</strong> {lot.longitude ?? "-"}
+            <strong>📍 Kinh Độ:</strong> {lot.longitude ?? "-"}
           </p>
           <p>
-            <strong>📅 Created:</strong>{" "}
+            <strong>📅 Ngày Tạo:</strong>{" "}
             {lot.createdAt ? new Date(lot.createdAt).toLocaleString() : "-"}
           </p>
           <p>
-            <strong>⚙ Updated:</strong>{" "}
+            <strong>⚙ Cập Nhật:</strong>{" "}
             {lot.updatedAt ? new Date(lot.updatedAt).toLocaleString() : "-"}
           </p>
         </div>
@@ -83,7 +106,7 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
         {/* Reason (if provided by partner) */}
         {lot.reason && (
           <div className="mb-6 bg-red-50 p-4 rounded-2xl border border-red-100 shadow-sm">
-            <h3 className="font-semibold text-red-600 mb-2">📝 Reason</h3>
+            <h3 className="font-semibold text-red-600 mb-2">📝 Lý Do</h3>
             <p className="text-sm text-gray-800 whitespace-pre-wrap">
               {lot.reason}
             </p>
@@ -93,10 +116,10 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
         {/* Partner / Owner Info */}
         {(lot.partner || lot.owner || lot.companyName) && (
           <div className="mb-6 bg-gray-50 p-4 rounded-2xl border border-gray-200 shadow-sm">
-            <h3 className="font-semibold text-indigo-600 mb-3">🏢 Partner / Owner</h3>
+            <h3 className="font-semibold text-indigo-600 mb-3">🏢 Đối Tác / Chủ Sở Hữu</h3>
             <div className="text-sm text-gray-700">
               <p>
-                <strong>Name:</strong> {lot.partner?.companyName ?? lot.owner?.name ?? lot.companyName ?? "-"}
+                <strong>Tên:</strong> {lot.partner?.companyName ?? lot.owner?.name ?? lot.companyName ?? "-"}
               </p>
               {lot.partner?.companyEmail && (
                 <p>
@@ -105,12 +128,12 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
               )}
               {lot.partner?.companyPhone && (
                 <p>
-                  <strong>Phone:</strong> {lot.partner.companyPhone}
+                  <strong>Điện Thoại:</strong> {lot.partner.companyPhone}
                 </p>
               )}
               {lot.partner?.taxNumber && (
                 <p>
-                  <strong>Tax number:</strong> {lot.partner.taxNumber}
+                  <strong>Mã Số Thuế:</strong> {lot.partner.taxNumber}
                 </p>
               )}
             </div>
@@ -120,10 +143,10 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
         {/* Contact Info */}
         {(lot.contactPhone || lot.contactEmail || lot.phone) && (
           <div className="mb-6 bg-gray-50 p-4 rounded-2xl border border-gray-200 shadow-sm">
-            <h3 className="font-semibold text-indigo-600 mb-3">📞 Contact</h3>
+            <h3 className="font-semibold text-indigo-600 mb-3">📞 Liên Hệ</h3>
             <div className="text-sm text-gray-700">
-              {lot.contactPhone && (<p><strong>Phone:</strong> {lot.contactPhone}</p>)}
-              {lot.phone && !lot.contactPhone && (<p><strong>Phone:</strong> {lot.phone}</p>)}
+              {lot.contactPhone && (<p><strong>Điện Thoại:</strong> {lot.contactPhone}</p>)}
+              {lot.phone && !lot.contactPhone && (<p><strong>Điện Thoại:</strong> {lot.phone}</p>)}
               {lot.contactEmail && (<p><strong>Email:</strong> {lot.contactEmail}</p>)}
             </div>
           </div>
@@ -132,7 +155,7 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
         {/* Description */}
         {lot.description && (
           <div className="mb-6 bg-gray-50 p-4 rounded-2xl border border-gray-200 shadow-sm">
-            <h3 className="font-semibold text-indigo-600 mb-2">📝 Description</h3>
+            <h3 className="font-semibold text-indigo-600 mb-2">📝 Mô Tả</h3>
             <p className="text-sm text-gray-700">{lot.description}</p>
           </div>
         )}
@@ -140,7 +163,7 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
         {/* Images */}
         {((lot.images && lot.images.length > 0) || (lot.imageUrls && lot.imageUrls.length > 0) || (lot.photos && lot.photos.length > 0)) && (
           <div className="mb-6">
-            <h3 className="font-semibold text-indigo-600 mb-3">📸 Images</h3>
+            <h3 className="font-semibold text-indigo-600 mb-3">📸 Hình Ảnh</h3>
             <div className="flex flex-wrap gap-3">
               {(lot.images ?? lot.imageUrls ?? lot.photos).map((src, i) => (
                 <img
@@ -159,14 +182,14 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
         {lot.lotCapacity?.length > 0 && (
           <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
             <h3 className="font-semibold text-indigo-600 mb-4 text-xl flex items-center gap-2">
-              🚗 Total Capacity
+              🚗 Tổng Sức Chứa
             </h3>
             <table className="min-w-full text-xs border bg-white rounded-lg shadow-sm">
               <thead className="bg-gray-100 text-gray-600">
                 <tr>
-                  <th className="px-3 py-2 text-left">Vehicle Type</th>
-                  <th className="px-3 py-2 text-left">Capacity</th>
-                  <th className="px-3 py-2 text-left">EV Support</th>
+                  <th className="px-3 py-2 text-left">Loại Xe</th>
+                  <th className="px-3 py-2 text-left">Sức Chứa</th>
+                  <th className="px-3 py-2 text-left">Hỗ Trợ EV</th>
                 </tr>
               </thead>
               <tbody>
@@ -175,7 +198,7 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
                     <td className="px-3 py-2">{c.vehicleType}</td>
                     <td className="px-3 py-2">{c.capacity}</td>
                     <td className="px-3 py-2">
-                      {c.supportElectricVehicle ? "⚡ Yes" : "No"}
+                      {c.supportElectricVehicle ? "⚡ Có" : "Không"}
                     </td>
                   </tr>
                 ))}
@@ -188,21 +211,21 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
         {lot.pricingRules?.length > 0 && (
           <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
             <h3 className="font-semibold text-indigo-600 mb-4 text-xl flex items-center gap-2">
-              💰 Pricing Rules
+              💰 Quy Tắc Giá
             </h3>
             <div className="overflow-x-auto">
               <table className="min-w-full text-xs border bg-white rounded-lg shadow-sm">
                 <thead className="bg-gray-100 text-gray-600">
                   <tr>
-                    <th className="px-3 py-2 text-left">Rule Name</th>
-                    <th className="px-3 py-2 text-left">Vehicle Type</th>
-                    <th className="px-3 py-2 text-left">Initial Charge</th>
-                    <th className="px-3 py-2 text-left">Initial Duration</th>
-                    <th className="px-3 py-2 text-left">Step Rate</th>
-                    <th className="px-3 py-2 text-left">Step Minute</th>
-                    <th className="px-3 py-2 text-left">Valid From</th>
-                    <th className="px-3 py-2 text-left">Valid To</th>
-                    <th className="px-3 py-2 text-left">Status</th>
+                    <th className="px-3 py-2 text-left">Tên Quy Tắc</th>
+                    <th className="px-3 py-2 text-left">Loại Xe</th>
+                    <th className="px-3 py-2 text-left">Phí Ban Đầu</th>
+                    <th className="px-3 py-2 text-left">Thời Lượng Ban Đầu</th>
+                    <th className="px-3 py-2 text-left">Phí Bước</th>
+                    <th className="px-3 py-2 text-left">Phút/Bước</th>
+                    <th className="px-3 py-2 text-left">Hiệu Lực Từ</th>
+                    <th className="px-3 py-2 text-left">Hiệu Lực Đến</th>
+                    <th className="px-3 py-2 text-left">Trạng Thái</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -217,11 +240,11 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
                       <td className="px-3 py-2 font-semibold text-green-600">
                         {r.initialCharge.toLocaleString()} ₫
                       </td>
-                      <td className="px-3 py-2">{r.initialDurationMinute} minutes</td>
+                      <td className="px-3 py-2">{r.initialDurationMinute} phút</td>
                       <td className="px-3 py-2 font-semibold text-orange-600">
                         {r.stepRate.toLocaleString()} ₫
                       </td>
-                      <td className="px-3 py-2">{r.stepMinute} minutes</td>
+                      <td className="px-3 py-2">{r.stepMinute} phút</td>
                       <td className="px-3 py-2">
                         {r.validFrom ? new Date(r.validFrom).toLocaleString('vi-VN', {
                           year: 'numeric',
@@ -246,7 +269,7 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
                             ? 'bg-green-100 text-green-700' 
                             : 'bg-gray-100 text-gray-600'
                         }`}>
-                          {r.isActive ? '✅ Active' : '❌ Inactive'}
+                          {r.isActive ? '✅ Hoạt Động' : '❌ Không Hoạt Động'}
                         </span>
                       </td>
                     </tr>
@@ -261,20 +284,20 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
         {lot.policies?.length > 0 && (
           <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
             <h3 className="font-semibold text-indigo-600 mb-4 text-xl flex items-center gap-2">
-              🛡️ Parking Policies
+              🛡️ Chính Sách Đỗ Xe
             </h3>
             <div className="grid grid-cols-2 gap-4">
               {lot.policies.map((policy, idx) => {
                 const getPolicyLabel = (type) => {
                   switch (type) {
                     case "EARLY_CHECK_IN_BUFFER":
-                      return { label: "Early Check-in Buffer", icon: "🕐", desc: "Allows guests to check in earlier than the booked time" };
+                      return { label: "Cho Phép Check-in Sớm", icon: "🕐", desc: "Cho phép khách check-in sớm hơn giờ đã đặt" };
                     case "LATE_CHECK_OUT_BUFFER":
-                      return { label: "Late Check-out Buffer", icon: "🕐", desc: "Allows guests to check out later than the booked time" };
+                      return { label: "Cho Phép Check-out Muộn", icon: "🕐", desc: "Cho phép khách check-out muộn hơn giờ đã đặt" };
                     case "LATE_CHECK_IN_CANCEL_AFTER":
-                      return { label: "Late Check-in Cancel After", icon: "⏰", desc: "Automatically cancels if check-in is too late" };
+                      return { label: "Hủy Nếu Check-in Trễ", icon: "⏰", desc: "Tự động hủy nếu check-in quá muộn" };
                     case "EARLY_CANCEL_REFUND_BEFORE":
-                      return { label: "Early Cancel Refund Before", icon: "💰", desc: "100% refund if canceled before" };
+                      return { label: "Hoàn Tiền Nếu Hủy Sớm", icon: "💰", desc: "Hoàn 100% nếu hủy trước" };
                     default:
                       return { label: type, icon: "📋", desc: "" };
                   }
@@ -288,7 +311,7 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
                         <h4 className="font-semibold text-gray-900 text-sm">{policyInfo.label}</h4>
                       </div>
                       <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
-                        {policy.value} minutes
+                        {policy.value} phút
                       </span>
                     </div>
                     <p className="text-xs text-gray-600 pl-7">{policyInfo.desc}</p>
@@ -306,7 +329,7 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
             onClick={onClose}
             className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md font-medium transition cursor-pointer"
           >
-            Close
+            Đóng
           </button>
         </div>
       </div>
