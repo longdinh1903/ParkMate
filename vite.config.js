@@ -21,9 +21,9 @@ export default defineConfig({
     proxy: {
       "/api": {
         target:
-          "http://parkmate-alb-942390189.ap-southeast-1.elb.amazonaws.com", // endpoint backend của bạn
+          "https://avokadu.com", // endpoint backend của bạn
         changeOrigin: true,
-        secure: false,
+        secure: true,
       },
     },
   },
