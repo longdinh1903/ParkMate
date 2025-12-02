@@ -1,0 +1,139 @@
+# Vercel Deployment Workflow
+# This workflow automatically deploys the project to Vercel
+# - Production deployment: triggers on push to main branch
+# - Preview deployment: triggers on pull request creation/updates
+
+name: Vercel Deployment
+
+on:
+  # Trigger production deployment when code is pushed to main branch
+  push:
+    branches:
+      - main
+  # Trigger preview deployment when a PR is created or updated
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+env:
+  # Vercel authentication and project configuration
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  # Production Deployment Job
+  # Runs when code is pushed to main branch
+  deploy-production:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Setup Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+
+      # Step 3: Install Vercel CLI globally
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      # Step 4: Pull Vercel environment information
+      # This fetches project settings and environment variables from Vercel
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      # Step 5: Build the project using Vercel
+      # This ensures the build matches Vercel's production environment
+      - name: Build Project
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      # Step 6: Deploy to Vercel production environment
+      # The --prod flag deploys to the production domain
+      - name: Deploy to Vercel (Production)
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+  # Preview Deployment Job
+  # Runs when a PR is created or updated
+  deploy-preview:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Setup Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+
+      # Step 3: Install Vercel CLI globally
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      # Step 4: Pull Vercel environment information for preview
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+      # Step 5: Build the project using Vercel
+      - name: Build Project
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
+      # Step 6: Deploy to Vercel preview environment
+      # Capture the deployment URL for later use
+      - name: Deploy to Vercel (Preview)
+        id: deploy
+        run: |
+          DEPLOYMENT_URL=$(vercel deploy --prebuilt --token="${{ secrets.VERCEL_TOKEN }}")
+          echo "url=$DEPLOYMENT_URL" >> "$GITHUB_OUTPUT"
+
+      # Step 7: Comment the deployment URL on the PR
+      # This helps reviewers easily access the preview deployment
+      - name: Comment Deployment URL on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const deploymentUrl = '${{ steps.deploy.outputs.url }}';
+            const body = `## 🚀 Vercel Preview Deployment
+
+            Your preview deployment is ready!
+
+            **Preview URL:** ${deploymentUrl}
+
+            This deployment was automatically created for this pull request.`;
+
+            // Find existing comment to update instead of creating new ones
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('Vercel Preview Deployment')
+            );
+
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body,
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body,
+              });
+            }
