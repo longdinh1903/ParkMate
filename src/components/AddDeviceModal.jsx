@@ -169,7 +169,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
           </h2>
           <button
             onClick={handleClose}
-            className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition"
+            className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition cursor-pointer"
             aria-label="Close"
           >
             ✕
@@ -329,17 +329,17 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
             <button
               type="button"
               onClick={handleClose}
-              className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition"
+              className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
             >
               Cancel
             </button>
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="px-6 py-2 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50"
+              className="px-6 py-2 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 cursor-pointer"
             >
               <i className="ri-add-line"></i>
-              {loading ? "Creating..." : "Create Device"}
+              {loading ? "Creating..." : "Create "}
             </button>
           </div>
         </div>

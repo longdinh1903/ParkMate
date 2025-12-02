@@ -461,7 +461,7 @@ export default function AdminFeeConfig() {
               <h2 className="text-xl font-bold text-orange-700 flex items-center gap-2"><i className="ri-money-dollar-circle-line text-orange-500"></i> Fee Configuration Details</h2>
               <button
                 onClick={() => setViewingFeeConfig(null)}
-                className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition"
+                className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition cursor-pointer"
               >
                 ✕
               </button>
@@ -506,7 +506,7 @@ export default function AdminFeeConfig() {
             <div className="bg-gray-50 px-6 py-4 flex justify-end gap-2">
               <button
                 onClick={() => setViewingFeeConfig(null)}
-                className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 transition"
+                className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
               >
                 Close
               </button>

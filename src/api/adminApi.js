@@ -1,5 +1,4 @@
 import axiosClient from "../api/axiosClient";
-// import axios from 'axios';
 
 const adminApi = {
   login: (data) => axiosClient.post("/api/v1/user-service/auth/login", data),

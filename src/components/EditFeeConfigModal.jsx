@@ -115,7 +115,7 @@ export default function EditFeeConfigModal({ feeConfig, onClose, onUpdated }) {
           </h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors duration-200"
+            className="p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
             aria-label="Close"
           >
             <svg
@@ -233,16 +233,17 @@ export default function EditFeeConfigModal({ feeConfig, onClose, onUpdated }) {
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 transition"
+            className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors disabled:opacity-50"
+            className="px-6 py-2 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors disabled:opacity-50 cursor-pointer"
           >
-            {loading ? "Updating..." : "Update"}
+            <i className="ri-save-line"></i>
+            {loading ? "Updating..." : "Save"}
           </button>
         </div>
       </div>

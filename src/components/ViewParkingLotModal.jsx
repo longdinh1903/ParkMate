@@ -1202,7 +1202,7 @@ export default function ViewParkingLotModal({
                 className={`px-6 py-2 rounded-md text-sm font-medium flex items-center gap-2 ${
                   ["PREPARING", "MAP_DENIED"].includes((lot?.mapStatus || lot?.status || "").toUpperCase())
                     ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
-                    : "bg-gray-50 text-gray-400 border border-gray-200 cursor-not-allowed"
+                    : "bg-gray-50 text-gray-400 border border-gray-200 cursor-not-allowed "
                 }`}
               >
                 🗺️ Draw Map
@@ -1210,7 +1210,7 @@ export default function ViewParkingLotModal({
             )}
             <button
               onClick={handleClose}
-              className="bg-gray-100 text-gray-700 px-6 py-2 rounded-md text-sm font-medium hover:bg-gray-200"
+              className="bg-gray-100 text-gray-700 px-6 py-2 rounded-md text-sm font-medium hover:bg-gray-200 cursor-pointer"
             >
               Close
             </button>
@@ -1586,7 +1586,7 @@ export default function ViewParkingLotModal({
             <div className="px-8 pb-6">
               <button
                 onClick={() => setShowPaymentModal(false)}
-                className="w-full px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium"
+                className="w-full px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium cursor-pointer"
               >
                 Close
               </button>

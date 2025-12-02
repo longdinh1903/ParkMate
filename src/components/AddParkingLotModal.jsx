@@ -147,7 +147,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition hover:bg-gray-100 w-10 h-10 rounded-full flex items-center justify-center"
+            className="text-gray-400 hover:text-gray-600 transition hover:bg-gray-100 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer"
             disabled={loading}
           >
             <i className="ri-close-line text-2xl"></i>
@@ -331,7 +331,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
               <button
                 type="button"
                 onClick={() => setShowCapacityModal(true)}
-                className="bg-orange-600 text-white px-6 py-2.5 rounded-xl hover:bg-orange-700 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2"
+                className="bg-orange-600 text-white px-6 py-2.5 rounded-xl hover:bg-orange-700 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2 cursor-pointer"
               >
                 <i className="ri-add-line text-lg"></i>
                 Add 
@@ -400,7 +400,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
               <button
                 type="button"
                 onClick={() => setShowRuleModal(true)}
-                className="bg-orange-600 text-white px-6 py-2.5 rounded-xl hover:bg-orange-700 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2"
+                className="bg-orange-600 text-white px-6 py-2.5 rounded-xl hover:bg-orange-700 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2 cursor-pointer"
               >
                 <i className="ri-add-line text-lg"></i>
                 Add Rule
@@ -460,7 +460,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-3 rounded-xl border-2 border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-all disabled:opacity-50"
+              className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
               disabled={loading}
             >
               Cancel
@@ -468,7 +468,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
             <button
               type="submit"
               disabled={loading}
-              className="px-8 py-3 rounded-xl bg-orange-600 text-white font-semibold hover:bg-orange-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 flex items-center gap-2"
+              className="px-8 py-3 rounded-xl bg-orange-600 text-white font-semibold hover:bg-orange-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 flex items-center gap-2 cursor-pointer"
             >
               {loading ? (
                 <>
@@ -503,7 +503,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
               </h3>
               <button
                 onClick={() => setShowCapacityModal(false)}
-                className="text-gray-400 hover:text-gray-600 transition"
+                className="text-gray-400 hover:text-gray-600 transition cursor-pointer"
               >
                 <i className="ri-close-line text-2xl"></i>
               </button>
@@ -532,7 +532,7 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                   name="vehicleType"
                   value={capacityForm.vehicleType}
                   onChange={handleCapacityChange}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none cursor-pointer"
                 >
                   <option value="">Select Type</option>
                   <option value="CAR_UP_TO_9_SEATS">🚗 Car (≤9 seats)</option>
@@ -562,14 +562,14 @@ export default function AddParkingLotModal({ open, onClose, onCreated }) {
                 <button
                   type="button"
                   onClick={() => setShowCapacityModal(false)}
-                  className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition"
+                  className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={handleAddCapacity}
-                  className="bg-orange-600 text-white px-6 py-2.5 rounded-xl hover:bg-orange-700 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2"
+                  className="bg-orange-600 text-white px-6 py-2.5 rounded-xl hover:bg-orange-700 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2 cursor-pointer"
                 >
                   <i className="ri-add-line"></i>
                   Add Capacity

@@ -1,6 +1,4 @@
 import axiosClient from "../api/axiosClient";
-// import axios from 'axios';
-
 
 const authApi = {
   resendEmail: (email) =>

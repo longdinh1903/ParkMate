@@ -72,7 +72,7 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
             </h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition hover:bg-gray-100 w-10 h-10 rounded-full flex items-center justify-center"
+              className="text-gray-400 hover:text-gray-600 transition hover:bg-gray-100 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer"
             >
               <i className="ri-close-line text-2xl"></i>
             </button>
@@ -271,7 +271,7 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
               <button
                 onClick={() => setShowRejectModal(true)}
                 disabled={isProcessing}
-                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition disabled:opacity-50 flex items-center gap-2"
+                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
               >
                 <i className="ri-close-line"></i>
                 Reject
@@ -279,7 +279,7 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
               <button
                 onClick={() => setShowApproveModal(true)}
                 disabled={isProcessing}
-                className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition disabled:opacity-50 flex items-center gap-2"
+                className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
               >
                 <i className="ri-check-line"></i>
                 Approve
@@ -288,7 +288,7 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
           )}
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+            className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
           >
             Close
           </button>
@@ -301,12 +301,12 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
         <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50">
           <div className="bg-white rounded-xl shadow-lg p-6 w-[400px] animate-fadeIn">
             <h2 className="text-lg font-semibold text-red-600 mb-3">
-              🚫 Nhập lý do từ chối
+              🚫  Enter Reason for Rejection
             </h2>
             <textarea
               className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-400"
               rows="4"
-              placeholder="Nhập chi tiết lý do..."
+              placeholder="Enter detailed reason..."
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
             ></textarea>
@@ -314,16 +314,16 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
             <div className="flex justify-end gap-3 mt-4">
               <button
                 onClick={() => setShowRejectModal(false)}
-                className="px-4 py-2 rounded-lg text-sm bg-gray-100 hover:bg-gray-200"
+                className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
               >
-                Hủy
+                Cancel
               </button>
               <button
                 onClick={handleRejectSubmit}
                 disabled={isProcessing}
-                className="px-4 py-2 rounded-lg text-sm bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                className="px-4 py-2 rounded-lg text-sm bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 cursor-pointer"
               >
-                Xác nhận
+                Confirm
               </button>
             </div>
           </div>
@@ -335,25 +335,25 @@ export default function ViewPartnerModal({ partner, onClose, onActionDone }) {
         <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50">
           <div className="bg-white rounded-xl shadow-lg p-6 w-[400px] animate-fadeIn">
             <h2 className="text-lg font-semibold text-green-700 mb-3">
-              ✅ Xác nhận phê duyệt
+              ✅ Confirm Approval
             </h2>
             <p className="text-gray-600 text-sm mb-4">
-              Bạn có chắc chắn muốn phê duyệt đối tác{" "}
-              <strong>{partner.companyName}</strong> không?
+              Are you sure you want to approve the partner{" "}
+              <strong>{partner.companyName}</strong>?
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowApproveModal(false)}
-                className="px-4 py-2 rounded-lg text-sm bg-gray-100 hover:bg-gray-200"
+                className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
               >
-                Hủy
+                Cancel
               </button>
               <button
                 onClick={handleApproveSubmit}
                 disabled={isProcessing}
-                className="px-4 py-2 rounded-lg text-sm bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
+                className="px-4 py-2 rounded-lg text-sm bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 cursor-pointer"
               >
-                Xác nhận
+                Confirm
               </button>
             </div>
           </div>
