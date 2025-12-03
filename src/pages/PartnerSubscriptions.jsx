@@ -90,7 +90,7 @@ export default function PartnerSubscriptions() {
       const success = response?.data?.success;
 
       if (!success || !payload) {
-        toast.error("Failed to load subscription packages");
+        toast.error("Đã có lỗi khi tải các gói đăng ký");
         setSubscriptions([]);
         return;
       }
@@ -111,7 +111,7 @@ export default function PartnerSubscriptions() {
         });
       }
     } catch {
-      toast.error("Failed to load subscription packages");
+      toast.error("Đã có lỗi khi tải các gói đăng ký");
       setSubscriptions([]);
     } finally {
       setLoading(false);
@@ -167,11 +167,11 @@ export default function PartnerSubscriptions() {
   const handleDelete = async () => {
     try {
       await subscriptionApi.delete(selectedSubscription.id);
-      toast.success("Subscription package deleted successfully!");
+      toast.success("Đã xóa gói đăng ký thành công!");
       fetchSubscriptions(page);
       setShowDeleteModal(false);
     } catch {
-      toast.error("Failed to delete subscription package");
+      toast.error("Đã có lỗi khi xóa gói đăng ký");
     }
   };
 
@@ -230,20 +230,19 @@ export default function PartnerSubscriptions() {
             {/* Header */}
             <div className="pt-6 mb-4 flex-shrink-0">
               <h1 className="text-3xl font-bold text-gray-900">
-                Subscription Packages
+                Gói Đăng Ký Thành Viên
               </h1>
               <p className="text-gray-600 mt-1">
-                Manage monthly, quarterly, and yearly parking subscription
-              packages
-            </p>
-            {lotIdFromUrl && parkingLotsMap[lotIdFromUrl] && (
-              <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-200">
-                <i className="ri-filter-3-line"></i>
-                <span className="text-sm font-medium">
-                  Filtered by parking lot: <strong>{parkingLotsMap[lotIdFromUrl].name}</strong>
-                </span>
-              </div>
-            )}
+                Quản lý các gói đăng ký bãi đỗ xe theo tháng, quý và năm
+              </p>
+              {lotIdFromUrl && parkingLotsMap[lotIdFromUrl] && (
+                <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-200">
+                  <i className="ri-filter-3-line"></i>
+                  <span className="text-sm font-medium">
+                    Đã lọc theo bãi đỗ xe: <strong>{parkingLotsMap[lotIdFromUrl].name}</strong>
+                  </span>
+                </div>
+              )}
           </div>
 
           {/* Actions Bar */}
@@ -255,7 +254,7 @@ export default function PartnerSubscriptions() {
                 <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search by name or description..."
+                  placeholder="Tìm kiếm theo tên hoặc mô tả..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -280,7 +279,7 @@ export default function PartnerSubscriptions() {
                 disabled={loading}
                 className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all flex items-center gap-2 font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <i className={`ri-refresh-line ${loading ? 'animate-spin' : ''}`}></i> Refresh
+                <i className={`ri-refresh-line ${loading ? 'animate-spin' : ''}`}></i> Làm Mới
               </button>
 
               {/* Sort and Actions */}
@@ -294,11 +293,11 @@ export default function PartnerSubscriptions() {
                     setFilterVehicleType(e.target.value);
                     setPage(0); // Reset to first page
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
                 >
-                  <option value="">All Vehicle Types</option>
-                  <option value="MOTORBIKE">Motorbike</option>
-                  <option value="CAR_UP_TO_9_SEATS">Car (Up to 9 seats)</option>
+                  <option value="">Tất Cả Loại Xe</option>
+                  <option value="MOTORBIKE">Xe Máy</option>
+                  <option value="CAR_UP_TO_9_SEATS">Ôtô (Tối đa 9 chỗ)</option>
                 </select>
 
                 {/* Duration Filter */}
@@ -308,12 +307,12 @@ export default function PartnerSubscriptions() {
                     setFilterDurationType(e.target.value);
                     setPage(0); // Reset to first page
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
                 >
-                  <option value="">All Durations</option>
-                  <option value="MONTHLY">Monthly</option>
-                  <option value="QUARTERLY">Quarterly</option>
-                  <option value="YEARLY">Yearly</option>
+                  <option value="">Tất Cả Thời Hạn</option>
+                  <option value="MONTHLY">Theo Tháng</option>
+                  <option value="QUARTERLY">Theo Quý</option>
+                  <option value="YEARLY">Theo Năm</option>
                 </select>
 
                 {/* Sort By Dropdown */}
@@ -322,11 +321,11 @@ export default function PartnerSubscriptions() {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white cursor-pointer"
                 >
-                  <option value="createdAt">Created Date</option>
-                  <option value="name">Name</option>
-                  <option value="price">Price</option>
-                  <option value="vehicleType">Vehicle Type</option>
-                  <option value="durationType">Duration Type</option>
+                  <option value="createdAt">Ngày Tạo</option>
+                  <option value="name">Tên</option>
+                  <option value="price">Giá</option>
+                  <option value="vehicleType">Loại Xe</option>
+                  <option value="durationType">Thời Hạn</option>
                 </select>
 
                 {/* Sort Order Button */}
@@ -335,17 +334,17 @@ export default function PartnerSubscriptions() {
                     setSortOrder(sortOrder === "asc" ? "desc" : "asc")
                   }
                   className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer"
-                  title={sortOrder === "asc" ? "Ascending" : "Descending"}
+                  title={sortOrder === "asc" ? "Tăng dần" : "Giảm dần"}
                 >
                   {sortOrder === "asc" ? (
                     <>
                       <i className="ri-sort-asc text-lg"></i>
-                      <span className="hidden sm:inline">Asc</span>
+                      <span className="hidden sm:inline">Tăng</span>
                     </>
                   ) : (
                     <>
                       <i className="ri-sort-desc text-lg"></i>
-                      <span className="hidden sm:inline">Desc</span>
+                      <span className="hidden sm:inline">Giảm</span>
                     </>
                   )}
                 </button>
@@ -353,10 +352,10 @@ export default function PartnerSubscriptions() {
                 {/* Add Button */}
                 <button
                   onClick={() => setShowAddModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer"
                 >
                   <PlusIcon className="w-5 h-5" />
-                  Add Package
+                  Thêm Gói
                 </button>
               </div>
             </div>
@@ -371,14 +370,14 @@ export default function PartnerSubscriptions() {
             ) : filteredSubscriptions.length === 0 ? (
               <div className="bg-white rounded-lg shadow-sm p-12 text-center">
                 <p className="text-gray-500 text-lg">
-                  {searchTerm ? "No subscription packages match your search" : "No subscription packages found"}
+                  {searchTerm ? "Không có gói đăng ký nào khớp với tìm kiếm" : "Không tìm thấy gói đăng ký nào"}
                 </p>
                 {!searchTerm && (
                   <button
                     onClick={() => setShowAddModal(true)}
                     className="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                   >
-                    Create First Package
+                    Tạo Gói Đầu Tiên
                   </button>
                 )}
               </div>
@@ -411,7 +410,7 @@ export default function PartnerSubscriptions() {
                             e.stopPropagation();
                             setOpenDropdownId(openDropdownId === subscription.id ? null : subscription.id);
                           }}
-                          className="p-1.5 text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                          className="p-1.5 text-gray-600 hover:bg-gray-100 rounded transition-colors cursor-pointer"
                           title="Actions"
                         >
                           <EllipsisVerticalIcon className="w-5 h-5" />
@@ -427,7 +426,7 @@ export default function PartnerSubscriptions() {
                             />
                             
                             {/* Menu */}
-                            <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-20 overflow-hidden">
+                            <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-20 overflow-hidden cursor-pointer">
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -435,10 +434,10 @@ export default function PartnerSubscriptions() {
                                   setShowViewModal(true);
                                   setOpenDropdownId(null);
                                 }}
-                                className="w-full px-4 py-2.5 text-left text-sm text-green-600 hover:bg-green-50 flex items-center gap-2 transition-colors"
+                                className="w-full px-4 py-2.5 text-left text-sm text-green-600 hover:bg-green-50 flex items-center gap-2 transition-colors cursor-pointer"
                               >
                                 <EyeIcon className="w-4 h-4" />
-                                View Details
+                                Xem Chi Tiết
                               </button>
                               <button
                                 onClick={(e) => {
@@ -446,10 +445,10 @@ export default function PartnerSubscriptions() {
                                   navigate(`/users?subscriptionId=${subscription.id}&lotId=${subscription.lotId}`);
                                   setOpenDropdownId(null);
                                 }}
-                                className="w-full px-4 py-2.5 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center gap-2 transition-colors"
+                                className="w-full px-4 py-2.5 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center gap-2 transition-colors cursor-pointer"
                               >
                                 <UserGroupIcon className="w-4 h-4" />
-                                View Users
+                                Xem Người Dùng
                               </button>
                               <button
                                 onClick={(e) => {
@@ -458,10 +457,10 @@ export default function PartnerSubscriptions() {
                                   setShowEditModal(true);
                                   setOpenDropdownId(null);
                                 }}
-                                className="w-full px-4 py-2.5 text-left text-sm text-indigo-600 hover:bg-indigo-50 flex items-center gap-2 transition-colors"
+                                className="w-full px-4 py-2.5 text-left text-sm text-indigo-600 hover:bg-indigo-50 flex items-center gap-2 transition-colors cursor-pointer"
                               >
                                 <PencilSquareIcon className="w-4 h-4" />
-                                Edit
+                                Chỉnh Sửa
                               </button>
                               <button
                                 onClick={(e) => {
@@ -470,10 +469,10 @@ export default function PartnerSubscriptions() {
                                   setShowDeleteModal(true);
                                   setOpenDropdownId(null);
                                 }}
-                                className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 border-t border-gray-200 transition-colors"
+                                className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 border-t border-gray-200 transition-colors cursor-pointer"
                               >
                                 <TrashIcon className="w-4 h-4" />
-                                Delete
+                                Xóa
                               </button>
                             </div>
                           </>
@@ -505,7 +504,7 @@ export default function PartnerSubscriptions() {
                             : "bg-gray-100 text-gray-800"
                         }`}
                       >
-                        {subscription.isActive ? "● Active" : "○ Inactive"}
+                        {subscription.isActive ? "● Hoảt Động" : "○ Không Hoạt Động"}
                       </span>
                     </div>
 
@@ -521,7 +520,7 @@ export default function PartnerSubscriptions() {
                   <div className="px-4 pb-3 pt-0 border-t border-gray-100">
                     {/* Price */}
                     <div className="pt-2">
-                      <p className="text-xs text-gray-500">Price</p>
+                      <p className="text-xs text-gray-500">Giá</p>
                       <p className="text-lg font-bold text-indigo-600">
                         {formatPrice(subscription.price)}
                       </p>
@@ -538,25 +537,25 @@ export default function PartnerSubscriptions() {
                   <button
                     disabled={page <= 0}
                     onClick={() => setPage((p) => Math.max(p - 1, 0))}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium"
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium cursor-pointer"
                   >
-                    ← Previous
+                    ← Trước
                   </button>
 
                   <span className="text-gray-700 text-sm font-medium px-4">
-                    Page <strong className="text-indigo-600">{page + 1}</strong> of{" "}
+                    Trang <strong className="text-indigo-600">{page + 1}</strong> /{" "}
                     <strong className="text-indigo-600">{pagination.totalPages}</strong> 
                     <span className="text-gray-400 ml-2">
-                      ({pagination.totalElements} items)
+                      ({pagination.totalElements} gói)
                     </span>
                   </span>
 
                   <button
                     disabled={page >= pagination.totalPages - 1}
                     onClick={() => setPage((p) => p + 1)}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium"
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium cursor-pointer"
                   >
-                    Next →
+                    Sau →
                   </button>
                 </div>
               </div>
@@ -607,8 +606,8 @@ export default function PartnerSubscriptions() {
 
       {showDeleteModal && selectedSubscription && (
         <ConfirmModal
-          title="Delete Subscription Package"
-          message={`Are you sure you want to delete "${selectedSubscription.name}"? This action cannot be undone.`}
+          title="Xóa Gói Đăng Ký"
+          message={`Bạn có chắc chắn muốn xóa "${selectedSubscription.name}"? Hành động này không thể hoàn tác.`}
           onConfirm={handleDelete}
           onCancel={() => {
             setShowDeleteModal(false);

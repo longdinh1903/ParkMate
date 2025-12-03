@@ -9,7 +9,7 @@ export default function OtpPopup({ email, onVerified, onClose }) {
 
   const handleVerify = async () => {
     if (!otp) {
-      setMessage("⚠️ Please enter the OTP");
+      setMessage("⚠️ Vui lòng nhập mã OTP");
       return;
     }
     try {
@@ -19,17 +19,17 @@ export default function OtpPopup({ email, onVerified, onClose }) {
       console.log("Verify response:", res.data);
 
       if (res.data.success) {
-        setMessage("✅ Email verified successfully!");
+        setMessage("✅ Xác thực email thành công!");
         setTimeout(() => {
           onVerified && onVerified();
           handleClose(); // ✅ tự đóng popup khi verified
         }, 1200);
       } else {
-        setMessage("❌ Invalid OTP, please try again.");
+        setMessage("❌ Mã OTP không hợp lệ, vui lòng thử lại.");
       }
     } catch (err) {
       console.error("❌ OTP verification failed:", err);
-      setMessage("❌ Verification failed.");
+      setMessage("❌ Xác thực thất bại.");
     } finally {
       setLoading(false);
     }
@@ -41,10 +41,10 @@ export default function OtpPopup({ email, onVerified, onClose }) {
       setMessage("");
       const res = await authApi.resendEmail(email);
       console.log("Resend response:", res.data);
-      setMessage("📧 A new OTP has been sent to your email.");
+      setMessage("📧 Một mã OTP mới đã được gửi đến email của bạn.");
     } catch (err) {
       console.error("❌ Resend failed:", err);
-      setMessage("❌ Failed to resend OTP.");
+      setMessage("❌ Gửi lại OTP thất bại.");
     } finally {
       setResending(false);
     }
@@ -73,9 +73,9 @@ export default function OtpPopup({ email, onVerified, onClose }) {
           <span className="text-indigo-600 text-2xl">📧</span>
         </div>
 
-        <h3 className="text-xl font-semibold mb-2">Verify Your Email</h3>
+        <h3 className="text-xl font-semibold mb-2">Xác Thực Email Của Bạn</h3>
         <p className="text-gray-500 text-sm mb-4">
-          We sent a 6-digit code to <br />
+          Chúng tôi đã gửi mã 6 chữ số đến <br />
           <span className="font-medium text-indigo-600">{email}</span>
         </p>
 
@@ -84,7 +84,7 @@ export default function OtpPopup({ email, onVerified, onClose }) {
           type="text"
           value={otp}
           onChange={(e) => setOtp(e.target.value)}
-          placeholder="Enter OTP code"
+          placeholder="Nhập mã OTP"
           className="border p-2 w-full rounded-md mb-3 text-center tracking-widest"
         />
 
@@ -94,7 +94,7 @@ export default function OtpPopup({ email, onVerified, onClose }) {
           disabled={loading}
           className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 disabled:opacity-50 cursor-pointer"
         >
-          {loading ? "Verifying..." : "Verify OTP"}
+          {loading ? "Đang xác thực..." : "Xác Thực OTP"}
         </button>
 
         {/* Resend Button */}
@@ -103,7 +103,7 @@ export default function OtpPopup({ email, onVerified, onClose }) {
           disabled={resending}
           className="mt-3 w-full border border-indigo-500 text-indigo-600 py-2 rounded-md hover:bg-indigo-50 disabled:opacity-50 cursor-pointer"
         >
-          {resending ? "Resending..." : "Resend OTP"}
+          {resending ? "Đang gửi lại..." : "Gửi Lại OTP"}
         </button>
 
         {/* Message */}

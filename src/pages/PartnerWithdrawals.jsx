@@ -7,6 +7,7 @@ import {
   PlusIcon,
   EyeIcon,
   BanknotesIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { showSuccess, showError } from "../utils/toastUtils.jsx";
 import RequestWithdrawalModal from "../components/RequestWithdrawalModal";
@@ -90,7 +91,7 @@ export default function PartnerWithdrawals() {
     } catch (err) {
       console.error("❌ Error fetching withdrawals:", err);
       console.error("❌ Error response:", err.response);
-      showError("Failed to fetch withdrawals");
+      showError("Đã có lỗi khi tải danh sách yêu cầu rút tiền");
       setWithdrawals([]);
     } finally {
       setLoading(false);
@@ -147,7 +148,7 @@ export default function PartnerWithdrawals() {
       setParkingLots(filteredLots);
     } catch (err) {
       console.error("Error fetching periods:", err);
-      showError("Failed to load periods");
+      showError("Đã có lỗi khi tải các kỳ thu nhập");
       setAllPeriods([]);
     } finally {
       setLoadingPeriods(false);
@@ -205,9 +206,15 @@ export default function PartnerWithdrawals() {
       PROCESSING: "bg-indigo-50 text-indigo-700 border-indigo-300",
     };
 
-    const displayText = status
-      ? status.charAt(0) + status.slice(1).toLowerCase()
-      : "Unknown";
+    const statusText = {
+      PENDING: "Đang Chờ",
+      APPROVED: "Đã Duyệt",
+      REJECTED: "Từ Chối",
+      COMPLETED: "Hoàn Tất",
+      PROCESSING: "Đang Xử Lý",
+    };
+
+    const displayText = statusText[status] || "Không rõ";
 
     return (
       <span
@@ -290,15 +297,15 @@ export default function PartnerWithdrawals() {
     try {
       const res = await withdrawalApi.delete(withdrawal.id);
       if (res.status === 200 || res.status === 204) {
-        showSuccess("Withdrawal request deleted successfully!");
+        showSuccess("Đã hủy yêu cầu rút tiền thành công!");
         fetchWithdrawals();
       } else {
-        showError("❌ Failed to delete withdrawal request.");
+        showError("❌ Đã có lỗi khi hủy yêu cầu rút tiền.");
       }
     } catch (err) {
       console.error("❌ Delete withdrawal error:", err);
       showError(
-        err.response?.data?.message || "❌ Failed to delete withdrawal request."
+        err.response?.data?.message || "❌ Đã có lỗi khi hủy yêu cầu rút tiền."
       );
     } finally {
       setConfirmingWithdrawal(null);
@@ -312,10 +319,10 @@ export default function PartnerWithdrawals() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-2">
             <BanknotesIcon className="w-10 h-10" />
-            <h1 className="text-3xl font-bold">Withdrawal Management</h1>
+            <h1 className="text-3xl font-bold">Quản Lý Rút Tiền</h1>
           </div>
           <p className="text-indigo-100">
-            Request and manage your earnings withdrawals
+            Yêu cầu và quản lý việc rút tiền thu nhập của bạn
           </p>
         </div>
       </div>
@@ -333,9 +340,9 @@ export default function PartnerWithdrawals() {
                   : "bg-gray-50 text-gray-600 hover:bg-gray-100"
               }`}
             >
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center justify-center gap-2 cursor-pointer">
                 <PlusIcon className="w-5 h-5" />
-                <span>Request Withdrawal</span>
+                <span>Yêu Cầu Rút Tiền</span>
               </div>
             </button>
             <button
@@ -346,11 +353,11 @@ export default function PartnerWithdrawals() {
                   : "bg-gray-50 text-gray-600 hover:bg-gray-100"
               }`}
             >
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center justify-center gap-2 cursor-pointer">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
-                <span>All Periods</span>
+                <span>Tất Cả Kỳ Thu Nhập</span>
               </div>
             </button>
             <button
@@ -361,9 +368,9 @@ export default function PartnerWithdrawals() {
                   : "bg-gray-50 text-gray-600 hover:bg-gray-100"
               }`}
             >
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center justify-center gap-2 cursor-pointer">
                 <BanknotesIcon className="w-5 h-5" />
-                <span>Withdrawal History</span>
+                <span>Lịch Sử Rút Tiền</span>
               </div>
             </button>
           </div>
@@ -390,16 +397,16 @@ export default function PartnerWithdrawals() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 {/* Parking Lot Filter */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Parking Lot</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Bãi Đỗ Xe</label>
                   <select
                     value={selectedLotFilter}
                     onChange={(e) => {
                       setSelectedLotFilter(e.target.value);
                       setPeriodPage(0);
                     }}
-                    className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all text-sm"
+                    className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all text-sm cursor-pointer"
                   >
-                    <option value="">All Parking Lots</option>
+                    <option value="">Tất Cả Bãi Đỗ Xe</option>
                     {parkingLots.map((lot) => (
                       <option key={lot.id} value={lot.id}>
                         {lot.name}
@@ -410,24 +417,24 @@ export default function PartnerWithdrawals() {
 
                 {/* Status Filter */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Trạng Thái</label>
                   <select
                     value={periodStatusFilter}
                     onChange={(e) => {
                       setPeriodStatusFilter(e.target.value);
                       setPeriodPage(0);
                     }}
-                    className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all text-sm"
+                    className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all text-sm cursor-pointer"
                   >
-                    <option value="">All Status</option>
-                    <option value="available">Available</option>
-                    <option value="withdrawn">Withdrawn</option>
+                    <option value="">Tất Cả Trạng Thái</option>
+                    <option value="available">Có Sẵn</option>
+                    <option value="withdrawn">Đã Rút</option>
                   </select>
                 </div>
 
                 {/* Start Date */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">From Date</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Từ Ngày</label>
                   <input
                     type="date"
                     value={periodStartDate}
@@ -441,7 +448,7 @@ export default function PartnerWithdrawals() {
 
                 {/* End Date */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">To Date</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Đến Ngày</label>
                   <input
                     type="date"
                     value={periodEndDate}
@@ -457,7 +464,7 @@ export default function PartnerWithdrawals() {
               {loadingPeriods ? (
                 <div className="text-center py-12">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-                  <p className="text-gray-500">Loading periods...</p>
+                  <p className="text-gray-500">Đang tải các kỳ thu nhập...</p>
                 </div>
               ) : (() => {
                 // Apply all filters
@@ -528,19 +535,19 @@ export default function PartnerWithdrawals() {
                               
                               <div className="grid grid-cols-4 gap-2 text-xs">
                                 <div className="flex flex-col p-2 bg-blue-50 rounded">
-                                  <span className="text-gray-600 mb-1">Reservation</span>
+                                  <span className="text-gray-600 mb-1">Đặt Chỗ</span>
                                   <span className="font-semibold text-blue-700">{formatCurrency(period.reservationRevenue)}</span>
                                 </div>
                                 <div className="flex flex-col p-2 bg-purple-50 rounded">
-                                  <span className="text-gray-600 mb-1">Subscription</span>
+                                  <span className="text-gray-600 mb-1">Đăng Ký</span>
                                   <span className="font-semibold text-purple-700">{formatCurrency(period.subscriptionRevenue)}</span>
                                 </div>
                                 <div className="flex flex-col p-2 bg-green-50 rounded">
-                                  <span className="text-gray-600 mb-1">Walk-in</span>
+                                  <span className="text-gray-600 mb-1">Vãng Lai</span>
                                   <span className="font-semibold text-green-700">{formatCurrency(period.walkInRevenue)}</span>
                                 </div>
                                 <div className="flex flex-col p-2 bg-indigo-50 rounded">
-                                  <span className="text-gray-600 font-medium mb-1">Gross</span>
+                                  <span className="text-gray-600 font-medium mb-1">Tổng Thu</span>
                                   <span className="font-bold text-indigo-700">{formatCurrency(period.grossRevenue)}</span>
                                 </div>
                               </div>
@@ -548,21 +555,21 @@ export default function PartnerWithdrawals() {
 
                             {/* Middle: Platform Fee */}
                             <div className="text-center px-4 border-l border-r border-gray-200">
-                              <div className="text-xs text-gray-500 mb-1">Platform Fee</div>
+                              <div className="text-xs text-gray-500 mb-1">Phí Nền Tảng</div>
                               <div className="font-bold text-red-600">-{formatCurrency(period.platformFee)}</div>
                             </div>
 
                             {/* Right: Net Revenue and Status */}
                             <div className="text-right min-w-[140px]">
-                              <div className="text-xs text-gray-500 mb-1">Net Revenue</div>
+                              <div className="text-xs text-gray-500 mb-1">Thu Nhập Ròng</div>
                               <div className="font-bold text-green-600 text-xl mb-2">
                                 {formatCurrency(period.netRevenue)}
                               </div>
                               <div>
                                 {period.isWithdrawn ? (
-                                  <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full font-semibold text-xs">✓ Withdrawn</span>
+                                  <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full font-semibold text-xs">✓ Đã Rút</span>
                                 ) : (
-                                  <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold text-xs">● Available</span>
+                                  <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold text-xs">● Có Sẵn</span>
                                 )}
                               </div>
                             </div>
@@ -577,26 +584,26 @@ export default function PartnerWithdrawals() {
                         <button
                           disabled={periodPage <= 0}
                           onClick={() => setPeriodPage((p) => Math.max(p - 1, 0))}
-                          className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm"
+                          className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm cursor-pointer"
                         >
-                          ← Previous
+                          ← Trước
                         </button>
 
                         <div className="text-center text-gray-600 text-sm">
                           <div>
-                            Page <strong>{periodPage + 1}</strong> of <strong>{totalPages}</strong>
+                            Trang <strong>{periodPage + 1}</strong> / <strong>{totalPages}</strong>
                           </div>
                           <div className="text-xs text-gray-500 mt-1">
-                            Showing {startIdx + 1}-{Math.min(endIdx, totalItems)} of {totalItems} periods
+                            Hiển thị {startIdx + 1}-{Math.min(endIdx, totalItems)} / {totalItems} kỳ
                           </div>
                         </div>
 
                         <button
                           disabled={periodPage >= totalPages - 1}
                           onClick={() => setPeriodPage((p) => Math.min(p + 1, totalPages - 1))}
-                          className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm"
+                          className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm cursor-pointer"
                         >
-                          Next →
+                          Sau →
                         </button>
                       </div>
                     )}
@@ -606,7 +613,7 @@ export default function PartnerWithdrawals() {
                     <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
-                    <p className="text-lg font-medium">No periods found</p>
+                    <p className="text-lg font-medium">Không tìm thấy kỳ thu nhập nào</p>
                   </div>
                 );
               })()}
@@ -623,7 +630,7 @@ export default function PartnerWithdrawals() {
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search by date (dd/mm/yyyy)..."
+                placeholder="Tìm kiếm theo ngày (dd/mm/yyyy)..."
                 className="border border-gray-300 pl-10 pr-4 py-2 rounded-lg w-80 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -650,15 +657,15 @@ export default function PartnerWithdrawals() {
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
                 className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all"
-                placeholder="Start date"
+                placeholder="Ngày bắt đầu"
               />
-              <span className="text-gray-500">to</span>
+              <span className="text-gray-500">đến</span>
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
                 className="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all"
-                placeholder="End date"
+                placeholder="Ngày kết thúc"
               />
             </div>
 
@@ -666,7 +673,7 @@ export default function PartnerWithdrawals() {
             <button
               onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
               className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
-              title={sortOrder === "asc" ? "Ascending" : "Descending"}
+              title={sortOrder === "asc" ? "Tăng dần" : "Giảm dần"}
             >
               {sortOrder === "asc" ? (
                 <i className="ri-sort-asc text-lg text-gray-600"></i>
@@ -674,7 +681,7 @@ export default function PartnerWithdrawals() {
                 <i className="ri-sort-desc text-lg text-gray-600"></i>
               )}
               <span className="text-sm text-gray-600">
-                {sortOrder === "asc" ? "Asc" : "Desc"}
+                {sortOrder === "asc" ? "Tăng dần" : "Giảm dần"}
               </span>
             </button>
 
@@ -690,10 +697,10 @@ export default function PartnerWithdrawals() {
                 fetchWithdrawals();
               }}
               className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
-              title="Reset filters"
+              title="Làm mới bộ lọc"
             >
               <i className="ri-refresh-line text-lg text-gray-600"></i>
-              <span className="text-sm text-gray-600">Refresh</span>
+              <span className="text-sm text-gray-600">Làm Mới</span>
             </button>
           </div>
 
@@ -708,12 +715,12 @@ export default function PartnerWithdrawals() {
             <thead className="bg-indigo-50 text-indigo-700 uppercase text-sm font-semibold">
               <tr>
                 <th className="px-6 py-3 text-left w-16">#</th>
-                <th className="px-6 py-3 text-left">Amount</th>
-                <th className="px-6 py-3 text-left">Gross Revenue</th>
-                <th className="px-6 py-3 text-left">Platform Fee</th>
-                <th className="px-6 py-3 text-left">Request Date</th>
-                <th className="px-6 py-3 text-left">Status</th>
-                <th className="px-6 py-3 text-center">Actions</th>
+                <th className="px-6 py-3 text-left">Số Tiền</th>
+                <th className="px-6 py-3 text-left">Tổng Thu</th>
+                <th className="px-6 py-3 text-left">Phí Nền Tảng</th>
+                <th className="px-6 py-3 text-left">Ngày Yêu Cầu</th>
+                <th className="px-6 py-3 text-left">Trạng Thái</th>
+                <th className="px-6 py-3 text-center">Thao Tác</th>
               </tr>
             </thead>
             <tbody className="text-gray-700 text-sm">
@@ -723,7 +730,7 @@ export default function PartnerWithdrawals() {
                     colSpan="8"
                     className="px-6 py-6 text-center text-gray-500 italic"
                   >
-                    Loading...
+                    Đang tải...
                   </td>
                 </tr>
               ) : filtered.length > 0 ? (
@@ -753,7 +760,7 @@ export default function PartnerWithdrawals() {
                       <td className="px-6 py-3 text-center">
                         <div className="flex justify-center items-center gap-3">
                           <button
-                            title="View Details"
+                            title="Xem Chi Tiết"
                             onClick={(e) => handleView(w, e)}
                             className="p-2 rounded-full hover:bg-indigo-100 transition cursor-pointer"
                           >
@@ -761,7 +768,7 @@ export default function PartnerWithdrawals() {
                           </button>
                           {w.status === "PENDING" && (
                             <button
-                              title="Cancel Request"
+                              title="Hủy Yêu Cầu"
                               onClick={(e) => handleDelete(w, e)}
                               className="p-2 rounded-full hover:bg-red-100 transition cursor-pointer"
                             >
@@ -779,7 +786,7 @@ export default function PartnerWithdrawals() {
                     colSpan="7"
                     className="px-6 py-6 text-center text-gray-500 italic"
                   >
-                    No withdrawal requests found.
+                    Không tìm thấy yêu cầu rút tiền nào.
                   </td>
                 </tr>
               )}
@@ -794,15 +801,15 @@ export default function PartnerWithdrawals() {
             onClick={() => setPage((p) => Math.max(p - 1, 0))}
             className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
           >
-            ← Previous
+            ← Trước
           </button>
 
           <div className="text-center text-gray-600 text-sm">
             <div>
-              Page <strong>{page + 1}</strong> of {totalPages}
+              Trang <strong>{page + 1}</strong> / {totalPages}
             </div>
             <div className="text-sm text-gray-500 mt-1">
-              Total requests:{" "}
+              Tổng số yêu cầu:{" "}
               <strong className="text-indigo-700">{totalCount}</strong>
             </div>
           </div>
@@ -812,7 +819,7 @@ export default function PartnerWithdrawals() {
             onClick={() => setPage((p) => p + 1)}
             className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
           >
-            Next →
+            Sau →
           </button>
         </div>
 
@@ -826,8 +833,8 @@ export default function PartnerWithdrawals() {
         {confirmingWithdrawal && (
           <ConfirmModal
             open={!!confirmingWithdrawal}
-            title="Cancel Withdrawal Request"
-            message="Are you sure you want to cancel this withdrawal request?"
+            title="Hủy Yêu Cầu Rút Tiền"
+            message="Bạn có chắc chắn muốn hủy yêu cầu rút tiền này không?"
             onConfirm={confirmDelete}
             onCancel={() => setConfirmingWithdrawal(null)}
           />
@@ -838,10 +845,16 @@ export default function PartnerWithdrawals() {
           <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black/50 z-50">
             <div className="bg-white w-[700px] rounded-2xl shadow-2xl overflow-hidden">
               {/* Header */}
-              <div className="bg-indigo-600 text-white py-5 px-6">
+              <div className="bg-indigo-600 text-white py-5 px-6 flex items-center justify-between">
                 <h2 className="text-2xl font-bold">
-                  Withdrawal Request Details
+                  Thông Tin Chi Tiết
                 </h2>
+                <button
+                  onClick={() => setViewingWithdrawal(null)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors p-1 hover:bg-white rounded-full cursor-pointer"
+                >
+                  <XMarkIcon className="w-6 h-6" />
+                </button>
               </div>
 
               <div className="p-6 space-y-4 max-h-[600px] overflow-y-auto withdrawal-modal-scroll">
@@ -849,7 +862,7 @@ export default function PartnerWithdrawals() {
                 <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-200">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-700 font-medium text-lg">
-                      Net Amount:
+                      Số Tiền Rút:
                     </span>
                     <span className="text-indigo-700 font-bold text-2xl">
                       {formatCurrency(viewingWithdrawal.netAmount)}
@@ -861,7 +874,7 @@ export default function PartnerWithdrawals() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
                     <div className="text-xs text-blue-600 font-medium mb-1">
-                      Total Gross Revenue
+                      Tổng Thu Thô
                     </div>
                     <div className="text-blue-800 font-bold text-lg">
                       {formatCurrency(viewingWithdrawal.totalGrossRevenue)}
@@ -869,7 +882,7 @@ export default function PartnerWithdrawals() {
                   </div>
                   <div className="bg-red-50 rounded-lg p-3 border border-red-200">
                     <div className="text-xs text-red-600 font-medium mb-1">
-                      Platform Fee
+                      Phí Nền Tảng
                     </div>
                     <div className="text-red-800 font-bold text-lg">
                       -{formatCurrency(viewingWithdrawal.totalPlatformFee)}
@@ -881,7 +894,7 @@ export default function PartnerWithdrawals() {
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
                     <div className="text-xs text-purple-600 font-medium mb-1">
-                      Reservation
+                      Đặt Chỗ
                     </div>
                     <div className="text-purple-800 font-semibold">
                       {formatCurrency(
@@ -891,7 +904,7 @@ export default function PartnerWithdrawals() {
                   </div>
                   <div className="bg-green-50 rounded-lg p-3 border border-green-200">
                     <div className="text-xs text-green-600 font-medium mb-1">
-                      Subscription
+                      Đăng Ký
                     </div>
                     <div className="text-green-800 font-semibold">
                       {formatCurrency(
@@ -901,7 +914,7 @@ export default function PartnerWithdrawals() {
                   </div>
                   <div className="bg-amber-50 rounded-lg p-3 border border-amber-200">
                     <div className="text-xs text-amber-600 font-medium mb-1">
-                      Walk-In
+                      Vãng Lai
                     </div>
                     <div className="text-amber-800 font-semibold">
                       {formatCurrency(viewingWithdrawal.totalAmountWalkIn || 0)}
@@ -911,25 +924,25 @@ export default function PartnerWithdrawals() {
 
                 {/* Status */}
                 <div className="flex justify-between items-center py-2">
-                  <span className="font-medium text-gray-600">Status:</span>
+                  <span className="font-medium text-gray-600">Trạng Thái:</span>
                   <span>{renderStatus(viewingWithdrawal.status)}</span>
                 </div>
 
                 {/* Dates */}
                 <div className="space-y-2">
                   <div className="flex justify-between py-2">
-                    <span className="font-medium text-gray-600">Request Date:</span>
+                    <span className="font-medium text-gray-600">Ngày Yêu Cầu:</span>
                     <span className="text-gray-800">{formatDate(viewingWithdrawal.requestedAt)}</span>
                   </div>
                   {viewingWithdrawal.processedAt && (
                     <div className="flex justify-between py-2">
-                      <span className="font-medium text-gray-600">Processed At:</span>
+                      <span className="font-medium text-gray-600">Ngày Xử Lý:</span>
                       <span className="text-gray-800">{formatDate(viewingWithdrawal.processedAt)}</span>
                     </div>
                   )}
                   {viewingWithdrawal.completedAt && (
                     <div className="flex justify-between py-2">
-                      <span className="font-medium text-gray-600">Completed At:</span>
+                      <span className="font-medium text-gray-600">Ngày Hoàn Tất:</span>
                       <span className="text-gray-800">{formatDate(viewingWithdrawal.completedAt)}</span>
                     </div>
                   )}
@@ -939,7 +952,7 @@ export default function PartnerWithdrawals() {
                 {viewingWithdrawal.externalTransactionId && (
                   <div className="bg-gray-50 rounded-lg p-3">
                     <div className="text-xs text-gray-600 font-medium mb-1">
-                      Transaction ID
+                      Mã Giao Dịch
                     </div>
                     <div className="text-gray-800 font-mono text-sm break-all">
                       {viewingWithdrawal.externalTransactionId}
@@ -950,7 +963,7 @@ export default function PartnerWithdrawals() {
                 {/* Periods */}
                 {viewingWithdrawal.periods && viewingWithdrawal.periods.length > 0 && (
                     <div className="pt-4 mt-4">
-                      <h3 className="font-semibold text-gray-700 mb-3">Withdrawal Periods ({viewingWithdrawal.periods.length})</h3>
+                      <h3 className="font-semibold text-gray-700 mb-3">Các Kỳ Rút Tiền ({viewingWithdrawal.periods.length})</h3>
                         <div className="space-y-3">
                         {viewingWithdrawal.periods.map((period, idx) => {
                           console.log("Period data:", period);
@@ -961,7 +974,7 @@ export default function PartnerWithdrawals() {
                             >
                               <div className="flex justify-between items-center mb-2">
                                 <div className="text-sm font-semibold text-gray-800">
-                                  Period {idx + 1}
+                                  Kỳ {idx + 1}
                                 </div>
                                 <div className="text-lg font-bold text-indigo-700">
                                   {formatCurrency(period.amount || period.netRevenue || 0)}
@@ -977,7 +990,7 @@ export default function PartnerWithdrawals() {
                                     {new Date(period.periodStartDate).toLocaleDateString("vi-VN")} - {new Date(period.periodEndDate).toLocaleDateString("vi-VN")}
                                   </>
                                 ) : (
-                                  "Date not available"
+                                  "Không có ngày"
                                 )}
                               </div>
                             </div>
@@ -992,9 +1005,9 @@ export default function PartnerWithdrawals() {
               <div className="bg-gray-50 px-6 py-4 flex justify-end">
                 <button
                   onClick={() => setViewingWithdrawal(null)}
-                  className="px-6 py-2 rounded-lg bg-gray-600 hover:bg-gray-700 text-white font-medium transition-all shadow-sm"
+                  className="px-6 py-2 rounded-lg bg-gray-600 hover:bg-gray-700 text-white font-medium transition-all shadow-sm cursor-pointer"
                 >
-                  Close
+                  Đóng
                 </button>
               </div>
             </div>

@@ -22,7 +22,7 @@ export default function ViewParkingLotModal({
 }) {
   // Local state for lot data (for realtime updates)
   const [lotData, setLotData] = useState(lot);
-  
+
   const [showReasonModal, setShowReasonModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [pendingStatus, setPendingStatus] = useState(null);
@@ -32,6 +32,13 @@ export default function ViewParkingLotModal({
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentData, setPaymentData] = useState(null);
   const [checkingPayment, setCheckingPayment] = useState(false);
+  const [showImageUpload, setShowImageUpload] = useState(false);
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [selectedImagesToDelete, setSelectedImagesToDelete] = useState([]);
+  const [deletingImages, setDeletingImages] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Auto-open payment modal if status is PENDING_PAYMENT
   useEffect(() => {
@@ -40,7 +47,7 @@ export default function ViewParkingLotModal({
         try {
           const qrCode = lot.paymentQrCode;
           const paymentUrl = lot.paymentUrl;
-          
+
           if (qrCode || paymentUrl) {
             const data = {
               qrCode,
@@ -115,7 +122,9 @@ export default function ViewParkingLotModal({
   const handleChangeStatus = async (newStatus) => {
     // Check if trying to change to ACTIVE from PENDING_PAYMENT without payment
     if (newStatus === "ACTIVE" && lot.status === "PENDING_PAYMENT") {
-      showError("❌ Vui lòng hoàn tất thanh toán trước khi kích hoạt bãi đỗ xe!");
+      showError(
+        "❌ Vui lòng hoàn tất thanh toán trước khi kích hoạt bãi đỗ xe!"
+      );
       return;
     }
 
@@ -137,17 +146,17 @@ export default function ViewParkingLotModal({
 
         if (res.status === 200) {
           showSuccess(`✅ Status updated to "${payloadStatus}" successfully!`);
-          
+
           const updatedLot = res.data?.data || res.data;
           const qrCode = updatedLot.paymentQrCode;
           const paymentUrl = updatedLot.paymentUrl;
-          
+
           // Fix QR code format - ensure it has data:image prefix
           let formattedQrCode = qrCode;
-          if (qrCode && !qrCode.startsWith('data:')) {
+          if (qrCode && !qrCode.startsWith("data:")) {
             formattedQrCode = `data:image/png;base64,${qrCode}`;
           }
-          
+
           if (formattedQrCode || paymentUrl) {
             const data = {
               qrCode: formattedQrCode,
@@ -155,23 +164,30 @@ export default function ViewParkingLotModal({
               totalFloors: updatedLot.totalFloors || lot.totalFloors,
               openTime: updatedLot.openTime || lot.openTime,
               closeTime: updatedLot.closeTime || lot.closeTime,
-              operationalFee: updatedLot.operationalPaymentStartDate || lot.operationalFee || 12000,
+              operationalFee:
+                updatedLot.operationalPaymentStartDate ||
+                lot.operationalFee ||
+                12000,
               paymentDueDate: updatedLot.paymentDueDate,
             };
             setPaymentData(data);
             setShowPaymentModal(true);
             startPaymentStatusCheck();
           } else {
-            showError("Payment information not available. Please contact support.");
+            showError(
+              "Payment information not available. Please contact support."
+            );
           }
-          
+
           onActionDone();
         } else {
           showError("⚠️ Failed to update status. Please try again.");
         }
       } catch (err) {
         console.error("❌ Error updating status:", err);
-        showError(err.response?.data?.message || "❌ An unexpected error occurred!");
+        showError(
+          err.response?.data?.message || "❌ An unexpected error occurred!"
+        );
       }
       return;
     }
@@ -228,22 +244,22 @@ export default function ViewParkingLotModal({
     if (lot.status === "PENDING_PAYMENT") {
       try {
         showInfo("⏳ Đang tải thông tin thanh toán...");
-        
+
         const res = await parkingLotApi.update(lot.id, {
           status: "PENDING_PAYMENT",
         });
-        
+
         if (res.status === 200) {
           const freshLot = res.data?.data || res.data;
           const qrCode = freshLot.paymentQrCode;
           const paymentUrl = freshLot.paymentUrl;
-          
+
           // Fix QR code format - ensure it has data:image prefix
           let formattedQrCode = qrCode;
-          if (qrCode && !qrCode.startsWith('data:')) {
+          if (qrCode && !qrCode.startsWith("data:")) {
             formattedQrCode = `data:image/png;base64,${qrCode}`;
           }
-          
+
           if (formattedQrCode || paymentUrl) {
             const data = {
               qrCode: formattedQrCode,
@@ -251,7 +267,10 @@ export default function ViewParkingLotModal({
               totalFloors: freshLot.totalFloors || lot.totalFloors,
               openTime: freshLot.openTime || lot.openTime,
               closeTime: freshLot.closeTime || lot.closeTime,
-              operationalFee: freshLot.operationalPaymentStartDate || lot.operationalFee || 12000,
+              operationalFee:
+                freshLot.operationalPaymentStartDate ||
+                lot.operationalFee ||
+                12000,
               paymentDueDate: freshLot.paymentDueDate,
             };
             setPaymentData(data);
@@ -278,12 +297,14 @@ export default function ViewParkingLotModal({
         // Refresh lot data to check if status changed
         const response = await parkingLotApi.getById(lot.id);
         const updatedLot = response.data?.data || response.data;
-        
+
         if (updatedLot.status === "ACTIVE") {
           clearInterval(interval);
           setCheckingPayment(false);
           setShowPaymentModal(false);
-          showSuccess("✅ Thanh toán đã xác nhận! Bãi đỗ xe của bạn đã HOẠT ĐỘNG!");
+          showSuccess(
+            "✅ Thanh toán đã xác nhận! Bãi đỗ xe của bạn đã HOẠT ĐỘNG!"
+          );
           onActionDone();
           onClose();
         }
@@ -453,11 +474,12 @@ export default function ViewParkingLotModal({
   };
 
   // ========== EDIT FUNCTIONS ==========
-  
+
   // Operating Hours
   const startEditOperatingHours = () => {
     setOperatingHoursForm({
-      operatingHoursStart: lotData.operatingHoursStart || lotData.openTime || "",
+      operatingHoursStart:
+        lotData.operatingHoursStart || lotData.openTime || "",
       operatingHoursEnd: lotData.operatingHoursEnd || lotData.closeTime || "",
       is24Hour: lotData.is24Hour || false,
     });
@@ -470,14 +492,13 @@ export default function ViewParkingLotModal({
 
   const saveOperatingHours = async () => {
     try {
-      showInfo("⏳ Đang cập nhật giờ hoạt động...");
       await parkingLotApi.update(lotData.id, {
         operatingHoursStart: operatingHoursForm.operatingHoursStart,
         operatingHoursEnd: operatingHoursForm.operatingHoursEnd,
         is24Hour: operatingHoursForm.is24Hour,
       });
       showSuccess("✅ Cập nhật giờ hoạt động thành công!");
-      
+
       // Update local state immediately
       setLotData({
         ...lotData,
@@ -485,11 +506,13 @@ export default function ViewParkingLotModal({
         operatingHoursEnd: operatingHoursForm.operatingHoursEnd,
         is24Hour: operatingHoursForm.is24Hour,
       });
-      
+
       setEditingOperatingHours(false);
     } catch (err) {
       console.error("❌ Error updating operating hours:", err);
-      showError(err.response?.data?.message || "❌ Cập nhật giờ hoạt động thất bại");
+      showError(
+        err.response?.data?.message || "❌ Cập nhật giờ hoạt động thất bại"
+      );
     }
   };
 
@@ -513,31 +536,32 @@ export default function ViewParkingLotModal({
         return;
       }
 
-      showInfo("⏳ Đang cập nhật thời gian dự trữ...");
       await parkingLotApi.update(lotData.id, {
         horizonTime: horizonTimeValue,
       });
       showSuccess("✅ Cập nhật thời gian dự trữ thành công!");
-      
+
       // Update local state immediately
       setLotData({
         ...lotData,
         horizonTime: horizonTimeValue,
       });
-      
+
       setEditingHorizonTime(false);
     } catch (err) {
       console.error("❌ Error updating horizon time:", err);
-      showError(err.response?.data?.message || "❌ Failed to update horizon time");
+      showError(
+        err.response?.data?.message || "❌ Failed to update horizon time"
+      );
     }
   };
 
   // Policy
   const startEditPolicy = (policyId) => {
     // Find the latest policy data from lotData
-    const policy = lotData.policies.find(p => p.id === policyId);
+    const policy = lotData.policies.find((p) => p.id === policyId);
     if (!policy) return;
-    
+
     setPolicyForm({ value: policy.value.toString() });
     setEditingPolicy(policy);
   };
@@ -548,22 +572,21 @@ export default function ViewParkingLotModal({
 
   const savePolicy = async () => {
     try {
-      showInfo("⏳ Updating policy...");
       await policyApi.update(editingPolicy.id, {
         value: parseInt(policyForm.value, 10),
       });
       showSuccess("✅ Policy updated successfully!");
-      
+
       // Update local state immediately
       setLotData({
         ...lotData,
-        policies: lotData.policies.map(p => 
-          p.id === editingPolicy.id 
+        policies: lotData.policies.map((p) =>
+          p.id === editingPolicy.id
             ? { ...p, value: parseInt(policyForm.value, 10) }
             : p
         ),
       });
-      
+
       setEditingPolicy(null);
     } catch (err) {
       console.error("❌ Error updating policy:", err);
@@ -574,19 +597,19 @@ export default function ViewParkingLotModal({
   // Pricing Rule
   const startEditRule = (ruleId) => {
     // Find the latest rule data from lotData
-    const rule = lotData.pricingRules.find(r => r.id === ruleId);
+    const rule = lotData.pricingRules.find((r) => r.id === ruleId);
     if (!rule) return;
-    
+
     // Convert ISO datetime to datetime-local format (YYYY-MM-DDTHH:mm)
     const formatDatetimeLocal = (isoString) => {
       if (!isoString) return "";
       try {
         const date = new Date(isoString);
         const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
         return `${year}-${month}-${day}T${hours}:${minutes}`;
       } catch {
         return "";
@@ -613,8 +636,6 @@ export default function ViewParkingLotModal({
 
   const saveRule = async () => {
     try {
-      showInfo("⏳ Updating pricing rule...");
-      
       // Convert datetime-local to ISO string
       const formatToISO = (datetimeLocal) => {
         if (!datetimeLocal) return null;
@@ -646,21 +667,156 @@ export default function ViewParkingLotModal({
 
       await pricingRuleApi.update(editingRule.id, payload);
       showSuccess("✅ Cập nhật quy tắc giá thành công!");
-      
+
       // Update local state immediately
       setLotData({
         ...lotData,
-        pricingRules: lotData.pricingRules.map(rule => 
-          rule.id === editingRule.id 
-            ? { ...rule, ...payload }
-            : rule
+        pricingRules: lotData.pricingRules.map((rule) =>
+          rule.id === editingRule.id ? { ...rule, ...payload } : rule
         ),
       });
-      
+
       setEditingRule(null);
     } catch (err) {
       console.error("❌ Error updating pricing rule:", err);
-      showError(err.response?.data?.message || "❌ Cập nhật quy tắc giá thất bại");
+      showError(
+        err.response?.data?.message || "❌ Cập nhật quy tắc giá thất bại"
+      );
+    }
+  };
+
+  const handleImageSelect = (e) => {
+    const files = Array.from(e.target.files);
+    
+    if (files.length === 0) return;
+    
+    // Validate file types and size
+    const validFiles = files.filter(file => {
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      
+      if (!validTypes.includes(file.type)) {
+        showError(`File ${file.name} không đúng định dạng (chỉ chấp nhận JPG, PNG, WebP, GIF)`);
+        return false;
+      }
+      if (file.size > maxSize) {
+        showError(`File ${file.name} quá lớn (tối đa 10MB)`);
+        return false;
+      }
+      return true;
+    });
+
+    // Limit to 4 images total
+    const currentCount = selectedImages.length;
+    const availableSlots = 4 - currentCount;
+    
+    if (validFiles.length > availableSlots) {
+      showError(`⚠️ Chỉ có thể thêm tối đa ${availableSlots} ảnh nữa (tối đa 4 ảnh)`);
+      return;
+    }
+
+    setSelectedImages([...selectedImages, ...validFiles]);
+    
+    // Create previews
+    validFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreviews(prev => [...prev, reader.result]);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    showSuccess(`Đã thêm ${validFiles.length} ảnh`);
+  };
+
+  const handleRemoveImage = (index) => {
+    setSelectedImages(selectedImages.filter((_, i) => i !== index));
+    setImagePreviews(imagePreviews.filter((_, i) => i !== index));
+    showInfo("Đã xóa ảnh");
+  };
+
+  const handleUploadImages = async () => {
+    if (selectedImages.length === 0) {
+      showError("⚠️ Vui lòng chọn ảnh để tải lên!");
+      return;
+    }
+
+    setUploadingImages(true);
+    try {
+      await parkingLotApi.uploadImages(lot.id, selectedImages);
+      showSuccess("🎉 Tải ảnh lên thành công!");
+      setShowImageUpload(false);
+      setSelectedImages([]);
+      setImagePreviews([]);
+      
+      // Reload lot data to get updated images
+      const res = await parkingLotApi.getById(lot.id);
+      if (res.data?.data) {
+        setLotData(res.data.data);
+      }
+      
+      if (onActionDone) {
+        onActionDone();
+      }
+    } catch (error) {
+      console.error("Error uploading images:", error);
+      showError("❌ Tải ảnh lên thất bại! Vui lòng thử lại.");
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
+  const handleToggleImageSelection = (imageId) => {
+    setSelectedImagesToDelete(prev => {
+      if (prev.includes(imageId)) {
+        return prev.filter(id => id !== imageId);
+      } else {
+        return [...prev, imageId];
+      }
+    });
+  };
+
+  const handleSelectAllImages = () => {
+    if (selectedImagesToDelete.length === lotData.images.length) {
+      setSelectedImagesToDelete([]);
+    } else {
+      setSelectedImagesToDelete(lotData.images.map(img => img.id));
+    }
+  };
+
+  const handleDeleteSelectedImages = () => {
+    if (selectedImagesToDelete.length === 0) {
+      showInfo("⚠️ Vui lòng chọn ảnh cần xóa!");
+      return;
+    }
+    setShowDeleteConfirm(true);
+  };
+
+  const handleConfirmDeleteImage = async () => {
+    if (selectedImagesToDelete.length === 0) return;
+
+    setDeletingImages(true);
+    try {
+      await parkingLotApi.deleteImages(lot.id, selectedImagesToDelete);
+      showSuccess(`🗑️ Đã xóa ${selectedImagesToDelete.length} ảnh thành công!`);
+      
+      // Reload lot data to get updated images
+      const res = await parkingLotApi.getById(lot.id);
+      if (res.data?.data) {
+        setLotData(res.data.data);
+      }
+      
+      setSelectedImagesToDelete([]);
+      
+      if (onActionDone) {
+        onActionDone();
+      }
+    } catch (error) {
+      console.error("Error deleting images:", error);
+      showError("❌ Xóa ảnh thất bại! Vui lòng thử lại.");
+    } finally {
+      setDeletingImages(false);
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -685,15 +841,24 @@ export default function ViewParkingLotModal({
 
             {/* Status Dropdown */}
             <div className="relative">
-              <details className="group" disabled={lot.status === "PENDING_PAYMENT"}>
+              <details
+                className="group"
+                disabled={lot.status === "PENDING_PAYMENT"}
+              >
                 <summary
                   className={`list-none flex items-center gap-2 px-4 py-1.5 text-sm font-semibold rounded-lg shadow-sm select-none transition-all duration-200 ${getStatusStyle(
                     lot.status
-                  )} ${lot.status === "PENDING_PAYMENT" ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
+                  )} ${
+                    lot.status === "PENDING_PAYMENT"
+                      ? "cursor-not-allowed opacity-60"
+                      : "cursor-pointer"
+                  }`}
                   onClick={(e) => {
                     if (lot.status === "PENDING_PAYMENT") {
                       e.preventDefault();
-                      showInfo("⚠️ Không thể thay đổi trạng thái khi đang chờ thanh toán. Vui lòng hoàn tất thanh toán trước.");
+                      showInfo(
+                        "⚠️ Không thể thay đổi trạng thái khi đang chờ thanh toán. Vui lòng hoàn tất thanh toán trước."
+                      );
                     }
                   }}
                 >
@@ -721,44 +886,44 @@ export default function ViewParkingLotModal({
 
                 {lot.status !== "PENDING_PAYMENT" && (
                   <ul className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
-                  {(
-                    statusOptions || [
-                      {
-                        key: "PREPARING",
-                        label: "Đang Chuẩn Bị",
-                        color: "text-yellow-600",
-                      },
-                      {
-                        key: "PARTNER_CONFIGURATION",
-                        label: "Cấu Hình Đối Tác",
-                        color: "text-blue-600",
-                      },
-                      {
-                        key: "PENDING_PAYMENT",
-                        label: "Chờ Thanh Toán",
-                        color: "text-purple-600",
-                      },
-                      {
-                        key: "REJECTED",
-                        label: "Bị Từ Chối",
-                        color: "text-red-600",
-                      },
-                      {
-                        key: "MAP_DENIED",
-                        label: "Từ Chối Bản Đồ",
-                        color: "text-red-600",
-                      },
-                    ]
-                  ).map((s) => (
-                    <li
-                      key={s.key}
-                      onClick={() => handleChangeStatus(s.key)}
-                      className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${s.color}`}
-                    >
-                      {s.label}
-                    </li>
-                  ))}
-                </ul>
+                    {(
+                      statusOptions || [
+                        {
+                          key: "PREPARING",
+                          label: "Đang Chuẩn Bị",
+                          color: "text-yellow-600",
+                        },
+                        {
+                          key: "PARTNER_CONFIGURATION",
+                          label: "Cấu Hình Đối Tác",
+                          color: "text-blue-600",
+                        },
+                        {
+                          key: "PENDING_PAYMENT",
+                          label: "Chờ Thanh Toán",
+                          color: "text-purple-600",
+                        },
+                        {
+                          key: "REJECTED",
+                          label: "Bị Từ Chối",
+                          color: "text-red-600",
+                        },
+                        {
+                          key: "MAP_DENIED",
+                          label: "Từ Chối Bản Đồ",
+                          color: "text-red-600",
+                        },
+                      ]
+                    ).map((s) => (
+                      <li
+                        key={s.key}
+                        onClick={() => handleChangeStatus(s.key)}
+                        className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${s.color}`}
+                      >
+                        {s.label}
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </details>
             </div>
@@ -766,425 +931,569 @@ export default function ViewParkingLotModal({
 
           {/* Content - Scrollable */}
           <div className="px-8 py-6 overflow-y-auto flex-1 custom-scrollbar">
-          
-          {/* PENDING_PAYMENT Banner - only show if showPaymentBanner is true */}
-          {showPaymentBanner && lot.status === "PENDING_PAYMENT" && (
-            <div className="mb-6 bg-indigo-50 p-6 rounded-2xl border-2 border-indigo-300 shadow-lg">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="bg-indigo-500 text-white p-3 rounded-full">
-                    <i className="ri-qr-code-line text-2xl"></i>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-indigo-800 text-lg mb-1">
-                      💳 Cần Thanh Toán
-                    </h3>
-                    <p className="text-indigo-700 text-sm">
-                      Hoàn tất thanh toán để kích hoạt bãi đỗ xe của bạn
-                    </p>
-                    {lot.operationalFee && (
-                      <p className="text-indigo-900 font-semibold mt-1">
-                        Số tiền: {lot.operationalFee.toLocaleString()} ₫
+            {/* PENDING_PAYMENT Banner - only show if showPaymentBanner is true */}
+            {showPaymentBanner && lot.status === "PENDING_PAYMENT" && (
+              <div className="mb-6 bg-indigo-50 p-6 rounded-2xl border-2 border-indigo-300 shadow-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-indigo-500 text-white p-3 rounded-full">
+                      <i className="ri-qr-code-line text-2xl"></i>
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-indigo-800 text-lg mb-1">
+                        💳 Cần Thanh Toán
+                      </h3>
+                      <p className="text-indigo-700 text-sm">
+                        Hoàn tất thanh toán để kích hoạt bãi đỗ xe của bạn
                       </p>
-                    )}
+                      {lot.operationalFee && (
+                        <p className="text-indigo-900 font-semibold mt-1">
+                          Số tiền: {lot.operationalFee.toLocaleString()} ₫
+                        </p>
+                      )}
+                    </div>
                   </div>
+                  <button
+                    onClick={handlePaymentCheck}
+                    className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-all shadow-md flex items-center gap-2"
+                  >
+                    <i className="ri-qr-scan-2-line text-xl"></i>
+                    Xem Mã QR
+                  </button>
                 </div>
-                <button
-                  onClick={handlePaymentCheck}
-                  className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-all shadow-md flex items-center gap-2"
-                >
-                  <i className="ri-qr-scan-2-line text-xl"></i>
-                  Xem Mã QR
-                </button>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Basic Info */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-[15px] text-gray-700 mb-8">
-            <p>
-              <strong>🏢 Địa Chỉ:</strong> {lot.streetAddress}, {lot.ward},{" "}
-              {lot.city}
-            </p>
-            <p>
-              <strong>🕒 Mở:</strong> {lot.openTime}
-            </p>
-            <p>
-              <strong>🕕 Đóng:</strong> {lot.closeTime}
-            </p>
-            <p>
-              <strong>🌙 24 Giờ:</strong> {lot.is24Hour ? "Có" : "Không"}
-            </p>
-            <p>
-              <strong>🏗 Tầng:</strong> {lot.totalFloors}
-            </p>
-            <p>
-              <strong>� Diện Tích Bãi Đỗ:</strong> {lotData.lotSquare ? `${lotData.lotSquare} m²` : "-"}
-            </p>
-            <p className="flex items-center gap-2">
-              <span>
-                <strong>⏱️ Thời gian Horizon:</strong>{" "}
-                {editingHorizonTime ? (
-                  <input
-                    type="number"
-                    min="0"
-                    value={horizonTimeForm.horizonTime}
-                    onChange={(e) =>
-                      setHorizonTimeForm({
-                        ...horizonTimeForm,
-                        horizonTime: e.target.value,
-                      })
-                    }
-                    className="w-20 px-2 py-1 border rounded text-sm"
-                    placeholder="0"
-                  />
-                ) : (
-                  lotData.horizonTime ? `${lotData.horizonTime} phút` : "-"
+            {/* Basic Info */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-[15px] text-gray-700 mb-8">
+              <p>
+                <strong>🏢 Địa Chỉ:</strong> {lot.streetAddress}, {lot.ward},{" "}
+                {lot.city}
+              </p>
+              <p>
+                <strong>🕒 Mở:</strong> {lot.openTime}
+              </p>
+              <p>
+                <strong>🕕 Đóng:</strong> {lot.closeTime}
+              </p>
+              <p>
+                <strong>🌙 24 Giờ:</strong> {lot.is24Hour ? "Có" : "Không"}
+              </p>
+              <p>
+                <strong>🏗 Tầng:</strong> {lot.totalFloors}
+              </p>
+              <p>
+                <strong>📐 Diện Tích Bãi Đỗ:</strong>{" "}
+                {lotData.lotSquare ? `${lotData.lotSquare} m²` : "-"}
+              </p>
+              <p className="flex items-center gap-2">
+                <span>
+                  <strong>⏱️ Thời gian Horizon:</strong>{" "}
+                  {editingHorizonTime ? (
+                    <input
+                      type="number"
+                      min="0"
+                      value={horizonTimeForm.horizonTime}
+                      onChange={(e) =>
+                        setHorizonTimeForm({
+                          ...horizonTimeForm,
+                          horizonTime: e.target.value,
+                        })
+                      }
+                      className="w-20 px-2 py-1 border rounded text-sm"
+                      placeholder="0"
+                    />
+                  ) : lotData.horizonTime ? (
+                    `${lotData.horizonTime} phút`
+                  ) : (
+                    "-"
+                  )}
+                </span>
+                {allowEdit &&
+                  (editingHorizonTime ? (
+                    <span className="flex gap-1">
+                      <button
+                        onClick={saveHorizonTime}
+                        className="px-2 py-0.5 text-xs bg-green-500 text-white rounded hover:bg-green-600 cursor-pointer"
+                        title="Lưu"
+                      >
+                        ✓
+                      </button>
+                      <button
+                        onClick={cancelEditHorizonTime}
+                        className="px-2 py-0.5 text-xs bg-gray-400 text-white rounded hover:bg-gray-500 cursor-pointer"
+                        title="Hủy"
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  ) : (
+                    <button
+                      onClick={startEditHorizonTime}
+                      className="px-2 py-0.5 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
+                      title="Chỉnh sửa thời gian horizon"
+                    >
+                      ✏️
+                    </button>
+                  ))}
+              </p>
+              <p>
+                <strong>📍 Vĩ Độ:</strong> {lot.latitude}
+              </p>
+              <p>
+                <strong>📍 Kinh Độ:</strong> {lot.longitude}
+              </p>
+              <p>
+                <strong>📅 Ngày Tạo:</strong> {lot.createdAt}
+              </p>
+              <p>
+                <strong>⚙ Cập Nhật:</strong> {lot.updatedAt}
+              </p>
+            </div>
+
+            {/* Images Section */}
+            <div className="mb-8 bg-gradient-to-br from-purple-50 to-purple-100/30 p-6 rounded-2xl border border-purple-200 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-purple-600 text-xl flex items-center gap-2">
+                  <i className="ri-image-fill"></i> Hình Ảnh Bãi Xe
+                  {selectedImagesToDelete.length > 0 && (
+                    <span className="text-sm font-normal">
+                      ({selectedImagesToDelete.length} đã chọn)
+                    </span>
+                  )}
+                </h3>
+                <div className="flex gap-2">
+                  {allowEdit && lotData.images && lotData.images.length > 0 && (
+                    <>
+                      <button
+                        onClick={handleSelectAllImages}
+                        className="px-3 py-2 text-sm bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-all flex items-center gap-2 shadow-md cursor-pointer"
+                      >
+                        <i className="ri-checkbox-multiple-line"></i>
+                        {selectedImagesToDelete.length === lotData.images.length ? "Bỏ Chọn" : "Chọn Tất Cả"}
+                      </button>
+                      {selectedImagesToDelete.length > 0 && (
+                        <button
+                          onClick={handleDeleteSelectedImages}
+                          disabled={deletingImages}
+                          className="px-3 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all flex items-center gap-2 shadow-md disabled:opacity-50 cursor-pointer"
+                        >
+                          {deletingImages ? (
+                            <>
+                              <i className="ri-loader-4-line animate-spin"></i>
+                              Đang Xóa...
+                            </>
+                          ) : (
+                            <>
+                              <i className="ri-delete-bin-line"></i>
+                              Xóa ({selectedImagesToDelete.length})
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </>
+                  )}
+                  {allowEdit && (
+                    <button
+                      onClick={() => setShowImageUpload(true)}
+                      className="px-4 py-2 text-sm bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-all flex items-center gap-2 cursor-pointer shadow-md hover:shadow-lg"
+                    >
+                      <i className="ri-upload-2-line"></i>
+                      {(lotData.images && lotData.images.length > 0) ? "Thêm Ảnh" : "Thêm Ảnh"}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {lotData.images && lotData.images.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {lotData.images.map((image, index) => (
+                    <div 
+                      key={image.id || index} 
+                      className={`relative group cursor-pointer rounded-lg border-2 transition-all ${
+                        selectedImagesToDelete.includes(image.id)
+                          ? 'border-purple-500 ring-4 ring-purple-200'
+                          : 'border-purple-200'
+                      }`}
+                      onClick={() => allowEdit && handleToggleImageSelection(image.id)}
+                    >
+                      <img
+                        src={image.path}
+                        alt={`Parking lot ${index + 1}`}
+                        className="w-full h-40 object-cover rounded-lg shadow-md hover:shadow-xl transition-all"
+                      />
+                      <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                        {index + 1}/{lotData.images.length}
+                      </div>
+                      {allowEdit && (
+                        <div className="absolute top-2 right-2">
+                          <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all ${
+                            selectedImagesToDelete.includes(image.id)
+                              ? 'bg-purple-500 border-purple-500'
+                              : 'bg-white border-gray-300 group-hover:border-purple-400'
+                          }`}>
+                            {selectedImagesToDelete.includes(image.id) && (
+                              <i className="ri-check-line text-white text-sm"></i>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 bg-white/50 rounded-xl border-2 border-dashed border-purple-300">
+                  <i className="ri-image-line text-5xl text-purple-300 mb-3"></i>
+                  <p className="text-purple-600 font-medium">Chưa có hình ảnh</p>
+                  {allowEdit && (
+                    <p className="text-purple-400 text-sm mt-1">
+                      Nhấp "Thêm Ảnh" để tải ảnh lên
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Operating Hours - Editable */}
+            <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-indigo-600 text-xl flex items-center gap-2">
+                  🕐 Giờ Hoạt Động
+                </h3>
+                {allowEdit && !editingOperatingHours && (
+                  <button
+                    onClick={startEditOperatingHours}
+                    className="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 cursor-pointer"
+                  >
+                    ✏️ Chỉnh Sửa
+                  </button>
                 )}
-              </span>
-              {allowEdit && (
-                editingHorizonTime ? (
-                  <span className="flex gap-1">
+              </div>
+              {editingOperatingHours ? (
+                <div className="bg-white p-4 rounded-lg space-y-3">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Giờ Mở Cửa
+                      </label>
+                      <input
+                        type="time"
+                        value={operatingHoursForm.operatingHoursStart}
+                        onChange={(e) =>
+                          setOperatingHoursForm({
+                            ...operatingHoursForm,
+                            operatingHoursStart: e.target.value,
+                          })
+                        }
+                        className="w-full px-3 py-2 border rounded-md text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Giờ Đóng Cửa
+                      </label>
+                      <input
+                        type="time"
+                        value={operatingHoursForm.operatingHoursEnd}
+                        onChange={(e) =>
+                          setOperatingHoursForm({
+                            ...operatingHoursForm,
+                            operatingHoursEnd: e.target.value,
+                          })
+                        }
+                        className="w-full px-3 py-2 border rounded-md text-sm"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="is24Hour"
+                      checked={operatingHoursForm.is24Hour}
+                      onChange={(e) =>
+                        setOperatingHoursForm({
+                          ...operatingHoursForm,
+                          is24Hour: e.target.checked,
+                        })
+                      }
+                      className="w-4 h-4"
+                    />
+                    <label htmlFor="is24Hour" className="text-sm text-gray-700 cursor-pointer">
+                      24 Giờ Hoạt Động
+                    </label>
+                  </div>
+                  <div className="flex justify-end gap-2 mt-4">
                     <button
-                      onClick={saveHorizonTime}
-                      className="px-2 py-0.5 text-xs bg-green-500 text-white rounded hover:bg-green-600"
-                      title="Lưu"
+                      onClick={cancelEditOperatingHours}
+                      className="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 cursor-pointer"
                     >
-                      ✓
+                      Hủy
                     </button>
                     <button
-                      onClick={cancelEditHorizonTime}
-                      className="px-2 py-0.5 text-xs bg-gray-400 text-white rounded hover:bg-gray-500"
-                      title="Hủy"
+                      onClick={saveOperatingHours}
+                      className="px-4 py-2 text-sm bg-green-500 text-white rounded-md hover:bg-green-600 cursor-pointer"
                     >
-                      ✕
+                      💾 Lưu
                     </button>
-                  </span>
-                ) : (
-                  <button
-                    onClick={startEditHorizonTime}
-                    className="px-2 py-0.5 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
-                    title="Chỉnh sửa thời gian horizon"
-                  >
-                    ✏️
-                  </button>
-                )
-              )}
-            </p>
-            <p>
-              <strong>�📍 Vĩ Độ:</strong> {lot.latitude}
-            </p>
-            <p>
-              <strong>📍 Kinh Độ:</strong> {lot.longitude}
-            </p>
-            <p>
-              <strong>📅 Ngày Tạo:</strong> {lot.createdAt}
-            </p>
-            <p>
-              <strong>⚙ Cập Nhật:</strong> {lot.updatedAt}
-            </p>
-          </div>
-
-          {/* Operating Hours - Editable */}
-          <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-indigo-600 text-xl flex items-center gap-2">
-                🕐 Giờ Hoạt Động
-              </h3>
-              {allowEdit && !editingOperatingHours && (
-                <button
-                  onClick={startEditOperatingHours}
-                  className="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                >
-                  ✏️ Chỉnh Sửa
-                </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <p>
+                    <strong>Mở:</strong>{" "}
+                    {lotData.operatingHoursStart || lotData.openTime || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Đóng:</strong>{" "}
+                    {lotData.operatingHoursEnd || lotData.closeTime || "N/A"}
+                  </p>
+                  <p>
+                    <strong>24 Giờ:</strong>{" "}
+                    {lotData.is24Hour ? "✅ Có" : "❌ Không"}
+                  </p>
+                </div>
               )}
             </div>
-            {editingOperatingHours ? (
-              <div className="bg-white p-4 rounded-lg space-y-3">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Giờ Mở Cửa
-                    </label>
-                    <input
-                      type="time"
-                      value={operatingHoursForm.operatingHoursStart}
-                      onChange={(e) =>
-                        setOperatingHoursForm({
-                          ...operatingHoursForm,
-                          operatingHoursStart: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 border rounded-md text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Giờ Đóng Cửa
-                    </label>
-                    <input
-                      type="time"
-                      value={operatingHoursForm.operatingHoursEnd}
-                      onChange={(e) =>
-                        setOperatingHoursForm({
-                          ...operatingHoursForm,
-                          operatingHoursEnd: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 border rounded-md text-sm"
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="is24Hour"
-                    checked={operatingHoursForm.is24Hour}
-                    onChange={(e) =>
-                      setOperatingHoursForm({
-                        ...operatingHoursForm,
-                        is24Hour: e.target.checked,
-                      })
-                    }
-                    className="w-4 h-4"
-                  />
-                  <label htmlFor="is24Hour" className="text-sm text-gray-700">
-                    24 Giờ Hoạt Động
-                  </label>
-                </div>
-                <div className="flex justify-end gap-2 mt-4">
-                  <button
-                    onClick={cancelEditOperatingHours}
-                    className="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
-                  >
-                    Hủy
-                  </button>
-                  <button
-                    onClick={saveOperatingHours}
-                    className="px-4 py-2 text-sm bg-green-500 text-white rounded-md hover:bg-green-600"
-                  >
-                    💾 Lưu
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-3 gap-4 text-sm">
-                <p>
-                  <strong>Mở:</strong> {lotData.operatingHoursStart || lotData.openTime || "N/A"}
-                </p>
-                <p>
-                  <strong>Đóng:</strong> {lotData.operatingHoursEnd || lotData.closeTime || "N/A"}
-                </p>
-                <p>
-                  <strong>24 Giờ:</strong> {lotData.is24Hour ? "✅ Có" : "❌ Không"}
+
+            {/* Reason (if provided by partner) */}
+            {getReasonText() && (
+              <div className="mb-6 bg-red-50 p-4 rounded-2xl border border-red-100 shadow-sm">
+                <h3 className="font-semibold text-red-600 mb-2">📝 Reason</h3>
+                <p className="text-sm text-gray-800 whitespace-pre-wrap">
+                  {getReasonText()}
                 </p>
               </div>
             )}
-          </div>
 
-          {/* Reason (if provided by partner) */}
-          {getReasonText() && (
-            <div className="mb-6 bg-red-50 p-4 rounded-2xl border border-red-100 shadow-sm">
-              <h3 className="font-semibold text-red-600 mb-2">📝 Reason</h3>
-              <p className="text-sm text-gray-800 whitespace-pre-wrap">
-                {getReasonText()}
-              </p>
-            </div>
-          )}
-
-          {/* Capacity */}
-          {lot.lotCapacity?.length > 0 && (
-            <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
-              <h3 className="font-semibold text-indigo-600 mb-4 text-xl flex items-center gap-2">
-                🚗 Sức Chứa Tổng
-              </h3>
-              <table className="min-w-full text-xs border bg-white rounded-lg shadow-sm">
-                <thead className="bg-gray-100 text-gray-600">
-                  <tr>
-                    <th className="px-3 py-2 text-left">Loại Xe</th>
-                    <th className="px-3 py-2 text-left">Sức Chứa</th>
-                    <th className="px-3 py-2 text-left">Hỗ Trợ EV</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {lot.lotCapacity.map((c, idx) => (
-                    <tr key={idx} className="border-t text-gray-700">
-                      <td className="px-3 py-2">{c.vehicleType}</td>
-                      <td className="px-3 py-2">{c.capacity}</td>
-                      <td className="px-3 py-2">
-                        {c.supportElectricVehicle ? "⚡ Có" : "Không"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* Pricing Rules */}
-          {lotData.pricingRules?.length > 0 && (
-            <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
-              <h3 className="font-semibold text-indigo-600 mb-4 text-xl flex items-center gap-2">
-                💰 Quy Tắc Giá
-              </h3>
-              <div className="overflow-x-auto">
+            {/* Capacity */}
+            {lot.lotCapacity?.length > 0 && (
+              <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
+                <h3 className="font-semibold text-indigo-600 mb-4 text-xl flex items-center gap-2">
+                  🚗 Sức Chứa Tổng
+                </h3>
                 <table className="min-w-full text-xs border bg-white rounded-lg shadow-sm">
                   <thead className="bg-gray-100 text-gray-600">
                     <tr>
-                      <th className="px-3 py-2 text-left">Tên Quy Tắc</th>
                       <th className="px-3 py-2 text-left">Loại Xe</th>
-                      <th className="px-3 py-2 text-left">Phí Ban Đầu</th>
-                      <th className="px-3 py-2 text-left">Thời Gian BD</th>
-                      <th className="px-3 py-2 text-left">Phí Bước</th>
-                      <th className="px-3 py-2 text-left">Phút/Bước</th>
-                      <th className="px-3 py-2 text-left">Hiệu Lực Từ</th>
-                      <th className="px-3 py-2 text-left">Hiệu Lực Đến</th>
-                      <th className="px-3 py-2 text-left">Trạng Thái</th>
-                      {allowEdit && <th className="px-3 py-2 text-left">Thao Tác</th>}
+                      <th className="px-3 py-2 text-left">Sức Chứa</th>
+                      <th className="px-3 py-2 text-left">Hỗ Trợ EV</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {lotData.pricingRules.map((r) => (
-                      <tr key={r.id} className="border-t text-gray-700">
-                        <td className="px-3 py-2">{r.ruleName}</td>
+                    {lot.lotCapacity.map((c, idx) => (
+                      <tr key={idx} className="border-t text-gray-700">
+                        <td className="px-3 py-2">{c.vehicleType}</td>
+                        <td className="px-3 py-2">{c.capacity}</td>
                         <td className="px-3 py-2">
-                          <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-semibold">
-                            {r.vehicleType}
-                          </span>
+                          {c.supportElectricVehicle ? "⚡ Có" : "Không"}
                         </td>
-                        <td className="px-3 py-2 font-semibold text-green-600">
-                          {r.initialCharge.toLocaleString()} ₫
-                        </td>
-                        <td className="px-3 py-2">{r.initialDurationMinute} phút</td>
-                        <td className="px-3 py-2 font-semibold text-orange-600">
-                          {r.stepRate.toLocaleString()} ₫
-                        </td>
-                        <td className="px-3 py-2">{r.stepMinute} phút</td>
-                        <td className="px-3 py-2">
-                          {r.validFrom ? new Date(r.validFrom).toLocaleString('vi-VN', {
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          }) : 'N/A'}
-                        </td>
-                        <td className="px-3 py-2">
-                          {r.validTo ? new Date(r.validTo).toLocaleString('vi-VN', {
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          }) : 'N/A'}
-                        </td>
-                        <td className="px-3 py-2">
-                          <span className={`px-2 py-1 rounded-full text-[10px] font-semibold ${
-                            r.isActive 
-                              ? 'bg-green-100 text-green-700' 
-                              : 'bg-gray-100 text-gray-600'
-                          }`}>
-                            {r.isActive ? '✅ Hoạt động' : '❌ Ngưng hoạt động'}
-                          </span>
-                        </td>
-                        {allowEdit && (
-                          <td className="px-3 py-2">
-                            <button
-                              onClick={() => startEditRule(r.id)}
-                              className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
-                            >
-                              ✏️ Chỉnh Sửa
-                            </button>
-                          </td>
-                        )}
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Parking Policies */}
-          {lotData.policies?.length > 0 && (
-            <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
-              <h3 className="font-semibold text-indigo-600 mb-4 text-xl flex items-center gap-2">
-                🛡️ Chính Sách Bãi Đỗ
-              </h3>
-              <div className="grid grid-cols-2 gap-4">
-                {lotData.policies.map((policy, idx) => {
-                  const getPolicyLabel = (type) => {
-                    switch (type) {
-                      case "EARLY_CHECK_IN_BUFFER":
-                        return { label: "Bộ đệm Nhận Chỗ Sớm", icon: "🕐", desc: "Cho phép khách nhận chỗ sớm hơn thời gian đặt" };
-                      case "LATE_CHECK_OUT_BUFFER":
-                        return { label: "Bộ đệm Trả Chỗ Muộn", icon: "🕐", desc: "Cho phép khách trả chỗ muộn hơn thời gian đặt" };
-                      case "LATE_CHECK_IN_CANCEL_AFTER":
-                        return { label: "Hủy Nhận Chỗ Muộn Sau", icon: "⏰", desc: "Tự động hủy nếu nhận chỗ quá muộn" };
-                      case "EARLY_CANCEL_REFUND_BEFORE":
-                        return { label: "Hoàn Tiền Hủy Sớm Trước", icon: "💰", desc: "Hoàn tiền 100% nếu hủy trước" };
-                      default:
-                        return { label: type, icon: "📋", desc: "" };
-                    }
-                  };
-                  const policyInfo = getPolicyLabel(policy.policyType);
-                  const isEditing = editingPolicy?.id === policy.id;
-                  
-                  return (
-                    <div key={idx} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-                      <div className="flex items-center justify-between gap-2 mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">{policyInfo.icon}</span>
-                          <h4 className="font-semibold text-gray-900 text-sm">{policyInfo.label}</h4>
-                        </div>
-                        {isEditing ? (
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="number"
-                              value={policyForm.value}
-                              onChange={(e) =>
-                                setPolicyForm({ value: e.target.value })
-                              }
-                              className="w-20 px-2 py-1 border rounded text-xs"
-                            />
-                            <span className="text-xs text-gray-600">phút</span>
-                            <button
-                              onClick={savePolicy}
-                              className="px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
-                            >
-                              💾
-                            </button>
-                            <button
-                              onClick={cancelEditPolicy}
-                              className="px-2 py-1 text-xs bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-                            >
-                              ✖️
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
-                              {policy.value} phút
-                            </span>
-                            {allowEdit && (
-                              <button
-                                onClick={() => startEditPolicy(policy.id)}
-                                className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
-                              >
-                                ✏️
-                              </button>
-                            )}
-                          </div>
+            {/* Pricing Rules */}
+            {lotData.pricingRules?.length > 0 && (
+              <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
+                <h3 className="font-semibold text-indigo-600 mb-4 text-xl flex items-center gap-2">
+                  💰 Quy Tắc Giá
+                </h3>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-xs border bg-white rounded-lg shadow-sm">
+                    <thead className="bg-gray-100 text-gray-600">
+                      <tr>
+                        <th className="px-3 py-2 text-left">Tên Quy Tắc</th>
+                        <th className="px-3 py-2 text-left">Loại Xe</th>
+                        <th className="px-3 py-2 text-left">Phí Ban Đầu</th>
+                        <th className="px-3 py-2 text-left">Thời Gian BD</th>
+                        <th className="px-3 py-2 text-left">Phí Bước</th>
+                        <th className="px-3 py-2 text-left">Phút/Bước</th>
+                        <th className="px-3 py-2 text-left">Hiệu Lực Từ</th>
+                        <th className="px-3 py-2 text-left">Hiệu Lực Đến</th>
+                        <th className="px-3 py-2 text-left">Trạng Thái</th>
+                        {allowEdit && (
+                          <th className="px-3 py-2 text-left">Thao Tác</th>
                         )}
-                      </div>
-                      <p className="text-xs text-gray-600 pl-7">{policyInfo.desc}</p>
-                    </div>
-                  );
-                })}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {lotData.pricingRules.map((r) => (
+                        <tr key={r.id} className="border-t text-gray-700">
+                          <td className="px-3 py-2">{r.ruleName}</td>
+                          <td className="px-3 py-2">
+                            <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-semibold">
+                              {r.vehicleType}
+                            </span>
+                          </td>
+                          <td className="px-3 py-2 font-semibold text-green-600">
+                            {r.initialCharge.toLocaleString()} ₫
+                          </td>
+                          <td className="px-3 py-2">
+                            {r.initialDurationMinute} phút
+                          </td>
+                          <td className="px-3 py-2 font-semibold text-orange-600">
+                            {r.stepRate.toLocaleString()} ₫
+                          </td>
+                          <td className="px-3 py-2">{r.stepMinute} phút</td>
+                          <td className="px-3 py-2">
+                            {r.validFrom
+                              ? new Date(r.validFrom).toLocaleString("vi-VN", {
+                                  year: "numeric",
+                                  month: "2-digit",
+                                  day: "2-digit",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })
+                              : "N/A"}
+                          </td>
+                          <td className="px-3 py-2">
+                            {r.validTo
+                              ? new Date(r.validTo).toLocaleString("vi-VN", {
+                                  year: "numeric",
+                                  month: "2-digit",
+                                  day: "2-digit",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })
+                              : "N/A"}
+                          </td>
+                          <td className="px-3 py-2">
+                            <span
+                              className={`px-2 py-1 rounded-full text-[10px] font-semibold ${
+                                r.isActive
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-gray-100 text-gray-600"
+                              }`}
+                            >
+                              {r.isActive
+                                ? "✅ Hoạt động"
+                                : "❌ Ngưng hoạt động"}
+                            </span>
+                          </td>
+                          {allowEdit && (
+                            <td className="px-3 py-2">
+                              <button
+                                onClick={() => startEditRule(r.id)}
+                                className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
+                              >
+                                ✏️ Chỉnh Sửa
+                              </button>
+                            </td>
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+
+            {/* Parking Policies */}
+            {lotData.policies?.length > 0 && (
+              <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
+                <h3 className="font-semibold text-indigo-600 mb-4 text-xl flex items-center gap-2">
+                  🛡️ Chính Sách Bãi Đỗ
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {lotData.policies.map((policy, idx) => {
+                    const getPolicyLabel = (type) => {
+                      switch (type) {
+                        case "EARLY_CHECK_IN_BUFFER":
+                          return {
+                            label: "Bộ đệm Nhận Chỗ Sớm",
+                            icon: "🕐",
+                            desc: "Cho phép khách nhận chỗ sớm hơn thời gian đặt",
+                          };
+                        case "LATE_CHECK_OUT_BUFFER":
+                          return {
+                            label: "Bộ đệm Trả Chỗ Muộn",
+                            icon: "🕐",
+                            desc: "Cho phép khách trả chỗ muộn hơn thời gian đặt",
+                          };
+                        case "LATE_CHECK_IN_CANCEL_AFTER":
+                          return {
+                            label: "Hủy Nhận Chỗ Muộn Sau",
+                            icon: "⏰",
+                            desc: "Tự động hủy nếu nhận chỗ quá muộn",
+                          };
+                        case "EARLY_CANCEL_REFUND_BEFORE":
+                          return {
+                            label: "Hoàn Tiền Hủy Sớm Trước",
+                            icon: "💰",
+                            desc: "Hoàn tiền 100% nếu hủy trước",
+                          };
+                        default:
+                          return { label: type, icon: "📋", desc: "" };
+                      }
+                    };
+                    const policyInfo = getPolicyLabel(policy.policyType);
+                    const isEditing = editingPolicy?.id === policy.id;
+
+                    return (
+                      <div
+                        key={idx}
+                        className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm"
+                      >
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">{policyInfo.icon}</span>
+                            <h4 className="font-semibold text-gray-900 text-sm">
+                              {policyInfo.label}
+                            </h4>
+                          </div>
+                          {isEditing ? (
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="number"
+                                value={policyForm.value}
+                                onChange={(e) =>
+                                  setPolicyForm({ value: e.target.value })
+                                }
+                                className="w-20 px-2 py-1 border rounded text-xs"
+                              />
+                              <span className="text-xs text-gray-600">
+                                phút
+                              </span>
+                              <button
+                                onClick={savePolicy}
+                                className="px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600 cursor-pointer"
+                              >
+                                💾
+                              </button>
+                              <button
+                                onClick={cancelEditPolicy}
+                                className="px-2 py-1 text-xs bg-gray-300 text-gray-700 rounded hover:bg-gray-400 cursor-pointer"
+                              >
+                                ✖️
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
+                                {policy.value} phút
+                              </span>
+                              {allowEdit && (
+                                <button
+                                  onClick={() => startEditPolicy(policy.id)}
+                                  className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
+                                >
+                                  ✏️
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-600 pl-7">
+                          {policyInfo.desc}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Footer - Fixed */}
@@ -1194,7 +1503,7 @@ export default function ViewParkingLotModal({
               <button
                 onClick={handleResetMap}
                 disabled={resetLoading || !isResetAllowed}
-                className={`px-4 py-2 rounded-md text-sm font-medium border flex items-center gap-2 ${
+                className={`px-4 py-2 rounded-md text-sm font-medium border flex items-center gap-2 cursor-pointer ${
                   isResetAllowed
                     ? "bg-red-50 text-red-700 hover:bg-red-100 border-red-200"
                     : "bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed"
@@ -1202,9 +1511,25 @@ export default function ViewParkingLotModal({
               >
                 {resetLoading ? (
                   <>
-                    <svg className="animate-spin h-4 w-4 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                    <svg
+                      className="animate-spin h-4 w-4 text-red-600"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      ></path>
                     </svg>
                     Đang đặt lại...
                   </>
@@ -1216,14 +1541,24 @@ export default function ViewParkingLotModal({
             {showDrawMapButton && (
               <button
                 onClick={() => setShowDrawMap(true)}
-                disabled={!["PREPARING", "MAP_DENIED"].includes((lot?.mapStatus || lot?.status || "").toUpperCase())}
+                disabled={
+                  !["PREPARING", "MAP_DENIED"].includes(
+                    (lot?.mapStatus || lot?.status || "").toUpperCase()
+                  )
+                }
                 title={
-                  !["PREPARING", "MAP_DENIED"].includes((lot?.mapStatus || lot?.status || "").toUpperCase())
-                    ? `Map editing is locked. Current status: ${lot?.mapStatus || lot?.status}. Only available in PREPARING or MAP_DENIED status.`
+                  !["PREPARING", "MAP_DENIED"].includes(
+                    (lot?.mapStatus || lot?.status || "").toUpperCase()
+                  )
+                    ? `Map editing is locked. Current status: ${
+                        lot?.mapStatus || lot?.status
+                      }. Only available in PREPARING or MAP_DENIED status.`
                     : "Open map editor"
                 }
-                className={`px-6 py-2 rounded-md text-sm font-medium flex items-center gap-2 ${
-                  ["PREPARING", "MAP_DENIED"].includes((lot?.mapStatus || lot?.status || "").toUpperCase())
+                className={`px-6 py-2 rounded-md text-sm font-medium flex items-center gap-2 cursor-pointer ${
+                  ["PREPARING", "MAP_DENIED"].includes(
+                    (lot?.mapStatus || lot?.status || "").toUpperCase()
+                  )
                     ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
                     : "bg-gray-50 text-gray-400 border border-gray-200 cursor-not-allowed "
                 }`}
@@ -1285,7 +1620,7 @@ export default function ViewParkingLotModal({
       {editingRule && (
         <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black/30 z-[60]">
           <div className="bg-white rounded-xl shadow-2xl p-6 w-[600px] max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-semibold text-blue-600 mb-4">
+            <h2 className="text-xl font-semibold text-blue-600 mb-4 cursor-pointer">
               ✏️ Chỉnh Sửa Quy Tắc Giá
             </h2>
             <div className="space-y-4">
@@ -1331,7 +1666,10 @@ export default function ViewParkingLotModal({
                     type="number"
                     value={ruleForm.initialCharge}
                     onChange={(e) =>
-                      setRuleForm({ ...ruleForm, initialCharge: e.target.value })
+                      setRuleForm({
+                        ...ruleForm,
+                        initialCharge: e.target.value,
+                      })
                     }
                     className="w-full px-3 py-2 border rounded-md text-sm"
                   />
@@ -1422,7 +1760,7 @@ export default function ViewParkingLotModal({
                   }
                   className="w-4 h-4"
                 />
-                <label htmlFor="isActive" className="text-sm text-gray-700">
+                <label htmlFor="isActive" className="text-sm text-gray-700 cursor-pointer">
                   Hoạt động
                 </label>
               </div>
@@ -1431,13 +1769,13 @@ export default function ViewParkingLotModal({
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={cancelEditRule}
-                className="px-4 py-2 rounded-md text-sm bg-gray-200 text-gray-700 hover:bg-gray-300"
+                className="px-4 py-2 rounded-md text-sm bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer"
               >
                 Hủy
               </button>
               <button
                 onClick={saveRule}
-                className="px-4 py-2 rounded-md text-sm bg-green-500 text-white hover:bg-green-600"
+                className="px-4 py-2 rounded-md text-sm bg-green-500 text-white hover:bg-green-600 cursor-pointer"
               >
                 💾 Lưu
               </button>
@@ -1465,7 +1803,9 @@ export default function ViewParkingLotModal({
             <div className="bg-indigo-600 text-white px-8 py-6 rounded-t-2xl">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold mb-2">💳 Hoàn Tất Thanh Toán</h2>
+                  <h2 className="text-2xl font-bold mb-2">
+                    💳 Hoàn Tất Thanh Toán
+                  </h2>
                   <p className="text-indigo-100 text-sm">
                     Quét mã QR để kích hoạt bãi đỗ xe của bạn
                   </p>
@@ -1490,11 +1830,15 @@ export default function ViewParkingLotModal({
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Bãi đỗ xe:</span>
-                    <span className="font-semibold text-gray-900">{lot.name}</span>
+                    <span className="font-semibold text-gray-900">
+                      {lot.name}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Tổng số tầng:</span>
-                    <span className="font-semibold text-gray-900">{paymentData.totalFloors}</span>
+                    <span className="font-semibold text-gray-900">
+                      {paymentData.totalFloors}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Giờ hoạt động:</span>
@@ -1506,12 +1850,16 @@ export default function ViewParkingLotModal({
                     <div className="flex justify-between">
                       <span className="text-gray-600">Hạn thanh toán:</span>
                       <span className="font-semibold text-red-600">
-                        {new Date(paymentData.paymentDueDate).toLocaleString('vi-VN')}
+                        {new Date(paymentData.paymentDueDate).toLocaleString(
+                          "vi-VN"
+                        )}
                       </span>
                     </div>
                   )}
                   <div className="pt-3 mt-3 border-t border-indigo-200 flex justify-between">
-                    <span className="text-gray-700 font-medium">Phí vận hành:</span>
+                    <span className="text-gray-700 font-medium">
+                      Phí vận hành:
+                    </span>
                     <span className="font-bold text-indigo-700 text-lg">
                       {paymentData.operationalFee.toLocaleString()} ₫
                     </span>
@@ -1528,15 +1876,21 @@ export default function ViewParkingLotModal({
                         src={paymentData.qrCode}
                         alt="Payment QR Code"
                         className="max-w-full max-h-full object-contain"
-                        style={{ imageRendering: 'crisp-edges' }}
+                        style={{ imageRendering: "crisp-edges" }}
                         onError={(e) => {
-                          console.error('❌ QR Code failed to load');
-                          console.error('Base64 length:', paymentData.qrCode?.length);
-                          console.error('First 100 chars:', paymentData.qrCode?.substring(0, 100));
+                          console.error("❌ QR Code failed to load");
+                          console.error(
+                            "Base64 length:",
+                            paymentData.qrCode?.length
+                          );
+                          console.error(
+                            "First 100 chars:",
+                            paymentData.qrCode?.substring(0, 100)
+                          );
                           e.target.onerror = null;
                         }}
                         onLoad={() => {
-                          console.log('✅ QR code image loaded successfully!');
+                          console.log("✅ QR code image loaded successfully!");
                         }}
                       />
                     </div>
@@ -1550,8 +1904,8 @@ export default function ViewParkingLotModal({
                   )}
                 </div>
                 <p className="text-center text-sm text-gray-600 mt-4 max-w-md">
-                  <i className="ri-information-line text-indigo-600"></i>
-                  {' '}Quét mã QR này bằng ứng dụng ngân hàng để hoàn tất thanh toán
+                  <i className="ri-information-line text-indigo-600"></i> Quét
+                  mã QR này bằng ứng dụng ngân hàng để hoàn tất thanh toán
                 </p>
               </div>
 
@@ -1581,7 +1935,8 @@ export default function ViewParkingLotModal({
                           Đang kiểm tra trạng thái thanh toán...
                         </p>
                         <p className="text-xs text-blue-700 mt-1">
-                          Bãi đỗ xe của bạn sẽ được kích hoạt tự động khi thanh toán được xác nhận
+                          Bãi đỗ xe của bạn sẽ được kích hoạt tự động khi thanh
+                          toán được xác nhận
                         </p>
                       </div>
                     </>
@@ -1626,6 +1981,149 @@ export default function ViewParkingLotModal({
             setShowDrawMap(false);
             onActionDone(); // reload lại danh sách sau khi lưu layout
           }}
+        />
+      )}
+
+      {/* Image Upload Modal */}
+      {showImageUpload && (
+        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black/50 z-[60]">
+          <div className="bg-white rounded-2xl shadow-2xl w-[600px] max-w-[90vw] max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-purple-500 px-6 py-4 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                <i className="ri-image-add-fill"></i>
+                {lotData.images && lotData.images.length > 0 ? "Thay Đổi Hình Ảnh" : "Thêm Hình Ảnh"}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowImageUpload(false);
+                  setSelectedImages([]);
+                  setImagePreviews([]);
+                }}
+                className="p-2 rounded-full text-white hover:bg-white/20 transition-colors"
+              >
+                <i className="ri-close-line text-xl"></i>
+              </button>
+            </div>
+
+            <div className="p-6">
+              {lotData.images && lotData.images.length > 0 && (
+                <div className="mb-6">
+                  <h4 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                    <i className="ri-gallery-line"></i> Ảnh Hiện Tại ({lotData.images.length}/4)
+                  </h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {lotData.images.map((image, index) => (
+                      <div key={image.id || index} className="relative group">
+                        <img
+                          src={image.path}
+                          alt={`Current ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-lg border-2 border-gray-200 shadow-md"
+                        />
+                        <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                          {index + 1}/{lotData.images.length}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-sm text-gray-500 mt-3">
+                    <i className="ri-information-line"></i> Chọn ảnh mới bên dưới để thay thế toàn bộ ảnh hiện tại
+                  </p>
+                </div>
+              )}
+
+              <div className="mb-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Chọn Ảnh Mới (tối đa 4 ảnh)
+                </label>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                  onChange={handleImageSelect}
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 cursor-pointer"
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  <i className="ri-information-line"></i> Định dạng: JPG, PNG, WebP, GIF. Tối đa 10MB/ảnh. Tối đa 4 ảnh.
+                </p>
+              </div>
+
+              {imagePreviews.length > 0 && (
+                <div>
+                  <h4 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                    <i className="ri-file-list-2-line"></i> Ảnh Sẽ Tải Lên ({imagePreviews.length}/4)
+                  </h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {imagePreviews.map((preview, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={preview}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-lg border-2 border-purple-200 shadow-md"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(index)}
+                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-lg"
+                        >
+                          <i className="ri-close-line text-sm"></i>
+                        </button>
+                        <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                          {index + 1}/{imagePreviews.length}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-3 justify-end mt-6">
+                <button
+                  onClick={() => {
+                    setShowImageUpload(false);
+                    setSelectedImages([]);
+                    setImagePreviews([]);
+                  }}
+                  className="px-6 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-all font-medium text-gray-700 cursor-pointer"
+                  disabled={uploadingImages}
+                >
+                  Hủy
+                </button>
+                <button
+                  onClick={handleUploadImages}
+                  disabled={uploadingImages || selectedImages.length === 0}
+                  className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all font-medium shadow-lg hover:shadow-xl flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  {uploadingImages ? (
+                    <>
+                      <i className="ri-loader-4-line animate-spin"></i>
+                      Đang Tải Lên...
+                    </>
+                  ) : (
+                    <>
+                      <i className="ri-upload-cloud-2-line"></i>
+                      Tải Lên
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Image Confirmation Modal */}
+      {showDeleteConfirm && (
+        <ConfirmModal
+          isOpen={showDeleteConfirm}
+          title="Xác Nhận Xóa Ảnh"
+          message={`Bạn có chắc chắn muốn xóa ${selectedImagesToDelete.length} ảnh đã chọn không? Hành động này không thể hoàn tác.`}
+          onConfirm={handleConfirmDeleteImage}
+          onCancel={() => {
+            setShowDeleteConfirm(false);
+          }}
+          confirmText="Xóa"
+          cancelText="Hủy"
+          type="danger"
         />
       )}
     </>

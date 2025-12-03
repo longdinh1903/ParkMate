@@ -130,17 +130,17 @@ export default function ViewUserSubscriptionDetailModal({
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      ACTIVE: { bg: "bg-green-100", text: "text-green-800", label: "Active" },
-      EXPIRED: { bg: "bg-red-100", text: "text-red-800", label: "Expired" },
+      ACTIVE: { bg: "bg-green-100", text: "text-green-800", label: "Hoạt Động" },
+      EXPIRED: { bg: "bg-red-100", text: "text-red-800", label: "Hết Hạn" },
       CANCELLED: {
         bg: "bg-gray-100",
         text: "text-gray-800",
-        label: "Cancelled",
+        label: "Đã Hủy",
       },
       PENDING: {
         bg: "bg-yellow-100",
         text: "text-yellow-800",
-        label: "Pending",
+        label: "Đang Chờ",
       },
     };
     const config = statusConfig[status] || {
@@ -179,14 +179,14 @@ export default function ViewUserSubscriptionDetailModal({
               <i className="ri-user-3-line text-2xl" aria-hidden="true"></i>
             </div>
             <div>
-              <h2 className="text-xl font-bold">User Subscription Details</h2>
-              <p className="text-sm text-indigo-100">Subscription overview and related information</p>
+              <h2 className="text-xl font-bold">Chi Tiết Gói Thành Viên</h2>
+              <p className="text-sm text-indigo-100">Tổng quan và thông tin liên quan</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-white hover:bg-white/20 transition-colors duration-200"
+            className="p-2 rounded-full text-white hover:bg-white/20 transition-colors duration-200 cursor-pointer"
             aria-label="Close"
           >
             <XMarkIcon className="w-6 h-6" />
@@ -198,7 +198,7 @@ export default function ViewUserSubscriptionDetailModal({
           {loading ? (
             <div className="flex flex-col items-center justify-center py-12">
               <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-              <p className="text-gray-600 mt-3">Loading details...</p>
+              <p className="text-gray-600 mt-3">Đang tải thông tin...</p>
             </div>
           ) : (
             <>
@@ -206,7 +206,7 @@ export default function ViewUserSubscriptionDetailModal({
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
                   <i className="ri-user-3-line text-indigo-500"></i>
-                  User Information
+                  Thông Tin Người Dùng
                 </h3>
                 <div className="bg-gray-50 rounded-xl p-6">
                   <div className="flex items-start gap-6">
@@ -227,13 +227,13 @@ export default function ViewUserSubscriptionDetailModal({
                     />
                     <div className="flex-1 grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-gray-500 mb-1">Full Name</p>
+                        <p className="text-sm text-gray-500 mb-1">Họ Và Tên</p>
                         <p className="font-bold text-gray-900 text-lg">
                           {user?.fullName || "N/A"}
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500 mb-1">Phone</p>
+                        <p className="text-sm text-gray-500 mb-1">Số Điện Thoại</p>
                         <p className="font-medium text-gray-900">
                           {user?.phone || "-"}
                         </p>
@@ -253,12 +253,12 @@ export default function ViewUserSubscriptionDetailModal({
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
                   <i className="ri-file-list-3-line text-indigo-500"></i>
-                  Subscription Details
+                  Thông Tin Gói Đăng Ký
                 </h3>
                 <div className="space-y-1">
-                  <InfoRow label="Package" value={subscriptionPackage?.name || "-"} />
-                  <InfoRow label="Parking Lot" value={parkingLot?.name || "-"} />
-                  <InfoRow label="Status">{getStatusBadge(displayData?.status)}</InfoRow>
+                  <InfoRow label="Gói" value={subscriptionPackage?.name || "-"} />
+                  <InfoRow label="Bãi Đỗ Xe" value={parkingLot?.name || "-"} />
+                  <InfoRow label="Trạng Thái">{getStatusBadge(displayData?.status)}</InfoRow>
                 </div>
               </div>
 
@@ -267,14 +267,14 @@ export default function ViewUserSubscriptionDetailModal({
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
                     <i className="ri-car-fill text-indigo-500"></i>
-                    Vehicle Information
+                    Thông Tin Phương Tiện
                   </h3>
                   <div className="space-y-1">
-                    <InfoRow label="License Plate" value={vehicleData?.licensePlate || displayData?.vehicleLicensePlate || "-"} />
-                    <InfoRow label="Vehicle Type" value={vehicleData?.type === 1 ? "Motorcycle" : vehicleData?.type === 2 ? "Car" : vehicleData?.type === 3 ? "Van/Truck" : displayData?.vehicleType || "-"} />
-                    {vehicleData?.brand && <InfoRow label="Brand" value={vehicleData.brand} />}
-                    {vehicleData?.model && <InfoRow label="Model" value={vehicleData.model} />}
-                    {vehicleData?.color && <InfoRow label="Color" value={vehicleData.color} />}
+                    <InfoRow label="Biển Số Xe" value={vehicleData?.licensePlate || displayData?.vehicleLicensePlate || "-"} />
+                    <InfoRow label="Loại Xe" value={vehicleData?.type === 1 ? "Xe Máy" : vehicleData?.type === 2 ? "Ôtô" : vehicleData?.type === 3 ? "Xe Tải/Xe Van" : displayData?.vehicleType || "-"} />
+                    {vehicleData?.brand && <InfoRow label="Hãng Xe" value={vehicleData.brand} />}
+                    {vehicleData?.model && <InfoRow label="Mẫu Xe" value={vehicleData.model} />}
+                    {vehicleData?.color && <InfoRow label="Màu Xe" value={vehicleData.color} />}
                   </div>
                 </div>
               )}
@@ -283,32 +283,32 @@ export default function ViewUserSubscriptionDetailModal({
               {(displayData?.assignedSpotId || assignedSpot) && (
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                    🅿️ Assigned Parking Spot
+                    🅿️ Chỗ Đỗ Xe Được Phân
                   </h3>
                   <div className="bg-indigo-50 rounded-xl p-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-sm text-indigo-600 mb-1">
-                          Spot Name
+                          Tên Chỗ
                         </p>
                         <p className="font-bold text-gray-900 text-2xl">
                           {assignedSpot?.name ||
                             displayData?.assignedSpotName ||
-                            "Loading..."}
+                            "Đang tải..."}
                         </p>
                       </div>
                       {assignedSpot?.status && (
                         <div>
                           <p className="text-sm text-indigo-600 mb-1">
-                            Spot Status
+                            Trạng Thái Chỗ
                           </p>
                           <p className="font-medium text-gray-900 text-lg">
                             {assignedSpot.status === "AVAILABLE"
-                              ? "🟢 Available"
+                              ? "🟢 Có Sẵn"
                               : assignedSpot.status === "OCCUPIED"
-                              ? "🔴 Occupied"
+                              ? "🔴 Đang Sử Dụng"
                               : assignedSpot.status === "RESERVED"
-                              ? "🟡 Reserved"
+                              ? "🟡 Đã Đặt"
                               : assignedSpot.status}
                           </p>
                         </div>
@@ -322,13 +322,13 @@ export default function ViewUserSubscriptionDetailModal({
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
                   <i className="ri-time-fill text-indigo-500"></i>
-                  Timeline
+                  Thời Gian
                 </h3>
                 <div className="space-y-1">
-                  <InfoRow label="Created At" value={formatDate(displayData?.createdAt)} />
-                  <InfoRow label="Start Date" value={formatDate(displayData?.startDate)} />
-                  <InfoRow label="End Date" value={formatDate(displayData?.endDate)} />
-                  <InfoRow label="Last Updated" value={formatDate(displayData?.updatedAt)} />
+                  <InfoRow label="Ngày Tạo" value={formatDate(displayData?.createdAt)} />
+                  <InfoRow label="Ngày Bắt Đầu" value={formatDate(displayData?.startDate)} />
+                  <InfoRow label="Ngày Kết Thúc" value={formatDate(displayData?.endDate)} />
+                  <InfoRow label="Cập Nhật Lần Cuối" value={formatDate(displayData?.updatedAt)} />
                 </div>
               </div>
 
@@ -337,13 +337,13 @@ export default function ViewUserSubscriptionDetailModal({
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
                     <i className="ri-money-dollar-circle-fill text-indigo-500"></i>
-                    Payment Information
+                    Thông Tin Thanh Toán
                   </h3>
                   <div className="space-y-1">
-                    <InfoRow label="Paid Amount">
+                    <InfoRow label="Số Tiền Đã Thanh Toán">
                       <span className="text-lg font-bold text-green-600">{formatCurrency(displayData?.paidAmount)}</span>
                     </InfoRow>
-                    {displayData?.paymentTransactionId && <InfoRow label="Transaction ID" value={displayData?.paymentTransactionId} />}
+                    {displayData?.paymentTransactionId && <InfoRow label="Mã Giao Dịch" value={displayData?.paymentTransactionId} />}
                   </div>
                 </div>
               )}
@@ -352,11 +352,11 @@ export default function ViewUserSubscriptionDetailModal({
               <div>
                 <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
                   <i className="ri-settings-3-line text-indigo-500"></i>
-                  Additional Information
+                  Thông Tin Thêm
                 </h3>
                 <div className="space-y-1">
-                  <InfoRow label="Auto Renew">{displayData?.autoRenew ? <span className="text-green-600">✓ Enabled</span> : <span className="text-red-600">✗ Disabled</span>}</InfoRow>
-                  {displayData?.cancellationReason && <InfoRow label="Cancellation Reason" value={displayData?.cancellationReason} />}
+                  <InfoRow label="Tự Động Gia Hạn">{displayData?.autoRenew ? <span className="text-green-600">✓ Bật</span> : <span className="text-red-600">✗ Tắt</span>}</InfoRow>
+                  {displayData?.cancellationReason && <InfoRow label="Lý Do Hủy" value={displayData?.cancellationReason} />}
                 </div>
               </div>
             </>
@@ -367,9 +367,9 @@ export default function ViewUserSubscriptionDetailModal({
         <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end">
           <button
             onClick={onClose}
-            className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
+            className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium cursor-pointer"
           >
-            Close
+            Đóng
           </button>
         </div>
       </div>

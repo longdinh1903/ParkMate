@@ -94,17 +94,17 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
           // Create floor list with existing floors (areas will be empty for drawing)
           const existingFloors = floorsData.map(floor => ({
             floorNumber: floor.floorNumber,
-            floorName: floor.floorName || `Floor ${floor.floorNumber}`,
+            floorName: floor.floorName || `Tầng ${floor.floorNumber}`,
             areas: [],
             strokes: [],
             existsInDb: true, // Mark as existing
             dbId: floor.id,
             // Store existing vehicle types from capacities
             vehicleTypes: {
-              CAR_UP_TO_9_SEATS: floor.capacities?.some(c => c.vehicleType === "CAR_UP_TO_9_SEATS") || false,
-              MOTORBIKE: floor.capacities?.some(c => c.vehicleType === "MOTORBIKE") || false,
-              BIKE: floor.capacities?.some(c => c.vehicleType === "BIKE") || false,
-              OTHER: floor.capacities?.some(c => c.vehicleType === "OTHER") || false,
+              CAR_UP_TO_9_SEATS: floor.capacities?.some(c => c.vehicleType === "Ô tô dưới 9 chỗ") || false,
+              MOTORBIKE: floor.capacities?.some(c => c.vehicleType === "Xe Máy") || false,
+              BIKE: floor.capacities?.some(c => c.vehicleType === "Xe đạp") || false,
+              OTHER: floor.capacities?.some(c => c.vehicleType === "Khác") || false,
             },
           }));
 
@@ -116,7 +116,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             if (!existingFloors.find(f => f.floorNumber === i)) {
               existingFloors.push({
                 floorNumber: i,
-                floorName: `Floor ${i}`,
+                floorName: `Tầng ${i}`,
                 areas: [],
                 strokes: [],
                 existsInDb: false,
@@ -143,7 +143,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
           setFloors([
             {
               floorNumber: 1,
-              floorName: "Floor 1",
+              floorName: "Tầng 1",
               areas: [],
               strokes: [],
               existsInDb: false,
@@ -160,7 +160,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
         setFloors([
           {
             floorNumber: 1,
-            floorName: "Floor 1",
+            floorName: "Tầng 1",
             areas: [],
             strokes: [],
             existsInDb: false,
@@ -651,7 +651,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     
     // Check if exceeds total floors
     if (lot.totalFloors && newFloorNumber > lot.totalFloors) {
-      toast.error(`⚠️ Cannot add more than ${lot.totalFloors} floors!`);
+      toast.error(`⚠️ Không thể thêm nhiều hơn ${lot.totalFloors} tầng!`);
       return;
     }
     
@@ -678,14 +678,14 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     });
     
     if (hasInvalidSelection) {
-      toast.error("⚠️ Cannot select vehicle types that were not registered!");
+      toast.error("⚠️ Không thể chọn loại phương tiện chưa đăng ký!");
       return;
     }
     
     // Check if at least one vehicle type is selected
     const hasSelection = Object.values(selectedVehicleTypes).some(v => v);
     if (!hasSelection) {
-      toast.error("⚠️ Please select at least one vehicle type!");
+      toast.error("⚠️ Vui lòng chọn ít nhất một loại phương tiện!");
       return;
     }
     
@@ -734,14 +734,14 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     });
     
     if (hasInvalidSelection) {
-      toast.error("⚠️ Cannot select vehicle types that were not registered!");
+      toast.error("⚠️ Không thể chọn loại xe chưa được đăng ký!");
       return;
     }
     
     // Check if at least one vehicle type is selected
     const hasSelection = Object.values(selectedVehicleTypes).some(v => v);
     if (!hasSelection) {
-      toast.error("⚠️ Please select at least one vehicle type!");
+      toast.error("⚠️ Vui lòng chọn ít nhất một loại xe!");
       return;
     }
     
@@ -755,12 +755,12 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     setShowEditVehicleTypesModal(false);
     
     const selectedCount = Object.values(selectedVehicleTypes).filter(v => v).length;
-    toast.success(`✅ Updated Floor ${currentFloor} with ${selectedCount} vehicle type(s)!`);
+    toast.success(`✅ Đã cập nhật Tầng ${currentFloor} với ${selectedCount} loại xe!`);
   };
 
   const handleDeleteFloor = () => {
     if (floors.length === 1) {
-      toast.error("⚠️ Cannot delete the last floor!");
+      toast.error("⚠️ Không thể xóa tầng cuối cùng!");
       return;
     }
 
@@ -768,7 +768,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     
     // If floor exists in DB, warn user
     if (floorToDelete?.existsInDb) {
-      toast.error("⚠️ Cannot delete floor that already exists in database!");
+      toast.error("⚠️ Không thể xóa tầng đã tồn tại trong cơ sở dữ liệu!");
       return;
     }
 
@@ -789,18 +789,18 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
 
   const handleConfirmCopy = () => {
     if (!copySourceFloor) {
-      toast.error("⚠️ Please select a floor to copy from!");
+      toast.error("⚠️ Vui lòng chọn tầng để sao chép!");
       return;
     }
 
     const sourceFloorData = floors.find(f => f.floorNumber === copySourceFloor);
     if (!sourceFloorData) {
-      toast.error("⚠️ Source floor not found!");
+      toast.error("⚠️ Không tìm thấy tầng nguồn!");
       return;
     }
 
     if (sourceFloorData.areas.length === 0) {
-      toast.error("⚠️ Source floor has no areas to copy!");
+      toast.error("⚠️ Tầng nguồn không có khu vực nào để sao chép!");
       return;
     }
 
@@ -836,7 +836,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     try {
       // Validation
       if (floors.length === 0) {
-        toast.error("⚠️ No floors to save!");
+        toast.error("⚠️ Không có tầng nào để lưu!");
         return;
       }
 
@@ -844,11 +844,11 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
       const floorsToSave = floors.filter(f => f.areas.length > 0);
       
       if (floorsToSave.length === 0) {
-        toast.error("⚠️ Please create at least one area before saving!");
+        toast.error("⚠️ Vui lòng tạo ít nhất một khu vực trước khi lưu!");
         return;
       }
 
-      const loadingId = toast.loading("💾 Saving parking lot layout...");
+      const loadingId = toast.loading("💾 Đang lưu bản đồ bãi đỗ xe...");
 
       console.log("🚀 Starting save for lot:", lot.id);
       console.log("📦 Total floors to save:", floorsToSave.length);
@@ -917,7 +917,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
         if (floorVehicleTypes.CAR_UP_TO_9_SEATS) {
           capacityRequests.push({
             capacity: totalSpots,
-            vehicleType: "CAR_UP_TO_9_SEATS",
+            vehicleType: "Ô tô dưới 9 chỗ",
             supportElectricVehicle: true,
           });
         }
@@ -925,7 +925,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
         if (floorVehicleTypes.MOTORBIKE) {
           capacityRequests.push({
             capacity: totalSpots,
-            vehicleType: "MOTORBIKE",
+            vehicleType: "Xe máy",
             supportElectricVehicle: false,
           });
         }
@@ -933,7 +933,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
         if (floorVehicleTypes.BIKE) {
           capacityRequests.push({
             capacity: totalSpots,
-            vehicleType: "BIKE",
+            vehicleType: "Xe đạp",
             supportElectricVehicle: false,
           });
         }
@@ -941,7 +941,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
         if (floorVehicleTypes.OTHER) {
           capacityRequests.push({
             capacity: totalSpots,
-            vehicleType: "OTHER",
+            vehicleType: "Khác",
             supportElectricVehicle: false,
           });
         }
@@ -1022,7 +1022,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
       }
 
       toast.dismiss(loadingId);
-      toast.success("🎉 Layout saved successfully!");
+      toast.success("🎉 Lưu sơ đồ thành công!");
       console.log("✅ All floors, areas, and spots saved successfully!");
       
       setTimeout(() => {
@@ -1039,7 +1039,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
       });
       
       const errorMsg = err.response?.data?.message || err.message || "Unknown error";
-      toast.error(`❌ Failed to save: ${errorMsg}`);
+      toast.error(`❌ Lưu thất bại: ${errorMsg}`);
     }
   };
 
@@ -1073,7 +1073,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             </p>
             <button
               onClick={onClose}
-              className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium shadow-md hover:shadow-lg transition-all"
+              className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium shadow-md hover:shadow-lg transition-all cursor-pointer"
             >
               <i className="ri-close-line mr-2"></i>
               Close
@@ -1092,7 +1092,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             </p>
             <button
               onClick={onClose}
-              className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-md hover:shadow-lg transition-all"
+              className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-md hover:shadow-lg transition-all cursor-pointer"
             >
               <i className="ri-close-line mr-2"></i>
               Close Editor
@@ -1109,7 +1109,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
               </div>
               <div>
                 <h2 className="text-lg font-bold text-gray-900">
-                  Draw Parking Map
+                  Vẽ Sơ Đồ Bãi Đỗ Xe
                 </h2>
                 <p className="text-xs text-gray-500">{lot.name}</p>
               </div>
@@ -1118,7 +1118,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
         <div className="flex items-center gap-3">
           {/* Floor Navigation - Only show undrawn floors */}
           <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-2">
-            <span className="text-sm font-medium text-gray-700 flex-shrink-0">Floor:</span>
+            <span className="text-sm font-medium text-gray-700 flex-shrink-0">Tầng:</span>
             <select
               value={currentFloor}
               onChange={(e) => setCurrentFloor(Number(e.target.value))}
@@ -1134,16 +1134,16 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             {(!lot.totalFloors || floors.length < lot.totalFloors) && (
               <button
                 onClick={handleAddFloor}
-                className="px-3 py-1 rounded-md bg-green-100 text-green-700 hover:bg-green-200 text-sm font-medium flex items-center gap-1 flex-shrink-0"
+                className="px-3 py-1 rounded-md bg-green-100 text-green-700 hover:bg-green-200 text-sm font-medium flex items-center gap-1 flex-shrink-0 cursor-pointer"
               >
                 <i className="ri-add-line"></i>
-                Add
+                Thêm
               </button>
             )}
             {floors.filter(f => !f.existsInDb).length > 1 && (
               <button
                 onClick={handleDeleteFloor}
-                className="px-3 py-1 rounded-md bg-red-100 text-red-700 hover:bg-red-200 text-sm flex-shrink-0"
+                className="px-3 py-1 rounded-md bg-red-100 text-red-700 hover:bg-red-200 text-sm flex-shrink-0 cursor-pointer"
                 title="Delete Current Floor"
               >
                 <i className="ri-delete-bin-line"></i>
@@ -1153,21 +1153,21 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             {floors.length > 1 && (
               <button
                 onClick={handleCopyFloor}
-                className="px-3 py-1 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 text-sm font-medium flex items-center gap-1 flex-shrink-0"
-                title="Copy from another floor"
+                className="px-3 py-1 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 text-sm font-medium flex items-center gap-1 flex-shrink-0 cursor-pointer"
+                title="Sao chép từ tầng khác"
               >
                 <i className="ri-file-copy-line"></i>
-                Copy
+                Sao chép
               </button>
             )}
             {/* Edit Vehicle Types Button */}
             <button
               onClick={handleEditVehicleTypes}
-              className="px-3 py-1 rounded-md bg-purple-100 text-purple-700 hover:bg-purple-200 text-sm font-medium flex items-center gap-1 flex-shrink-0"
-              title="Edit vehicle types for this floor"
+              className="px-3 py-1 rounded-md bg-purple-100 text-purple-700 hover:bg-purple-200 text-sm font-medium flex items-center gap-1 flex-shrink-0 cursor-pointer"
+              title="Chỉnh sửa loại xe cho tầng này"
             >
               <i className="ri-settings-3-line"></i>
-              Types
+              Loại xe
             </button>
           </div>
 
@@ -1175,47 +1175,47 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
           <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-1">
             <button
               onClick={() => setMode("draw")}
-              className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-all ${
+              className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-all cursor-pointer ${
                 mode === "draw"
                   ? "bg-indigo-600 text-white shadow-md"
                   : "bg-transparent text-gray-700 hover:bg-gray-100"
               }`}
             >
               <i className="ri-pencil-fill"></i>
-              Draw
+              Vẽ
             </button>
             <button
               onClick={() => setMode("erase")}
-              className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-all ${
+              className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-all cursor-pointer ${
                 mode === "erase"
                   ? "bg-orange-600 text-white shadow-md"
                   : "bg-transparent text-gray-700 hover:bg-gray-100"
               }`}
             >
               <i className="ri-eraser-fill"></i>
-              Erase
+              Xóa
             </button>
             <button
               onClick={() => setMode("area")}
-              className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-all ${
+              className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-all cursor-pointer ${
                 mode === "area"
                   ? "bg-blue-600 text-white shadow-md"
                   : "bg-transparent text-gray-700 hover:bg-gray-100"
               }`}
             >
               <i className="ri-layout-grid-fill"></i>
-              Area
+              Khu Vực
             </button>
             <button
               onClick={() => setMode("floor")}
-              className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-all ${
+              className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-all cursor-pointer ${
                 mode === "floor"
                   ? "bg-purple-600 text-white shadow-md"
                   : "bg-transparent text-gray-700 hover:bg-gray-100"
               }`}
             >
               <i className="ri-layout-fill"></i>
-              Floor Bounds
+              Ranh giới tầng
             </button>
             {/* Delete Floor Bounds Button */}
             {floorBounds && floorBounds.x !== undefined && floorBounds.width && floorBounds.height && (
@@ -1227,13 +1227,13 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                     floorWidth: null,
                     floorHeight: null,
                   });
-                  toast.success("Floor bounds deleted");
+                  toast.success("Đã xóa khung tầng");
                 }}
-                className="px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 bg-red-100 text-red-700 hover:bg-red-200"
+                className="px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 bg-red-100 text-red-700 hover:bg-red-200 cursor-pointer"
                 title="Delete floor bounds"
               >
                 <i className="ri-delete-bin-line"></i>
-                Delete Bounds
+                Xóa Ranh giới
               </button>
             )}
           </div>
@@ -1289,11 +1289,11 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             <>
               <button
                 onClick={handleAddSpotToArea}
-                className="px-4 py-2 rounded-lg bg-green-100 text-green-700 hover:bg-green-200 transition-all font-medium flex items-center gap-2"
+                className="px-4 py-2 rounded-lg bg-green-100 text-green-700 hover:bg-green-200 transition-all font-medium flex items-center gap-2 cursor-pointer"
                 disabled={!selectedAreaId}
               >
                 <i className="ri-parking-box-fill"></i>
-                Add 1 Spot
+                Thêm 1 Chỗ
               </button>
 
               {/* Bulk Add Spots */}
@@ -1310,10 +1310,10 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                   />
                   <button
                     onClick={handleBulkAddSpots}
-                    className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-all font-medium flex items-center gap-2"
+                    className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-all font-medium flex items-center gap-2 cursor-pointer"
                   >
                     <i className="ri-add-circle-fill"></i>
-                    Add Multiple
+                    Thêm Nhiều
                   </button>
                 </div>
               )}
@@ -1322,18 +1322,18 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
               {selectedSpotId ? (
                 <button
                   onClick={handleDeleteSpot}
-                  className="px-4 py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-all font-medium flex items-center gap-2"
+                  className="px-4 py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-all font-medium flex items-center gap-2 cursor-pointer"
                 >
                   <i className="ri-delete-bin-fill"></i>
-                  Delete Spot
+                  Xóa Chỗ Đỗ
                 </button>
               ) : selectedAreaId ? (
                 <button
                   onClick={handleDeleteArea}
-                  className="px-4 py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-all font-medium flex items-center gap-2"
+                  className="px-4 py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-all font-medium flex items-center gap-2 cursor-pointer"
                 >
                   <i className="ri-delete-bin-fill"></i>
-                  Delete Area
+                  Xóa Khu Vực
                 </button>
               ) : (
                 <button
@@ -1341,7 +1341,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                   className="px-4 py-2 rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed transition-all font-medium flex items-center gap-2"
                 >
                   <i className="ri-delete-bin-fill"></i>
-                  Delete
+                  Xóa
                 </button>
               )}
             </>
@@ -1350,26 +1350,26 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
           {/* General Actions */}
           <button
             onClick={handleClearAll}
-            className="px-4 py-2 rounded-lg bg-orange-100 text-orange-700 hover:bg-orange-200 transition-all font-medium flex items-center gap-2"
+            className="px-4 py-2 rounded-lg bg-orange-100 text-orange-700 hover:bg-orange-200 transition-all font-medium flex items-center gap-2 cursor-pointer"
           >
             <i className="ri-eraser-fill"></i>
-            Clear Floor
+            Xóa Tầng
           </button>
 
           <button
             onClick={handleSaveLayout}
-            className="px-6 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-all font-medium shadow-md flex items-center gap-2"
+            className="px-6 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-all font-medium shadow-md flex items-center gap-2 cursor-pointer"
           >
             <i className="ri-save-fill"></i>
-            Save Layout
+            Lưu Sơ Đồ
           </button>
 
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition-all font-medium flex items-center gap-2"
+            className="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition-all font-medium flex items-center gap-2 cursor-pointer"
           >
             <i className="ri-close-line"></i>
-            Close
+            Đóng
           </button>
         </div>
       </div>
@@ -1386,45 +1386,45 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                 ? "bg-orange-100 text-orange-700"
                 : "bg-blue-100 text-blue-700"
             }`}>
-              {mode === "draw" ? "✏️ Drawing" : mode === "erase" ? "🧹 Erasing" : "⬛ Creating Areas"}
+              {mode === "draw" ? "✏️ Đang vẽ" : mode === "erase" ? "🧹 Đang xóa" : "⬛ Đang tạo khu vực"}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-medium text-gray-700">Current Floor:</span>
+            <span className="font-medium text-gray-700">Tầng hiện tại:</span>
             <span className="text-gray-900">{currentFloorData?.floorName}</span>
           </div>
           {currentFloorData?.vehicleTypes && (
             <div className="flex items-center gap-2">
-              <span className="font-medium text-gray-700">Vehicle Types:</span>
+              <span className="font-medium text-gray-700">Loại phương tiện:</span>
               <div className="flex gap-1">
                 {currentFloorData.vehicleTypes.CAR_UP_TO_9_SEATS && (
-                  <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">🚗 Car</span>
+                  <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">🚗 Ô tô</span>
                 )}
                 {currentFloorData.vehicleTypes.MOTORBIKE && (
-                  <span className="px-2 py-0.5 bg-orange-100 text-orange-700 rounded text-xs">🏍️ Bike</span>
+                  <span className="px-2 py-0.5 bg-orange-100 text-orange-700 rounded text-xs">🏍️ Xe máy</span>
                 )}
                 {currentFloorData.vehicleTypes.BIKE && (
-                  <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs">🚲 Cycle</span>
+                  <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs">🚲 Xe đạp</span>
                 )}
                 {currentFloorData.vehicleTypes.OTHER && (
-                  <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">🚚 Other</span>
+                  <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">🚚 Khác</span>
                 )}
               </div>
             </div>
           )}
           <div className="flex items-center gap-2">
-            <span className="font-medium text-gray-700">Areas:</span>
+            <span className="font-medium text-gray-700">Khu vực:</span>
             <span className="text-gray-900">{areas.length}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-medium text-gray-700">Total Spots:</span>
+            <span className="font-medium text-gray-700">Tổng chỗ đỗ:</span>
             <span className="text-gray-900">
               {areas.reduce((sum, a) => sum + a.spots.length, 0)}
             </span>
           </div>
           {selectedSpotId && (
             <div className="flex items-center gap-2">
-              <span className="font-medium text-gray-700">Selected:</span>
+              <span className="font-medium text-gray-700">Đã chọn:</span>
               <span className="px-2 py-0.5 bg-red-100 text-red-700 rounded font-medium">
                 🚗 {areas.find(a => a.id === selectedAreaId)?.spots.find(s => s.id === selectedSpotId)?.name || 'Spot'}
               </span>
@@ -1433,16 +1433,16 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
         </div>
         <div className="text-xs text-gray-600">
           {mode === "draw"
-            ? "🖱️ Click and drag to draw lines"
+            ? "🖱️ Click và kéo để vẽ đường"
             : mode === "erase"
-            ? "🧹 Click and drag to erase drawing strokes"
+            ? "🧹 Click và kéo để xóa nét vẽ"
             : mode === "floor"
-            ? "🖱️ Click and drag to define floor bounds"
+            ? "🖱️ Click và kéo để vẽ khung tầng"
             : selectedSpotId
-            ? "🚗 Drag to move • Press Delete to remove spot"
+            ? "🚗 Kéo để di chuyển • Nhấn Delete để xóa chỗ đỗ"
             : selectedAreaId
-            ? "📍 Drag to move • Resize corners • Press Delete to remove area"
-            : "🖱️ Click and drag to create/move areas • Click spots to select them"}
+            ? "📍 Kéo để di chuyển • Kéo góc để thay đổi kích thước • Nhấn Delete để xóa khu vực"
+            : "🖱️ Click và kéo để tạo/di chuyển khu vực • Click vào chỗ đỗ để chọn"}
         </div>
       </div>
 
@@ -1631,7 +1631,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                       ),
                     });
                     
-                    toast.success(`📐 Resized ${area.name}`);
+                    toast.success(`📐 Đã thay đổi kích thước ${area.name}`);
                   }}
                 />
                 <Text
@@ -1700,7 +1700,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                           ),
                         });
                         
-                        toast.success(`🚗 Moved ${spot.name}`);
+                        toast.success(`🚗 Đã di chuyển ${spot.name}`);
                       }}
                     />
                     <Text
@@ -1754,32 +1754,32 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                 <i className="ri-file-copy-line text-blue-600 text-2xl"></i>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-900">Copy Floor Layout</h3>
-                <p className="text-sm text-gray-500">Select a floor to copy from</p>
+                <h3 className="text-lg font-bold text-gray-900">Sao Chép Sơ Đồ Tầng</h3>
+                <p className="text-sm text-gray-500">Chọn tầng để sao chép</p>
               </div>
             </div>
 
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Copy from Floor:
+                Sao chép từ tầng:
               </label>
               <select
                 value={copySourceFloor || ""}
                 onChange={(e) => setCopySourceFloor(Number(e.target.value))}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
               >
-                <option value="">-- Select a floor --</option>
+                <option value="">-- Chọn một tầng --</option>
                 {floors
                   .filter(f => f.floorNumber !== currentFloor && f.areas.length > 0)
                   .map(f => (
                     <option key={f.floorNumber} value={f.floorNumber}>
-                      Floor {f.floorNumber} ({f.areas.length} areas, {f.areas.reduce((sum, a) => sum + (a.spots?.length || 0), 0)} spots)
+                      Tầng {f.floorNumber} ({f.areas.length} khu vực, {f.areas.reduce((sum, a) => sum + (a.spots?.length || 0), 0)} chỗ đỗ)
                     </option>
                   ))}
               </select>
               {floors.filter(f => f.floorNumber !== currentFloor && f.areas.length > 0).length === 0 && (
                 <p className="text-sm text-amber-600 mt-2">
-                  ⚠️ No other floors with areas available to copy from.
+                  ⚠️ Không có tầng nào khác có khu vực để sao chép.
                 </p>
               )}
             </div>
@@ -1787,29 +1787,29 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
               <p className="text-sm text-blue-800">
                 <i className="ri-information-line mr-1"></i>
-                This will copy all areas and parking spots from the selected floor to <strong>Floor {currentFloor}</strong>. 
-                Any existing areas on this floor will be replaced.
+                Thao tác này sẽ sao chép tất cả khu vực và chỗ đỗ xe từ tầng được chọn sang <strong>Tầng {currentFloor}</strong>. 
+                Các khu vực hiện tại trên tầng này sẽ bị thay thế.
               </p>
             </div>
 
             <div className="flex gap-3">
               <button
                 onClick={handleCancelCopy}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-all"
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-all cursor-pointer"
               >
-                Cancel
+                Hủy
               </button>
               <button
                 onClick={handleConfirmCopy}
                 disabled={!copySourceFloor}
-                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all cursor-pointer ${
                   copySourceFloor
                     ? "bg-blue-600 text-white hover:bg-blue-700 shadow-md"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
               >
                 <i className="ri-file-copy-line mr-2"></i>
-                Copy Layout
+                Sao Chép Sơ Đồ
               </button>
             </div>
           </div>
@@ -1825,14 +1825,14 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                 <i className="ri-add-circle-line text-green-600 text-2xl"></i>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-900">Add New Floor</h3>
-                <p className="text-sm text-gray-500">Vehicle types based on parking lot registration</p>
+                <h3 className="text-lg font-bold text-gray-900">Thêm Tầng Mới</h3>
+                <p className="text-sm text-gray-500">Các loại xe dựa trên đăng ký bãi đỗ</p>
               </div>
             </div>
 
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                Vehicle Types: <span className="text-red-500">*</span>
+                Loại Xe: <span className="text-red-500">*</span>
               </label>
               
               <div className="space-y-3">
@@ -1859,18 +1859,18 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <i className="ri-car-fill text-blue-600 text-xl"></i>
-                            <span className="font-medium text-gray-900">Car (up to 9 seats)</span>
+                            <span className="font-medium text-gray-900">Ô tô dưới 9 chỗ</span>
                             {allowedTypes.CAR_UP_TO_9_SEATS ? (
                               <span className="ml-auto px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
-                                ⚡ Electric Support
+                                ⚡ Hỗ trợ điện
                               </span>
                             ) : (
                               <span className="ml-auto px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
-                                🚫 Not Registered
+                                🚫 Chưa đăng ký
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-gray-500 ml-7">Cars, SUVs, and small vans</p>
+                          <p className="text-xs text-gray-500 ml-7">Ô tô, SUV và xe van nhỏ</p>
                         </div>
                       </label>
 
@@ -1893,14 +1893,14 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <i className="ri-motorbike-fill text-orange-600 text-xl"></i>
-                            <span className="font-medium text-gray-900">Motorbike</span>
+                            <span className="font-medium text-gray-900">Xe máy</span>
                             {!allowedTypes.MOTORBIKE && (
                               <span className="ml-auto px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
-                                🚫 Not Registered
+                                🚫 Chưa đăng ký
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-gray-500 ml-7">Motorcycles and scooters</p>
+                          <p className="text-xs text-gray-500 ml-7">Xe máy và xe tay ga</p>
                         </div>
                       </label>
 
@@ -1923,14 +1923,14 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <i className="ri-bike-fill text-green-600 text-xl"></i>
-                            <span className="font-medium text-gray-900">Bicycle</span>
+                            <span className="font-medium text-gray-900">Xe đạp</span>
                             {!allowedTypes.BIKE && (
                               <span className="ml-auto px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
-                                🚫 Not Registered
+                                🚫 Chưa đăng ký
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-gray-500 ml-7">Regular bicycles and e-bikes</p>
+                          <p className="text-xs text-gray-500 ml-7">Xe đạp thường và xe đạp điện</p>
                         </div>
                       </label>
 
@@ -1953,14 +1953,14 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <i className="ri-truck-fill text-purple-600 text-xl"></i>
-                            <span className="font-medium text-gray-900">Other</span>
+                            <span className="font-medium text-gray-900">Khác</span>
                             {!allowedTypes.OTHER && (
                               <span className="ml-auto px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
-                                🚫 Not Registered
+                                🚫 Chưa đăng ký
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-gray-500 ml-7">Trucks, buses, and other vehicles</p>
+                          <p className="text-xs text-gray-500 ml-7">Xe tải, xe buýt và các loại xe khác</p>
                         </div>
                       </label>
                     </>
@@ -1972,28 +1972,28 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-6">
               <p className="text-sm text-amber-800">
                 <i className="ri-information-line mr-1"></i>
-                <strong>Note:</strong> You can only select vehicle types that are registered in your parking lot request. Select at least one type from the available options.
+                <strong>Lưu ý:</strong> Bạn chỉ có thể chọn các loại xe đã đăng ký trong yêu cầu bãi đỗ xe của bạn. Chọn ít nhất một loại từ các tùy chọn khả dụng.
               </p>
             </div>
 
             <div className="flex gap-3">
               <button
                 onClick={() => setShowFloorModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-all"
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-all cursor-pointer"
               >
-                Cancel
+                Hủy
               </button>
               <button
                 onClick={handleConfirmAddFloor}
                 disabled={!Object.values(selectedVehicleTypes).some(v => v)}
-                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all cursor-pointer ${
                   Object.values(selectedVehicleTypes).some(v => v)
                     ? "bg-green-600 text-white hover:bg-green-700 shadow-md"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
               >
                 <i className="ri-add-circle-line mr-2"></i>
-                Add Floor
+                Thêm Tầng
               </button>
             </div>
           </div>
@@ -2009,14 +2009,14 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                 <i className="ri-settings-3-line text-purple-600 text-2xl"></i>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-900">Edit Vehicle Types</h3>
-                <p className="text-sm text-gray-500">Update vehicle types for Floor {currentFloor}</p>
+                <h3 className="text-lg font-bold text-gray-900">Chỉnh Sửa Loại Xe</h3>
+                <p className="text-sm text-gray-500">Cập nhật loại xe cho Tầng {currentFloor}</p>
               </div>
             </div>
 
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                Vehicle Types: <span className="text-red-500">*</span>
+                Loại Xe: <span className="text-red-500">*</span>
               </label>
               
               <div className="space-y-3">
@@ -2043,18 +2043,18 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <i className="ri-car-fill text-blue-600 text-xl"></i>
-                            <span className="font-medium text-gray-900">Car (up to 9 seats)</span>
+                            <span className="font-medium text-gray-900">Ô tô dưới 9 chỗ</span>
                             {allowedTypes.CAR_UP_TO_9_SEATS ? (
                               <span className="ml-auto px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
-                                ⚡ Electric Support
+                                ⚡ Hỗ trợ điện
                               </span>
                             ) : (
                               <span className="ml-auto px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
-                                🚫 Not Registered
+                                🚫 Chưa đăng ký
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-gray-500 ml-7">Cars, SUVs, and small vans</p>
+                          <p className="text-xs text-gray-500 ml-7">Ô tô, SUV và xe van nhỏ</p>
                         </div>
                       </label>
 
@@ -2077,14 +2077,14 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <i className="ri-motorbike-fill text-orange-600 text-xl"></i>
-                            <span className="font-medium text-gray-900">Motorbike</span>
+                            <span className="font-medium text-gray-900">Xe máy</span>
                             {!allowedTypes.MOTORBIKE && (
                               <span className="ml-auto px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
-                                🚫 Not Registered
+                                🚫 Chưa đăng ký
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-gray-500 ml-7">Motorcycles and scooters</p>
+                          <p className="text-xs text-gray-500 ml-7">Xe máy và xe tay ga</p>
                         </div>
                       </label>
 
@@ -2107,14 +2107,14 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <i className="ri-bike-fill text-green-600 text-xl"></i>
-                            <span className="font-medium text-gray-900">Bicycle</span>
+                            <span className="font-medium text-gray-900">Xe đạp</span>
                             {!allowedTypes.BIKE && (
                               <span className="ml-auto px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
-                                🚫 Not Registered
+                                🚫 Chưa đăng ký
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-gray-500 ml-7">Regular bicycles and e-bikes</p>
+                          <p className="text-xs text-gray-500 ml-7">Xe đạp thường và xe đạp điện</p>
                         </div>
                       </label>
 
@@ -2137,14 +2137,14 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <i className="ri-truck-fill text-purple-600 text-xl"></i>
-                            <span className="font-medium text-gray-900">Other</span>
+                            <span className="font-medium text-gray-900">Khác</span>
                             {!allowedTypes.OTHER && (
                               <span className="ml-auto px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
-                                🚫 Not Registered
+                                🚫 Chưa đăng ký
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-gray-500 ml-7">Trucks, buses, and other vehicles</p>
+                          <p className="text-xs text-gray-500 ml-7">Xe tải, xe buýt và các loại xe khác</p>
                         </div>
                       </label>
                     </>
@@ -2156,28 +2156,28 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
               <p className="text-sm text-blue-800">
                 <i className="ri-information-line mr-1"></i>
-                <strong>Note:</strong> You can only select vehicle types that are registered in your parking lot request. Select at least one type from the available options. Changes will apply when you save the floor layout.
+                <strong>Lưu ý:</strong> Bạn chỉ có thể chọn các loại xe đã đăng ký trong yêu cầu bãi đỗ xe của bạn. Chọn ít nhất một loại từ các tùy chọn khả dụng. Thay đổi sẽ áp dụng khi bạn lưu sơ đồ tầng.
               </p>
             </div>
 
             <div className="flex gap-3">
               <button
                 onClick={() => setShowEditVehicleTypesModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-all"
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-all cursor-pointer"
               >
-                Cancel
+                Hủy
               </button>
               <button
                 onClick={handleConfirmEditVehicleTypes}
                 disabled={!Object.values(selectedVehicleTypes).some(v => v)}
-                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all cursor-pointer ${
                   Object.values(selectedVehicleTypes).some(v => v)
                     ? "bg-purple-600 text-white hover:bg-purple-700 shadow-md"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
               >
                 <i className="ri-check-line mr-2"></i>
-                Update Types
+                Cập nhật loại xe
               </button>
             </div>
           </div>

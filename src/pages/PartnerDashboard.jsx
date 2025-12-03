@@ -173,10 +173,10 @@ export default function PartnerDashboard() {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
               <i className="ri-bar-chart-box-line text-indigo-600"></i>
-              Parking Lot Dashboard
+              Trang Quản Lý Bãi Đỗ Xe
             </h1>
             <p className="text-gray-600 mt-2">
-              View revenue, sessions, and performance statistics
+              Xem doanh thu, phiên đỗ xe và thống kê hiệu suất
             </p>
           </div>
 
@@ -186,14 +186,14 @@ export default function PartnerDashboard() {
               {/* Parking Lot Selector */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Parking Lot
+                  Chọn Bãi Đỗ Xe
                 </label>
                 <select
                   value={selectedLotId || ""}
                   onChange={(e) => setSelectedLotId(Number(e.target.value))}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 >
-                  <option value="">-- Select a parking lot --</option>
+                  <option value="">-- Chọn một bãi đỗ xe --</option>
                   {parkingLots.map((lot) => (
                     <option key={lot.id} value={lot.id}>
                       {lot.name}
@@ -205,7 +205,7 @@ export default function PartnerDashboard() {
               {/* Date From */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  From
+                  Từ Ngày
                 </label>
                 <input
                   type="datetime-local"
@@ -218,7 +218,7 @@ export default function PartnerDashboard() {
               {/* Date To */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  To
+                  Đến Ngày
                 </label>
                 <input
                   type="datetime-local"
@@ -268,51 +268,51 @@ export default function PartnerDashboard() {
                     showError("Failed to refresh parking lots");
                   }
                 }}
-                className="px-4 py-2 text-sm rounded-lg transition font-medium bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 flex items-center gap-2"
+                className="px-4 py-2 text-sm rounded-lg transition font-medium bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 flex items-center gap-2 cursor-pointer"
                 title="Reset all filters and refresh data"
               >
                 <i className="ri-refresh-line"></i>
-                Refresh
+                Làm Mới
               </button>
               <button
                 onClick={() => setQuickDateRange(0)}
-                className={`px-4 py-2 text-sm rounded-lg transition font-medium ${
+                className={`px-4 py-2 text-sm rounded-lg transition font-medium cursor-pointer ${
                   activeDateRange === 0
                     ? "bg-indigo-600 text-white shadow-md"
                     : "bg-indigo-50 hover:bg-indigo-100 text-indigo-700"
                 }`}
               >
-                Today
+                Hôm Nay
               </button>
               <button
                 onClick={() => setQuickDateRange(7)}
-                className={`px-4 py-2 text-sm rounded-lg transition font-medium ${
+                className={`px-4 py-2 text-sm rounded-lg transition font-medium cursor-pointer ${
                   activeDateRange === 7
                     ? "bg-indigo-600 text-white shadow-md"
                     : "bg-indigo-50 hover:bg-indigo-100 text-indigo-700"
                 }`}
               >
-                Last 7 Days
+                7 Ngày Qua
               </button>
               <button
                 onClick={() => setQuickDateRange(30)}
-                className={`px-4 py-2 text-sm rounded-lg transition font-medium ${
+                className={`px-4 py-2 text-sm rounded-lg transition font-medium cursor-pointer ${
                   activeDateRange === 30
                     ? "bg-indigo-600 text-white shadow-md"
                     : "bg-indigo-50 hover:bg-indigo-100 text-indigo-700"
                 }`}
               >
-                Last 30 Days
+                30 Ngày Qua
               </button>
               <button
                 onClick={() => setQuickDateRange(90)}
-                className={`px-4 py-2 text-sm rounded-lg transition font-medium ${
+                className={`px-4 py-2 text-sm rounded-lg transition font-medium cursor-pointer ${
                   activeDateRange === 90
                     ? "bg-indigo-600 text-white shadow-md"
                     : "bg-indigo-50 hover:bg-indigo-100 text-indigo-700"
                 }`}
               >
-                Last 90 Days
+                90 Ngày Qua
               </button>
             </div>
           </div>
@@ -321,7 +321,7 @@ export default function PartnerDashboard() {
           {loading && (
             <div className="flex justify-center items-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-              <span className="ml-3 text-gray-600">Loading statistics...</span>
+              <span className="ml-3 text-gray-600">Đang tải thống kê...</span>
             </div>
           )}
 
@@ -335,7 +335,7 @@ export default function PartnerDashboard() {
                   <div className="flex items-center justify-between mb-3">
                     <div>
                       <p className="text-orange-100 text-xs font-medium uppercase tracking-wide">
-                        Total Revenue
+                        Tổng Doanh Thu
                       </p>
                       <p className="text-4xl font-bold mt-2">
                         {formatCurrency((statistics.sessionStatistics || statistics.sessionStatistic)?.sessionTotalAmount || 0)}
@@ -352,7 +352,7 @@ export default function PartnerDashboard() {
                   <div className="flex items-center justify-between mb-3">
                     <div>
                       <p className="text-purple-100 text-xs font-medium uppercase tracking-wide">
-                        Member Revenue
+                        Doanh Thu Thành Viên
                       </p>
                       <p className="text-3xl font-bold mt-2">
                         {formatCurrency((statistics.sessionStatistics || statistics.sessionStatistic)?.memberTotalAmount || 0)}
@@ -379,7 +379,7 @@ export default function PartnerDashboard() {
                   <div className="flex items-center justify-between mb-3">
                     <div>
                       <p className="text-blue-100 text-xs font-medium uppercase tracking-wide">
-                        Occasional Revenue
+                        Doanh Thu Lẻ
                       </p>
                       <p className="text-3xl font-bold mt-2">
                         {formatCurrency((statistics.sessionStatistics || statistics.sessionStatistic)?.occasionalTotalAmount || 0)}
@@ -411,7 +411,7 @@ export default function PartnerDashboard() {
                       <i className="ri-time-line text-2xl text-blue-600"></i>
                     </div>
                     <div>
-                      <p className="text-gray-600 text-xs font-medium">Active Sessions</p>
+                      <p className="text-gray-600 text-xs font-medium">Phiên Đang Hoạt Động</p>
                       <p className="text-2xl font-bold text-gray-900">
                         {(statistics.sessionStatistics || statistics.sessionStatistic)?.activeSessions || 0}
                       </p>
@@ -426,7 +426,7 @@ export default function PartnerDashboard() {
                       <i className="ri-checkbox-circle-line text-2xl text-green-600"></i>
                     </div>
                     <div>
-                      <p className="text-gray-600 text-xs font-medium">Completed</p>
+                      <p className="text-gray-600 text-xs font-medium">Hoàn Thành</p>
                       <p className="text-2xl font-bold text-gray-900">
                         {(statistics.sessionStatistics || statistics.sessionStatistic)?.completedSessions || 0}
                       </p>
@@ -441,7 +441,7 @@ export default function PartnerDashboard() {
                       <i className="ri-file-list-line text-2xl text-indigo-600"></i>
                     </div>
                     <div>
-                      <p className="text-gray-600 text-xs font-medium">Total Sessions</p>
+                      <p className="text-gray-600 text-xs font-medium">Tổng Phiên</p>
                       <p className="text-2xl font-bold text-gray-900">
                         {((statistics.sessionStatistics || statistics.sessionStatistic)?.completedSessions || 0) +
                           ((statistics.sessionStatistics || statistics.sessionStatistic)?.activeSessions || 0)}
@@ -457,7 +457,7 @@ export default function PartnerDashboard() {
                       <i className="ri-timer-line text-2xl text-teal-600"></i>
                     </div>
                     <div>
-                      <p className="text-gray-600 text-xs font-medium">Avg Duration</p>
+                      <p className="text-gray-600 text-xs font-medium">Thời Lượng TB</p>
                       <p className="text-2xl font-bold text-gray-900">
                         {(statistics.sessionStatistics || statistics.sessionStatistic)?.averageDurationMinute
                           ? `${Math.round((statistics.sessionStatistics || statistics.sessionStatistic).averageDurationMinute)}m`
@@ -482,14 +482,14 @@ export default function PartnerDashboard() {
               <div className="mb-6">
                 <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
                   <i className="ri-bar-chart-box-line text-indigo-600"></i>
-                  Analytics Overview
+                  Tổng Quan Phân Tích
                 </h2>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Session Distribution Pie Chart */}
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <h3 className="text-base font-semibold text-gray-700 mb-4 flex items-center gap-2">
                       <i className="ri-pie-chart-line text-indigo-500"></i>
-                      Session Distribution
+                      Phân Bố Phiên
                     </h3>
                     <ResponsiveContainer width="100%" height={280}>
                       <PieChart>
@@ -517,7 +517,7 @@ export default function PartnerDashboard() {
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <h3 className="text-base font-semibold text-gray-700 mb-4 flex items-center gap-2">
                       <i className="ri-car-line text-indigo-500"></i>
-                      Vehicle Types
+                      Loại Xe
                     </h3>
                     <ResponsiveContainer width="100%" height={280}>
                       <BarChart data={getVehicleTypeData()}>
@@ -541,11 +541,11 @@ export default function PartnerDashboard() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
                   <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                     <i className="ri-line-chart-line text-indigo-600"></i>
-                    Revenue Trend
-                    {activeDateRange === 0 && " (Today)"}
-                    {activeDateRange === 7 && " (Last 7 Days)"}
-                    {activeDateRange === 30 && " (Last 30 Days)"}
-                    {activeDateRange === 90 && " (Last 90 Days)"}
+                    Xu Hướng Doanh Thu
+                    {activeDateRange === 0 && " (Hôm Nay)"}
+                    {activeDateRange === 7 && " (7 Ngày Qua)"}
+                    {activeDateRange === 30 && " (30 Ngày Qua)"}
+                    {activeDateRange === 90 && " (90 Ngày Qua)"}
                   </h3>
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart data={getRevenueBarData()}>
@@ -573,14 +573,14 @@ export default function PartnerDashboard() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
                   <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                     <i className="ri-line-chart-line text-indigo-600"></i>
-                    Revenue Trend
+                    Xu Hướng Doanh Thu
                   </h3>
                   <div className="flex flex-col items-center justify-center py-12">
                     <i className="ri-line-chart-line text-6xl text-gray-300 mb-4"></i>
                     <p className="text-gray-500 text-center">
-                      Daily revenue trend data is not available yet.
+                      Dữ liệu xu hướng doanh thu theo ngày chưa có sẵn.
                       <br />
-                      <span className="text-sm">This feature will be available when the API provides detailed revenue breakdown by date.</span>
+                      <span className="text-sm">Tính năng này sẽ khả dụng khi API cung cấp chi tiết phân tích doanh thu theo ngày.</span>
                     </p>
                   </div>
                 </div>
@@ -602,15 +602,17 @@ export default function PartnerDashboard() {
                         </div>
                         <div>
                           <h3 className="text-base font-semibold text-gray-800">
-                            Reservation Statistics
+                            Thống Kê Đặt Chỗ
                           </h3>
                           <p className="text-sm text-gray-600">
-                            Total: {(statistics.reservationStatistic?.pendingCount || 0) +
+                            Tổng:{" "}
+                            {(statistics.reservationStatistic?.pendingCount || 0) +
                               (statistics.reservationStatistic?.activeCount || 0) +
                               (statistics.reservationStatistic?.completedCount || 0) +
                               (statistics.reservationStatistic?.expiredCount || 0) +
-                              (statistics.reservationStatistic?.cancelledCount || 0)} reservations • 
-                            Revenue: {formatCurrency(statistics.reservationStatistic?.totalRevenue || 0)}
+                              (statistics.reservationStatistic?.cancelledCount || 0)}{" "}
+                            lượt đặt • Doanh thu:{" "}
+                            {formatCurrency(statistics.reservationStatistic?.totalRevenue || 0)}
                           </p>
                         </div>
                       </div>
@@ -627,7 +629,7 @@ export default function PartnerDashboard() {
                             <div className="bg-yellow-100 rounded p-2">
                               <i className="ri-time-line text-xl text-yellow-600"></i>
                             </div>
-                            <p className="text-xs font-medium text-gray-600">Pending</p>
+                            <p className="text-xs font-medium text-gray-600">Chờ Xử Lý</p>
                           </div>
                           <p className="text-2xl font-bold text-gray-900">
                             {statistics.reservationStatistic?.pendingCount || 0}
@@ -640,7 +642,7 @@ export default function PartnerDashboard() {
                             <div className="bg-blue-100 rounded p-2">
                               <i className="ri-calendar-check-line text-xl text-blue-600"></i>
                             </div>
-                            <p className="text-xs font-medium text-gray-600">Active</p>
+                            <p className="text-xs font-medium text-gray-600">Đang Hoạt Động</p>
                           </div>
                           <p className="text-2xl font-bold text-gray-900">
                             {statistics.reservationStatistic?.activeCount || 0}
@@ -653,7 +655,7 @@ export default function PartnerDashboard() {
                             <div className="bg-green-100 rounded p-2">
                               <i className="ri-checkbox-circle-line text-xl text-green-600"></i>
                             </div>
-                            <p className="text-xs font-medium text-gray-600">Completed</p>
+                            <p className="text-xs font-medium text-gray-600">Hoàn Thành</p>
                           </div>
                           <p className="text-2xl font-bold text-gray-900">
                             {statistics.reservationStatistic?.completedCount || 0}
@@ -666,7 +668,7 @@ export default function PartnerDashboard() {
                             <div className="bg-orange-100 rounded p-2">
                               <i className="ri-calendar-close-line text-xl text-orange-600"></i>
                             </div>
-                            <p className="text-xs font-medium text-gray-600">Expired</p>
+                            <p className="text-xs font-medium text-gray-600">Hết Hạn</p>
                           </div>
                           <p className="text-2xl font-bold text-gray-900">
                             {statistics.reservationStatistic?.expiredCount || 0}
@@ -679,7 +681,7 @@ export default function PartnerDashboard() {
                             <div className="bg-red-100 rounded p-2">
                               <i className="ri-close-circle-line text-xl text-red-600"></i>
                             </div>
-                            <p className="text-xs font-medium text-gray-600">Cancelled</p>
+                            <p className="text-xs font-medium text-gray-600">Đã Hủy</p>
                           </div>
                           <p className="text-2xl font-bold text-gray-900">
                             {statistics.reservationStatistic?.cancelledCount || 0}
@@ -712,27 +714,26 @@ export default function PartnerDashboard() {
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
                       <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                         <i className="ri-gift-line text-indigo-600"></i>
-                        Subscription Packages
+                        Gói Đăng Ký
                       </h3>
                       <p className="text-sm text-gray-600 mb-4">
-                        All subscription packages for your parking lot with
-                        revenue details
+                        Tất cả gói đăng ký cho bãi đỗ xe của bạn với thông tin doanh thu
                       </p>
                       <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
                           <thead className="bg-indigo-50">
                             <tr>
                               <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                Package Name
+                                Tên Gói
                               </th>
                               <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                Package Price
+                                Giá Gói
                               </th>
                               <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                Active Users
+                                Người Dùng Hoạt Động
                               </th>
                               <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                Total Revenue
+                                Tổng Doanh Thu
                               </th>
                             </tr>
                           </thead>
@@ -787,7 +788,7 @@ export default function PartnerDashboard() {
                         <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                           <p className="text-sm text-blue-800">
                             <i className="ri-user-line mr-1"></i>
-                            Total Active Subscribers:{" "}
+                            Tổng Người Đăng Ký Hoạt Động:{" "}
                             <strong>
                               {allPackages.reduce(
                                 (sum, pkg) => sum + pkg.total,
@@ -799,7 +800,7 @@ export default function PartnerDashboard() {
                         <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
                           <p className="text-sm text-purple-800">
                             <i className="ri-money-dollar-circle-line mr-1"></i>
-                            Total Subscription Revenue:{" "}
+                            Tổng Doanh Thu Từ Đăng Ký:{" "}
                             <strong>
                               {formatCurrency(
                                 allPackages.reduce(
@@ -823,10 +824,10 @@ export default function PartnerDashboard() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
               <i className="ri-database-2-line text-6xl text-gray-400 mb-4"></i>
               <p className="text-gray-600 text-lg font-medium">
-                No statistics available
+                Không có thống kê
               </p>
               <p className="text-gray-500 text-sm mt-2">
-                Try selecting a different date range or parking lot
+                Thử chọn khoảng thời gian hoặc bãi đỗ xe khác
               </p>
             </div>
           )}
@@ -836,10 +837,10 @@ export default function PartnerDashboard() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
               <i className="ri-bar-chart-box-line text-6xl text-gray-400 mb-4"></i>
               <p className="text-gray-600 text-lg font-medium">
-                Please select a parking lot
+                Vui lòng chọn bãi đỗ xe
               </p>
               <p className="text-gray-500 text-sm mt-2">
-                Choose a parking lot from the dropdown above to view statistics
+                Chọn một bãi đỗ xe từ danh sách bên trên để xem thống kê
               </p>
             </div>
           )}

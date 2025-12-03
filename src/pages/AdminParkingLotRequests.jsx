@@ -372,7 +372,7 @@ export default function AdminParkingLotRequests() {
           {/* Import */}
           <label className="flex items-center gap-2 hover:bg-yellow-200 font-medium px-4 py-2 rounded-lg border transition cursor-pointer">
             <ArrowUpTrayIcon className="w-5 h-5 text-yellow-700" />
-            Nhập
+            Nhập Excel
             <input
               type="file"
               accept=".xlsx"
@@ -387,7 +387,7 @@ export default function AdminParkingLotRequests() {
             onClick={handleExport}
           >
             <ArrowDownTrayIcon className="w-5 h-5 text-green-700" />
-            Xuất
+            Xuất Excel
           </button>
         </div>
       </div>

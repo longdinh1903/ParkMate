@@ -277,11 +277,11 @@ export default function PartnerSessions() {
   const getReferenceTypeBadge = (type) => {
     switch (type) {
       case "WALK_IN":
-        return { color: "bg-orange-100 text-orange-700", icon: "🚶", label: "Walk-in" };
+        return { color: "bg-orange-100 text-orange-700", icon: "🚶", label: "Vãng Lai" };
       case "RESERVATION":
-        return { color: "bg-blue-100 text-blue-700", icon: "📅", label: "Reservation" };
+        return { color: "bg-blue-100 text-blue-700", icon: "📅", label: "Đặt Trước" };
       case "SUBSCRIPTION":
-        return { color: "bg-purple-100 text-purple-700", icon: "🎫", label: "Subscription" };
+        return { color: "bg-purple-100 text-purple-700", icon: "🎫", label: "Đăng Ký" };
       default:
         return { color: "bg-gray-100 text-gray-700", icon: "❓", label: type };
     }
@@ -311,15 +311,15 @@ export default function PartnerSessions() {
           <div className="max-w-7xl mx-auto px-6 h-full flex flex-col">
             {/* Header */}
             <div className="pt-6 mb-4 flex-shrink-0">
-              <h1 className="text-3xl font-bold text-gray-900">Parking Sessions</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Phiên Gửi Xe</h1>
               <p className="text-gray-600 mt-1">
-                All parking sessions (entry/exit) for your parking lots
+                Tất cả phiên gửi xe (vào/ra) tại bãi đỗ xe của bạn
               </p>
               {lotIdFromUrl && parkingLotsMap[lotIdFromUrl] && (
                 <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-700 rounded-lg border border-purple-200">
                   <i className="ri-filter-3-line"></i>
                   <span className="text-sm font-medium">
-                    Filtered by parking lot: <strong>{parkingLotsMap[lotIdFromUrl].name}</strong>
+                    Đang lọc theo bãi xe: <strong>{parkingLotsMap[lotIdFromUrl].name}</strong>
                   </span>
                 </div>
               )}
@@ -334,7 +334,7 @@ export default function PartnerSessions() {
                   <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Search by license plate, parking lot..."
+                    placeholder="Tìm theo biển số xe, bãi đỗ xe..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -345,17 +345,17 @@ export default function PartnerSessions() {
                 <button
                   onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
                   className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer"
-                  title={sortOrder === "asc" ? "Ascending" : "Descending"}
+                  title={sortOrder === "asc" ? "Tăng dần" : "Giảm dần"}
                 >
                   {sortOrder === "asc" ? (
                     <>
                       <i className="ri-sort-asc text-lg"></i>
-                      <span>Asc</span>
+                      <span>Tăng</span>
                     </>
                   ) : (
                     <>
                       <i className="ri-sort-desc text-lg"></i>
-                      <span>Desc</span>
+                      <span>Giảm</span>
                     </>
                   )}
                 </button>
@@ -366,7 +366,7 @@ export default function PartnerSessions() {
                   disabled={loading}
                   className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all flex items-center gap-2 font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                 >
-                  <i className={`ri-refresh-line ${loading ? 'animate-spin' : ''}`}></i> Refresh
+                  <i className={`ri-refresh-line ${loading ? 'animate-spin' : ''}`}></i> Làm Mới
                 </button>
               </div>
 
@@ -376,7 +376,7 @@ export default function PartnerSessions() {
 
                 {/* Date From Filter */}
                 <div className="flex flex-col">
-                  <label className="text-xs text-gray-600 mb-1 font-medium">From Date</label>
+                  <label className="text-xs text-gray-600 mb-1 font-medium">Từ Ngày</label>
                   <input
                     type="date"
                     value={filterDateFrom}
@@ -390,7 +390,7 @@ export default function PartnerSessions() {
 
                 {/* Date To Filter */}
                 <div className="flex flex-col">
-                  <label className="text-xs text-gray-600 mb-1 font-medium">To Date</label>
+                  <label className="text-xs text-gray-600 mb-1 font-medium">Đến Ngày</label>
                   <input
                     type="date"
                     value={filterDateTo}
@@ -406,9 +406,9 @@ export default function PartnerSessions() {
                 <select
                   value={filterParkingLot}
                   onChange={(e) => setFilterParkingLot(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
                 >
-                  <option value="">All Parking Lots</option>
+                  <option value="">Tất Cả Bãi Xe</option>
                   {Object.values(parkingLotsMap).map(lot => (
                     <option key={lot.id} value={lot.id}>
                       {lot.name}
@@ -423,12 +423,12 @@ export default function PartnerSessions() {
                     setFilterReferenceType(e.target.value);
                     setPage(0);
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
                 >
-                  <option value="">All Types</option>
-                  <option value="WALK_IN">🚶 Walk-in</option>
-                  <option value="RESERVATION">📅 Reservation</option>
-                  <option value="SUBSCRIPTION">🎫 Subscription</option>
+                  <option value="">Tất Cả Loại</option>
+                  <option value="WALK_IN">🚶 Vãng Lai</option>
+                  <option value="RESERVATION">📅 Đặt Trước</option>
+                  <option value="SUBSCRIPTION">🎫 Đăng Ký</option>
                 </select>
 
                 {/* Status Filter */}
@@ -438,25 +438,25 @@ export default function PartnerSessions() {
                     setFilterStatus(e.target.value);
                     setPage(0);
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
                 >
-                  <option value="">All Status</option>
-                  <option value="ACTIVE">Active</option>
-                  <option value="COMPLETED">Completed</option>
-                  <option value="MANUAL_COMPLETED">Manual Completed</option>
+                  <option value="">Tất Cả Trạng Thái</option>
+                  <option value="ACTIVE">Đang Hoạt Động</option>
+                  <option value="COMPLETED">Hoàn Thành</option>
+                  <option value="MANUAL_COMPLETED">Hoàn Thành Thủ Công</option>
                 </select>
 
                 {/* Sort By Dropdown */}
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white cursor-pointer"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white cursor-pointer cursor-pointer"
                 >
-                  <option value="entryTime">Entry Time</option>
-                  <option value="exitTime">Exit Time</option>
-                  <option value="status">Status</option>
-                  <option value="totalAmount">Total Amount</option>
-                  <option value="durationMinute">Duration</option>
+                  <option value="entryTime">Thời Gian Vào</option>
+                  <option value="exitTime">Thời Gian Ra</option>
+                  <option value="status">Trạng Thái</option>
+                  <option value="totalAmount">Tổng Tiền</option>
+                  <option value="durationMinute">Thời Lượng</option>
                 </select>
               </div>
             </div>
@@ -472,8 +472,8 @@ export default function PartnerSessions() {
                   <ClockIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                   <p className="text-gray-500 text-lg">
                     {searchTerm || filterStatus || filterReferenceType || filterParkingLot || filterDateFrom || filterDateTo
-                      ? "No sessions match your filters" 
-                      : "No sessions found"}
+                      ? "Không có phiên nào khớp với bộ lọc" 
+                      : "Không tìm thấy phiên gửi xe"}
                   </p>
                 </div>
               ) : (
@@ -486,28 +486,28 @@ export default function PartnerSessions() {
                             #
                           </th>
                           <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Vehicle
+                            Phương Tiện
                           </th>
                           <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Parking Lot
+                            Bãi Đỗ Xe
                           </th>
                           <th className="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Type
+                            Loại
                           </th>
                           <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Entry/Exit Time
+                            Thời Gian Vào/Ra
                           </th>
                           <th className="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-20">
-                            Duration
+                            Thời Lượng
                           </th>
                           <th className="px-3 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Amount
+                            Số Tiền
                           </th>
                           <th className="px-3 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider w-24">
-                            Status
+                            Trạng Thái
                           </th>
                           <th className="px-3 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider w-32">
-                            Actions
+                            Hành Động
                           </th>
                         </tr>
                       </thead>
@@ -533,11 +533,11 @@ export default function PartnerSessions() {
                                 </span>
                               </td>
                               <td className="px-4 py-4 text-xs whitespace-nowrap">
-                                <p className="text-gray-500">In: {formatDateTime(session.entryTime)}</p>
-                                <p className="text-gray-500">Out: {formatDateTime(session.exitTime)}</p>
+                                <p className="text-gray-500">Vào: {formatDateTime(session.entryTime)}</p>
+                                <p className="text-gray-500">Ra: {formatDateTime(session.exitTime)}</p>
                               </td>
                               <td className="px-3 py-4 text-sm text-gray-900 whitespace-nowrap">
-                                {session.durationMinute ? `${session.durationMinute} min` : calculateDuration(session.entryTime, session.exitTime)}
+                                {session.durationMinute ? `${session.durationMinute} phút` : calculateDuration(session.entryTime, session.exitTime)}
                               </td>
                               <td className="px-3 py-4 text-center whitespace-nowrap">
                                 <p className="font-semibold text-gray-900 text-sm">
@@ -558,7 +558,7 @@ export default function PartnerSessions() {
                                   className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all text-xs font-medium"
                                 >
                                   <EyeIcon className="w-4 h-4" />
-                                  View Details
+                                  Xem Chi Tiết
                                 </button>
                               </td>
                             </tr>
@@ -575,25 +575,25 @@ export default function PartnerSessions() {
                         <button
                           disabled={page <= 0}
                           onClick={() => setPage((p) => Math.max(p - 1, 0))}
-                          className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium"
+                          className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium cursor-pointer"
                         >
-                          ← Previous
+                          ← Trước
                         </button>
 
                         <span className="text-gray-700 text-sm font-medium px-4">
-                          Page <strong className="text-indigo-600">{page + 1}</strong> of{" "}
+                          Trang <strong className="text-indigo-600">{page + 1}</strong> /{" "}
                           <strong className="text-indigo-600">{paginationInfo.totalPages}</strong> 
                           <span className="text-gray-400 ml-2">
-                            ({paginationInfo.totalElements} sessions)
+                            ({paginationInfo.totalElements} phiên)
                           </span>
                         </span>
 
                         <button
                           disabled={page >= paginationInfo.totalPages - 1}
                           onClick={() => setPage((p) => p + 1)}
-                          className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium"
+                          className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium cursor-pointer"
                         >
-                          Next →
+                          Tiếp →
                         </button>
                       </div>
                     </div>

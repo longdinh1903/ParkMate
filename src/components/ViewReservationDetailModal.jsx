@@ -69,16 +69,16 @@ export default function ViewReservationDetailModal({
   const getVehicleTypeBadge = (type) => {
     const typeMap = {
       CAR_UP_TO_9_SEATS: {
-        label: "Car (≤9 seats)",
+        label: "Ôtô (≤9 chỗ)",
         color: "bg-blue-100 text-blue-700",
       },
-      MOTORBIKE: { label: "Motorbike", color: "bg-purple-100 text-purple-700" },
-      BIKE: { label: "Bike", color: "bg-green-100 text-green-700" },
-      OTHER: { label: "Other", color: "bg-gray-100 text-gray-700" },
-      1: { label: "Motorbike", color: "bg-purple-100 text-purple-700" },
-      2: { label: "Car (≤9 seats)", color: "bg-blue-100 text-blue-700" },
-      3: { label: "Bike", color: "bg-green-100 text-green-700" },
-      4: { label: "Other", color: "bg-gray-100 text-gray-700" },
+      MOTORBIKE: { label: "Xe Máy", color: "bg-purple-100 text-purple-700" },
+      BIKE: { label: "Xe Đạp", color: "bg-green-100 text-green-700" },
+      OTHER: { label: "Khác", color: "bg-gray-100 text-gray-700" },
+      1: { label: "Xe Máy", color: "bg-purple-100 text-purple-700" },
+      2: { label: "Ôtô (≤9 chỗ)", color: "bg-blue-100 text-blue-700" },
+      3: { label: "Xe Đạp", color: "bg-green-100 text-green-700" },
+      4: { label: "Khác", color: "bg-gray-100 text-gray-700" },
     };
     const info = typeMap[type] || {
       label: type,
@@ -113,13 +113,13 @@ export default function ViewReservationDetailModal({
               <i className="ri-calendar-check-fill text-2xl text-white"></i>
             </div>
             <h2 className="text-xl font-bold text-white">
-              Reservation Details
+              Chi Tiết Đặt Chỗ
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-white hover:bg-white/20 transition-colors duration-200"
-            aria-label="Close"
+            className="p-2 rounded-full text-white hover:bg-white/20 transition-colors duration-200 cursor-pointer"
+            aria-label="Đóng"
           >
             <XMarkIcon className="w-6 h-6" />
           </button>
@@ -130,18 +130,22 @@ export default function ViewReservationDetailModal({
           {/* Status Overview */}
           <section className="mb-6 grid grid-cols-3 gap-4">
             <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 border border-indigo-200">
-              <p className="text-xs text-indigo-600 font-medium mb-2">STATUS</p>
+              <p className="text-xs text-indigo-600 font-medium mb-2">TRẠNG THÁI</p>
               <span
                 className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getStatusBadge(
                   reservation.status
                 )}`}
               >
-                {reservation.status || "UNKNOWN"}
+                {reservation.status === "PENDING" ? "Chờ Xử Lý" :
+                 reservation.status === "ACTIVE" ? "Đang Hoạt Động" :
+                 reservation.status === "COMPLETED" ? "Hoàn Thành" :
+                 reservation.status === "EXPIRED" ? "Hết Hạn" :
+                 reservation.status === "CANCELLED" ? "Đã Hủy" : reservation.status || "KHÔNG XÁC ĐỊNH"}
               </span>
             </div>
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
               <p className="text-xs text-blue-600 font-medium mb-2">
-                INITIAL FEE
+                PHÍ BAN ĐẦU
               </p>
               <p className="text-2xl font-bold text-blue-700">
                 {reservation.initialFee
@@ -151,7 +155,7 @@ export default function ViewReservationDetailModal({
             </div>
             <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
               <p className="text-xs text-green-600 font-medium mb-2">
-                TOTAL FEE
+                TỔNG PHÍ
               </p>
               <p className="text-2xl font-bold text-green-700">
                 {reservation.totalFee
@@ -166,19 +170,19 @@ export default function ViewReservationDetailModal({
             <section className="mb-6">
               <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
                 <i className="ri-qr-code-fill text-indigo-500"></i>
-                QR Code
+                Mã QR
               </h3>
               <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 flex flex-col items-center border border-gray-200">
                 <div className="bg-white p-4 rounded-lg shadow-lg">
                   <img
                     src={reservation.qrCode}
-                    alt="Reservation QR Code"
+                    alt="Mã QR Đặt Chỗ"
                     className="w-48 h-48 object-contain"
                   />
                 </div>
                 <p className="text-xs text-gray-600 mt-3 text-center">
                   <i className="ri-information-line mr-1"></i>
-                  Scan this QR code for check-in
+                  Quét mã QR này để làm thủ tục vào
                 </p>
               </div>
             </section>
@@ -188,41 +192,41 @@ export default function ViewReservationDetailModal({
           <section className="mb-6">
             <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
               <i className="ri-car-fill text-indigo-500"></i>
-              Vehicle Information
+              Thông Tin Phương Tiện
             </h3>
             {loadingVehicle ? (
               <div className="flex items-center justify-center py-4">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
                 <span className="ml-3 text-gray-600">
-                  Loading vehicle details...
+                  Đang tải thông tin phương tiện...
                 </span>
               </div>
             ) : (
               <div className="space-y-1">
-                <InfoRow label="License Plate">
+                <InfoRow label="Biển Số Xe">
                   <span className="font-bold text-lg">
                     {vehicleData?.licensePlate ||
                       reservation.vehicleLicensePlate ||
                       "-"}
                   </span>
                 </InfoRow>
-                <InfoRow label="Vehicle Type">
+                <InfoRow label="Loại Xe">
                   {getVehicleTypeBadge(
                     vehicleData?.type || reservation.vehicleType
                   )}
                 </InfoRow>
                 {vehicleData?.vehicleBrand && (
-                  <InfoRow label="Brand" value={vehicleData.vehicleBrand} />
+                  <InfoRow label="Hãng Xe" value={vehicleData.vehicleBrand} />
                 )}
                 {vehicleData?.vehicleModel && (
-                  <InfoRow label="Model" value={vehicleData.vehicleModel} />
+                  <InfoRow label="Mẫu Xe" value={vehicleData.vehicleModel} />
                 )}
                 {vehicleData?.vehicleColor && (
-                  <InfoRow label="Color" value={vehicleData.vehicleColor} />
+                  <InfoRow label="Màu Xe" value={vehicleData.vehicleColor} />
                 )}
                 {vehicleData?.description && (
                   <InfoRow
-                    label="Description"
+                    label="Mô Tả"
                     value={vehicleData.description}
                   />
                 )}
@@ -234,10 +238,10 @@ export default function ViewReservationDetailModal({
           <section className="mb-6">
             <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
               <i className="ri-parking-box-fill text-indigo-500"></i>
-              Parking Information
+              Thông Tin Bãi Xe
             </h3>
             <div className="space-y-1">
-              <InfoRow label="Parking Lot" value={parkingLotName} />
+              <InfoRow label="Bãi Xe" value={parkingLotName} />
             </div>
           </section>
 
@@ -245,15 +249,15 @@ export default function ViewReservationDetailModal({
           <section className="mb-6">
             <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
               <i className="ri-time-fill text-indigo-500"></i>
-              Reservation Time
+              Thời Gian Đặt Chỗ
             </h3>
             <div className="space-y-1">
-              <InfoRow label="Reserved From">
+              <InfoRow label="Từ">
                 <span className="text-green-600">
                   {formatDateTime(reservation.reservedFrom)}
                 </span>
               </InfoRow>
-              <InfoRow label="Reserved Until">
+              <InfoRow label="Đến">
                 <span className="text-red-600">
                   {formatDateTime(reservation.reservedUntil)}
                 </span>
@@ -265,10 +269,10 @@ export default function ViewReservationDetailModal({
           <section className="mb-6">
             <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
               <i className="ri-information-fill text-indigo-500"></i>
-              System Information
+              Thông Tin Hệ Thống
             </h3>
             <div className="space-y-1">
-              <InfoRow label="Listing Status">
+              <InfoRow label="Trạng Thái Niêm Yết">
                 <span
                   className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                     reservation.isListed
@@ -276,15 +280,15 @@ export default function ViewReservationDetailModal({
                       : "bg-gray-100 text-gray-700"
                   }`}
                 >
-                  {reservation.isListed ? "✓ Listed" : "✗ Not Listed"}
+                  {reservation.isListed ? "✓ Đã Niêm Yết" : "✗ Chưa Niêm Yết"}
                 </span>
               </InfoRow>
               <InfoRow
-                label="Created At"
+                label="Ngày Tạo"
                 value={formatDateTime(reservation.createdAt)}
               />
               <InfoRow
-                label="Updated At"
+                label="Cập Nhật Lần Cuối"
                 value={formatDateTime(reservation.updatedAt)}
               />
             </div>
@@ -295,7 +299,7 @@ export default function ViewReservationDetailModal({
             <section className="mb-6">
               <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
                 <i className="ri-group-fill text-indigo-500"></i>
-                Group Information
+                Thông Tin Nhóm
               </h3>
               <div className="bg-gray-50 rounded-lg p-4">
                 <pre className="text-xs text-gray-700 whitespace-pre-wrap break-words">
@@ -310,9 +314,9 @@ export default function ViewReservationDetailModal({
         <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end">
           <button
             onClick={onClose}
-            className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
+            className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium cursor-pointer"
           >
-            Close
+            Đóng
           </button>
         </div>
       </div>
