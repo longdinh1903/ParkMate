@@ -59,6 +59,31 @@ const parkingLotApi = {
     }),
   // Count lots (no params expected by backend in current swagger)
   count: (params) => axiosClient.get(`/api/v1/parking-service/lots/count`, { params }),
+
+  // Upload images for parking lot
+  uploadImages: (lotId, images) => {
+    const formData = new FormData();
+    images.forEach((image) => {
+      formData.append("images", image);
+    });
+    return axiosClient.post(`/api/v1/parking-service/s3/${lotId}/lots`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+
+  // Delete parking lot image (send array with single imageId)
+  deleteImage: (lotId, imageId) => {
+    return axiosClient.delete(`/api/v1/parking-service/s3`, {
+      data: [imageId]
+    });
+  },
+
+  // Delete multiple parking lot images (send array of imageIds)
+  deleteImages: (lotId, imageIds) => {
+    return axiosClient.delete(`/api/v1/parking-service/s3`, {
+      data: imageIds
+    });
+  },
 };
 
 export default parkingLotApi;

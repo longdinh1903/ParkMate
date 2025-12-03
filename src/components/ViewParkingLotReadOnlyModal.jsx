@@ -160,23 +160,35 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
           </div>
         )}
 
-        {/* Images */}
-        {((lot.images && lot.images.length > 0) || (lot.imageUrls && lot.imageUrls.length > 0) || (lot.photos && lot.photos.length > 0)) && (
-          <div className="mb-6">
-            <h3 className="font-semibold text-indigo-600 mb-3">📸 Hình Ảnh</h3>
-            <div className="flex flex-wrap gap-3">
-              {(lot.images ?? lot.imageUrls ?? lot.photos).map((src, i) => (
-                <img
-                  key={i}
-                  src={src.url ?? src}
-                  alt={`img-${i}`}
-                  className="w-40 h-28 object-cover rounded-md border"
-                  onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/160x112?text=Image" }}
-                />
+        {/* Images Section */}
+        <div className="mb-8 bg-gradient-to-br from-purple-50 to-purple-100/30 p-6 rounded-2xl border border-purple-200 shadow-sm">
+          <h3 className="font-semibold text-purple-600 text-xl flex items-center gap-2 mb-4">
+            <i className="ri-image-fill"></i> Hình Ảnh Bãi Xe
+          </h3>
+
+          {lot.images && lot.images.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {lot.images.map((image, index) => (
+                <div key={image.id || index} className="relative group">
+                  <img
+                    src={image.path}
+                    alt={`Parking lot ${index + 1}`}
+                    className="w-full h-40 object-cover rounded-lg border-2 border-purple-200 shadow-md hover:shadow-xl transition-all cursor-pointer"
+                    onClick={() => window.open(image.path, '_blank')}
+                  />
+                  <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                    {index + 1}/{lot.images.length}
+                  </div>
+                </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="text-center py-12 bg-white/50 rounded-xl border-2 border-dashed border-purple-300">
+              <i className="ri-image-line text-5xl text-purple-300 mb-3"></i>
+              <p className="text-purple-600 font-medium">Chưa có hình ảnh</p>
+            </div>
+          )}
+        </div>
 
         {/* Capacity */}
         {lot.lotCapacity?.length > 0 && (

@@ -182,90 +182,90 @@ export default function PartnerHome() {
         bg: "bg-green-100",
         text: "text-green-700",
         icon: "ri-checkbox-circle-fill",
-        label: "Approved",
+        label: "Đã Duyệt",
       },
       // aliases that APIs sometimes return
       APPROVE: {
         bg: "bg-green-100",
         text: "text-green-700",
         icon: "ri-checkbox-circle-fill",
-        label: "Approved",
+        label: "Đã Duyệt",
       },
       ACTIVE: {
         bg: "bg-green-100",
         text: "text-green-700",
         icon: "ri-checkbox-circle-fill",
-        label: "Active",
+        label: "Hoạt Động",
       },
 
       PENDING: {
         bg: "bg-yellow-100",
         text: "text-yellow-700",
         icon: "ri-time-fill",
-        label: "Pending",
+        label: "Chờ Duyệt",
       },
       PREPARING: {
         bg: "bg-yellow-100",
         text: "text-yellow-700",
         icon: "ri-loader-2-fill",
-        label: "Preparing",
+        label: "Đang Chuẩn Bị",
       },
       PARTNER_CONFIGURATION: {
         bg: "bg-blue-100",
         text: "text-blue-600",
         icon: "ri-tools-fill",
-        label: "Partner Config",
+        label: "Cấu Hình Đối Tác",
       },
       PENDING_PAYMENT: {
         bg: "bg-purple-100",
         text: "text-purple-700",
         icon: "ri-qr-code-line",
-        label: "Pending Payment",
+        label: "Chờ Thanh Toán",
       },
       WAITING: {
         bg: "bg-yellow-100",
         text: "text-yellow-700",
         icon: "ri-time-fill",
-        label: "Pending",
+        label: "Chờ Duyệt",
       },
 
       REJECTED: {
         bg: "bg-red-100",
         text: "text-red-700",
         icon: "ri-close-circle-fill",
-        label: "Rejected",
+        label: "Bị Từ Chối",
       },
       REJECT: {
         bg: "bg-red-100",
         text: "text-red-700",
         icon: "ri-close-circle-fill",
-        label: "Rejected",
+        label: "Bị Từ Chối",
       },
       DENIED: {
         bg: "bg-red-100",
         text: "text-red-700",
         icon: "ri-close-circle-fill",
-        label: "Denied",
+        label: "Bị Từ Chối",
       },
       MAP_DENIED: {
         bg: "bg-red-100",
         text: "text-red-700",
         icon: "ri-map-pin-2-fill",
-        label: "Map Denied",
+        label: "Bản Đồ Bị Từ Chối",
       },
 
       INACTIVE: {
         bg: "bg-red-100",
         text: "text-gray-700",
         icon: "ri-toggle-off-line",
-        label: "Inactive",
+        label: "Không Hoạt Động",
       },
 
       UNKNOWN: {
         bg: "bg-gray-100",
         text: "text-gray-700",
         icon: "ri-question-line",
-        label: "Unknown",
+        label: "Không Xác Định",
       },
     };
 
@@ -295,10 +295,10 @@ export default function PartnerHome() {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
-                  My Parking Lots
+                  Bãi Đỗ Xe Của Tôi
                 </h1>
                 <p className="text-gray-600 text-sm mt-1">
-                  Manage the parking spaces you have registered for
+                  Quản lý các bãi đỗ xe bạn đã đăng ký
                 </p>
               </div>
             </div>
@@ -307,7 +307,7 @@ export default function PartnerHome() {
               className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white rounded-xl hover:from-indigo-700 hover:to-indigo-600 transition-all shadow-lg hover:shadow-xl font-medium flex items-center gap-2 cursor-pointer"
             >
               <i className="ri-add-line text-lg"></i>
-              Register New Lot
+              Đăng Ký Bãi Mới
             </button>
           </div>
 
@@ -320,7 +320,7 @@ export default function PartnerHome() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search (all fields)..."
+                placeholder="Tìm kiếm (tất cả trường)..."
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
             </div>
@@ -331,17 +331,17 @@ export default function PartnerHome() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="w-full sm:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white cursor-pointer"
             >
-              <option value="">All Status</option>
-              <option value="PENDING">Pending</option>
-              <option value="PREPARING">Preparing</option>
+              <option value="">Tất Cả Trạng Thái</option>
+              <option value="PENDING">Chờ Duyệt</option>
+              <option value="PREPARING">Đang Chuẩn Bị</option>
               <option value="PARTNER_CONFIGURATION">
-                Partner Configuration
+                Cấu Hình Đối Tác
               </option>
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
-              <option value="MAP_DENIED">Map Denied</option>
-              <option value="REJECTED">Rejected</option>
-              <option value="PENDING_PAYMENT">Pending_Payment</option>
+              <option value="ACTIVE">Hoạt Động</option>
+              <option value="INACTIVE">Không Hoạt Động</option>
+              <option value="MAP_DENIED">Bản Đồ Bị Từ Chối</option>
+              <option value="REJECTED">Bị Từ Chối</option>
+              <option value="PENDING_PAYMENT">Chờ Thanh Toán</option>
             </select>
 
             {/* Sort By Dropdown */}
@@ -350,27 +350,27 @@ export default function PartnerHome() {
               onChange={(e) => setSortBy(e.target.value)}
               className="w-full sm:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white cursor-pointer"
             >
-              <option value="createdAt">Created Date</option>
-              <option value="name">Name</option>
-              <option value="status">Status</option>
-              <option value="totalFloors">Total Floors</option>
+              <option value="createdAt">Ngày Tạo</option>
+              <option value="name">Tên</option>
+              <option value="status">Trạng Thái</option>
+              <option value="totalFloors">Tổng Số Tầng</option>
             </select>
 
             {/* Sort Order Button */}
             <button
               onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
               className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer"
-              title={sortOrder === "asc" ? "Ascending" : "Descending"}
+              title={sortOrder === "asc" ? "Tăng dần" : "Giảm dần"}
             >
               {sortOrder === "asc" ? (
                 <>
                   <i className="ri-sort-asc text-lg"></i>
-                  <span className="hidden sm:inline">Asc</span>
+                  <span className="hidden sm:inline">Tăng</span>
                 </>
               ) : (
                 <>
                   <i className="ri-sort-desc text-lg"></i>
-                  <span className="hidden sm:inline">Desc</span>
+                  <span className="hidden sm:inline">Giảm</span>
                 </>
               )}
             </button>
@@ -381,7 +381,7 @@ export default function PartnerHome() {
             <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold text-gray-900">
-                  Parking Lots List
+                  Danh Sách Bãi Đỗ Xe
                 </h2>
                 <p className="text-sm text-gray-600 mt-1">
                   {pagination.totalElements} bãi đỗ xe
@@ -399,23 +399,23 @@ export default function PartnerHome() {
                 }}
                 className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all flex items-center gap-2 font-medium cursor-pointer"
               >
-                <i className="ri-refresh-line"></i> Refresh
+                <i className="ri-refresh-line"></i> Làm Mới
               </button>
             </div>
 
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20">
                 <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-                <p className="text-gray-600 mt-3">Loading...</p>
+                <p className="text-gray-600 mt-3">Đang tải...</p>
               </div>
             ) : lots.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20">
                 <i className="ri-parking-box-line text-6xl text-gray-300 mb-4"></i>
                 <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                  No parking lots found
+                  Không tìm thấy bãi đỗ xe
                 </h3>
                 <p className="text-gray-500 mb-6">
-                  You haven't registered any parking lots yet
+                  Bạn chưa đăng ký bãi đỗ xe nào
                 </p>
               </div>
             ) : (
@@ -425,16 +425,16 @@ export default function PartnerHome() {
                     <tr>
                       {[
                         "#",
-                        "Name",
-                        "Address",
-                        "Status",
-                        "Total Floors",
-                        "Actions",
+                        "Tên",
+                        "Địa Chỉ",
+                        "Trạng Thái",
+                        "Tổng Số Tầng",
+                        "Thao Tác",
                       ].map((h) => (
                         <th
                           key={h}
                           className={`px-6 py-4 text-xs font-bold text-gray-700 uppercase tracking-wider ${
-                            h === "Status" || h === "Actions"
+                            h === "Trạng Thái" || h === "Thao Tác"
                               ? "text-center"
                               : "text-left"
                           }`}
@@ -497,7 +497,7 @@ export default function PartnerHome() {
                                   
                                   {/* Menu */}
                                   <div 
-                                    className="fixed w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden"
+                                    className="fixed w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden "
                                     style={{
                                       top: document.getElementById(`dropdown-button-${lot.id}`)?.getBoundingClientRect().bottom + 4 || 0,
                                       left: document.getElementById(`dropdown-button-${lot.id}`)?.getBoundingClientRect().right - 192 || 0,
@@ -509,10 +509,10 @@ export default function PartnerHome() {
                                         handleViewDetail(lot);
                                         setOpenDropdownId(null);
                                       }}
-                                      className="w-full px-4 py-2.5 text-left text-sm text-indigo-600 hover:bg-indigo-50 flex items-center gap-2 transition-colors"
+                                      className="w-full px-4 py-2.5 text-left text-sm text-indigo-600 hover:bg-indigo-50 flex items-center gap-2 transition-colors cursor-pointer"
                                     >
                                       <EyeIcon className="w-4 h-4" />
-                                      View Details
+                                      Xem Chi Tiết
                                     </button>
                                     <button
                                       onClick={async (e) => {
@@ -521,7 +521,7 @@ export default function PartnerHome() {
                                         
                                         // Load full lot details including lotCapacity before opening editor
                                         try {
-                                          toast.loading("Loading parking lot details...", { id: "load-lot" });
+                                          toast.loading("Đang tải thông tin bãi đỗ xe...", { id: "load-lot" });
                                           const detailRes = await parkingLotApi.getById(lot.id);
                                           const fullLot = detailRes?.data?.data || detailRes?.data || lot;
                                           
@@ -529,13 +529,13 @@ export default function PartnerHome() {
                                           setShowMapEditor(true);
                                           toast.dismiss("load-lot");
                                         } catch {
-                                          toast.error("Failed to load parking lot details", { id: "load-lot" });
+                                          toast.error("Không thể tải thông tin bãi đỗ xe", { id: "load-lot" });
                                         }
                                       }}
-                                      className="w-full px-4 py-2.5 text-left text-sm text-emerald-600 hover:bg-emerald-50 flex items-center gap-2 transition-colors"
+                                      className="w-full px-4 py-2.5 text-left text-sm text-emerald-600 hover:bg-emerald-50 flex items-center gap-2 transition-colors cursor-pointer"
                                     >
                                       <MapPinIcon className="w-4 h-4" />
-                                      Edit Map
+                                      Chỉnh Sửa Bản Đồ
                                     </button>
                                     <button
                                       onClick={(e) => {
@@ -543,10 +543,10 @@ export default function PartnerHome() {
                                         navigate(`/subscriptions?lotId=${lot.id}`);
                                         setOpenDropdownId(null);
                                       }}
-                                      className="w-full px-4 py-2.5 text-left text-sm text-purple-600 hover:bg-purple-50 flex items-center gap-2 transition-colors"
+                                      className="w-full px-4 py-2.5 text-left text-sm text-purple-600 hover:bg-purple-50 flex items-center gap-2 transition-colors cursor-pointer"
                                     >
                                       <i className="ri-file-list-3-line text-base"></i>
-                                      View Subscriptions
+                                      Xem Đăng Ký
                                     </button>
                                     <button
                                       onClick={(e) => {
@@ -554,10 +554,10 @@ export default function PartnerHome() {
                                         navigate(`/sessions?lotId=${lot.id}`);
                                         setOpenDropdownId(null);
                                       }}
-                                      className="w-full px-4 py-2.5 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center gap-2 transition-colors"
+                                      className="w-full px-4 py-2.5 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center gap-2 transition-colors cursor-pointer"
                                     >
                                       <i className="ri-timer-line text-base"></i>
-                                      View Sessions
+                                      Xem Phiên
                                     </button>
                                     <button
                                       onClick={(e) => {
@@ -565,10 +565,10 @@ export default function PartnerHome() {
                                         navigate(`/reservations?lotId=${lot.id}`);
                                         setOpenDropdownId(null);
                                       }}
-                                      className="w-full px-4 py-2.5 text-left text-sm text-orange-600 hover:bg-orange-50 flex items-center gap-2 transition-colors"
+                                      className="w-full px-4 py-2.5 text-left text-sm text-orange-600 hover:bg-orange-50 flex items-center gap-2 transition-colors cursor-pointer"
                                     >
                                       <i className="ri-calendar-line text-base"></i>
-                                      View Reservations
+                                      Xem Đặt Chỗ
                                     </button>
                                   </div>
                                 </>
@@ -587,25 +587,25 @@ export default function PartnerHome() {
                     <button
                       disabled={page <= 0}
                       onClick={() => setPage((p) => Math.max(p - 1, 0))}
-                      className="px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
+                      className="px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium cursor-pointer"
                     >
-                      ← Previous
+                      ← Trước
                     </button>
 
                     <span className="text-gray-700 text-sm font-medium px-4">
-                      Page <strong className="text-indigo-600">{page + 1}</strong> of{" "}
+                      Trang <strong className="text-indigo-600">{page + 1}</strong> /{" "}
                       <strong className="text-indigo-600">{pagination.totalPages}</strong>
                       <span className="text-gray-400 ml-2">
-                        ({pagination.totalElements} parking lots)
+                        ({pagination.totalElements} bãi đỗ xe)
                       </span>
                     </span>
 
                     <button
                       disabled={page >= pagination.totalPages - 1}
                       onClick={() => setPage((p) => p + 1)}
-                      className="px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
+                      className="px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium cursor-pointer"
                     >
-                      Next →
+                      Sau →
                     </button>
                   </div>
                 )}
@@ -625,9 +625,9 @@ export default function PartnerHome() {
           onActionDone={() => fetchMyLots(page)}
           // restrict status change options for partners to only ACTIVE and MAP_DENIED
           statusOptions={[
-            { key: "ACTIVE", label: "Active", color: "text-green-600" },
-            { key: "MAP_DENIED", label: "Map Denied", color: "text-red-600" },
-            { key: "PENDING_PAYMENT", label: "Pending Payment", color: "text-purple-600" },
+            { key: "ACTIVE", label: "Hoạt Động", color: "text-green-600" },
+            { key: "MAP_DENIED", label: "Bản Đồ Bị Từ Chối", color: "text-red-600" },
+            { key: "PENDING_PAYMENT", label: "Chờ Thanh Toán", color: "text-purple-600" },
           ]}
           allowEdit={true}
         />

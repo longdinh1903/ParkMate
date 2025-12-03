@@ -61,7 +61,7 @@ export default function RequestWithdrawalModal({ onClose, onRequested, isEmbedde
       setParkingLots(Array.isArray(data?.content) ? data.content : []);
     } catch (err) {
       console.error("Error fetching parking lots:", err);
-      showError("Failed to load parking lots");
+      showError("Đã có lỗi khi tải danh sách bãi đỗ xe");
     }
   };
 
@@ -100,7 +100,7 @@ export default function RequestWithdrawalModal({ onClose, onRequested, isEmbedde
       }
     } catch (err) {
       console.error("❌ Error fetching periods:", err);
-      showError("Failed to load withdrawal periods");
+      showError("Đã có lỗi khi tải các kỳ thu nhập");
       setPeriods([]);
     } finally {
       setLoadingPeriods(false);
@@ -114,7 +114,7 @@ export default function RequestWithdrawalModal({ onClose, onRequested, isEmbedde
       setBanks(Array.isArray(res.data?.data) ? res.data.data : []);
     } catch (err) {
       console.error("Error fetching banks:", err);
-      showError("Failed to load banks");
+      showError("Đã có lỗi khi tải danh sách ngân hàng");
     } finally {
       setLoadingBanks(false);
     }
@@ -143,12 +143,12 @@ export default function RequestWithdrawalModal({ onClose, onRequested, isEmbedde
     e.preventDefault();
 
     if (!selectedLotId) {
-      showError("Please select a parking lot");
+      showError("Vui lòng chọn bãi đỗ xe");
       return;
     }
 
     if (selectedPeriods.length === 0) {
-      showError("Please select at least one period");
+      showError("Vui lòng chọn ít nhất một kỳ thu nhập");
       return;
     }
 
@@ -166,15 +166,15 @@ export default function RequestWithdrawalModal({ onClose, onRequested, isEmbedde
       const res = await withdrawalApi.createRequest(payload);
 
       if (res.status === 200 || res.status === 201) {
-        showSuccess("✅ Withdrawal request submitted successfully!");
+        showSuccess("✅ Đã gửi yêu cầu rút tiền thành công!");
         onRequested();
         onClose();
       } else {
-        showError("❌ Failed to submit withdrawal request!");
+        showError("❌ Đã có lỗi khi gửi yêu cầu rút tiền!");
       }
     } catch (err) {
       console.error("❌ Error submitting withdrawal:", err);
-      const msg = err.response?.data?.message || "Failed to submit withdrawal request.";
+      const msg = err.response?.data?.message || "Đã có lỗi khi gửi yêu cầu rút tiền.";
       showError(msg);
     } finally {
       setLoading(false);
@@ -201,10 +201,10 @@ export default function RequestWithdrawalModal({ onClose, onRequested, isEmbedde
   const content = (
     <>
       {!isEmbedded && (
-        <div className="bg-indigo-600 text-white py-8 px-6 shadow-md">
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <span className="text-3xl">💰</span>
-            Request Withdrawal
+        <div className="bg-indigo-600 text-white py-8 px-6 shadow-md ">
+          <h2 className="text-2xl font-bold flex items-center gap-2 ">
+            <span className="text-3xl ">💰</span>
+            Yêu Cầu Rút Tiền
           </h2>
         </div>
       )}
@@ -213,15 +213,15 @@ export default function RequestWithdrawalModal({ onClose, onRequested, isEmbedde
           {/* Parking Lot Selection */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Parking Lot <span className="text-red-500">*</span>
+              Bãi Đỗ Xe <span className="text-red-500">*</span>
             </label>
             <select
               value={selectedLotId}
               onChange={(e) => setSelectedLotId(e.target.value)}
               required
-              className="w-full border-2 border-gray-300 px-4 py-3 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-base"
+              className="w-full border-2 border-gray-300 px-4 py-3 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-base cursor-pointer"
             >
-              <option value="">-- Select Parking Lot --</option>
+              <option value="">-- Chọn Bãi Đỗ Xe --</option>
               {parkingLots.map((lot) => (
                 <option key={lot.id} value={lot.id}>
                   {lot.name} - {lot.address}
@@ -232,12 +232,12 @@ export default function RequestWithdrawalModal({ onClose, onRequested, isEmbedde
 
           {/* Bank Selection */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Bank <span className="text-red-500">*</span>
+            <label className="block text-sm font-semibold text-gray-700 mb-2 ">
+              Ngân Hàng <span className="text-red-500">*</span>
             </label>
             {loadingBanks ? (
               <div className="w-full border-2 border-gray-300 px-4 py-3 rounded-lg bg-gray-50 text-gray-500">
-                Loading banks...
+                Đang tải danh sách ngân hàng...
               </div>
             ) : (
               <div className="relative bank-dropdown-container">
@@ -250,8 +250,8 @@ export default function RequestWithdrawalModal({ onClose, onRequested, isEmbedde
                       setShowBankDropdown(true);
                     }}
                     onFocus={() => setShowBankDropdown(true)}
-                    placeholder={form.bankCode ? banks.find(b => b.bin === form.bankCode)?.name : "Search bank..."}
-                    className="w-full border-2 border-gray-300 pl-4 pr-12 py-3 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-base"
+                    placeholder={form.bankCode ? banks.find(b => b.bin === form.bankCode)?.name : "Tìm kiếm ngân hàng..."}
+                    className="w-full border-2 border-gray-300 pl-4 pr-12 py-3 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-base cursor-pointer"
                   />
                   {form.bankCode && (
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
@@ -306,7 +306,7 @@ export default function RequestWithdrawalModal({ onClose, onRequested, isEmbedde
                     </div>
                   ) : (
                     <div className="absolute z-50 w-full bottom-full mb-2 bg-white border-2 border-gray-300 rounded-lg shadow-xl px-4 py-6 text-center text-gray-500">
-                      No banks found
+                      Không tìm thấy ngân hàng nào
                     </div>
                   );
                 })()}
@@ -317,7 +317,7 @@ export default function RequestWithdrawalModal({ onClose, onRequested, isEmbedde
           {/* Bank Account Number */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Bank Account Number <span className="text-red-500">*</span>
+              Số Tài Khoản Ngân Hàng <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -325,7 +325,7 @@ export default function RequestWithdrawalModal({ onClose, onRequested, isEmbedde
               value={form.bankAccountNumber}
               onChange={handleChange}
               required
-              placeholder="Enter your bank account number"
+              placeholder="Nhập số tài khoản ngân hàng"
               className="w-full border-2 border-gray-300 px-4 py-3 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-base"
             />
           </div>
@@ -333,7 +333,7 @@ export default function RequestWithdrawalModal({ onClose, onRequested, isEmbedde
           {/* Bank Account Name */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Bank Account Name <span className="text-red-500">*</span>
+              Tên Chủ Tài Khoản <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -341,7 +341,7 @@ export default function RequestWithdrawalModal({ onClose, onRequested, isEmbedde
               value={form.bankAccountName}
               onChange={handleChange}
               required
-              placeholder="Enter account holder name"
+              placeholder="Nhập tên chủ tài khoản"
               className="w-full border-2 border-gray-300 px-4 py-3 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-base"
             />
           </div>
@@ -351,12 +351,12 @@ export default function RequestWithdrawalModal({ onClose, onRequested, isEmbedde
             <div className="mb-6">
               <label className="block text-lg font-bold text-indigo-900 mb-4 flex items-center gap-2 px-5 py-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-indigo-200 rounded-xl">
                 <span className="text-2xl">📋</span>
-                Select Periods to Withdraw <span className="text-red-500">*</span>
+                Chọn Các Kỳ Để Rút Tiền <span className="text-red-500">*</span>
               </label>
               {loadingPeriods ? (
                 <div className="text-center py-8 text-gray-500 text-lg">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-2"></div>
-                  Loading periods...
+                  Đang tải các kỳ thu nhập...
                 </div>
               ) : (() => {
                 const availablePeriods = periods.filter(p => !p.isWithdrawn && p.lotId === parseInt(selectedLotId));
@@ -380,35 +380,35 @@ export default function RequestWithdrawalModal({ onClose, onRequested, isEmbedde
                           </div>
                           <div className="grid grid-cols-2 gap-2 text-sm">
                             <div className="flex justify-between p-1.5 bg-blue-50 rounded">
-                              <span className="text-gray-600 text-xs">Reservation:</span>
+                              <span className="text-gray-600 text-xs">Đặt Chỗ:</span>
                               <span className="font-semibold text-blue-700 text-xs">{formatCurrency(period.reservationRevenue)}</span>
                             </div>
                             <div className="flex justify-between p-1.5 bg-purple-50 rounded">
-                              <span className="text-gray-600 text-xs">Subscription:</span>
+                              <span className="text-gray-600 text-xs">Đăng Ký:</span>
                               <span className="font-semibold text-purple-700 text-xs">{formatCurrency(period.subscriptionRevenue)}</span>
                             </div>
                             <div className="flex justify-between p-1.5 bg-green-50 rounded">
-                              <span className="text-gray-600 text-xs">Walk-in:</span>
+                              <span className="text-gray-600 text-xs">Vãng Lai:</span>
                               <span className="font-semibold text-green-700 text-xs">{formatCurrency(period.walkInRevenue)}</span>
                             </div>
                             <div className="flex justify-between p-1.5 bg-indigo-50 rounded">
-                              <span className="font-gray-600 font-semibold text-xs">Gross Revenue:</span>
+                              <span className="font-gray-600 font-semibold text-xs">Tổng Thu:</span>
                               <span className="font-bold text-indigo-700 text-xs">{formatCurrency(period.grossRevenue)}</span>
                             </div>
                           </div>
                           <div className="flex justify-between mt-2 pt-2 border-t border-dashed">
-                            <span className="text-red-600 font-medium text-xs">Platform Fee:</span>
+                            <span className="text-red-600 font-medium text-xs">Phí Nền Tảng:</span>
                             <span className="font-bold text-red-600 text-xs">-{formatCurrency(period.platformFee)}</span>
                           </div>
                         </div>
                         <div className="text-right ml-4 flex flex-col items-end justify-center min-w-[140px]">
                           <div className="text-xs text-gray-500 mb-1">
-                            Net Revenue
+                            Thu Nhập Ròng
                           </div>
                           <div className="font-bold text-green-600 text-2xl mb-1">
                             {formatCurrency(period.netRevenue)}
                           </div>
-                          <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium text-xs">● Available</span>
+                          <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium text-xs">● Có Sẵn</span>
                         </div>
                       </label>
                     </div>
@@ -416,7 +416,7 @@ export default function RequestWithdrawalModal({ onClose, onRequested, isEmbedde
                 </div>
                 ) : (
                 <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
-                  No withdrawal periods available for this parking lot
+                  Không có kỳ thu nhập nào để rút cho bãi đỗ xe này
                 </div>
                 );
               })()}
@@ -428,9 +428,9 @@ export default function RequestWithdrawalModal({ onClose, onRequested, isEmbedde
             <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-300 rounded-xl p-6 shadow-md">
               <div className="flex justify-between items-center">
                 <div>
-                  <span className="text-lg font-semibold text-gray-700">Total Withdrawal Amount:</span>
+                  <span className="text-lg font-semibold text-gray-700">Tổng Số Tiền Rút:</span>
                   <div className="text-sm text-gray-600 mt-1">
-                    {selectedPeriods.length} period(s) selected
+                    {selectedPeriods.length} kỳ đã chọn
                   </div>
                 </div>
                 <span className="text-4xl font-bold text-indigo-700">
@@ -448,15 +448,15 @@ export default function RequestWithdrawalModal({ onClose, onRequested, isEmbedde
                 onClick={onClose}
                 className="px-6 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium transition text-base"
               >
-                Cancel
+                Hủy
               </button>
             )}
             <button
               type="submit"
               disabled={loading || selectedPeriods.length === 0}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-6 rounded-lg shadow-md font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-6 rounded-lg shadow-md font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
-              {loading ? "Submitting..." : "Submit Withdrawal Request"}
+              {loading ? "Đang gửi..." : "Gửi Yêu Cầu Rút Tiền"}
             </button>
           </div>
         </form>

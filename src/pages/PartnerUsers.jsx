@@ -27,6 +27,7 @@ export default function PartnerUsers() {
   const [filterSubscriptionPackage, setFilterSubscriptionPackage] =
     useState("");
   const [filterParkingLot, setFilterParkingLot] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState("desc");
 
@@ -240,14 +241,47 @@ export default function PartnerUsers() {
 
   // Get status badge
   const getStatusBadge = (status) => {
-    const colors = {
-      PENDING_PAYMENT: "bg-orange-100 text-orange-800",
-      ACTIVE: "bg-green-100 text-green-800",
-      INACTIVE: "bg-gray-100 text-gray-800",
-      EXPIRED: "bg-red-100 text-red-800",
-      CANCELLED: "bg-slate-100 text-slate-800",
+    const statusConfig = {
+      PENDING_PAYMENT: { 
+        color: "bg-orange-100 text-orange-800", 
+        label: "Chờ Thanh Toán" 
+      },
+      ACTIVE: { 
+        color: "bg-green-100 text-green-800", 
+        label: "Xe Đang Trong Bãi" 
+      },
+      INACTIVE: { 
+        color: "bg-blue-100 text-blue-800", 
+        label: "Xe Đang Ngoài Bãi" 
+      },
+      EXPIRED: { 
+        color: "bg-red-100 text-red-800", 
+        label: "Hết Hạn" 
+      },
+      CANCELLED: { 
+        color: "bg-gray-100 text-gray-800", 
+        label: "Hủy" 
+      },
     };
-    return colors[status] || "bg-gray-100 text-gray-800";
+    
+    const config = statusConfig[status] || { 
+      color: "bg-gray-100 text-gray-800", 
+      label: status || "Không Rõ" 
+    };
+    
+    return config.color;
+  };
+
+  // Get status label
+  const getStatusLabel = (status) => {
+    const statusConfig = {
+      PENDING_PAYMENT: "Chờ Thanh Toán",
+      ACTIVE: "Xe Đang Trong Bãi",
+      INACTIVE: "Xe Đang Ngoài Bãi",
+      EXPIRED: "Hết Hạn",
+      CANCELLED: "Hủy",
+    };
+    return statusConfig[status] || status || "Không Rõ";
   };
 
   // Client-side filtering and pagination
@@ -278,6 +312,13 @@ export default function PartnerUsers() {
     if (filterParkingLot) {
       filtered = filtered.filter(
         (sub) => sub.parkingLotId === parseInt(filterParkingLot)
+      );
+    }
+
+    // Apply status filter
+    if (filterStatus) {
+      filtered = filtered.filter(
+        (sub) => sub.status === filterStatus
       );
     }
 
@@ -317,6 +358,7 @@ export default function PartnerUsers() {
     searchTerm,
     filterSubscriptionPackage,
     filterParkingLot,
+    filterStatus,
     subscriptionIdFromUrl,
     lotIdFromUrl,
     parkingLotsMap,
@@ -332,16 +374,16 @@ export default function PartnerUsers() {
           <div className="max-w-7xl mx-auto px-6 h-full flex flex-col">
             {/* Header */}
             <div className="pt-6 mb-4 flex-shrink-0">
-              <h1 className="text-3xl font-bold text-gray-900">Users</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Người Dùng</h1>
               <p className="text-gray-600 mt-1">
-                All users who have subscribed to your parking lots
+                Tất cả người dùng đã đăng ký gói thành viên tại bãi đỗ xe của bạn
               </p>
               {subscriptionIdFromUrl &&
                 subscriptionPackagesMap[subscriptionIdFromUrl] && (
                   <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-200">
                     <i className="ri-filter-3-line"></i>
                     <span className="text-sm font-medium">
-                      Filtered by subscription:{" "}
+                      Đã lọc theo gói:{" "}
                       <strong>
                         {subscriptionPackagesMap[subscriptionIdFromUrl].name}
                       </strong>
@@ -354,7 +396,7 @@ export default function PartnerUsers() {
                   <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-700 rounded-lg border border-purple-200">
                     <i className="ri-filter-3-line"></i>
                     <span className="text-sm font-medium">
-                      Filtered by parking lot:{" "}
+                      Đã lọc theo bãi đỗ xe:{" "}
                       <strong>{parkingLotsMap[lotIdFromUrl].name}</strong>
                     </span>
                   </div>
@@ -369,7 +411,7 @@ export default function PartnerUsers() {
                   <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Search by name, email, phone, vehicle..."
+                    placeholder="Tìm kiếm theo tên, email, số điện thoại, biển số xe..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -382,6 +424,7 @@ export default function PartnerUsers() {
                     setSearchTerm("");
                     setFilterSubscriptionPackage("");
                     setFilterParkingLot("");
+                    setFilterStatus("");
                     setSortBy("createdAt");
                     setSortOrder("desc");
                     setPage(0);
@@ -395,7 +438,7 @@ export default function PartnerUsers() {
                       loading ? "animate-spin" : ""
                     }`}
                   ></i>{" "}
-                  Refresh
+                  Làm Mới
                 </button>
 
                 {/* Filters and Sort */}
@@ -408,9 +451,9 @@ export default function PartnerUsers() {
                     onChange={(e) => {
                       setFilterSubscriptionPackage(e.target.value);
                     }}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
                   >
-                    <option value="">All Subscriptions</option>
+                    <option value="">Tất Cả Gói</option>
                     {Object.values(subscriptionPackagesMap).map((pkg) => (
                       <option key={pkg.id} value={pkg.id}>
                         {pkg.name}
@@ -424,14 +467,30 @@ export default function PartnerUsers() {
                     onChange={(e) => {
                       setFilterParkingLot(e.target.value);
                     }}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
                   >
-                    <option value="">All Parking Lots</option>
+                    <option value="">Tất Cả Bãi Đỗ Xe</option>
                     {Object.values(parkingLotsMap).map((lot) => (
                       <option key={lot.id} value={lot.id}>
                         {lot.name}
                       </option>
                     ))}
+                  </select>
+
+                  {/* Status Filter */}
+                  <select
+                    value={filterStatus}
+                    onChange={(e) => {
+                      setFilterStatus(e.target.value);
+                    }}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
+                  >
+                    <option value="">Tất Cả Trạng Thái</option>
+                    <option value="PENDING_PAYMENT">Chờ Thanh Toán</option>
+                    <option value="ACTIVE">Xe Đang Trong Bãi</option>
+                    <option value="INACTIVE">Xe Đang Ngoài Bãi</option>
+                    <option value="EXPIRED">Hết Hạn</option>
+                    <option value="CANCELLED">Hủy</option>
                   </select>
 
                   {/* Sort Order Button */}
@@ -441,17 +500,17 @@ export default function PartnerUsers() {
                       // Don't reset page - sort on current page
                     }}
                     className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer"
-                    title={sortOrder === "asc" ? "Ascending" : "Descending"}
+                    title={sortOrder === "asc" ? "Tăng dần" : "Giảm dần"}
                   >
                     {sortOrder === "asc" ? (
                       <>
                         <i className="ri-sort-asc text-lg"></i>
-                        <span className="hidden sm:inline">Asc</span>
+                        <span className="hidden sm:inline">Tăng dần</span>
                       </>
                     ) : (
                       <>
                         <i className="ri-sort-desc text-lg"></i>
-                        <span className="hidden sm:inline">Desc</span>
+                        <span className="hidden sm:inline">Giảm dần</span>
                       </>
                     )}
                   </button>
@@ -470,8 +529,8 @@ export default function PartnerUsers() {
                   <UserIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                   <p className="text-gray-500 text-lg">
                     {searchTerm
-                      ? "No users match your search"
-                      : "No users found"}
+                      ? "Không tìm thấy người dùng phù hợp"
+                      : "Không có người dùng nào"}
                   </p>
                 </div>
               ) : (
@@ -484,25 +543,25 @@ export default function PartnerUsers() {
                             #
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Name
+                            Tên
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Subscription Package
+                            Gói Đăng Ký
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Parking Lot
+                            Bãi Đỗ Xe
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Vehicle
+                            Phương Tiện
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Time
+                            Thời Gian
                           </th>
                           <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Status
+                            Trạng Thái
                           </th>
                           <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Actions
+                            Thao Tác
                           </th>
                         </tr>
                       </thead>
@@ -565,23 +624,23 @@ export default function PartnerUsers() {
                                       sub.vehicleType === "MOTORBIKE" ||
                                       sub.vehicleType === 1
                                     )
-                                      return "🏍️ Motorbike";
+                                      return "🏍️ Xe Máy";
                                     if (
                                       sub.vehicleType === "CAR_UP_TO_9_SEATS" ||
                                       sub.vehicleType === 2
                                     )
-                                      return "🚗 Car (≤9 seats)";
+                                      return "🚗 Ôtô (≤9 chỗ)";
                                     if (
                                       sub.vehicleType === "BIKE" ||
                                       sub.vehicleType === 3
                                     )
-                                      return "🚲 Bike";
+                                      return "🚲 Xe Đạp";
                                     if (
                                       sub.vehicleType === "OTHER" ||
                                       sub.vehicleType === 4
                                     )
-                                      return "📦 Other";
-                                    return `❓ Unknown (${sub.vehicleType})`;
+                                      return "📦 Khác";
+                                    return `❓ Không rõ (${sub.vehicleType})`;
                                   })()}
                                 </p>
                                 <p className="font-semibold text-gray-900">
@@ -592,10 +651,10 @@ export default function PartnerUsers() {
                             <td className="px-6 py-4 text-sm text-gray-900">
                               <div>
                                 <p className="text-xs text-gray-500">
-                                  From: {formatDate(sub.startDate)}
+                                  Từ: {formatDate(sub.startDate)}
                                 </p>
                                 <p className="text-xs text-gray-500">
-                                  To: {formatDate(sub.endDate)}
+                                  Đến: {formatDate(sub.endDate)}
                                 </p>
                               </div>
                             </td>
@@ -605,7 +664,7 @@ export default function PartnerUsers() {
                                   sub.status
                                 )}`}
                               >
-                                {sub.status || "UNKNOWN"}
+                                {getStatusLabel(sub.status)}
                               </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-center">
@@ -614,10 +673,10 @@ export default function PartnerUsers() {
                                   setSelectedUserSubscription(sub);
                                   setShowDetailModal(true);
                                 }}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all text-xs font-medium"
+                                className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all text-xs font-medium cursor-pointer"
                               >
                                 <EyeIcon className="w-4 h-4" />
-                                View Details
+                                Xem Chi Tiết
                               </button>
                             </td>
                           </tr>
@@ -633,31 +692,31 @@ export default function PartnerUsers() {
                         <button
                           disabled={page <= 0}
                           onClick={() => setPage((p) => Math.max(p - 1, 0))}
-                          className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium"
+                          className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium cursor-pointer"
                         >
-                          ← Previous
+                          ← Trước
                         </button>
 
                         <span className="text-gray-700 text-sm font-medium px-4">
-                          Page{" "}
+                          Trang{" "}
                           <strong className="text-indigo-600">
                             {page + 1}
                           </strong>{" "}
-                          of{" "}
+                          /{" "}
                           <strong className="text-indigo-600">
                             {pagination.totalPages}
                           </strong>
                           <span className="text-gray-400 ml-2">
-                            ({pagination.totalElements} users)
+                            ({pagination.totalElements} người dùng)
                           </span>
                         </span>
 
                         <button
                           disabled={page >= pagination.totalPages - 1}
                           onClick={() => setPage((p) => p + 1)}
-                          className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium"
+                          className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium cursor-pointer"
                         >
-                          Next →
+                          Sau →
                         </button>
                       </div>
                     </div>

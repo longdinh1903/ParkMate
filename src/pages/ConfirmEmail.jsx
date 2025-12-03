@@ -10,7 +10,7 @@ export default function ConfirmEmail({ email }) {
         onClick={() => setShowOtp(true)}
         className="w-full border border-indigo-500 py-2 rounded-md text-indigo-600 hover:bg-indigo-50 mb-3"
       >
-        Enter OTP
+        Nhập OTP
       </button>
 
       {showOtp && (

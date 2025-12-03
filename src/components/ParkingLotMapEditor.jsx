@@ -117,7 +117,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
         console.log("✅ All data loaded:", floorsWithAreas);        
       } catch (err) {
         console.error("❌ Load error:", err);
-        toast.error("Failed to load parking lot data");
+        toast.error("Không thể tải dữ liệu bãi đỗ xe");
       } finally {
         setLoading(false);
       }
@@ -174,7 +174,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
     if (!selectedItem) return;
 
     try {
-      const loadingId = toast.loading("💾 Saving changes...");
+      const loadingId = toast.loading("💾 Đang lưu thay đổi...");
 
       if (selectedItem.type === "floor") {
         const payload = {
@@ -263,14 +263,14 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
       }
 
       toast.dismiss(loadingId);
-      toast.success("✅ Saved successfully!");
+      toast.success("✅ Lưu thành công!");
       setSelectedItem(null);
       
     } catch (err) {
       console.error("❌ Save error:", err);
       console.error("   Response data:", err.response?.data);
       const serverMsg = err.response?.data?.message || err.response?.data || err.message;
-      toast.error(`Failed to save: ${serverMsg}`);
+      toast.error(`Lưu thất bại: ${serverMsg}`);
     }
   };
 
@@ -291,7 +291,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
         <div className="bg-white rounded-lg p-8">
           <div className="animate-spin w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading parking lot layout...</p>
+          <p className="mt-4 text-gray-600">Đang tải sơ đồ bãi đỗ xe...</p>
         </div>
       </div>
     );
@@ -307,7 +307,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
           </div>
           <div>
             <h2 className="text-lg font-bold text-gray-900">
-              Edit Parking Map
+              Chỉnh Sửa Sơ Đồ Bãi Đỗ
             </h2>
             <p className="text-xs text-gray-500">{lot.name}</p>
           </div>
@@ -315,10 +315,10 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
 
         <button
           onClick={onClose}
-          className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+          className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors cursor-pointer"
         >
           <i className="ri-close-line mr-2"></i>
-          Close
+          Đóng
         </button>
       </div>
 
@@ -328,7 +328,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
           <div className="flex items-center">
             <i className="ri-alert-line text-orange-600 text-xl mr-3"></i>
             <p className="text-orange-800 font-medium">
-              ⚠️ Action required: Some areas still have default vehicle types. Please update them.
+              ⚠️ Yêu cầu hành động: Một số khu vực vẫn có loại xe mặc định. Vui lòng cập nhật chúng.
             </p>
           </div>
         </div>
@@ -340,7 +340,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
         <div className="flex-1 flex flex-col overflow-hidden">{/* Floor Tabs */}
         <div className="flex items-center justify-between gap-2 p-4 border-b bg-gray-50">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-700">Floors:</span>
+            <span className="text-sm font-medium text-gray-700">Tầng:</span>
             {floors.map((floor) => (
               <button
                 key={floor.id}
@@ -359,11 +359,11 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
           {/* Toggle Panel Button */}
           <button
             onClick={() => setShowRightPanel(!showRightPanel)}
-            className="px-3 py-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 transition-colors flex items-center gap-2"
-            title={showRightPanel ? "Hide panel" : "Show panel"}
+            className="px-3 py-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 transition-colors flex items-center gap-2 cursor-pointer"
+            title={showRightPanel ? "Ẩn bảng" : "Hiện bảng"}
           >
             <i className={`ri-${showRightPanel ? 'layout-right-2' : 'layout-right'}-line text-lg`}></i>
-            <span className="text-sm font-medium">{showRightPanel ? 'Hide Panel' : 'Show Panel'}</span>
+            <span className="text-sm font-medium">{showRightPanel ? 'Ẩn Bảng' : 'Hiện Bảng'}</span>
           </button>
         </div>
 
@@ -511,7 +511,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
         <div className="w-96 border-l bg-white shadow-lg flex flex-col">
           <div className="p-6 border-b bg-gradient-to-r from-green-50 to-white">
             <h3 className="text-lg font-bold text-gray-900">
-              {selectedItem ? "Edit Details" : "Parking Lot Info"}
+              {selectedItem ? "Chỉnh Sửa Chi Tiết" : "Thông Tin Bãi Đỗ"}
             </h3>
           </div>
 
@@ -520,7 +520,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Type
+                  Loại
                 </label>
                 <div className="px-3 py-2 bg-gray-100 rounded-lg text-gray-900 font-medium capitalize">
                   {selectedItem.type}
@@ -529,14 +529,14 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Name
+                  Tên
                 </label>
                 <input
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="Enter name"
+                  placeholder="Nhập tên"
                 />
               </div>
 
@@ -544,45 +544,61 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
                 <>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Vehicle Type <span className="text-red-500">*</span>
+                      Loại xe <span className="text-red-500">*</span>
                     </label>
                     <select
                       value={editVehicleType}
                       onChange={(e) => setEditVehicleType(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     >
-                      {vehicleTypes.map((type) => (
-                        <option key={type} value={type}>
-                          {type.replace(/_/g, " ")}
-                        </option>
-                      ))}
+                      {vehicleTypes.map((type) => {
+                        const displayNames = {
+                          'CAR_UP_TO_9_SEATS': 'Ô tô (dưới 9 chỗ)',
+                          'MOTORBIKE': 'Xe máy',
+                          'BIKE': 'Xe đạp',
+                          'OTHER': 'Khác'
+                        };
+                        return (
+                          <option key={type} value={type}>
+                            {displayNames[type] || type.replace(/_/g, " ")}
+                          </option>
+                        );
+                      })}
                     </select>
                     <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
                       <p className="text-xs text-blue-800">
                         <i className="ri-information-line mr-1"></i>
-                        <strong>Note:</strong> Only vehicle types registered in your parking lot approval are available.
+                        <strong>Lưu ý:</strong> Chỉ có các loại xe đã đăng ký trong phê duyệt bãi đỗ của bạn mới khả dụng.
                       </p>
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Area Type <span className="text-red-500">*</span>
+                      Loại khu vực <span className="text-red-500">*</span>
                     </label>
                     <select
                       value={editAreaType}
                       onChange={(e) => setEditAreaType(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     >
-                      {areaTypes.map((type) => (
-                        <option key={type} value={type}>
-                          {type.replace(/_/g, " ")}
-                        </option>
-                      ))}
+                      {areaTypes.map((type) => {
+                        const displayNames = {
+                          'WALK_IN_ONLY': 'Khách vãng lai',
+                          'SUBSCRIPTION_ONLY': 'Theo gói đăng ký',
+                          'EMERGENCY_ONLY': 'Khẩn cấp'
+                        };
+                        return (
+                          <option key={type} value={type}>
+                            {displayNames[type] || type.replace(/_/g, " ")}
+                          </option>
+                        );
+                      })}
                     </select>
                     <p className="mt-2 text-xs text-gray-500">
-                      🚶 <strong>WALK_IN_ONLY:</strong> Customers walk in directly<br />
-                      📅 <strong>SUBSCRIPTION_ONLY:</strong> Pre-booking required
+                      🚶 <strong>Khách vãng lai:</strong> Khách đến trực tiếp không cần đặt trước<br />
+                      📅 <strong>Theo gói đăng ký:</strong> Yêu cầu đăng ký gói trước<br />
+                      🚨 <strong>Khẩn cấp:</strong> Dành riêng cho trường hợp hết chỗ
                     </p>
                   </div>
                 </>
@@ -591,16 +607,16 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
               <div className="flex gap-3 pt-4">
                 <button
                   onClick={handleSave}
-                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium cursor-pointer"
                 >
                   <i className="ri-save-line mr-2"></i>
-                  Save
+                  Lưu
                 </button>
                 <button
                   onClick={handleCancel}
-                  className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
+                  className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium cursor-pointer"
                 >
-                  Cancel
+                  Hủy
                 </button>
               </div>
             </div>
@@ -609,14 +625,14 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
               <div className="p-4 bg-blue-50 rounded-lg">
                 <p className="text-sm text-gray-700 mb-2">
                   <i className="ri-information-line mr-2 text-blue-600"></i>
-                  Click on any Floor, Area, or Spot to edit its details.
+                  Nhấp vào bất kỳ Tầng, Khu vực hoặc Chỗ đỗ nào để chỉnh sửa chi tiết.
                 </p>
               </div>
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <span className="text-sm font-medium text-gray-700">
-                    Total Floors:
+                    Tổng số tầng:
                   </span>
                   <span className="text-lg font-bold text-gray-900">
                     {floors.length}
@@ -625,7 +641,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
 
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <span className="text-sm font-medium text-gray-700">
-                    Total Areas:
+                    Tổng số khu vực:
                   </span>
                   <span className="text-lg font-bold text-gray-900">
                     {floors.reduce((sum, f) => sum + f.areas.length, 0)}
@@ -634,7 +650,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
 
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <span className="text-sm font-medium text-gray-700">
-                    Total Spots:
+                    Tổng số chỗ đỗ:
                   </span>
                   <span className="text-lg font-bold text-gray-900">
                     {floors.reduce(

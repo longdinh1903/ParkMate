@@ -38,28 +38,28 @@ export default function Register() {
 
   const validateForm = () => {
     let newErrors = {};
-    if (!form.companyName) newErrors.companyName = "Company name is required";
-    if (!form.companyEmail) newErrors.companyEmail = "Email is required";
-    if (!form.password) newErrors.password = "Password is required";
+    if (!form.companyName) newErrors.companyName = "Tên công ty là bắt buộc";
+    if (!form.companyEmail) newErrors.companyEmail = "Email là bắt buộc";
+    if (!form.password) newErrors.password = "Mật khẩu là bắt buộc";
     if (form.password !== form.confirmPassword)
-      newErrors.confirmPassword = "Passwords do not match";
-    if (!form.taxNumber) newErrors.taxNumber = "Tax number is required";
+      newErrors.confirmPassword = "Mật khẩu không khớp";
+    if (!form.taxNumber) newErrors.taxNumber = "Mã số thuế là bắt buộc";
     if (!form.businessLicenseNumber)
-      newErrors.businessLicenseNumber = "Business License Number is required";
+      newErrors.businessLicenseNumber = "Số giấy phép kinh doanh là bắt buộc";
     if (!form.businessLicenseFile)
-      newErrors.businessLicenseFile = "Please upload business license file";
+      newErrors.businessLicenseFile = "Vui lòng tải lên tệp giấy phép kinh doanh";
     if (!form.companyPhone)
-      newErrors.companyPhone = "Company phone is required";
+      newErrors.companyPhone = "Số điện thoại công ty là bắt buộc";
     if (!form.companyAddress)
-      newErrors.companyAddress = "Company address is required";
+      newErrors.companyAddress = "Địa chỉ công ty là bắt buộc";
     if (!form.businessDescription)
-      newErrors.businessDescription = "Business description is required";
+      newErrors.businessDescription = "Mô tả kinh doanh là bắt buộc";
     if (!form.contactPersonName)
-      newErrors.contactPersonName = "Contact person name is required";
+      newErrors.contactPersonName = "Tên người liên hệ là bắt buộc";
     if (!form.contactPersonPhone)
-      newErrors.contactPersonPhone = "Contact person phone is required";
+      newErrors.contactPersonPhone = "Số điện thoại người liên hệ là bắt buộc";
     if (!form.contactPersonEmail)
-      newErrors.contactPersonEmail = "Contact person email is required";
+      newErrors.contactPersonEmail = "Email người liên hệ là bắt buộc";
 
     return Object.keys(newErrors).length === 0;
   };
@@ -68,13 +68,13 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
-      showError("Please fill in all required fields.");
+      showError("Vui lòng điền đầy đủ các trường bắt buộc.");
       return;
     }
 
     setUploading(true);
     try {
-      showInfo("Creating registration and sending OTP...");
+      showInfo("Đang tạo đơn đăng ký và gửi OTP...");
 
       // 1️⃣ Tạo đơn đăng ký (backend sẽ gửi OTP)
       const registerPayload = {
@@ -102,11 +102,11 @@ export default function Register() {
       setRegistrationId(entityId);
       
       // 2️⃣ Show OTP popup (backend đã gửi OTP qua email)
-      showSuccess("OTP sent to your email. Please verify to complete registration.");
+      showSuccess("OTP đã được gửi đến email của bạn. Vui lòng xác thực để hoàn tất đăng ký.");
       setShowOtp(true);
     } catch (err) {
       console.error("❌ Registration creation failed:", err);
-      showError("Failed to create registration. Please try again!");
+      showError("Tạo đơn đăng ký thất bại. Vui lòng thử lại!");
     } finally {
       setUploading(false);
     }
@@ -115,7 +115,7 @@ export default function Register() {
   // 🟢 Handle file upload after OTP verified
   const handleUploadAfterOTP = async () => {
     if (!registrationId) {
-      showError("Registration ID not found");
+      showError("Không tìm thấy ID đăng ký");
       return;
     }
 
@@ -123,13 +123,13 @@ export default function Register() {
     try {
       // Upload ảnh giấy phép
       if (form.businessLicenseFile) {
-        showInfo("Uploading business license...");
+        showInfo("Đang tải lên giấy phép kinh doanh...");
         await partnerApi.uploadBusinessLicense(registrationId, form.businessLicenseFile);
-        showSuccess("Uploaded business license successfully!");
+        showSuccess("Tải lên giấy phép kinh doanh thành công!");
       }
 
       // Thông báo thành công
-      showSuccess("✅ Registration completed! Please wait for admin approval.");
+      showSuccess("✅ Đăng ký hoàn tất! Vui lòng chờ quản trị viên phê duyệt.");
       
       // Navigate to login after short delay
       setTimeout(() => {
@@ -137,7 +137,7 @@ export default function Register() {
       }, 2000);
     } catch (err) {
       console.error("❌ Upload failed:", err);
-      showError("Upload failed. Please try again!");
+      showError("Tải lên thất bại. Vui lòng thử lại!");
     } finally {
       setUploading(false);
     }
@@ -151,8 +151,8 @@ export default function Register() {
           <div className="w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center mb-3">
             <span className="text-white text-xl font-bold">P</span>
           </div>
-          <h2 className="text-xl font-semibold">Parking Partner</h2>
-          <p className="text-sm text-gray-500">Partner Registration</p>
+          <h2 className="text-xl font-semibold">Đối Tác Bãi Đỗ Xe</h2>
+          <p className="text-sm text-gray-500">Đăng Ký Đối Tác</p>
         </div>
 
         {/* Form */}
@@ -160,7 +160,7 @@ export default function Register() {
           <input
             type="text"
             name="companyName"
-            placeholder="Company Name"
+            placeholder="Tên Công Ty"
             value={form.companyName}
             onChange={handleChange}
             className="col-span-2 border px-4 py-2 rounded-md"
@@ -169,7 +169,7 @@ export default function Register() {
           <input
             type="email"
             name="companyEmail"
-            placeholder="Company Email"
+            placeholder="Email Công Ty"
             value={form.companyEmail}
             onChange={handleChange}
             className="border px-4 py-2 rounded-md"
@@ -177,7 +177,7 @@ export default function Register() {
           <input
             type="text"
             name="taxNumber"
-            placeholder="Tax Number"
+            placeholder="Mã Số Thuế"
             value={form.taxNumber}
             onChange={handleChange}
             className="border px-4 py-2 rounded-md"
@@ -186,7 +186,7 @@ export default function Register() {
           <input
             type="password"
             name="password"
-            placeholder="Password"
+            placeholder="Mật Khẩu"
             value={form.password}
             onChange={handleChange}
             className="border px-4 py-2 rounded-md"
@@ -194,7 +194,7 @@ export default function Register() {
           <input
             type="password"
             name="confirmPassword"
-            placeholder="Confirm Password"
+            placeholder="Xác Nhận Mật Khẩu"
             value={form.confirmPassword}
             onChange={handleChange}
             className="border px-4 py-2 rounded-md"
@@ -203,7 +203,7 @@ export default function Register() {
           <input
             type="text"
             name="businessLicenseNumber"
-            placeholder="Business License Number"
+            placeholder="Số Giấy Phép Kinh Doanh"
             value={form.businessLicenseNumber}
             onChange={handleChange}
             className="col-span-2 border px-4 py-2 rounded-md"
@@ -212,7 +212,7 @@ export default function Register() {
           {/* 🟢 Upload File */}
           <div className="col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Upload Business License (PDF / Image)
+              Tải lên giấy phép kinh doanh (PDF / Image)
             </label>
             <input
               type="file"
@@ -230,7 +230,7 @@ export default function Register() {
           <input
             type="text"
             name="companyPhone"
-            placeholder="Company Phone"
+            placeholder="Số Điện Thoại Công Ty"
             value={form.companyPhone}
             onChange={handleChange}
             className="border px-4 py-2 rounded-md"
@@ -238,7 +238,7 @@ export default function Register() {
           <input
             type="text"
             name="companyAddress"
-            placeholder="Company Address"
+            placeholder="Địa Chỉ Công Ty"
             value={form.companyAddress}
             onChange={handleChange}
             className="border px-4 py-2 rounded-md"
@@ -246,7 +246,7 @@ export default function Register() {
 
           <textarea
             name="businessDescription"
-            placeholder="Business Description"
+            placeholder="Mô Tả Kinh Doanh"
             value={form.businessDescription}
             onChange={handleChange}
             className="col-span-2 border px-4 py-2 rounded-md"
@@ -255,7 +255,7 @@ export default function Register() {
           <input
             type="text"
             name="contactPersonName"
-            placeholder="Contact Person Name"
+            placeholder="Tên Người Liên Hệ"
             value={form.contactPersonName}
             onChange={handleChange}
             className="border px-4 py-2 rounded-md"
@@ -263,7 +263,7 @@ export default function Register() {
           <input
             type="text"
             name="contactPersonPhone"
-            placeholder="Contact Person Phone"
+            placeholder="Số Điện Thoại Người Liên Hệ"
             value={form.contactPersonPhone}
             onChange={handleChange}
             className="border px-4 py-2 rounded-md"
@@ -271,7 +271,7 @@ export default function Register() {
           <input
             type="email"
             name="contactPersonEmail"
-            placeholder="Contact Person Email"
+            placeholder="Email Người Liên Hệ"
             value={form.contactPersonEmail}
             onChange={handleChange}
             className="col-span-2 border px-4 py-2 rounded-md"
@@ -283,18 +283,18 @@ export default function Register() {
               to="/login"
               className="px-6 py-2 border rounded-md hover:bg-gray-100"
             >
-              Cancel
+              Hủy
             </Link>
             <button
               type="submit"
               disabled={uploading}
-              className={`px-6 py-2 rounded-md text-white ${
+              className={`px-6 py-2 rounded-md text-white cursor-pointer ${
                 uploading
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-indigo-600 hover:bg-indigo-700"
               }`}
             >
-              {uploading ? "Processing..." : "Register"}
+              {uploading ? "Đang xử lý..." : "Đăng Ký"}
             </button>
           </div>
         </form>
@@ -307,13 +307,13 @@ export default function Register() {
             email={form.companyEmail}
             onVerified={() => {
               setShowOtp(false);
-              showSuccess("✅ Email verified! Uploading documents...");
+              showSuccess("✅ Email đã xác thực! Đang tải lên tài liệu...");
               // Upload file sau khi verify OTP thành công
               handleUploadAfterOTP();
             }}
             onClose={() => {
               setShowOtp(false);
-              showInfo("Registration incomplete. Please verify your email to complete registration.");
+              showInfo("Đăng ký chưa hoàn tất. Vui lòng xác thực email để hoàn tất đăng ký.");
             }}
           />
         </div>

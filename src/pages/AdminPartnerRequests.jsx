@@ -16,7 +16,7 @@ export default function AdminPartnerRequests() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [page, setPage] = useState(0);
-  const [size] = useState(10);
+  const [size] = useState(9);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [viewingPartner, setViewingPartner] = useState(null);

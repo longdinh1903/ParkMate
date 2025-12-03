@@ -31,13 +31,15 @@ export default function RegisterLot() {
 
   const [capacities, setCapacities] = useState([]);
   const [rules, setRules] = useState([]);
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
 
   // Fixed 4 policy types - users can only change the value
   const policyTypes = [
     {
       type: "EARLY_CHECK_IN_BUFFER",
-      label: "Early Check-in Buffer",
-      description: "🕐 Early check-in time allowed",
+      label: "Bộ Đệm Nhận Chổ Sớm",
+      description: "🕐 Thời gian cho phép nhận chổ sớm",
     },
     // {
     //   type: "LATE_CHECK_OUT_BUFFER",
@@ -46,13 +48,13 @@ export default function RegisterLot() {
     // },
     {
       type: "LATE_CHECK_IN_CANCEL_AFTER",
-      label: "Late Check-in Cancel After",
-      description: "⏰ Automatically cancels the booking if check-in is too late",
+      label: "Hủy Nếu Nhận Chổ Trễ",
+      description: "⏰ Tự động hủy nếu nhận chổ quá trễ",
     },
     {
       type: "EARLY_CANCEL_REFUND_BEFORE",
-      label: "Early Cancel Refund Before",
-      description: "💰 100% refund if canceled before this time",
+      label: "Hoàn Tiền Nếu Hủy Sớm",
+      description: "💰 Hoàn 100% nếu hủy trước thời gian này",
     },
   ];
 
@@ -148,6 +150,56 @@ export default function RegisterLot() {
     setPolicies(updatedPolicies);
   };
 
+  const handleImageSelect = (e) => {
+    const files = Array.from(e.target.files);
+    
+    if (files.length === 0) return;
+    
+    // Validate file types and size
+    const validFiles = files.filter(file => {
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      
+      if (!validTypes.includes(file.type)) {
+        toast.error(`File ${file.name} không đúng định dạng (chỉ chấp nhận JPG, PNG, WebP, GIF)`);
+        return false;
+      }
+      if (file.size > maxSize) {
+        toast.error(`File ${file.name} quá lớn (tối đa 10MB)`);
+        return false;
+      }
+      return true;
+    });
+
+    // Limit to 4 images total
+    const currentCount = selectedImages.length;
+    const availableSlots = 4 - currentCount;
+    
+    if (validFiles.length > availableSlots) {
+      toast.error(`⚠️ Chỉ có thể thêm tối đa ${availableSlots} ảnh nữa (tối đa 4 ảnh)`);
+      return;
+    }
+
+    setSelectedImages([...selectedImages, ...validFiles]);
+    
+    // Create previews
+    validFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreviews(prev => [...prev, reader.result]);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    toast.success(`Đã thêm ${validFiles.length} ảnh`);
+  };
+
+  const handleRemoveImage = (index) => {
+    setSelectedImages(selectedImages.filter((_, i) => i !== index));
+    setImagePreviews(imagePreviews.filter((_, i) => i !== index));
+    toast("Đã xóa ảnh");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const partnerId = getPartnerIdFromStorage();
@@ -215,8 +267,22 @@ export default function RegisterLot() {
     try {
       const res = await parkingLotApi.register(payload);
       if (res.status === 200 || res.status === 201) {
-        toast.dismiss(loadingId);
-        toast.success("🎉 Đăng ký bãi xe thành công!");
+        const lotId = res.data?.data?.id;
+        
+        // Upload images if any
+        if (selectedImages.length > 0 && lotId) {
+          toast.loading("📸 Đang tải ảnh lên...", { id: loadingId });
+          try {
+            await parkingLotApi.uploadImages(lotId, selectedImages);
+            toast.success("🎉 Đăng ký bãi xe và tải ảnh thành công!", { id: loadingId });
+          } catch (imgError) {
+            console.error("Error uploading images:", imgError);
+            toast.success("🎉 Đăng ký bãi xe thành công! Nhưng có lỗi khi tải ảnh lên.", { id: loadingId });
+          }
+        } else {
+          toast.success("🎉 Đăng ký bãi xe thành công!", { id: loadingId });
+        }
+        
         setForm({
           name: "",
           streetAddress: "",
@@ -233,6 +299,8 @@ export default function RegisterLot() {
         });
         setCapacities([]);
         setRules([]);
+        setSelectedImages([]);
+        setImagePreviews([]);
       } else {
         toast.dismiss(loadingId);
         toast.error("⚠️ Đăng ký thất bại. Vui lòng kiểm tra lại dữ liệu.");
@@ -257,10 +325,10 @@ export default function RegisterLot() {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
-                  Register New Parking Lot
+                  Đăng Ký Bãi Đỗ Xe Mới
                 </h1>
                 <p className="text-gray-600 text-sm mt-1">
-                  Fill out the information below to register for a new parking space.
+                  Điền thông tin bên dưới để đăng ký một bãi đỗ xe mới.
                 </p>
               </div>
             </div>
@@ -277,20 +345,20 @@ export default function RegisterLot() {
                   <i className="ri-building-2-fill text-indigo-600 text-xl"></i>
                 </div>
                 <h2 className="text-xl font-bold text-gray-900">
-                  Basic Information
+                  Thông Tin Cơ Bản
                 </h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {["name", "streetAddress", "ward"].map((field) => (
                   <div key={field}>
                     <label className="block text-sm font-semibold text-gray-700 mb-2 capitalize">
-                      {field.replace(/([A-Z])/g, " $1")}
+                      {field === "name" ? "Tên" : field === "streetAddress" ? "Địa Chỉ" : "Phường/Xã"}
                       <span className="text-red-500 ml-1">*</span>
                     </label>
                     <input
                       type="text"
                       name={field}
-                      placeholder={`Enter ${field}`}
+                      placeholder={`Nhập ${field === "name" ? "tên" : field === "streetAddress" ? "địa chỉ" : "phường/xã"}`}
                       value={form[field]}
                       onChange={handleChange}
                       required
@@ -300,7 +368,7 @@ export default function RegisterLot() {
                 ))}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    City
+                    Tỉnh/Thành Phố
                     <span className="text-red-500 ml-1">*</span>
                   </label>
                   <select
@@ -378,7 +446,7 @@ export default function RegisterLot() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Latitude
+                    Vĩ Độ (Latitude)
                     <span className="text-red-500 ml-1">*</span>
                   </label>
                   <input
@@ -386,14 +454,14 @@ export default function RegisterLot() {
                     name="latitude"
                     value={form.latitude}
                     onChange={handleChange}
-                    placeholder="Latitude"
+                    placeholder="Vĩ độ"
                     step="any"
                     className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Longitude
+                    Kinh Độ (Longitude)
                     <span className="text-red-500 ml-1">*</span>
                   </label>
                   <input
@@ -401,7 +469,7 @@ export default function RegisterLot() {
                     name="longitude"
                     value={form.longitude}
                     onChange={handleChange}
-                    placeholder="Longitude"
+                    placeholder="Kinh độ"
                     step="any"
                     className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
                   />
@@ -412,7 +480,7 @@ export default function RegisterLot() {
                 <button
                   type="button"
                   onClick={() => setShowMap(true)}
-                  className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-8 py-3 rounded-xl shadow-lg hover:shadow-xl hover:from-indigo-700 hover:to-indigo-600 transition-all transform hover:-translate-y-0.5"
+                  className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-8 py-3 rounded-xl shadow-lg hover:shadow-xl hover:from-indigo-700 hover:to-indigo-600 transition-all transform hover:-translate-y-0.5 cursor-pointer"
                 >
                   <i className="ri-map-pin-line text-xl"></i>
                   <span className="font-medium">Chọn vị trí trên bản đồ</span>
@@ -422,41 +490,41 @@ export default function RegisterLot() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Total Floors
+                    Tổng Số Tầng
                   </label>
                   <input
                     type="number"
                     name="totalFloors"
                     value={form.totalFloors}
                     onChange={handleChange}
-                    placeholder="e.g., 3"
+                    placeholder="VD: 3"
                     className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Lot Square (m²)
+                    Diện Tích (m²)
                   </label>
                   <input
                     type="number"
                     name="lotSquare"
                     value={form.lotSquare}
                     onChange={handleChange}
-                    placeholder="e.g., 1000"
+                    placeholder="VD: 1000"
                     step="any"
                     className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Horizon Time (minutes)
+                    Thời Gian Đặt Trước (phút)
                   </label>
                   <input
                     type="number"
                     name="horizonTime"
                     value={form.horizonTime}
                     onChange={handleChange}
-                    placeholder="e.g., 60"
+                    placeholder="VD: 60"
                     className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
                   />
                 </div>
@@ -465,7 +533,7 @@ export default function RegisterLot() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Operating Hours Start
+                    Giờ Mở Cửa
                   </label>
                   <input
                     type="text"
@@ -478,7 +546,7 @@ export default function RegisterLot() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Operating Hours End
+                    Giờ Đóng Cửa
                   </label>
                   <input
                     type="text"
@@ -502,10 +570,67 @@ export default function RegisterLot() {
                 <div className="flex items-center gap-2">
                   <i className="ri-time-line text-indigo-600 text-lg"></i>
                   <span className="text-gray-800 font-medium">
-                    24-hour Operation
+                    Hoạt Động 24/7
                   </span>
                 </div>
               </label>
+            </section>
+
+            {/* ---- IMAGES ---- */}
+            <section className="p-8 border-b border-gray-100">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <i className="ri-image-fill text-purple-600 text-xl"></i>
+                </div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Hình Ảnh Bãi Xe
+                </h2>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Tải lên ảnh bãi xe (tối đa 4 ảnh)
+                </label>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                  onChange={handleImageSelect}
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  <i className="ri-information-line"></i> Định dạng: JPG, PNG, WebP, GIF. Tối đa 10MB/ảnh. Tối đa 4 ảnh.
+                </p>
+              </div>
+
+              {imagePreviews.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-sm font-semibold text-gray-700 mb-3">
+                    Đã chọn {imagePreviews.length}/4 ảnh
+                  </p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {imagePreviews.map((preview, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={preview}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-40 object-cover rounded-lg border-2 border-gray-200 shadow-md"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(index)}
+                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-lg"
+                        >
+                          <i className="ri-close-line text-sm"></i>
+                        </button>
+                        <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                          {index + 1}/{imagePreviews.length}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </section>
 
             {/* ---- CAPACITY ---- */}
@@ -515,18 +640,18 @@ export default function RegisterLot() {
                   <i className="ri-car-fill text-green-600 text-xl"></i>
                 </div>
                 <h2 className="text-xl font-bold text-gray-900">
-                  Capacity Configuration
+                  Cấu Hình Sức Chứa
                 </h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end bg-white p-4 rounded-xl border border-gray-200">
                 <div className="md:col-span-1">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Capacity
+                    Sức Chứa
                   </label>
                   <input
                     type="number"
                     name="capacity"
-                    placeholder="e.g., 50"
+                    placeholder="VD: 50"
                     value={capacityForm.capacity}
                     onChange={handleCapacityChange}
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none"
@@ -534,7 +659,7 @@ export default function RegisterLot() {
                 </div>
                 <div className="md:col-span-1">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Vehicle Type
+                    Loại Xe
                   </label>
                   <select
                     name="vehicleType"
@@ -542,11 +667,11 @@ export default function RegisterLot() {
                     onChange={handleCapacityChange}
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none"
                   >
-                    <option value="">Select Type</option>
-                    <option value="CAR_UP_TO_9_SEATS">🚗 Car (≤9 seats)</option>
-                    <option value="MOTORBIKE">🏍️ Motorbike</option>
-                    <option value="BIKE">🚲 Bike</option>
-                    <option value="OTHER">📦 Other</option>
+                    <option value="">Chọn Loại</option>
+                    <option value="CAR_UP_TO_9_SEATS">🚗 Ôtô (≤9 chỗ)</option>
+                    <option value="MOTORBIKE">🏍️ Xe máy</option>
+                    <option value="BIKE">🚲 Xe đạp</option>
+                    <option value="OTHER">📦 Khác</option>
                   </select>
                 </div>
                 <div className="md:col-span-1">
@@ -559,7 +684,7 @@ export default function RegisterLot() {
                       className="w-5 h-5 accent-green-600 cursor-pointer"
                     />
                     <span className="text-sm font-medium text-gray-700">
-                      ⚡ Support EV
+                      ⚡ Hỗ Trợ Xe Điện
                     </span>
                   </label>
                 </div>
@@ -567,10 +692,10 @@ export default function RegisterLot() {
                   <button
                     type="button"
                     onClick={handleAddCapacity}
-                    className="w-full bg-gradient-to-r from-green-600 to-green-500 text-white px-6 py-3 rounded-lg hover:from-green-700 hover:to-green-600 transition-all shadow-md hover:shadow-lg font-medium flex items-center justify-center gap-2"
+                    className="w-full bg-gradient-to-r from-green-600 to-green-500 text-white px-6 py-3 rounded-lg hover:from-green-700 hover:to-green-600 transition-all shadow-md hover:shadow-lg font-medium flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <i className="ri-add-line text-xl"></i>
-                    Add
+                    Thêm
                   </button>
                 </div>
               </div>
@@ -581,16 +706,16 @@ export default function RegisterLot() {
                     <thead className="bg-gradient-to-r from-gray-100 to-gray-50">
                       <tr>
                         <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">
-                          Vehicle Type
+                          Loại Xe
                         </th>
                         <th className="px-6 py-4 text-center text-sm font-bold text-gray-700">
-                          Capacity
+                          Sức Chứa
                         </th>
                         <th className="px-6 py-4 text-center text-sm font-bold text-gray-700">
-                          EV Support
+                          Hỗ Trợ Xe Điện
                         </th>
                         <th className="px-6 py-4 text-center text-sm font-bold text-gray-700">
-                          Action
+                          Thao Tác
                         </th>
                       </tr>
                     </thead>
@@ -609,11 +734,11 @@ export default function RegisterLot() {
                           <td className="px-6 py-4 text-center">
                             {c.supportElectricVehicle ? (
                               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                                <i className="ri-flashlight-fill mr-1"></i> Yes
+                                <i className="ri-flashlight-fill mr-1"></i> Có
                               </span>
                             ) : (
                               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                                No
+                                Không
                               </span>
                             )}
                           </td>
@@ -623,7 +748,7 @@ export default function RegisterLot() {
                               onClick={() => handleRemoveCapacity(i)}
                               className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-all"
                             >
-                              <i className="ri-delete-bin-line mr-1"></i> Remove
+                              <i className="ri-delete-bin-line mr-1"></i> Xóa
                             </button>
                           </td>
                         </tr>
@@ -642,10 +767,10 @@ export default function RegisterLot() {
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">
-                    Parking Policies
+                    Chính Sách Bãi Đỗ Xe
                   </h2>
                   <p className="text-sm text-gray-600 mt-0.5">
-                    Configure parking policies (unit: minutes)
+                    Cấu hình chính sách bãi đỗ xe (đơn vị: phút)
                   </p>
                 </div>
               </div>
@@ -670,7 +795,7 @@ export default function RegisterLot() {
                           </div>
                           <div className="bg-blue-100 px-2 py-1 rounded-lg">
                             <span className="text-xs font-semibold text-blue-700">
-                              Required
+                              Bắt Buộc
                             </span>
                           </div>
                         </div>
@@ -678,7 +803,7 @@ export default function RegisterLot() {
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Time (minutes)
+                          Thời Gian (phút)
                           <span className="text-red-500 ml-1">*</span>
                         </label>
                         <input
@@ -687,7 +812,7 @@ export default function RegisterLot() {
                           onChange={(e) =>
                             handlePolicyChange(index, e.target.value)
                           }
-                          placeholder="Enter the number of minutes"
+                          placeholder="Nhập số phút"
                           min="1"
                           className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
                           required
@@ -703,24 +828,21 @@ export default function RegisterLot() {
                   <i className="ri-information-line text-blue-600 text-xl mt-0.5"></i>
                   <div className="text-sm text-blue-800">
                     <p className="font-semibold mb-2">
-                      Explanation of Policy Types:
+                      Giải Thích Các Loại Chính Sách:
                     </p>
                     <ul className="space-y-1.5 text-blue-700">
                       <li>
-                        • <strong>Early Check-in Buffer:</strong> Allows guests
-                        to check in earlier than the booked time
+                        • <strong>Bộ Đệm Nhận Chổ Sớm:</strong> Cho phép khách nhận chổ sớm hơn giờ đã đặt
                       </li>
                       {/* <li>
                         • <strong>Late Check-out Buffer:</strong> Allows guests
                         to check out later than the booked time
                       </li> */}
                       <li>
-                        • <strong>Late Check-in Cancel After:</strong> Automatically
-                        cancels the booking if the guest does not check in
+                        • <strong>Hủy Nếu Nhận Chổ Trễ:</strong> Tự động hủy đặt chỗ nếu khách không nhận chổ
                       </li>
                       <li>
-                        • <strong>Early Cancel Refund Before:</strong> 100% refund
-                        if canceled before this time
+                        • <strong>Hoàn Tiền Nếu Hủy Sớm:</strong> Hoàn 100% nếu hủy trước thời gian này
                       </li>
                     </ul>
                   </div>
@@ -736,16 +858,16 @@ export default function RegisterLot() {
                     <i className="ri-money-dollar-circle-fill text-yellow-600 text-xl"></i>
                   </div>
                   <h2 className="text-xl font-bold text-gray-900">
-                    Pricing Rules
+                    Quy Tắc Giá
                   </h2>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowRuleModal(true)}
-                  className="bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-6 py-2.5 rounded-xl hover:from-indigo-700 hover:to-indigo-600 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2"
+                  className="bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-6 py-2.5 rounded-xl hover:from-indigo-700 hover:to-indigo-600 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2 cursor-pointer"
                 >
                   <i className="ri-add-line text-lg"></i>
-                  Add Rule
+                  Thêm Quy Tắc
                 </button>
               </div>
 
@@ -755,25 +877,25 @@ export default function RegisterLot() {
                     <thead className="bg-gradient-to-r from-gray-100 to-gray-50">
                       <tr>
                         <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase">
-                          Rule Name
+                          Tên Quy Tắc
                         </th>
                         <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase">
-                          Vehicle Type
+                          Loại Xe
                         </th>
                         <th className="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase">
-                          Step Rate
+                          Giá Bước
                         </th>
                         <th className="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase">
-                          Step Min
+                          Phút/Bước
                         </th>
                         <th className="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase">
-                          Valid From
+                          Hiệu Lực Từ
                         </th>
                         <th className="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase">
-                          Valid To
+                          Hiệu Lực Đến
                         </th>
                         <th className="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase">
-                          Action
+                          Thao Tác
                         </th>
                       </tr>
                     </thead>
@@ -808,7 +930,7 @@ export default function RegisterLot() {
                                 onClick={() => setSelectedRule(r)}
                                 className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium text-indigo-600 hover:bg-indigo-50 transition-all"
                               >
-                                <i className="ri-eye-line mr-1"></i> View
+                                <i className="ri-eye-line mr-1"></i> Xem
                               </button>
                               <button
                                 type="button"
@@ -816,7 +938,7 @@ export default function RegisterLot() {
                                 className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-all"
                               >
                                 <i className="ri-delete-bin-line mr-1"></i>{" "}
-                                Remove
+                                Xóa
                               </button>
                             </div>
                           </td>
@@ -829,10 +951,10 @@ export default function RegisterLot() {
                 <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
                   <i className="ri-file-list-line text-5xl text-gray-400 mb-3"></i>
                   <p className="text-gray-500 font-medium">
-                    No pricing rules added yet.
+                    Chưa có quy tắc giá nào.
                   </p>
                   <p className="text-gray-400 text-sm mt-1">
-                    Click "Add Rule" to create your first pricing rule.
+                    Nhấp "Thêm Quy Tắc" để tạo quy tắc giá đầu tiên.
                   </p>
                 </div>
               )}
@@ -846,22 +968,22 @@ export default function RegisterLot() {
         <div className="flex items-center gap-4 py-3 px-6 bg-white/95 backdrop-blur-sm shadow-xl border border-gray-200 rounded-full">
           <div className="text-sm text-gray-600 flex items-center gap-2">
             <i className="ri-information-line"></i>
-            <span className="hidden sm:inline">Fill all required fields</span>
+            <span className="hidden sm:inline">Điền đầy đủ các trường bắt buộc</span>
           </div>
           <button
             type="button"
-            className="px-6 py-2 border-2 border-gray-300 rounded-full hover:bg-gray-50 transition-all font-medium text-gray-700 hover:border-gray-400"
+            className="px-6 py-2 border-2 border-gray-300 rounded-full hover:bg-gray-50 transition-all font-medium text-gray-700 hover:border-gray-400 cursor-pointer"
             onClick={() => toast("🚫 Đã hủy đăng ký")}
           >
-            Cancel
+            Hủy
           </button>
           <button
             type="submit"
             onClick={handleSubmit}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-all font-medium shadow-lg hover:shadow-xl flex items-center gap-2"
+            className="px-6 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-all font-medium shadow-lg hover:shadow-xl flex items-center gap-2 cursor-pointer"
           >
             <i className="ri-send-plane-fill"></i>
-            Submit Registration
+            Gửi Đăng Ký
           </button>
         </div>
       </div>

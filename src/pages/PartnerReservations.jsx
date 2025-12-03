@@ -47,7 +47,7 @@ export default function PartnerReservations() {
       return lotIds;
     } catch (error) {
       console.error("Error fetching partner parking lots:", error);
-      toast.error("Failed to load parking lots");
+      toast.error("Không thể tải danh sách bãi xe");
       return [];
     }
   }, []);
@@ -92,7 +92,7 @@ export default function PartnerReservations() {
       setReservations(allReservations);
     } catch (error) {
       console.error("Error fetching reservations:", error);
-      toast.error("Failed to load reservations");
+      toast.error("Không thể tải danh sách đặt chỗ");
       setReservations([]);
     } finally {
       setLoading(false);
@@ -206,15 +206,15 @@ export default function PartnerReservations() {
           <div className="max-w-7xl mx-auto px-6 h-full flex flex-col">
             {/* Header */}
             <div className="pt-6 mb-4 flex-shrink-0">
-              <h1 className="text-3xl font-bold text-gray-900">Reservations</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Đặt Chỗ</h1>
               <p className="text-gray-600 mt-1">
-                Manage parking reservations for your parking lots
+                Quản lý đặt chỗ đỗ xe cho các bãi xe của bạn
               </p>
               {lotIdFromUrl && parkingLotsMap[lotIdFromUrl] && (
                 <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-orange-50 text-orange-700 rounded-lg border border-orange-200">
                   <i className="ri-filter-3-line"></i>
                   <span className="text-sm font-medium">
-                    Filtered by parking lot: <strong>{parkingLotsMap[lotIdFromUrl].name}</strong>
+                    Lọc theo bãi xe: <strong>{parkingLotsMap[lotIdFromUrl].name}</strong>
                   </span>
                 </div>
               )}
@@ -229,7 +229,7 @@ export default function PartnerReservations() {
                   <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Search by license plate, parking lot..."
+                    placeholder="Tìm theo biển số xe, bãi xe..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -242,7 +242,7 @@ export default function PartnerReservations() {
                   disabled={loading}
                   className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all flex items-center gap-2 font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                 >
-                  <i className={`ri-refresh-line ${loading ? 'animate-spin' : ''}`}></i> Refresh
+                  <i className={`ri-refresh-line ${loading ? 'animate-spin' : ''}`}></i> Làm Mới
                 </button>
               </div>
 
@@ -252,7 +252,7 @@ export default function PartnerReservations() {
 
                 {/* Date From Filter */}
                 <div className="flex flex-col">
-                  <label className="text-xs text-gray-600 mb-1 font-medium">From Date</label>
+                  <label className="text-xs text-gray-600 mb-1 font-medium">Từ Ngày</label>
                   <input
                     type="date"
                     value={filterDateFrom}
@@ -266,7 +266,7 @@ export default function PartnerReservations() {
 
                 {/* Date To Filter */}
                 <div className="flex flex-col">
-                  <label className="text-xs text-gray-600 mb-1 font-medium">To Date</label>
+                  <label className="text-xs text-gray-600 mb-1 font-medium">Đến Ngày</label>
                   <input
                     type="date"
                     value={filterDateTo}
@@ -282,9 +282,9 @@ export default function PartnerReservations() {
                 <select
                   value={filterParkingLot}
                   onChange={(e) => setFilterParkingLot(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
                 >
-                  <option value="">All Parking Lots</option>
+                  <option value="">Tất Cả Bãi Xe</option>
                   {Object.values(parkingLotsMap).map(lot => (
                     <option key={lot.id} value={lot.id}>
                       {lot.name}
@@ -299,14 +299,14 @@ export default function PartnerReservations() {
                     setFilterStatus(e.target.value);
                     setPage(0);
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
                 >
-                  <option value="">All Status</option>
-                  <option value="PENDING">Pending</option>
-                  <option value="ACTIVE">Active</option>
-                  <option value="COMPLETED">Completed</option>
-                  <option value="EXPIRED">Expired</option>
-                  <option value="CANCELLED">Cancelled</option>
+                  <option value="">Tất Cả Trạng Thái</option>
+                  <option value="PENDING">Chờ Xử Lý</option>
+                  <option value="ACTIVE">Đang Hoạt Động</option>
+                  <option value="COMPLETED">Hoàn Thành</option>
+                  <option value="EXPIRED">Hết Hạn</option>
+                  <option value="CANCELLED">Đã Hủy</option>
                 </select>
 
                 {/* Sort By Dropdown */}
@@ -315,27 +315,27 @@ export default function PartnerReservations() {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white cursor-pointer"
                 >
-                  <option value="reservedFrom">Reserved From</option>
-                  <option value="reservedUntil">Reserved Until</option>
-                  <option value="totalFee">Total Fee</option>
-                  <option value="status">Status</option>
+                  <option value="reservedFrom">Thời Gian Bắt Đầu</option>
+                  <option value="reservedUntil">Thời Gian Kết Thúc</option>
+                  <option value="totalFee">Tổng Phí</option>
+                  <option value="status">Trạng Thái</option>
                 </select>
 
                 {/* Sort Order Button */}
                 <button
                   onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
                   className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer"
-                  title={sortOrder === "asc" ? "Ascending" : "Descending"}
+                  title={sortOrder === "asc" ? "Tăng dần" : "Giảm dần"}
                 >
                   {sortOrder === "asc" ? (
                     <>
                       <i className="ri-sort-asc text-lg"></i>
-                      <span className="hidden sm:inline">Asc</span>
+                      <span className="hidden sm:inline">Tăng</span>
                     </>
                   ) : (
                     <>
                       <i className="ri-sort-desc text-lg"></i>
-                      <span className="hidden sm:inline">Desc</span>
+                      <span className="hidden sm:inline">Giảm</span>
                     </>
                   )}
                 </button>
@@ -352,7 +352,7 @@ export default function PartnerReservations() {
                 <div className="bg-white rounded-lg shadow-sm p-12 text-center">
                   <i className="ri-calendar-line text-6xl text-gray-300 mb-4"></i>
                   <p className="text-gray-500 text-lg">
-                    {searchTerm ? "No reservations match your search" : "No reservations found"}
+                    {searchTerm ? "Không tìm thấy đặt chỗ nào phù hợp" : "Không có đặt chỗ nào"}
                   </p>
                 </div>
               ) : (
@@ -365,22 +365,22 @@ export default function PartnerReservations() {
                             #
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            License Plate
+                            Biển Số Xe
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Parking Lot
+                            Bãi Xe
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Reserved Time
+                            Thời Gian Đặt
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Total Fee
+                            Tổng Phí
                           </th>
                           <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Status
+                            Trạng Thái
                           </th>
                           <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Actions
+                            Thao Tác
                           </th>
                         </tr>
                       </thead>
@@ -399,8 +399,8 @@ export default function PartnerReservations() {
                               {parkingLotsMap[reservation.parkingLotId]?.name || "-"}
                             </td>
                             <td className="px-6 py-4 text-sm">
-                              <p className="text-xs text-gray-500">From: {formatDateTime(reservation.reservedFrom)}</p>
-                              <p className="text-xs text-gray-500">Until: {formatDateTime(reservation.reservedUntil)}</p>
+                              <p className="text-xs text-gray-500">Từ: {formatDateTime(reservation.reservedFrom)}</p>
+                              <p className="text-xs text-gray-500">Đến: {formatDateTime(reservation.reservedUntil)}</p>
                             </td>
                             <td className="px-6 py-4 text-sm">
                               <p className="font-semibold text-gray-900">
@@ -409,7 +409,11 @@ export default function PartnerReservations() {
                             </td>
                             <td className="px-6 py-4 text-center">
                               <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${getStatusBadge(reservation.status)}`}>
-                                {reservation.status || "UNKNOWN"}
+                                {reservation.status === "PENDING" ? "Chờ Xử Lý" :
+                                 reservation.status === "ACTIVE" ? "Đang Hoạt Động" :
+                                 reservation.status === "COMPLETED" ? "Hoàn Thành" :
+                                 reservation.status === "EXPIRED" ? "Hết Hạn" :
+                                 reservation.status === "CANCELLED" ? "Đã Hủy" : reservation.status || "KHÔNG XÁC ĐỊNH"}
                               </span>
                             </td>
                             <td className="px-6 py-4 text-center">
@@ -418,7 +422,7 @@ export default function PartnerReservations() {
                                 className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all text-sm font-medium"
                               >
                                 <i className="ri-eye-line"></i>
-                                View Details
+                                Xem Chi Tiết
                               </button>
                             </td>
                           </tr>
@@ -433,23 +437,23 @@ export default function PartnerReservations() {
                       <button
                         onClick={() => setPage((p) => Math.max(0, p - 1))}
                         disabled={page === 0}
-                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                       >
-                        ← Previous
+                        ← Trước
                       </button>
                       <span className="text-gray-700 text-sm font-medium px-4">
-                        Page <strong className="text-indigo-600">{page + 1}</strong> of{" "}
+                        Trang <strong className="text-indigo-600">{page + 1}</strong> / {" "}
                         <strong className="text-indigo-600">{Math.max(1, Math.ceil(reservations.length / size))}</strong>
                         <span className="text-gray-400 ml-2">
-                          ({reservations.length} reservations)
+                          ({reservations.length} đặt chỗ)
                         </span>
                       </span>
                       <button
                         onClick={() => setPage((p) => p + 1)}
                         disabled={page >= Math.ceil(reservations.length / size) - 1}
-                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                       >
-                        Next →
+                        Sau →
                       </button>
                     </div>
                   )}
@@ -464,7 +468,7 @@ export default function PartnerReservations() {
       {selectedReservation && (
         <ViewReservationDetailModal
           reservation={selectedReservation}
-          parkingLotName={parkingLotsMap[selectedReservation.parkingLotId]?.name || "Unknown"}
+          parkingLotName={parkingLotsMap[selectedReservation.parkingLotId]?.name || "Không rõ"}
           onClose={() => setSelectedReservation(null)}
         />
       )}

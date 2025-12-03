@@ -33,8 +33,8 @@ export default function Login() {
     e.preventDefault();
 
     let newErrors = {};
-    if (!email) newErrors.email = "Email is required";
-    if (!password) newErrors.password = "Password is required";
+    if (!email) newErrors.email = "Email là bắt buộc";
+    if (!password) newErrors.password = "Mật khẩu là bắt buộc";
 
     setErrors(newErrors);
 
@@ -177,8 +177,8 @@ export default function Login() {
           <div className="w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center mb-3">
             <span className="text-white text-xl font-bold">P</span>
           </div>
-          <h2 className="text-xl font-semibold">Parking Partner</h2>
-          <p className="text-sm text-gray-500">Partner Login</p>
+          <h2 className="text-xl font-semibold">Đối Tác Bãi Đỗ Xe</h2>
+          <p className="text-sm text-gray-500">Đăng Nhập Đối Tác</p>
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
@@ -188,7 +188,7 @@ export default function Login() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email address"
+              placeholder="Địa chỉ email"
               className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
                 errors.email
                   ? "border-red-500 focus:ring-red-400"
@@ -206,7 +206,7 @@ export default function Login() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
+              placeholder="Mật khẩu"
               className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
                 errors.password
                   ? "border-red-500 focus:ring-red-400"
@@ -221,10 +221,10 @@ export default function Login() {
           {/* Remember + Forgot */}
           <div className="flex items-center justify-between text-sm">
             <label className="flex items-center">
-              <input type="checkbox" className="mr-2" /> Remember me
+              <input type="checkbox" className="mr-2" /> Ghi nhớ tôi
             </label>
             <a href="#" className="text-indigo-600 hover:underline">
-              Forgot password?
+              Quên mật khẩu?
             </a>
           </div>
 
@@ -233,14 +233,14 @@ export default function Login() {
             type="submit"
             className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
           >
-            Log in
+            Đăng Nhập
           </button>
         </form>
 
         <p className="text-sm text-center mt-4">
-          Don’t have an account?{" "}
+          Chưa có tài khoản?{" "}
           <Link to="/register" className="text-indigo-600 hover:underline">
-            Register here
+            Đăng ký tại đây
           </Link>
         </p>
       </div>

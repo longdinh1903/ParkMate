@@ -327,21 +327,21 @@ export default function PartnerProfile() {
         return (
           <span className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-semibold border border-yellow-300">
             <i className="ri-time-line text-lg"></i>
-            Pending Review
+            Chờ Duyệt
           </span>
         );
       case "APPROVED":
         return (
           <span className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-lg text-sm font-semibold border border-green-300">
             <i className="ri-checkbox-circle-line text-lg"></i>
-            Approved
+            Đã Duyệt
           </span>
         );
       case "REJECTED":
         return (
           <span className="inline-flex items-center gap-2 px-4 py-2 bg-red-100 text-red-800 rounded-lg text-sm font-semibold border border-red-300">
             <i className="ri-close-circle-line text-lg"></i>
-            Rejected
+            Bị Từ Chối
           </span>
         );
       default:
@@ -374,10 +374,10 @@ export default function PartnerProfile() {
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
                     <i className="ri-user-settings-line text-indigo-600"></i>
-                    Partner Registration Profile
+                    Hồ Sơ Đăng Ký Đối Tác
                   </h1>
                   <p className="text-gray-600 mt-2">
-                    Manage and update your partner registration information
+                    Quản lý và cập nhật thông tin đăng ký đối tác của bạn
                   </p>
                 </div>
                 {registration && (
@@ -394,13 +394,13 @@ export default function PartnerProfile() {
                 <div className="flex-1">
                   <p className="font-semibold text-red-800 mb-1">
                     <i className="ri-close-circle-line mr-1"></i>
-                    Rejection Reason:
+                    Lý Do Từ Chối:
                   </p>
                   <p className="text-sm text-red-700 bg-red-100 px-3 py-2 rounded border border-red-200">
                     "{registration.rejectionReason}"
                   </p>
                   <p className="text-xs text-red-600 mt-2">
-                    Please update the information below and resubmit your application.
+                    Vui lòng cập nhật thông tin bên dưới và gửi lại đơn đăng ký.
                   </p>
                 </div>
               </div>
@@ -411,7 +411,7 @@ export default function PartnerProfile() {
                 <i className="ri-time-line text-2xl text-yellow-600 mt-0.5"></i>
                 <div>
                   <p className="text-sm text-yellow-800">
-                    📋 Your registration is currently under review. Please wait for admin approval.
+                    📋 Đơn đăng ký của bạn đang được xét duyệt. Vui lòng chờ quản trị viên phê duyệt.
                   </p>
                 </div>
               </div>
@@ -422,13 +422,13 @@ export default function PartnerProfile() {
                 <i className="ri-checkbox-circle-line text-2xl text-green-600 mt-0.5"></i>
                 <div className="flex items-center justify-between flex-1">
                   <p className="text-sm text-green-800">
-                    🎉 Your registration has been approved!
+                    🎉 Đơn đăng ký của bạn đã được phê duyệt!
                   </p>
                   <button
                     onClick={() => navigate("/home")}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium"
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium cursor-pointer"
                   >
-                    Go to Partner Dashboard
+                    Vào Trang Quản Lý
                   </button>
                 </div>
               </div>
@@ -439,23 +439,23 @@ export default function PartnerProfile() {
               <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-lg p-6 mb-6 border border-indigo-200">
                 <h3 className="text-lg font-semibold text-indigo-900 mb-4 flex items-center gap-2">
                   <i className="ri-file-list-line"></i>
-                  Current Registration Information
+                  Thông Tin Đăng Ký Hiện Tại
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="text-gray-600">Company:</span>
+                    <span className="text-gray-600">Công Ty:</span>
                     <span className="ml-2 font-medium text-gray-900">{registration.companyName || "N/A"}</span>
                   </div>
                   <div>
-                    <span className="text-gray-600">Tax Number:</span>
+                    <span className="text-gray-600">Mã Số Thuế:</span>
                     <span className="ml-2 font-medium text-gray-900">{registration.taxNumber || "N/A"}</span>
                   </div>
                   <div>
-                    <span className="text-gray-600">License Number:</span>
+                    <span className="text-gray-600">Số Giấy Phép:</span>
                     <span className="ml-2 font-medium text-gray-900">{registration.businessLicenseNumber || "N/A"}</span>
                   </div>
                   <div>
-                    <span className="text-gray-600">Contact Person:</span>
+                    <span className="text-gray-600">Người Liên Hệ:</span>
                     <span className="ml-2 font-medium text-gray-900">{registration.contactPersonName || "N/A"}</span>
                   </div>
                   <div className="md:col-span-2">
@@ -464,7 +464,7 @@ export default function PartnerProfile() {
                   </div>
                   {registration.businessDescription && (
                     <div className="md:col-span-2">
-                      <span className="text-gray-600">Description:</span>
+                      <span className="text-gray-600">Mô Tả:</span>
                       <p className="mt-1 text-gray-900">{registration.businessDescription}</p>
                     </div>
                   )}
@@ -478,13 +478,13 @@ export default function PartnerProfile() {
             <div className="mb-6">
               <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2 pb-3 border-b">
                 <i className="ri-building-line text-indigo-600"></i>
-                Company Information
+                Thông Tin Công Ty
               </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Company Name <span className="text-red-500">*</span>
+                  Tên Công Ty <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -498,21 +498,21 @@ export default function PartnerProfile() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tax Number
+                  Mã Số Thuế
                 </label>
                 <input
                   type="text"
                   name="taxNumber"
                   value={formData.taxNumber}
                   onChange={handleChange}
-                  placeholder="e.g., 0123456789"
+                  placeholder="Ví dụ: 0123456789"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Business License Number <span className="text-red-500">*</span>
+                  Số Giấy Phép Kinh Doanh <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -520,14 +520,14 @@ export default function PartnerProfile() {
                   value={formData.businessLicenseNumber}
                   onChange={handleChange}
                   required
-                  placeholder="e.g., BL-2024-001234"
+                  placeholder="Ví dụ: BL-2024-001234"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
               </div>
 
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Company Address <span className="text-red-500">*</span>
+                  Địa Chỉ Công Ty <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -541,7 +541,7 @@ export default function PartnerProfile() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Company Phone <span className="text-red-500">*</span>
+                  Số Điện Thoại Công Ty <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="tel"
@@ -555,7 +555,7 @@ export default function PartnerProfile() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Company Email <span className="text-red-500">*</span>
+                  Email Công Ty <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="email"
@@ -576,21 +576,21 @@ export default function PartnerProfile() {
                   name="website"
                   value={formData.website}
                   onChange={handleChange}
-                  placeholder="https://www.yourcompany.com"
+                  placeholder="https://www.congtyban.com"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
               </div>
 
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Business Description
+                  Mô Tả Hoạt Động Kinh Doanh
                 </label>
                 <textarea
                   name="businessDescription"
                   value={formData.businessDescription}
                   onChange={handleChange}
                   rows="3"
-                  placeholder="Describe your business activities..."
+                  placeholder="Mô tả các hoạt động kinh doanh của bạn..."
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
                 />
               </div>
@@ -601,13 +601,13 @@ export default function PartnerProfile() {
             <div className="mb-6">
               <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2 pb-3 border-b">
                 <i className="ri-user-line text-indigo-600"></i>
-                Contact Person
+                Người Liên Hệ
               </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Name <span className="text-red-500">*</span>
+                  Họ và Tên <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -621,7 +621,7 @@ export default function PartnerProfile() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone Number <span className="text-red-500">*</span>
+                  Số Điện Thoại <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="tel"
@@ -653,12 +653,12 @@ export default function PartnerProfile() {
             <div className="mb-6">
               <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2 pb-3 border-b">
                 <i className="ri-file-text-line text-indigo-600"></i>
-                Business License
+                Giấy Phép Kinh Doanh
               </h2>
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Upload Business License Document
+                Tải Lên Giấy Phép Kinh Doanh
               </label>
               
               {/* Show current file if exists */}
@@ -666,14 +666,14 @@ export default function PartnerProfile() {
                 <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-2">
                   <i className="ri-file-text-line text-blue-600 text-xl"></i>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-blue-900">Current File:</p>
+                    <p className="text-sm font-medium text-blue-900">Tệp Hiện Tại:</p>
                     <a
                       href={registration.businessLicenseFileUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm text-blue-600 hover:underline"
                     >
-                      View Business License
+                      Xem Giấy Phép Kinh Doanh
                     </a>
                   </div>
                 </div>
@@ -686,12 +686,12 @@ export default function PartnerProfile() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
               />
               <p className="text-xs text-gray-500 mt-1">
-                {businessLicenseFile ? "New file selected" : "Upload a new file to replace the current one"}
+                {businessLicenseFile ? "Đã chọn tệp mới" : "Tải lên tệp mới để thay thế tệp hiện tại"}
               </p>
               
               {businessLicensePreview && (
                 <div className="mt-4">
-                  <p className="text-sm text-gray-600 mb-2 font-medium">Preview:</p>
+                  <p className="text-sm text-gray-600 mb-2 font-medium">Xem Trước:</p>
                   <div className="border border-gray-300 rounded-lg overflow-hidden bg-gray-50 p-4">
                     <img
                       src={businessLicensePreview}
@@ -710,8 +710,8 @@ export default function PartnerProfile() {
                   <div className="flex items-center gap-2 text-yellow-800">
                     <i className="ri-file-warning-line text-2xl"></i>
                     <div>
-                      <p className="text-sm font-medium">PDF file selected</p>
-                      <p className="text-xs text-yellow-600">Preview not available for PDF files</p>
+                      <p className="text-sm font-medium">Đã chọn tệp PDF</p>
+                      <p className="text-xs text-yellow-600">Không có xem trước cho tệp PDF</p>
                     </div>
                   </div>
                 </div>
@@ -724,25 +724,25 @@ export default function PartnerProfile() {
               <button
                 type="button"
                 onClick={() => navigate("/home")}
-                className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium flex items-center gap-2"
+                className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium flex items-center gap-2 cursor-pointer"
               >
                 <i className="ri-arrow-left-line"></i>
-                Cancel
+                Hủy
               </button>
               <button
                 type="submit"
                 disabled={submitting || registration?.status === "APPROVED"}
-                className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center gap-2"
+                className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center gap-2 cursor-pointer"
               >
                 {submitting ? (
                   <>
                     <i className="ri-loader-4-line animate-spin"></i>
-                    Updating...
+                    Đang Cập Nhật...
                   </>
                 ) : (
                   <>
                     <i className="ri-save-line"></i>
-                    Update Registration
+                    Cập Nhật Đăng Ký
                   </>
                 )}
               </button>
