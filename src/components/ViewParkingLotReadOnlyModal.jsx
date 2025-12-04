@@ -234,7 +234,7 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
                     <th className="px-3 py-2 text-left">Phí Ban Đầu</th>
                     <th className="px-3 py-2 text-left">Thời Lượng Ban Đầu</th>
                     <th className="px-3 py-2 text-left">Phí Bước</th>
-                    <th className="px-3 py-2 text-left">Phút/Bước</th>
+                    <th className="px-3 py-2 text-left">Bước nhảy (phút)</th>
                     <th className="px-3 py-2 text-left">Hiệu Lực Từ</th>
                     <th className="px-3 py-2 text-left">Hiệu Lực Đến</th>
                     <th className="px-3 py-2 text-left">Trạng Thái</th>

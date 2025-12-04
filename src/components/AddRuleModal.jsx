@@ -134,7 +134,7 @@ export default function AddRuleModal({
             />
           </div>
           <div>
-            <label className="text-sm font-medium">Phút/Bước *</label>
+            <label className="text-sm font-medium">Bước nhảy (phút) *</label>
             <input
               type="number"
               name="stepMinute"
