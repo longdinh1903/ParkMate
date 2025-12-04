@@ -114,37 +114,6 @@ export default function PartnerDashboard() {
     ];
   };
 
-  const getRevenueBarData = () => {
-    // Check if API provides revenue trend data
-    const revenueTrend = statistics?.revenueTrend || statistics?.dailyRevenue;
-    
-    if (revenueTrend && Array.isArray(revenueTrend)) {
-      // Use real data from API if available
-      return revenueTrend.map(item => ({
-        day: new Date(item.date).toLocaleDateString("vi-VN", {
-          day: "numeric",
-          month: "short",
-        }),
-        revenue: item.totalAmount || item.revenue || 0,
-        date: item.date,
-      }));
-    }
-
-    // If no real data available, return empty array to hide chart
-    return [];
-  };
-
-  const getVehicleTypeData = () => {
-    const stats = statistics?.sessionStatistics || statistics?.sessionStatistic;
-    if (!stats) return [];
-    return [
-      { type: "Motorbike", count: stats.motorbikeCount || 0, color: "#8b5cf6" },
-      { type: "Car", count: stats.carCount || 0, color: "#ec4899" },
-      { type: "Bike", count: stats.bikeCount || 0, color: "#f59e0b" },
-      { type: "Other", count: stats.otherCount || 0, color: "#6b7280" },
-    ];
-  };
-
   const handleDateChange = (field, value) => {
     setDateRange((prev) => ({
       ...prev,
@@ -170,18 +139,30 @@ export default function PartnerDashboard() {
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <i className="ri-bar-chart-box-line text-indigo-600"></i>
-              Trang quản lý bãi đỗ xe
-            </h1>
-            <p className="text-gray-600 mt-2">
-              Xem doanh thu, phiên đỗ xe và thống kê hiệu suất
-            </p>
+          <div className="mb-8 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 text-white shadow-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-4xl font-bold flex items-center gap-3 mb-2">
+                  <div className="bg-white/20 rounded-xl p-3 backdrop-blur-sm">
+                    <i className="ri-dashboard-3-line text-3xl"></i>
+                  </div>
+                  Dashboard Partner
+                </h1>
+                <p className="text-indigo-100 text-lg ml-1">
+                  Theo dõi hiệu suất và doanh thu bãi đỗ xe của bạn
+                </p>
+              </div>
+              <div className="hidden md:block">
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl px-6 py-4 border border-white/20">
+                  <p className="text-xs text-indigo-100 uppercase tracking-wider mb-1">Tổng bãi xe</p>
+                  <p className="text-3xl font-bold">{parkingLots.length}</p>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Filters */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-8 hover:shadow-xl transition-shadow duration-300">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               {/* Parking Lot Selector */}
               <div>
@@ -331,88 +312,101 @@ export default function PartnerDashboard() {
               {/* Revenue Cards - 3 cards in a row */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 {/* Total Revenue */}
-                <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg p-6 text-white">
-                  <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <p className="text-orange-100 text-xs font-medium uppercase tracking-wide">
-                        Tổng doanh thu
-                      </p>
-                      <p className="text-4xl font-bold mt-2">
-                        {formatCurrency((statistics.sessionStatistics || statistics.sessionStatistic)?.sessionTotalAmount || 0)}
-                      </p>
-                    </div>
-                    <div className="bg-white/20 rounded-full p-3">
-                      <i className="ri-money-dollar-circle-line text-4xl"></i>
+                <div className="relative bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 hover:shadow-2xl overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
+                  <div className="relative z-10">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex-1">
+                        <p className="text-indigo-100 text-xs font-semibold uppercase tracking-wider mb-2">
+                          💰 Tổng doanh thu
+                        </p>
+                        <p className="text-4xl font-extrabold mt-1 drop-shadow-lg">
+                          {formatCurrency((statistics.sessionStatistics || statistics.sessionStatistic)?.sessionTotalAmount || 0)}
+                        </p>
+                      </div>
+                      <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 group-hover:bg-white/30 transition-colors">
+                        <i className="ri-money-dollar-circle-fill text-5xl drop-shadow-lg"></i>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Member Revenue */}
-                <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
-                  <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <p className="text-purple-100 text-xs font-medium uppercase tracking-wide">
-                        Doanh thu thành viên
-                      </p>
-                      <p className="text-3xl font-bold mt-2">
-                        {formatCurrency((statistics.sessionStatistics || statistics.sessionStatistic)?.memberTotalAmount || 0)}
-                      </p>
-                      {(statistics.sessionStatistics || statistics.sessionStatistic)?.memberTotalAmountGrowthRate !== undefined && (
-                        <p className={`text-xs mt-2 flex items-center gap-1 ${
-                          (statistics.sessionStatistics || statistics.sessionStatistic).memberTotalAmountGrowthRate >= 0 ? 'text-green-200' : 'text-red-200'
-                        }`}>
-                          <i className={`ri-arrow-${
-                            (statistics.sessionStatistics || statistics.sessionStatistic).memberTotalAmountGrowthRate >= 0 ? 'up' : 'down'
-                          }-line`}></i>
-                          {Math.abs((statistics.sessionStatistics || statistics.sessionStatistic).memberTotalAmountGrowthRate)}%
+                <div className="relative bg-gradient-to-br from-purple-500 via-purple-600 to-pink-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 hover:shadow-2xl overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
+                  <div className="relative z-10">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex-1">
+                        <p className="text-purple-100 text-xs font-semibold uppercase tracking-wider mb-2">
+                          👑 Doanh thu thành viên
                         </p>
-                      )}
-                    </div>
-                    <div className="bg-white/20 rounded-full p-3">
-                      <i className="ri-vip-crown-line text-4xl"></i>
+                        <p className="text-4xl font-extrabold mt-1 drop-shadow-lg">
+                          {formatCurrency((statistics.sessionStatistics || statistics.sessionStatistic)?.memberTotalAmount || 0)}
+                        </p>
+                        {(statistics.sessionStatistics || statistics.sessionStatistic)?.memberTotalAmountGrowthRate !== undefined && (
+                          <div className={`inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-bold ${
+                            (statistics.sessionStatistics || statistics.sessionStatistic).memberTotalAmountGrowthRate >= 0 
+                              ? 'bg-green-500/30 text-green-100' 
+                              : 'bg-red-500/30 text-red-100'
+                          }`}>
+                            <i className={`ri-arrow-${
+                              (statistics.sessionStatistics || statistics.sessionStatistic).memberTotalAmountGrowthRate >= 0 ? 'up' : 'down'
+                            }-line text-sm`}></i>
+                            {Math.abs((statistics.sessionStatistics || statistics.sessionStatistic).memberTotalAmountGrowthRate).toFixed(1)}%
+                          </div>
+                        )}
+                      </div>
+                      <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 group-hover:bg-white/30 transition-colors">
+                        <i className="ri-vip-crown-fill text-5xl drop-shadow-lg"></i>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Occasional Revenue */}
-                <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
-                  <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <p className="text-blue-100 text-xs font-medium uppercase tracking-wide">
-                        Doanh thu lẻ
-                      </p>
-                      <p className="text-3xl font-bold mt-2">
-                        {formatCurrency((statistics.sessionStatistics || statistics.sessionStatistic)?.occasionalTotalAmount || 0)}
-                      </p>
-                      {(statistics.sessionStatistics || statistics.sessionStatistic)?.occasionalTotalAmountGrowthRate !== undefined && (
-                        <p className={`text-xs mt-2 flex items-center gap-1 ${
-                          (statistics.sessionStatistics || statistics.sessionStatistic).occasionalTotalAmountGrowthRate >= 0 ? 'text-green-200' : 'text-red-200'
-                        }`}>
-                          <i className={`ri-arrow-${
-                            (statistics.sessionStatistics || statistics.sessionStatistic).occasionalTotalAmountGrowthRate >= 0 ? 'up' : 'down'
-                          }-line`}></i>
-                          {Math.abs((statistics.sessionStatistics || statistics.sessionStatistic).occasionalTotalAmountGrowthRate)}%
+                <div className="relative bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 hover:shadow-2xl overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
+                  <div className="relative z-10">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex-1">
+                        <p className="text-blue-100 text-xs font-semibold uppercase tracking-wider mb-2">
+                          🚶 Doanh thu vãng lai
                         </p>
-                      )}
-                    </div>
-                    <div className="bg-white/20 rounded-full p-3">
-                      <i className="ri-user-line text-4xl"></i>
+                        <p className="text-4xl font-extrabold mt-1 drop-shadow-lg">
+                          {formatCurrency((statistics.sessionStatistics || statistics.sessionStatistic)?.occasionalTotalAmount || 0)}
+                        </p>
+                        {(statistics.sessionStatistics || statistics.sessionStatistic)?.occasionalTotalAmountGrowthRate !== undefined && (
+                          <div className={`inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-bold ${
+                            (statistics.sessionStatistics || statistics.sessionStatistic).occasionalTotalAmountGrowthRate >= 0 
+                              ? 'bg-green-500/30 text-green-100' 
+                              : 'bg-red-500/30 text-red-100'
+                          }`}>
+                            <i className={`ri-arrow-${
+                              (statistics.sessionStatistics || statistics.sessionStatistic).occasionalTotalAmountGrowthRate >= 0 ? 'up' : 'down'
+                            }-line text-sm`}></i>
+                            {Math.abs((statistics.sessionStatistics || statistics.sessionStatistic).occasionalTotalAmountGrowthRate).toFixed(1)}%
+                          </div>
+                        )}
+                      </div>
+                      <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 group-hover:bg-white/30 transition-colors">
+                        <i className="ri-user-fill text-5xl drop-shadow-lg"></i>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Key Metrics Row - Sessions & Average Duration */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
                 {/* Active Sessions */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+                <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5 hover:shadow-xl hover:border-blue-200 transition-all duration-300 transform hover:-translate-y-1 group">
                   <div className="flex items-center gap-3">
-                    <div className="bg-blue-100 rounded-lg p-3">
+                    <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl p-3.5 group-hover:scale-110 transition-transform duration-300">
                       <i className="ri-time-line text-2xl text-blue-600"></i>
                     </div>
                     <div>
-                      <p className="text-gray-600 text-xs font-medium">Phiên đang hoạt động</p>
-                      <p className="text-2xl font-bold text-gray-900">
+                      <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide">Đang hoạt động</p>
+                      <p className="text-2xl font-bold text-gray-900 mt-1">
                         {(statistics.sessionStatistics || statistics.sessionStatistic)?.activeSessions || 0}
                       </p>
                     </div>
@@ -420,14 +414,14 @@ export default function PartnerDashboard() {
                 </div>
 
                 {/* Completed Sessions */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+                <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5 hover:shadow-xl hover:border-green-200 transition-all duration-300 transform hover:-translate-y-1 group">
                   <div className="flex items-center gap-3">
-                    <div className="bg-green-100 rounded-lg p-3">
+                    <div className="bg-gradient-to-br from-green-100 to-green-200 rounded-xl p-3.5 group-hover:scale-110 transition-transform duration-300">
                       <i className="ri-checkbox-circle-line text-2xl text-green-600"></i>
                     </div>
                     <div>
-                      <p className="text-gray-600 text-xs font-medium">Hoàn thành</p>
-                      <p className="text-2xl font-bold text-gray-900">
+                      <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide">Hoàn thành</p>
+                      <p className="text-2xl font-bold text-gray-900 mt-1">
                         {(statistics.sessionStatistics || statistics.sessionStatistic)?.completedSessions || 0}
                       </p>
                     </div>
@@ -435,14 +429,14 @@ export default function PartnerDashboard() {
                 </div>
 
                 {/* Total Sessions */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+                <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5 hover:shadow-xl hover:border-indigo-200 transition-all duration-300 transform hover:-translate-y-1 group">
                   <div className="flex items-center gap-3">
-                    <div className="bg-indigo-100 rounded-lg p-3">
+                    <div className="bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-xl p-3.5 group-hover:scale-110 transition-transform duration-300">
                       <i className="ri-file-list-line text-2xl text-indigo-600"></i>
                     </div>
                     <div>
-                      <p className="text-gray-600 text-xs font-medium">Tổng phiên</p>
-                      <p className="text-2xl font-bold text-gray-900">
+                      <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide">Tổng phiên</p>
+                      <p className="text-2xl font-bold text-gray-900 mt-1">
                         {((statistics.sessionStatistics || statistics.sessionStatistic)?.completedSessions || 0) +
                           ((statistics.sessionStatistics || statistics.sessionStatistic)?.activeSessions || 0)}
                       </p>
@@ -451,27 +445,27 @@ export default function PartnerDashboard() {
                 </div>
 
                 {/* Average Duration */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+                <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5 hover:shadow-xl hover:border-teal-200 transition-all duration-300 transform hover:-translate-y-1 group">
                   <div className="flex items-center gap-3">
-                    <div className="bg-teal-100 rounded-lg p-3">
+                    <div className="bg-gradient-to-br from-teal-100 to-teal-200 rounded-xl p-3.5 group-hover:scale-110 transition-transform duration-300">
                       <i className="ri-timer-line text-2xl text-teal-600"></i>
                     </div>
                     <div>
-                      <p className="text-gray-600 text-xs font-medium">Thời lượng TB</p>
-                      <p className="text-2xl font-bold text-gray-900">
+                      <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide">Thời lượng TB</p>
+                      <p className="text-2xl font-bold text-gray-900 mt-1">
                         {(statistics.sessionStatistics || statistics.sessionStatistic)?.averageDurationMinute
                           ? `${Math.round((statistics.sessionStatistics || statistics.sessionStatistic).averageDurationMinute)}m`
                           : "N/A"}
                       </p>
                       {(statistics.sessionStatistics || statistics.sessionStatistic)?.averageDurationMinuteGrowthRate !== undefined && (
-                        <p className={`text-xs mt-1 flex items-center gap-1 ${
-                          (statistics.sessionStatistics || statistics.sessionStatistic).averageDurationMinuteGrowthRate >= 0 ? 'text-green-600' : 'text-red-600'
+                        <div className={`inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full text-xs font-bold ${
+                          (statistics.sessionStatistics || statistics.sessionStatistic).averageDurationMinuteGrowthRate >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                         }`}>
                           <i className={`ri-arrow-${
                             (statistics.sessionStatistics || statistics.sessionStatistic).averageDurationMinuteGrowthRate >= 0 ? 'up' : 'down'
                           }-line`}></i>
                           {Math.abs((statistics.sessionStatistics || statistics.sessionStatistic).averageDurationMinuteGrowthRate)}%
-                        </p>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -479,211 +473,146 @@ export default function PartnerDashboard() {
               </div>
 
               {/* Analytics Charts */}
-              <div className="mb-6">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                  <i className="ri-bar-chart-box-line text-indigo-600"></i>
-                  Tổng quan phân tích
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                  <div className="bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl p-2.5">
+                    <i className="ri-bar-chart-box-line text-2xl text-indigo-600"></i>
+                  </div>
+                  Phân tích chi tiết
                 </h2>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Session Distribution Pie Chart */}
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 className="text-base font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                      <i className="ri-pie-chart-line text-indigo-500"></i>
-                      Phân bố phiên
-                    </h3>
-                    <ResponsiveContainer width="100%" height={280}>
-                      <PieChart>
-                        <Pie
-                          data={getSessionPieData()}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={({ name, value }) => `${name}: ${value}`}
-                          outerRadius={90}
-                          fill="#8884d8"
-                          dataKey="value"
-                        >
-                          {getSessionPieData().map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                        <Legend />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-
-                  {/* Vehicle Type Distribution */}
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 className="text-base font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                      <i className="ri-car-line text-indigo-500"></i>
-                      Loại xe
-                    </h3>
-                    <ResponsiveContainer width="100%" height={280}>
-                      <BarChart data={getVehicleTypeData()}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="type" />
-                        <YAxis />
-                        <Tooltip />
-                        <Bar dataKey="count" fill="#8b5cf6">
-                          {getVehicleTypeData().map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
+                {/* Session Distribution Pie Chart */}
+                <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow duration-300">
+                  <h3 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2.5">
+                    <div className="bg-indigo-100 rounded-lg p-2">
+                      <i className="ri-pie-chart-line text-xl text-indigo-600"></i>
+                    </div>
+                    Phân bố phiên
+                  </h3>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <PieChart>
+                      <Pie
+                        data={getSessionPieData()}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, value }) => `${name}: ${value}`}
+                        outerRadius={90}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {getSessionPieData().map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
 
-              {/* Revenue Trend Chart */}
-              {getRevenueBarData().length > 0 ? (
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    <i className="ri-line-chart-line text-indigo-600"></i>
-                    Xu hướng doanh thu
-                    {activeDateRange === 0 && " (Hôm nay)"}
-                    {activeDateRange === 7 && " (7 ngày qua)"}
-                    {activeDateRange === 30 && " (30 ngày qua)"}
-                    {activeDateRange === 90 && " (90 ngày qua)"}
-                  </h3>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={getRevenueBarData()}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis
-                        dataKey="day"
-                        angle={activeDateRange > 7 ? -45 : 0}
-                        textAnchor={activeDateRange > 7 ? "end" : "middle"}
-                        height={activeDateRange > 7 ? 80 : 30}
-                      />
-                      <YAxis />
-                      <Tooltip formatter={(value) => formatCurrency(value)} />
-                      <Legend />
-                      <Line
-                        type="monotone"
-                        dataKey="revenue"
-                        stroke="#8b5cf6"
-                        strokeWidth={2}
-                        name="Revenue"
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              ) : (
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    <i className="ri-line-chart-line text-indigo-600"></i>
-                    Xu hướng doanh thu
-                  </h3>
-                  <div className="flex flex-col items-center justify-center py-12">
-                    <i className="ri-line-chart-line text-6xl text-gray-300 mb-4"></i>
-                    <p className="text-gray-500 text-center">
-                      Dữ liệu xu hướng doanh thu theo ngày chưa có sẵn.
-                      <br />
-                      <span className="text-sm">Tính năng này sẽ khả dụng khi API cung cấp chi tiết phân tích doanh thu theo ngày.</span>
-                    </p>
-                  </div>
-                </div>
-              )}
-
-
-
               {/* Reservation Statistics - Collapsible */}
               {statistics?.reservationStatistic && (
-                <div className="mb-6">
+                <div className="mb-8">
                   <div
                     onClick={() => setShowRevenueBreakdown(!showRevenueBreakdown)}
-                    className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 cursor-pointer hover:shadow-md transition"
+                    className="bg-gradient-to-r from-white to-indigo-50 rounded-2xl shadow-lg border border-indigo-100 p-6 cursor-pointer hover:shadow-xl hover:border-indigo-200 transition-all duration-300 group"
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-indigo-100 rounded-lg p-2">
-                          <i className="ri-calendar-check-line text-2xl text-indigo-600"></i>
+                      <div className="flex items-center gap-4">
+                        <div className="bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl p-3 group-hover:scale-110 transition-transform duration-300">
+                          <i className="ri-calendar-check-line text-3xl text-white"></i>
                         </div>
                         <div>
-                          <h3 className="text-base font-semibold text-gray-800">
+                          <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                             Thống kê đặt chỗ
+                            <span className="bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-full">
+                              {(statistics.reservationStatistic?.pendingCount || 0) +
+                                (statistics.reservationStatistic?.activeCount || 0) +
+                                (statistics.reservationStatistic?.completedCount || 0) +
+                                (statistics.reservationStatistic?.expiredCount || 0) +
+                                (statistics.reservationStatistic?.cancelledCount || 0)}
+                            </span>
                           </h3>
-                          <p className="text-sm text-gray-600">
-                            Tổng:{" "}
-                            {(statistics.reservationStatistic?.pendingCount || 0) +
-                              (statistics.reservationStatistic?.activeCount || 0) +
-                              (statistics.reservationStatistic?.completedCount || 0) +
-                              (statistics.reservationStatistic?.expiredCount || 0) +
-                              (statistics.reservationStatistic?.cancelledCount || 0)}{" "}
-                            lượt đặt • Doanh thu:{" "}
-                            {formatCurrency(statistics.reservationStatistic?.totalRevenue || 0)}
+                          <p className="text-sm text-gray-600 mt-1 flex items-center gap-2">
+                            <span className="font-semibold text-indigo-600">
+                              {formatCurrency(statistics.reservationStatistic?.totalRevenue || 0)}
+                            </span>
+                            <span className="text-gray-400">•</span>
+                            <span>Tổng doanh thu từ đặt chỗ</span>
                           </p>
                         </div>
                       </div>
-                      <i className={`ri-arrow-${showRevenueBreakdown ? 'up' : 'down'}-s-line text-2xl text-gray-400`}></i>
+                      <div className="bg-white rounded-full p-2 group-hover:bg-indigo-50 transition-colors">
+                        <i className={`ri-arrow-${showRevenueBreakdown ? 'up' : 'down'}-s-line text-2xl text-gray-600 group-hover:text-indigo-600 transition-colors`}></i>
+                      </div>
                     </div>
                   </div>
 
                   {showRevenueBreakdown && (
-                    <div className="mt-4">
+                    <div className="mt-5">
                       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                         {/* Pending */}
-                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="bg-yellow-100 rounded p-2">
+                        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-xl hover:border-yellow-200 transition-all duration-300 transform hover:-translate-y-1 group">
+                          <div className="flex items-center gap-2.5 mb-3">
+                            <div className="bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-lg p-2.5 group-hover:scale-110 transition-transform">
                               <i className="ri-time-line text-xl text-yellow-600"></i>
                             </div>
-                            <p className="text-xs font-medium text-gray-600">Chờ xử lý</p>
+                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Chờ xử lý</p>
                           </div>
-                          <p className="text-2xl font-bold text-gray-900">
+                          <p className="text-3xl font-bold text-gray-900">
                             {statistics.reservationStatistic?.pendingCount || 0}
                           </p>
                         </div>
 
                         {/* Active */}
-                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="bg-blue-100 rounded p-2">
+                        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-xl hover:border-blue-200 transition-all duration-300 transform hover:-translate-y-1 group">
+                          <div className="flex items-center gap-2.5 mb-3">
+                            <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg p-2.5 group-hover:scale-110 transition-transform">
                               <i className="ri-calendar-check-line text-xl text-blue-600"></i>
                             </div>
-                            <p className="text-xs font-medium text-gray-600">Đang hoạt động</p>
+                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Đang hoạt động</p>
                           </div>
-                          <p className="text-2xl font-bold text-gray-900">
+                          <p className="text-3xl font-bold text-gray-900">
                             {statistics.reservationStatistic?.activeCount || 0}
                           </p>
                         </div>
 
                         {/* Completed */}
-                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="bg-green-100 rounded p-2">
+                        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-xl hover:border-green-200 transition-all duration-300 transform hover:-translate-y-1 group">
+                          <div className="flex items-center gap-2.5 mb-3">
+                            <div className="bg-gradient-to-br from-green-100 to-green-200 rounded-lg p-2.5 group-hover:scale-110 transition-transform">
                               <i className="ri-checkbox-circle-line text-xl text-green-600"></i>
                             </div>
-                            <p className="text-xs font-medium text-gray-600">Hoàn Thành</p>
+                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Hoàn Thành</p>
                           </div>
-                          <p className="text-2xl font-bold text-gray-900">
+                          <p className="text-3xl font-bold text-gray-900">
                             {statistics.reservationStatistic?.completedCount || 0}
                           </p>
                         </div>
 
                         {/* Expired */}
-                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="bg-orange-100 rounded p-2">
+                        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-xl hover:border-orange-200 transition-all duration-300 transform hover:-translate-y-1 group">
+                          <div className="flex items-center gap-2.5 mb-3">
+                            <div className="bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg p-2.5 group-hover:scale-110 transition-transform">
                               <i className="ri-calendar-close-line text-xl text-orange-600"></i>
                             </div>
-                            <p className="text-xs font-medium text-gray-600">Hết hạn</p>
+                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Hết hạn</p>
                           </div>
-                          <p className="text-2xl font-bold text-gray-900">
+                          <p className="text-3xl font-bold text-gray-900">
                             {statistics.reservationStatistic?.expiredCount || 0}
                           </p>
                         </div>
 
                         {/* Cancelled */}
-                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="bg-red-100 rounded p-2">
+                        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-xl hover:border-red-200 transition-all duration-300 transform hover:-translate-y-1 group">
+                          <div className="flex items-center gap-2.5 mb-3">
+                            <div className="bg-gradient-to-br from-red-100 to-red-200 rounded-lg p-2.5 group-hover:scale-110 transition-transform">
                               <i className="ri-close-circle-line text-xl text-red-600"></i>
                             </div>
-                            <p className="text-xs font-medium text-gray-600">Đã hủy</p>
+                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Đã hủy</p>
                           </div>
-                          <p className="text-2xl font-bold text-gray-900">
+                          <p className="text-3xl font-bold text-gray-900">
                             {statistics.reservationStatistic?.cancelledCount || 0}
                           </p>
                         </div>
@@ -711,50 +640,59 @@ export default function PartnerDashboard() {
 
                 return (
                   allPackages.length > 0 && (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                        <i className="ri-gift-line text-indigo-600"></i>
-                        Gói đăng ký
-                      </h3>
-                      <p className="text-sm text-gray-600 mb-4">
-                        Tất cả gói đăng ký cho bãi đỗ xe của bạn với thông tin doanh thu
-                      </p>
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                          <thead className="bg-indigo-50">
-                            <tr>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                Tên gói
-                              </th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                Giá gói
-                              </th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                Người dùng hoạt động
-                              </th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                Tổng doanh thu
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody className="bg-white divide-y divide-gray-200">
+                    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-8 hover:shadow-xl transition-shadow duration-300">
+                      <div className="flex items-center gap-3 mb-5">
+                        <div className="bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl p-2.5">
+                          <i className="ri-gift-line text-2xl text-purple-600"></i>
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-gray-900">
+                            Gói đăng ký
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            Thông tin chi tiết về các gói đăng ký và doanh thu
+                          </p>
+                        </div>
+                      </div>
+                      <div className="rounded-xl border border-gray-200">
+                        <div className="overflow-x-auto max-h-[240px] overflow-y-hidden hover:overflow-y-auto">
+                          <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gradient-to-r from-indigo-50 to-purple-50 sticky top-0 z-10">
+                              <tr>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                  Tên gói
+                                </th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                  Giá gói
+                                </th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                  Người dùng hoạt động
+                                </th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                  Tổng doanh thu
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-100">
                             {allPackages.map((pkg, index) => (
                               <tr
                                 key={index}
-                                className={`hover:bg-gray-50 transition ${
+                                className={`hover:bg-indigo-50/50 transition-colors duration-200 ${
                                   pkg.total === 0 ? "opacity-50" : ""
                                 }`}
                               >
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                  <div className="flex items-center">
-                                    <i className="ri-price-tag-3-line text-indigo-600 mr-2"></i>
-                                    <span className="text-sm font-medium text-gray-900">
+                                  <div className="flex items-center gap-2">
+                                    <div className="bg-indigo-100 rounded-lg p-1.5">
+                                      <i className="ri-price-tag-3-line text-indigo-600"></i>
+                                    </div>
+                                    <span className="text-sm font-semibold text-gray-900">
                                       {pkg.packageName}
                                     </span>
                                   </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                  <span className="text-sm font-semibold text-green-600">
+                                  <span className="text-sm font-bold text-emerald-600">
                                     {pkg.price
                                       ? `${pkg.price.toLocaleString()} ₫`
                                       : "-"}
@@ -762,18 +700,18 @@ export default function PartnerDashboard() {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <span
-                                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${
+                                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm ${
                                       pkg.total > 0
-                                        ? "bg-indigo-100 text-indigo-800"
-                                        : "bg-gray-100 text-gray-600"
+                                        ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white"
+                                        : "bg-gray-200 text-gray-600"
                                     }`}
                                   >
-                                    <i className="ri-user-line mr-1"></i>
+                                    <i className="ri-user-line"></i>
                                     {pkg.total}
                                   </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                  <span className="text-sm font-bold text-purple-600">
+                                  <span className="text-sm font-extrabold text-purple-600">
                                     {pkg.totalAmount
                                       ? `${pkg.totalAmount.toLocaleString()} ₫`
                                       : "-"}
@@ -783,33 +721,48 @@ export default function PartnerDashboard() {
                             ))}
                           </tbody>
                         </table>
-                      </div>
-                      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                          <p className="text-sm text-blue-800">
-                            <i className="ri-user-line mr-1"></i>
-                            Tổng người đăng ký hoạt động:{" "}
-                            <strong>
-                              {allPackages.reduce(
-                                (sum, pkg) => sum + pkg.total,
-                                0
-                              )}
-                            </strong>
-                          </p>
                         </div>
-                        <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                          <p className="text-sm text-purple-800">
-                            <i className="ri-money-dollar-circle-line mr-1"></i>
-                            Tổng doanh thu từ đăng ký:{" "}
-                            <strong>
-                              {formatCurrency(
-                                allPackages.reduce(
-                                  (sum, pkg) => sum + (pkg.totalAmount || 0),
+                      </div>
+                      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="relative p-5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border-2 border-blue-200 shadow-md hover:shadow-lg transition-shadow overflow-hidden group">
+                          <div className="absolute top-0 right-0 w-24 h-24 bg-blue-200/30 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
+                          <div className="relative z-10 flex items-center gap-3">
+                            <div className="bg-blue-500 rounded-xl p-3">
+                              <i className="ri-user-line text-2xl text-white"></i>
+                            </div>
+                            <div>
+                              <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1">
+                                Tổng người đăng ký
+                              </p>
+                              <p className="text-2xl font-extrabold text-blue-900">
+                                {allPackages.reduce(
+                                  (sum, pkg) => sum + pkg.total,
                                   0
-                                )
-                              )}
-                            </strong>
-                          </p>
+                                )}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="relative p-5 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border-2 border-purple-200 shadow-md hover:shadow-lg transition-shadow overflow-hidden group">
+                          <div className="absolute top-0 right-0 w-24 h-24 bg-purple-200/30 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
+                          <div className="relative z-10 flex items-center gap-3">
+                            <div className="bg-purple-500 rounded-xl p-3">
+                              <i className="ri-money-dollar-circle-line text-2xl text-white"></i>
+                            </div>
+                            <div>
+                              <p className="text-xs font-semibold text-purple-700 uppercase tracking-wide mb-1">
+                                Doanh thu đăng ký
+                              </p>
+                              <p className="text-2xl font-extrabold text-purple-900">
+                                {formatCurrency(
+                                  allPackages.reduce(
+                                    (sum, pkg) => sum + (pkg.totalAmount || 0),
+                                    0
+                                  )
+                                )}
+                              </p>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -821,12 +774,14 @@ export default function PartnerDashboard() {
 
           {/* Empty State */}
           {!loading && !statistics && selectedLotId && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-              <i className="ri-database-2-line text-6xl text-gray-400 mb-4"></i>
-              <p className="text-gray-600 text-lg font-medium">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl shadow-lg border-2 border-gray-200 p-16 text-center">
+              <div className="bg-white rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6 shadow-md">
+                <i className="ri-database-2-line text-6xl text-gray-400"></i>
+              </div>
+              <p className="text-gray-900 text-xl font-bold mb-2">
                 Không có thống kê
               </p>
-              <p className="text-gray-500 text-sm mt-2">
+              <p className="text-gray-600 text-sm">
                 Thử chọn khoảng thời gian hoặc bãi đỗ xe khác
               </p>
             </div>
@@ -834,13 +789,15 @@ export default function PartnerDashboard() {
 
           {/* No Lot Selected */}
           {!loading && !selectedLotId && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-              <i className="ri-bar-chart-box-line text-6xl text-gray-400 mb-4"></i>
-              <p className="text-gray-600 text-lg font-medium">
-                Vui lòng chọn bãi đỗ xe
+            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl shadow-lg border-2 border-indigo-200 p-16 text-center">
+              <div className="bg-white rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6 shadow-md">
+                <i className="ri-parking-box-line text-6xl text-indigo-500"></i>
+              </div>
+              <p className="text-gray-900 text-xl font-bold mb-2">
+                Chọn bãi đỗ xe
               </p>
-              <p className="text-gray-500 text-sm mt-2">
-                Chọn một bãi đỗ xe từ danh sách bên trên để xem thống kê
+              <p className="text-gray-600 text-sm">
+                Vui lòng chọn một bãi đỗ xe để xem thống kê
               </p>
             </div>
           )}
