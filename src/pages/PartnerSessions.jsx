@@ -33,7 +33,7 @@ export default function PartnerSessions() {
 
   // Pagination
   const [page, setPage] = useState(0);
-  const [size] = useState(7);
+  const [size] = useState(6);
 
   // Modal
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -588,7 +588,7 @@ export default function PartnerSessions() {
                         <button
                           disabled={page <= 0}
                           onClick={() => setPage((p) => Math.max(p - 1, 0))}
-                          className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium cursor-pointer"
+                          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                         >
                           ← Trước
                         </button>
@@ -604,7 +604,7 @@ export default function PartnerSessions() {
                         <button
                           disabled={page >= paginationInfo.totalPages - 1}
                           onClick={() => setPage((p) => p + 1)}
-                          className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium cursor-pointer"
+                          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                         >
                           Tiếp →
                         </button>

@@ -13,7 +13,7 @@ export default function PartnerHome() {
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
     page: 0,
-    size: 7,
+    size: 6,
     totalPages: 0,
     totalElements: 0,
   });
