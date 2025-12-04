@@ -70,6 +70,26 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     };
   }, [lot.lotCapacity]);
 
+  // Calculate total registered capacity from lot
+  const getTotalRegisteredCapacity = useCallback(() => {
+    if (!lot.lotCapacity || !Array.isArray(lot.lotCapacity)) {
+      return 0;
+    }
+    return lot.lotCapacity.reduce((total, cap) => total + (parseInt(cap.capacity) || 0), 0);
+  }, [lot.lotCapacity]);
+
+  // Calculate total drawn spots across all floors
+  const getTotalDrawnSpots = useCallback(() => {
+    return floors.reduce((total, floor) => {
+      const floorSpots = floor.areas.reduce((sum, area) => {
+        // Không tính temp-area
+        if (area.id === "temp-area") return sum;
+        return sum + (area.spots?.length || 0);
+      }, 0);
+      return total + floorSpots;
+    }, 0);
+  }, [floors]);
+
   // Load existing floors from database
   useEffect(() => {
     const loadExistingFloors = async () => {
@@ -101,10 +121,10 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             dbId: floor.id,
             // Store existing vehicle types from capacities
             vehicleTypes: {
-              CAR_UP_TO_9_SEATS: floor.capacities?.some(c => c.vehicleType === "Ô tô dưới 9 chỗ") || false,
-              MOTORBIKE: floor.capacities?.some(c => c.vehicleType === "Xe Máy") || false,
-              BIKE: floor.capacities?.some(c => c.vehicleType === "Xe đạp") || false,
-              OTHER: floor.capacities?.some(c => c.vehicleType === "Khác") || false,
+              CAR_UP_TO_9_SEATS: floor.capacities?.some(c => c.vehicleType === "CAR_UP_TO_9_SEATS") || false,
+              MOTORBIKE: floor.capacities?.some(c => c.vehicleType === "MOTORBIKE") || false,
+              BIKE: floor.capacities?.some(c => c.vehicleType === "BIKE") || false,
+              OTHER: floor.capacities?.some(c => c.vehicleType === "OTHER") || false,
             },
           }));
 
@@ -343,20 +363,35 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
       const height = point.y - areaStartPos.current.y;
       const tempId = "temp-area";
 
+      // Tính toán số lượng spot có thể chứa
+      const spotWidth = 40;
+      const spotHeight = 60;
+      const padding = 10;
+      const areaWidth = Math.abs(width);
+      const areaHeight = Math.abs(height);
+      const spotsPerRow = Math.floor(areaWidth / (spotWidth + padding));
+      const spotsPerCol = Math.floor(areaHeight / (spotHeight + padding));
+      const maxSpots = spotsPerRow * spotsPerCol;
+
+      // Hiển thị thông tin tổng số chỗ (chỉ để thông báo, không chặn)
+      const totalRegistered = getTotalRegisteredCapacity();
+      const totalDrawn = getTotalDrawnSpots();
+
       setFloors((prev) =>
         prev.map((f) => {
           if (f.floorNumber !== currentFloor) return f;
           const hasTemp = f.areas.some((a) => a.id === tempId);
           const newArea = {
             id: tempId,
-            name: "Drawing...",
+            name: `Có thể chứa: ${maxSpots} chỗ đỗ (Đã vẽ: ${totalDrawn}/${totalRegistered})`,
             x: areaStartPos.current.x,
             y: areaStartPos.current.y,
-            width: Math.abs(width),
-            height: Math.abs(height),
+            width: areaWidth,
+            height: areaHeight,
             spots: [],
             fill: "rgba(147,197,253,0.2)",
             stroke: "#3b82f6",
+            maxSpots: maxSpots,
           };
           return {
             ...f,
@@ -454,7 +489,6 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
               fill: "rgba(147,197,253,0.3)",
               stroke: "#3b82f6",
             };
-            // Area created - no toast needed, visual feedback is enough
             return { ...f, areas: [...filtered, newArea] };
           } else {
             return { ...f, areas: filtered };
@@ -477,6 +511,18 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     const selectedArea = areas.find((a) => a.id === selectedAreaId);
     if (!selectedArea) {
       // toast.error("⚠️ Selected area not found!");
+      return;
+    }
+
+    // Kiểm tra có vượt quá tổng số đã đăng ký không
+    const totalRegistered = getTotalRegisteredCapacity();
+    const totalDrawn = getTotalDrawnSpots();
+    
+    if (totalDrawn >= totalRegistered) {
+      toast.error(
+        `⚠️ Không thể thêm spot! Đã đạt giới hạn đăng ký (${totalDrawn}/${totalRegistered} chỗ)`,
+        { duration: 4000 }
+      );
       return;
     }
 
@@ -534,6 +580,29 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
       return;
     }
 
+    // Kiểm tra có vượt quá tổng số đã đăng ký không
+    const totalRegistered = getTotalRegisteredCapacity();
+    const totalDrawn = getTotalDrawnSpots();
+    const spotsRemaining = totalRegistered - totalDrawn;
+    
+    if (spotsRemaining <= 0) {
+      toast.error(
+        `⚠️ Không thể thêm spot! Đã đạt giới hạn đăng ký (${totalDrawn}/${totalRegistered} chỗ)`,
+        { duration: 4000 }
+      );
+      return;
+    }
+
+    // Giới hạn số lượng spot thêm vào nếu vượt quá
+    const actualCount = Math.min(count, spotsRemaining);
+    
+    if (actualCount < count) {
+      toast.warning(
+        `⚠️ Chỉ có thể thêm ${actualCount} spot! (Còn lại: ${spotsRemaining}/${totalRegistered})`,
+        { duration: 4000 }
+      );
+    }
+
     // Đảm bảo spots array tồn tại
     if (!selectedArea.spots) {
       selectedArea.spots = [];
@@ -545,7 +614,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     const existingSpots = selectedArea.spots.length;
 
     const newSpots = [];
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < actualCount; i++) {
       const spotIndex = existingSpots + i;
       const row = Math.floor(spotIndex / spotsPerRow);
       const col = spotIndex % spotsPerRow;
@@ -693,7 +762,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
       ...floors,
       {
         floorNumber: newFloorNumber,
-        floorName: `Floor ${newFloorNumber}`,
+        floorName: `Tầng ${newFloorNumber}`,
         areas: [],
         strokes: [],
         existsInDb: false,
@@ -872,6 +941,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
               const areaPayload = {
                 name: area.name,
                 vehicleType: "CAR_UP_TO_9_SEATS",
+                areaType: "WALK_IN_ONLY",
                 areaTopLeftX: Math.round(area.x),
                 areaTopLeftY: Math.round(area.y),
                 areaWidth: Math.round(area.width),
@@ -917,7 +987,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
         if (floorVehicleTypes.CAR_UP_TO_9_SEATS) {
           capacityRequests.push({
             capacity: totalSpots,
-            vehicleType: "Ô tô dưới 9 chỗ",
+            vehicleType: "CAR_UP_TO_9_SEATS",
             supportElectricVehicle: true,
           });
         }
@@ -925,7 +995,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
         if (floorVehicleTypes.MOTORBIKE) {
           capacityRequests.push({
             capacity: totalSpots,
-            vehicleType: "Xe máy",
+            vehicleType: "MOTORBIKE",
             supportElectricVehicle: false,
           });
         }
@@ -933,7 +1003,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
         if (floorVehicleTypes.BIKE) {
           capacityRequests.push({
             capacity: totalSpots,
-            vehicleType: "Xe đạp",
+            vehicleType: "BIKE",
             supportElectricVehicle: false,
           });
         }
@@ -941,7 +1011,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
         if (floorVehicleTypes.OTHER) {
           capacityRequests.push({
             capacity: totalSpots,
-            vehicleType: "Khác",
+            vehicleType: "OTHER",
             supportElectricVehicle: false,
           });
         }
@@ -979,6 +1049,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             const areaPayload = {
               name: area.name, // Tên tạm: "Area 1", "Area 2"...
               vehicleType: "CAR_UP_TO_9_SEATS", // ⚠️ Temporary - REQUIRED by API
+              areaType: "WALK_IN_ONLY", // ⚠️ Temporary - REQUIRED by API
               areaTopLeftX: Math.round(area.x),
               areaTopLeftY: Math.round(area.y),
               areaWidth: Math.round(area.width),
@@ -1126,7 +1197,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             >
               {floors.filter(f => !f.existsInDb).map((f) => (
                 <option key={f.floorNumber} value={f.floorNumber}>
-                  Floor {f.floorNumber}
+                  Tầng {f.floorNumber}
                 </option>
               ))}
             </select>
@@ -1373,6 +1444,100 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
           </button>
         </div>
       </div>
+
+      {/* Capacity Status Banner */}
+      {(() => {
+        const totalRegistered = getTotalRegisteredCapacity();
+        const totalDrawn = getTotalDrawnSpots();
+        const percentage = totalRegistered > 0 ? (totalDrawn / totalRegistered) * 100 : 0;
+        const isOverLimit = totalDrawn > totalRegistered;
+        const isNearLimit = percentage >= 90 && !isOverLimit;
+        
+        return (
+          <div className={`px-4 py-3 border-b flex items-center justify-between ${
+            isOverLimit 
+              ? "bg-red-50 border-red-200" 
+              : isNearLimit 
+              ? "bg-yellow-50 border-yellow-200"
+              : "bg-green-50 border-green-200"
+          }`}>
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                isOverLimit 
+                  ? "bg-red-100" 
+                  : isNearLimit 
+                  ? "bg-yellow-100"
+                  : "bg-green-100"
+              }`}>
+                <i className={`text-2xl ${
+                  isOverLimit 
+                    ? "ri-error-warning-fill text-red-600" 
+                    : isNearLimit 
+                    ? "ri-alert-fill text-yellow-600"
+                    : "ri-parking-box-fill text-green-600"
+                }`}></i>
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className={`font-bold text-lg ${
+                    isOverLimit 
+                      ? "text-red-700" 
+                      : isNearLimit 
+                      ? "text-yellow-700"
+                      : "text-green-700"
+                  }`}>
+                    {totalDrawn} / {totalRegistered} chỗ đỗ
+                  </span>
+                  {isOverLimit && (
+                    <span className="px-2 py-0.5 bg-red-200 text-red-800 rounded-full text-xs font-bold animate-pulse">
+                      ⚠️ VƯỢT QUÁ!
+                    </span>
+                  )}
+                  {isNearLimit && (
+                    <span className="px-2 py-0.5 bg-yellow-200 text-yellow-800 rounded-full text-xs font-bold">
+                      ⚡ Đã đạt giới hạn
+                    </span>
+                  )}
+                </div>
+                <p className={`text-sm ${
+                  isOverLimit 
+                    ? "text-red-600" 
+                    : isNearLimit 
+                    ? "text-yellow-600"
+                    : "text-green-600"
+                }`}>
+                  {isOverLimit 
+                    ? `Đã vượt quá ${totalDrawn - totalRegistered} chỗ! Vui lòng xóa bớt spot.`
+                    : isNearLimit
+                    ? `Còn ${totalRegistered - totalDrawn} chỗ trống`
+                    : totalRegistered > 0
+                    ? `Còn ${totalRegistered - totalDrawn} chỗ trống (${percentage.toFixed(1)}% đã sử dụng)`
+                    : "Chưa có thông tin đăng ký"
+                  }
+                </p>
+              </div>
+            </div>
+            {/* Progress Bar */}
+            {totalRegistered > 0 && (
+              <div className="w-64">
+                <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                  <div 
+                    className={`h-full transition-all duration-300 ${
+                      isOverLimit 
+                        ? "bg-red-600" 
+                        : isNearLimit 
+                        ? "bg-yellow-500"
+                        : "bg-green-500"
+                    }`}
+                    style={{ width: `${Math.min(percentage, 100)}%` }}
+                  ></div>
+                </div>
+                <p className="text-xs text-gray-600 text-right mt-1">{percentage.toFixed(1)}%</p>
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* Info Panel */}
       <div className="px-4 py-2 bg-blue-50 border-b flex items-center justify-between">

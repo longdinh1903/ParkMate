@@ -307,7 +307,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
           </div>
           <div>
             <h2 className="text-lg font-bold text-gray-900">
-              Chỉnh Sửa Sơ Đồ Bãi Đỗ
+              Chỉnh sửa sơ đồ bãi đỗ
             </h2>
             <p className="text-xs text-gray-500">{lot.name}</p>
           </div>
@@ -351,7 +351,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
                     : "bg-white text-gray-700 hover:bg-gray-100 border"
                 }`}
               >
-                {floor.floorName}
+                {floor.floorName.replace(/^Floor\s+/i, 'Tầng ')}
               </button>
             ))}
           </div>
@@ -511,7 +511,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
         <div className="w-96 border-l bg-white shadow-lg flex flex-col">
           <div className="p-6 border-b bg-gradient-to-r from-green-50 to-white">
             <h3 className="text-lg font-bold text-gray-900">
-              {selectedItem ? "Chỉnh Sửa Chi Tiết" : "Thông Tin Bãi Đỗ"}
+              {selectedItem ? "Chỉnh sửa chi tiết" : "Thông tin bãi đỗ"}
             </h3>
           </div>
 

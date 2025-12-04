@@ -230,7 +230,7 @@ export default function PartnerSubscriptions() {
             {/* Header */}
             <div className="pt-6 mb-4 flex-shrink-0">
               <h1 className="text-3xl font-bold text-gray-900">
-                Gói Đăng Ký Thành Viên
+                Gói đăng ký thành viên
               </h1>
               <p className="text-gray-600 mt-1">
                 Quản lý các gói đăng ký bãi đỗ xe theo tháng, quý và năm
@@ -279,7 +279,7 @@ export default function PartnerSubscriptions() {
                 disabled={loading}
                 className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all flex items-center gap-2 font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <i className={`ri-refresh-line ${loading ? 'animate-spin' : ''}`}></i> Làm Mới
+                <i className={`ri-refresh-line ${loading ? 'animate-spin' : ''}`}></i> Làm mới
               </button>
 
               {/* Sort and Actions */}
@@ -295,9 +295,9 @@ export default function PartnerSubscriptions() {
                   }}
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
                 >
-                  <option value="">Tất Cả Loại Xe</option>
-                  <option value="MOTORBIKE">Xe Máy</option>
-                  <option value="CAR_UP_TO_9_SEATS">Ôtô (Tối đa 9 chỗ)</option>
+                  <option value="">Tất cả loại xe</option>
+                  <option value="MOTORBIKE">Xe máy</option>
+                  <option value="CAR_UP_TO_9_SEATS">Ôtô (tối đa 9 chỗ)</option>
                 </select>
 
                 {/* Duration Filter */}
@@ -309,10 +309,10 @@ export default function PartnerSubscriptions() {
                   }}
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
                 >
-                  <option value="">Tất Cả Thời Hạn</option>
-                  <option value="MONTHLY">Theo Tháng</option>
-                  <option value="QUARTERLY">Theo Quý</option>
-                  <option value="YEARLY">Theo Năm</option>
+                  <option value="">Tất cả thời hạn</option>
+                  <option value="MONTHLY">Theo tháng</option>
+                  <option value="QUARTERLY">Theo quý</option>
+                  <option value="YEARLY">Theo năm</option>
                 </select>
 
                 {/* Sort By Dropdown */}
@@ -321,11 +321,11 @@ export default function PartnerSubscriptions() {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white cursor-pointer"
                 >
-                  <option value="createdAt">Ngày Tạo</option>
+                  <option value="createdAt">Ngày tạo</option>
                   <option value="name">Tên</option>
                   <option value="price">Giá</option>
-                  <option value="vehicleType">Loại Xe</option>
-                  <option value="durationType">Thời Hạn</option>
+                  <option value="vehicleType">Loại xe</option>
+                  <option value="durationType">Thời hạn</option>
                 </select>
 
                 {/* Sort Order Button */}
@@ -355,7 +355,7 @@ export default function PartnerSubscriptions() {
                   className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer"
                 >
                   <PlusIcon className="w-5 h-5" />
-                  Thêm Gói
+                  Thêm gói
                 </button>
               </div>
             </div>
@@ -377,7 +377,7 @@ export default function PartnerSubscriptions() {
                     onClick={() => setShowAddModal(true)}
                     className="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                   >
-                    Tạo Gói Đầu Tiên
+                    Tạo gói đầu tiên
                   </button>
                 )}
               </div>
@@ -437,7 +437,7 @@ export default function PartnerSubscriptions() {
                                 className="w-full px-4 py-2.5 text-left text-sm text-green-600 hover:bg-green-50 flex items-center gap-2 transition-colors cursor-pointer"
                               >
                                 <EyeIcon className="w-4 h-4" />
-                                Xem Chi Tiết
+                                Xem chi tiết
                               </button>
                               <button
                                 onClick={(e) => {
@@ -448,7 +448,7 @@ export default function PartnerSubscriptions() {
                                 className="w-full px-4 py-2.5 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center gap-2 transition-colors cursor-pointer"
                               >
                                 <UserGroupIcon className="w-4 h-4" />
-                                Xem Người Dùng
+                                Xem người dùng
                               </button>
                               <button
                                 onClick={(e) => {
@@ -460,7 +460,7 @@ export default function PartnerSubscriptions() {
                                 className="w-full px-4 py-2.5 text-left text-sm text-indigo-600 hover:bg-indigo-50 flex items-center gap-2 transition-colors cursor-pointer"
                               >
                                 <PencilSquareIcon className="w-4 h-4" />
-                                Chỉnh Sửa
+                                Chỉnh sửa
                               </button>
                               <button
                                 onClick={(e) => {
@@ -504,7 +504,7 @@ export default function PartnerSubscriptions() {
                             : "bg-gray-100 text-gray-800"
                         }`}
                       >
-                        {subscription.isActive ? "● Hoảt Động" : "○ Không Hoạt Động"}
+                        {subscription.isActive ? "● Hoạt động" : "○ Không hoạt động"}
                       </span>
                     </div>
 
@@ -606,7 +606,7 @@ export default function PartnerSubscriptions() {
 
       {showDeleteModal && selectedSubscription && (
         <ConfirmModal
-          title="Xóa Gói Đăng Ký"
+          title="Xóa gói đăng ký"
           message={`Bạn có chắc chắn muốn xóa "${selectedSubscription.name}"? Hành động này không thể hoàn tác.`}
           onConfirm={handleDelete}
           onCancel={() => {

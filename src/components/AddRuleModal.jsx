@@ -84,13 +84,13 @@ export default function AddRuleModal({
         </button>
 
         <h2 className={`text-lg font-bold ${primaryText} mb-3`}>
-          ➕ Thêm Quy Tắc Giá Mới
+          ➕ Thêm quy tắc giá mới
         </h2>
 
         {/* Rule Name & Vehicle Type */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-sm font-medium">Tên Quy Tắc *</label>
+            <label className="text-sm font-medium">Tên quy tắc *</label>
             <input
               type="text"
               name="ruleName"
@@ -122,7 +122,7 @@ export default function AddRuleModal({
         {/* Step Config */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-sm font-medium">Phí Bước (VND) *</label>
+            <label className="text-sm font-medium">Phí bước (VND) *</label>
             <input
               type="number"
               name="stepRate"
@@ -150,7 +150,7 @@ export default function AddRuleModal({
         {/* Initial Charge */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-sm font-medium">Phí Ban Đầu (VND)</label>
+            <label className="text-sm font-medium">Phí ban đầu (VND)</label>
             <input
               type="number"
               name="initialCharge"
@@ -162,7 +162,7 @@ export default function AddRuleModal({
           </div>
           <div>
             <label className="text-sm font-medium">
-              Thời Lượng Ban Đầu (phút)
+              Thời lượng ban đầu (phút)
             </label>
             <input
               type="number"
@@ -178,7 +178,7 @@ export default function AddRuleModal({
         {/* Valid Date Range */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-sm font-medium">Hiệu Lực Từ *</label>
+            <label className="text-sm font-medium">Hiệu lực từ *</label>
             <input
               type="datetime-local"
               name="validFrom"
@@ -189,7 +189,7 @@ export default function AddRuleModal({
             />
           </div>
           <div>
-            <label className="text-sm font-medium">Hiệu Lực Đến *</label>
+            <label className="text-sm font-medium">Hiệu lực đến *</label>
             <input
               type="datetime-local"
               name="validTo"

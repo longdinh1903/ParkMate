@@ -165,7 +165,7 @@ export default function ViewParkingLotModal({
               openTime: updatedLot.openTime || lot.openTime,
               closeTime: updatedLot.closeTime || lot.closeTime,
               operationalFee:
-                updatedLot.operationalPaymentStartDate ||
+                updatedLot.operationalFee ||
                 lot.operationalFee ||
                 12000,
               paymentDueDate: updatedLot.paymentDueDate,
@@ -219,21 +219,21 @@ export default function ViewParkingLotModal({
   const getStatusLabel = (status) => {
     switch (status) {
       case "ACTIVE":
-        return "Hoạt Động";
+        return "Hoạt động";
       case "REJECTED":
-        return "Bị Từ Chối";
+        return "Bị từ chối";
       case "PREPARING":
-        return "Đang Chuẩn Bị";
+        return "Đang chuẩn bị";
       case "PARTNER_CONFIGURATION":
-        return "Cấu Hình Đối Tác";
+        return "Cấu hình đối tác";
       case "PENDING":
-        return "Chờ Duyệt";
+        return "Chờ duyệt";
       case "PENDING_PAYMENT":
-        return "Chờ Thanh Toán";
+        return "Chờ thanh toán";
       case "MAP_DENIED":
-        return "Từ Chối Bản Đồ";
+        return "Từ chối bản đồ";
       case "INACTIVE":
-        return "Ngừng Hoạt Động";
+        return "Ngừng hoạt động";
       default:
         return status;
     }
@@ -268,7 +268,7 @@ export default function ViewParkingLotModal({
               openTime: freshLot.openTime || lot.openTime,
               closeTime: freshLot.closeTime || lot.closeTime,
               operationalFee:
-                freshLot.operationalPaymentStartDate ||
+                freshLot.operationalFee ||
                 lot.operationalFee ||
                 12000,
               paymentDueDate: freshLot.paymentDueDate,
@@ -890,27 +890,27 @@ export default function ViewParkingLotModal({
                       statusOptions || [
                         {
                           key: "PREPARING",
-                          label: "Đang Chuẩn Bị",
+                          label: "Đang Chuẩn bị",
                           color: "text-yellow-600",
                         },
                         {
                           key: "PARTNER_CONFIGURATION",
-                          label: "Cấu Hình Đối Tác",
+                          label: "Cấu hình đối tác",
                           color: "text-blue-600",
                         },
                         {
                           key: "PENDING_PAYMENT",
-                          label: "Chờ Thanh Toán",
+                          label: "Chờ thanh toán",
                           color: "text-purple-600",
                         },
                         {
                           key: "REJECTED",
-                          label: "Bị Từ Chối",
+                          label: "Bị từ chối",
                           color: "text-red-600",
                         },
                         {
                           key: "MAP_DENIED",
-                          label: "Từ Chối Bản Đồ",
+                          label: "Từ chối bản đồ",
                           color: "text-red-600",
                         },
                       ]
@@ -941,7 +941,7 @@ export default function ViewParkingLotModal({
                     </div>
                     <div>
                       <h3 className="font-bold text-indigo-800 text-lg mb-1">
-                        💳 Cần Thanh Toán
+                        💳 Cần thanh toán
                       </h3>
                       <p className="text-indigo-700 text-sm">
                         Hoàn tất thanh toán để kích hoạt bãi đỗ xe của bạn
@@ -958,7 +958,7 @@ export default function ViewParkingLotModal({
                     className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-all shadow-md flex items-center gap-2"
                   >
                     <i className="ri-qr-scan-2-line text-xl"></i>
-                    Xem Mã QR
+                    Xem mã QR
                   </button>
                 </div>
               </div>
@@ -967,7 +967,7 @@ export default function ViewParkingLotModal({
             {/* Basic Info */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-[15px] text-gray-700 mb-8">
               <p>
-                <strong>🏢 Địa Chỉ:</strong> {lot.streetAddress}, {lot.ward},{" "}
+                <strong>🏢 Địa chỉ:</strong> {lot.streetAddress}, {lot.ward},{" "}
                 {lot.city}
               </p>
               <p>
@@ -983,8 +983,8 @@ export default function ViewParkingLotModal({
                 <strong>🏗 Tầng:</strong> {lot.totalFloors}
               </p>
               <p>
-                <strong>📐 Diện Tích Bãi Đỗ:</strong>{" "}
-                {lotData.lotSquare ? `${lotData.lotSquare} m²` : "-"}
+                <strong>📐 Diện tích bãi đỗ:</strong>{" "}
+                {lotData.lotSquare || lot.lotSquare ? `${lotData.lotSquare || lot.lotSquare} m²` : "-"}
               </p>
               <p className="flex items-center gap-2">
                 <span>
@@ -1038,16 +1038,16 @@ export default function ViewParkingLotModal({
                   ))}
               </p>
               <p>
-                <strong>📍 Vĩ Độ:</strong> {lot.latitude}
+                <strong>📍 Vĩ độ:</strong> {lot.latitude}
               </p>
               <p>
-                <strong>📍 Kinh Độ:</strong> {lot.longitude}
+                <strong>📍 Kinh độ:</strong> {lot.longitude}
               </p>
               <p>
-                <strong>📅 Ngày Tạo:</strong> {lot.createdAt}
+                <strong>📅 Ngày tạo:</strong> {lot.createdAt}
               </p>
               <p>
-                <strong>⚙ Cập Nhật:</strong> {lot.updatedAt}
+                <strong>⚙ Cập nhật:</strong> {lot.updatedAt}
               </p>
             </div>
 
@@ -1055,7 +1055,7 @@ export default function ViewParkingLotModal({
             <div className="mb-8 bg-gradient-to-br from-purple-50 to-purple-100/30 p-6 rounded-2xl border border-purple-200 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-purple-600 text-xl flex items-center gap-2">
-                  <i className="ri-image-fill"></i> Hình Ảnh Bãi Xe
+                  <i className="ri-image-fill"></i> Hình ảnh bãi xe
                   {selectedImagesToDelete.length > 0 && (
                     <span className="text-sm font-normal">
                       ({selectedImagesToDelete.length} đã chọn)
@@ -1081,7 +1081,7 @@ export default function ViewParkingLotModal({
                           {deletingImages ? (
                             <>
                               <i className="ri-loader-4-line animate-spin"></i>
-                              Đang Xóa...
+                              Đang xóa...
                             </>
                           ) : (
                             <>
@@ -1099,7 +1099,7 @@ export default function ViewParkingLotModal({
                       className="px-4 py-2 text-sm bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-all flex items-center gap-2 cursor-pointer shadow-md hover:shadow-lg"
                     >
                       <i className="ri-upload-2-line"></i>
-                      {(lotData.images && lotData.images.length > 0) ? "Thêm Ảnh" : "Thêm Ảnh"}
+                      {(lotData.images && lotData.images.length > 0) ? "Thêm ảnh" : "Thêm ảnh"}
                     </button>
                   )}
                 </div>
@@ -1147,7 +1147,7 @@ export default function ViewParkingLotModal({
                   <p className="text-purple-600 font-medium">Chưa có hình ảnh</p>
                   {allowEdit && (
                     <p className="text-purple-400 text-sm mt-1">
-                      Nhấp "Thêm Ảnh" để tải ảnh lên
+                      Nhấp "Thêm ảnh" để tải ảnh lên
                     </p>
                   )}
                 </div>
@@ -1158,14 +1158,14 @@ export default function ViewParkingLotModal({
             <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-indigo-600 text-xl flex items-center gap-2">
-                  🕐 Giờ Hoạt Động
+                  🕐 Giờ hoạt động
                 </h3>
                 {allowEdit && !editingOperatingHours && (
                   <button
                     onClick={startEditOperatingHours}
                     className="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 cursor-pointer"
                   >
-                    ✏️ Chỉnh Sửa
+                    ✏️ Chỉnh sửa
                   </button>
                 )}
               </div>
@@ -1174,7 +1174,7 @@ export default function ViewParkingLotModal({
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Giờ Mở Cửa
+                        Giờ mở cửa
                       </label>
                       <input
                         type="time"
@@ -1190,7 +1190,7 @@ export default function ViewParkingLotModal({
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Giờ Đóng Cửa
+                        Giờ đóng cửa
                       </label>
                       <input
                         type="time"
@@ -1219,7 +1219,7 @@ export default function ViewParkingLotModal({
                       className="w-4 h-4"
                     />
                     <label htmlFor="is24Hour" className="text-sm text-gray-700 cursor-pointer">
-                      24 Giờ Hoạt Động
+                      24 Giờ hoạt động
                     </label>
                   </div>
                   <div className="flex justify-end gap-2 mt-4">
@@ -1258,7 +1258,7 @@ export default function ViewParkingLotModal({
             {/* Reason (if provided by partner) */}
             {getReasonText() && (
               <div className="mb-6 bg-red-50 p-4 rounded-2xl border border-red-100 shadow-sm">
-                <h3 className="font-semibold text-red-600 mb-2">📝 Reason</h3>
+                <h3 className="font-semibold text-red-600 mb-2">📝 Lý do</h3>
                 <p className="text-sm text-gray-800 whitespace-pre-wrap">
                   {getReasonText()}
                 </p>
@@ -1269,14 +1269,14 @@ export default function ViewParkingLotModal({
             {lot.lotCapacity?.length > 0 && (
               <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
                 <h3 className="font-semibold text-indigo-600 mb-4 text-xl flex items-center gap-2">
-                  🚗 Sức Chứa Tổng
+                  🚗 Sức chứa tổng
                 </h3>
                 <table className="min-w-full text-xs border bg-white rounded-lg shadow-sm">
                   <thead className="bg-gray-100 text-gray-600">
                     <tr>
-                      <th className="px-3 py-2 text-left">Loại Xe</th>
-                      <th className="px-3 py-2 text-left">Sức Chứa</th>
-                      <th className="px-3 py-2 text-left">Hỗ Trợ EV</th>
+                      <th className="px-3 py-2 text-left">Loại xe</th>
+                      <th className="px-3 py-2 text-left">Sức chứa</th>
+                      <th className="px-3 py-2 text-left">Hỗ trợ EV</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1298,23 +1298,23 @@ export default function ViewParkingLotModal({
             {lotData.pricingRules?.length > 0 && (
               <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
                 <h3 className="font-semibold text-indigo-600 mb-4 text-xl flex items-center gap-2">
-                  💰 Quy Tắc Giá
+                  💰 Quy tắc giá
                 </h3>
                 <div className="overflow-x-auto">
                   <table className="min-w-full text-xs border bg-white rounded-lg shadow-sm">
                     <thead className="bg-gray-100 text-gray-600">
                       <tr>
-                        <th className="px-3 py-2 text-left">Tên Quy Tắc</th>
-                        <th className="px-3 py-2 text-left">Loại Xe</th>
-                        <th className="px-3 py-2 text-left">Phí Ban Đầu</th>
-                        <th className="px-3 py-2 text-left">Thời Gian BD</th>
-                        <th className="px-3 py-2 text-left">Phí Bước</th>
+                        <th className="px-3 py-2 text-left">Tên quy tắc</th>
+                        <th className="px-3 py-2 text-left">Loại xe</th>
+                        <th className="px-3 py-2 text-left">Phí ban đầu</th>
+                        <th className="px-3 py-2 text-left">Thời gian BD</th>
+                        <th className="px-3 py-2 text-left">Phí bước</th>
                         <th className="px-3 py-2 text-left">Phút/Bước</th>
-                        <th className="px-3 py-2 text-left">Hiệu Lực Từ</th>
-                        <th className="px-3 py-2 text-left">Hiệu Lực Đến</th>
-                        <th className="px-3 py-2 text-left">Trạng Thái</th>
+                        <th className="px-3 py-2 text-left">Hiệu lực từ</th>
+                        <th className="px-3 py-2 text-left">Hiệu lực đến</th>
+                        <th className="px-3 py-2 text-left">Trạng thái</th>
                         {allowEdit && (
-                          <th className="px-3 py-2 text-left">Thao Tác</th>
+                          <th className="px-3 py-2 text-left">Thao tác</th>
                         )}
                       </tr>
                     </thead>
@@ -1394,7 +1394,7 @@ export default function ViewParkingLotModal({
             {lotData.policies?.length > 0 && (
               <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
                 <h3 className="font-semibold text-indigo-600 mb-4 text-xl flex items-center gap-2">
-                  🛡️ Chính Sách Bãi Đỗ
+                  🛡️ Chính sách bãi đỗ
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                   {lotData.policies.map((policy, idx) => {
@@ -1563,7 +1563,7 @@ export default function ViewParkingLotModal({
                     : "bg-gray-50 text-gray-400 border border-gray-200 cursor-not-allowed "
                 }`}
               >
-                🗺️ Vẽ Bản Đồ
+                🗺️ Vẽ bản đồ
               </button>
             )}
             <button
@@ -1609,7 +1609,7 @@ export default function ViewParkingLotModal({
                 }}
                 className="px-4 py-2 rounded-lg text-sm bg-red-600 text-white hover:bg-red-700"
               >
-                Xác Nhận
+                Xác nhận
               </button>
             </div>
           </div>
@@ -1621,13 +1621,13 @@ export default function ViewParkingLotModal({
         <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black/30 z-[60]">
           <div className="bg-white rounded-xl shadow-2xl p-6 w-[600px] max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-semibold text-blue-600 mb-4 cursor-pointer">
-              ✏️ Chỉnh Sửa Quy Tắc Giá
+              ✏️ Chỉnh sửa quy tắc giá
             </h2>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Tên Quy Tắc
+                    Tên quy tắc
                   </label>
                   <input
                     type="text"
@@ -1640,7 +1640,7 @@ export default function ViewParkingLotModal({
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Loại Xe
+                    Loại xe
                   </label>
                   <select
                     value={ruleForm.vehicleType}
@@ -1660,7 +1660,7 @@ export default function ViewParkingLotModal({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Phí Ban Đầu (₫)
+                    Phí ban đầu (₫)
                   </label>
                   <input
                     type="number"
@@ -1676,7 +1676,7 @@ export default function ViewParkingLotModal({
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Thời Gian BD (Phút)
+                    Thời gian BD (Phút)
                   </label>
                   <input
                     type="number"
@@ -1695,7 +1695,7 @@ export default function ViewParkingLotModal({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Phí Bước (₫)
+                    Phí bước (₫)
                   </label>
                   <input
                     type="number"
@@ -1724,7 +1724,7 @@ export default function ViewParkingLotModal({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Hiệu Lực Từ
+                    Hiệu lực từ
                   </label>
                   <input
                     type="datetime-local"
@@ -1737,7 +1737,7 @@ export default function ViewParkingLotModal({
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Hiệu Lực Đến
+                    Hiệu lực đến
                   </label>
                   <input
                     type="datetime-local"
@@ -1787,12 +1787,12 @@ export default function ViewParkingLotModal({
       {/* Confirm Reset Modal */}
       <ConfirmModal
         open={confirmResetOpen}
-        title="Xác Nhận Đặt Lại Bản Đồ"
+        title="Xác nhận đặt lại bản đồ"
         message="Bạn có chắc chắn muốn đặt lại bản đồ không? Điều này sẽ xóa tất cả các tầng, khu vực và chỗ đỗ xe của bãi đỗ xe này."
         onConfirm={doReset}
         onCancel={() => setConfirmResetOpen(false)}
         loading={resetLoading}
-        confirmLabel="Đặt Lại"
+        confirmLabel="Đặt lại"
       />
 
       {/* Payment Modal */}
@@ -1804,7 +1804,7 @@ export default function ViewParkingLotModal({
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold mb-2">
-                    💳 Hoàn Tất Thanh Toán
+                    💳 Hoàn tất thanh toán
                   </h2>
                   <p className="text-indigo-100 text-sm">
                     Quét mã QR để kích hoạt bãi đỗ xe của bạn
@@ -1825,7 +1825,7 @@ export default function ViewParkingLotModal({
               <div className="bg-indigo-50 rounded-xl p-5 mb-6 border border-indigo-200">
                 <h3 className="font-semibold text-indigo-900 mb-3 flex items-center gap-2">
                   <i className="ri-file-list-3-line"></i>
-                  Thông Tin Thanh Toán
+                  Thông tin thanh toán
                 </h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
@@ -1919,7 +1919,7 @@ export default function ViewParkingLotModal({
                     className="block w-full px-4 py-3 bg-indigo-500 text-white text-center rounded-lg hover:bg-indigo-600 transition font-medium"
                   >
                     <i className="ri-external-link-line mr-2"></i>
-                    Mở Liên Kết Thanh Toán
+                    Mở liên kết thanh toán
                   </a>
                 </div>
               )}
@@ -2033,7 +2033,7 @@ export default function ViewParkingLotModal({
 
               <div className="mb-4">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Chọn Ảnh Mới (tối đa 4 ảnh)
+                  Chọn ảnh mới (tối đa 4 ảnh)
                 </label>
                 <input
                   type="file"
@@ -2050,7 +2050,7 @@ export default function ViewParkingLotModal({
               {imagePreviews.length > 0 && (
                 <div>
                   <h4 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                    <i className="ri-file-list-2-line"></i> Ảnh Sẽ Tải Lên ({imagePreviews.length}/4)
+                    <i className="ri-file-list-2-line"></i> Ảnh sẽ tải lên ({imagePreviews.length}/4)
                   </h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {imagePreviews.map((preview, index) => (
@@ -2096,12 +2096,12 @@ export default function ViewParkingLotModal({
                   {uploadingImages ? (
                     <>
                       <i className="ri-loader-4-line animate-spin"></i>
-                      Đang Tải Lên...
+                      Đang tải lên...
                     </>
                   ) : (
                     <>
                       <i className="ri-upload-cloud-2-line"></i>
-                      Tải Lên
+                      Tải lên
                     </>
                   )}
                 </button>
@@ -2115,7 +2115,7 @@ export default function ViewParkingLotModal({
       {showDeleteConfirm && (
         <ConfirmModal
           isOpen={showDeleteConfirm}
-          title="Xác Nhận Xóa Ảnh"
+          title="Xác nhận xóa ảnh"
           message={`Bạn có chắc chắn muốn xóa ${selectedImagesToDelete.length} ảnh đã chọn không? Hành động này không thể hoàn tác.`}
           onConfirm={handleConfirmDeleteImage}
           onCancel={() => {
