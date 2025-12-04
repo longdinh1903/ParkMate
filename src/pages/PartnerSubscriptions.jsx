@@ -208,6 +208,27 @@ export default function PartnerSubscriptions() {
     return colors[type] || "bg-gray-100 text-gray-800";
   };
 
+  // Format vehicle type to Vietnamese
+  const getVehicleTypeLabel = (type) => {
+    const labels = {
+      CAR_UP_TO_9_SEATS: "Ô tô (≤9 chỗ)",
+      MOTORBIKE: "Xe máy",
+      BIKE: "Xe đạp",
+      OTHER: "Khác",
+    };
+    return labels[type] || type;
+  };
+
+  // Format duration type to Vietnamese
+  const getDurationTypeLabel = (type) => {
+    const labels = {
+      MONTHLY: "Theo tháng",
+      QUARTERLY: "Theo quý",
+      YEARLY: "Theo năm",
+    };
+    return labels[type] || type;
+  };
+
   // ✅ Client-side filtering for search
   const filteredSubscriptions = subscriptions.filter((sub) => {
     if (!searchTerm.trim()) return true;
@@ -230,7 +251,7 @@ export default function PartnerSubscriptions() {
             {/* Header */}
             <div className="pt-6 mb-4 flex-shrink-0">
               <h1 className="text-3xl font-bold text-gray-900">
-                Gói đăng ký thành viên
+                Gói đăng ký gói thành viên
               </h1>
               <p className="text-gray-600 mt-1">
                 Quản lý các gói đăng ký bãi đỗ xe theo tháng, quý và năm
@@ -487,14 +508,14 @@ export default function PartnerSubscriptions() {
                           subscription.vehicleType
                         )}`}
                       >
-                        {subscription.vehicleType?.replace(/_/g, " ")}
+                        {getVehicleTypeLabel(subscription.vehicleType)}
                       </span>
                       <span
                         className={`px-2 py-0.5 rounded-full text-xs font-medium ${getDurationBadge(
                           subscription.durationType
                         )}`}
                       >
-                        {subscription.durationType}
+                        {getDurationTypeLabel(subscription.durationType)}
                       </span>
                       {/* Active Status Badge */}
                       <span

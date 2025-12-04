@@ -35,6 +35,14 @@ export default function RegisterLot() {
   const [imagePreviews, setImagePreviews] = useState([]);
   const [citySearch, setCitySearch] = useState("");
   const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false);
+  
+  // Validation errors for number fields
+  const [errors, setErrors] = useState({
+    totalFloors: "",
+    lotSquare: "",
+    horizonTime: "",
+    capacity: "",
+  });
 
   // Danh sách tỉnh thành Việt Nam
   const vietnamCities = [
@@ -178,7 +186,25 @@ export default function RegisterLot() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm({ ...form, [name]: type === "checkbox" ? checked : value });
+    const newValue = type === "checkbox" ? checked : value;
+    
+    // Validate number fields
+    if (["totalFloors", "lotSquare", "horizonTime"].includes(name)) {
+      const numValue = parseFloat(value);
+      if (value && numValue < 0) {
+        setErrors(prev => ({
+          ...prev,
+          [name]: "Giá trị không được là số âm"
+        }));
+      } else {
+        setErrors(prev => ({
+          ...prev,
+          [name]: ""
+        }));
+      }
+    }
+    
+    setForm({ ...form, [name]: newValue });
   };
 
   const handleSelectCity = (city) => {
@@ -189,9 +215,27 @@ export default function RegisterLot() {
 
   const handleCapacityChange = (e) => {
     const { name, value, type, checked } = e.target;
+    const newValue = type === "checkbox" ? checked : value;
+    
+    // Validate capacity number field
+    if (name === "capacity") {
+      const numValue = parseFloat(value);
+      if (value && numValue < 0) {
+        setErrors(prev => ({
+          ...prev,
+          capacity: "Sức chứa không được là số âm"
+        }));
+      } else {
+        setErrors(prev => ({
+          ...prev,
+          capacity: ""
+        }));
+      }
+    }
+    
     setCapacityForm({
       ...capacityForm,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: newValue,
     });
   };
 
@@ -575,8 +619,18 @@ export default function RegisterLot() {
                     value={form.totalFloors}
                     onChange={handleChange}
                     placeholder="VD: 3"
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                    className={`w-full border rounded-xl px-4 py-3 focus:ring-2 transition-all outline-none ${
+                      errors.totalFloors 
+                        ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                        : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
+                    }`}
                   />
+                  {errors.totalFloors && (
+                    <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                      <i className="ri-error-warning-line"></i>
+                      {errors.totalFloors}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -589,8 +643,18 @@ export default function RegisterLot() {
                     onChange={handleChange}
                     placeholder="VD: 1000"
                     step="any"
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                    className={`w-full border rounded-xl px-4 py-3 focus:ring-2 transition-all outline-none ${
+                      errors.lotSquare 
+                        ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                        : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
+                    }`}
                   />
+                  {errors.lotSquare && (
+                    <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                      <i className="ri-error-warning-line"></i>
+                      {errors.lotSquare}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -602,8 +666,18 @@ export default function RegisterLot() {
                     value={form.horizonTime}
                     onChange={handleChange}
                     placeholder="VD: 60"
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                    className={`w-full border rounded-xl px-4 py-3 focus:ring-2 transition-all outline-none ${
+                      errors.horizonTime 
+                        ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                        : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
+                    }`}
                   />
+                  {errors.horizonTime && (
+                    <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                      <i className="ri-error-warning-line"></i>
+                      {errors.horizonTime}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -729,8 +803,18 @@ export default function RegisterLot() {
                     placeholder="VD: 50"
                     value={capacityForm.capacity}
                     onChange={handleCapacityChange}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none"
+                    className={`w-full border rounded-lg px-4 py-3 focus:ring-2 transition-all outline-none ${
+                      errors.capacity 
+                        ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                        : 'border-gray-300 focus:ring-green-500 focus:border-green-500'
+                    }`}
                   />
+                  {errors.capacity && (
+                    <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                      <i className="ri-error-warning-line"></i>
+                      {errors.capacity}
+                    </p>
+                  )}
                 </div>
                 <div className="md:col-span-1">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
