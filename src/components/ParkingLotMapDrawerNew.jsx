@@ -3,6 +3,7 @@ import { Stage, Layer, Rect, Text, Group, Line, Transformer, Image as KonvaImage
 import toast from "react-hot-toast";
 import floorApi from "../api/floorApi";
 import areaApi from "../api/areaApi";
+import parkingLotApi from "../api/parkingLotApi";
 
 export default function ParkingLotMapDrawer({ lot, onClose }) {
   const [currentFloor, setCurrentFloor] = useState(1);
@@ -1016,21 +1017,50 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
           });
         }
         
+        // Ensure at least one capacity entry
+        if (capacityRequests.length === 0) {
+          console.warn("⚠️ No vehicle types selected, adding default CAR capacity");
+          capacityRequests.push({
+            capacity: totalSpots,
+            vehicleType: "CAR_UP_TO_9_SEATS",
+            supportElectricVehicle: true,
+          });
+        }
+        
+        // Build floor payload - only include floor bounds if they exist
         const floorPayload = {
           floorNumber: floor.floorNumber,
           floorName: floor.floorName,
           capacityRequests: capacityRequests,
-          floorTopLeftX: floor.floorTopLeftX || null,
-          floorTopLeftY: floor.floorTopLeftY || null,
-          floorWidth: floor.floorWidth || null,
-          floorHeight: floor.floorHeight || null,
         };
+        
+        // Add floor bounds only if all values are present
+        if (floor.floorTopLeftX != null && floor.floorTopLeftY != null && 
+            floor.floorWidth != null && floor.floorHeight != null) {
+          floorPayload.floorTopLeftX = Math.round(floor.floorTopLeftX);
+          floorPayload.floorTopLeftY = Math.round(floor.floorTopLeftY);
+          floorPayload.floorWidth = Math.round(floor.floorWidth);
+          floorPayload.floorHeight = Math.round(floor.floorHeight);
+        }
 
         console.log("📤 Creating NEW floor payload:", JSON.stringify(floorPayload, null, 2));
         console.log("📍 Endpoint:", `/api/v1/parking-service/floors/${lot.id}`);
+        console.log("🔢 Total spots:", totalSpots);
+        console.log("🚗 Vehicle types:", floorVehicleTypes);
+        console.log("📋 Capacity requests:", capacityRequests);
 
-        const floorRes = await floorApi.create(lot.id, floorPayload);
-        console.log("✅ Floor response:", floorRes.data);
+        let floorRes;
+        try {
+          floorRes = await floorApi.create(lot.id, floorPayload);
+          console.log("✅ Floor response:", floorRes.data);
+        } catch (floorError) {
+          console.error("❌ Floor creation FAILED:");
+          console.error("   Status:", floorError.response?.status);
+          console.error("   Message:", floorError.response?.data?.message);
+          console.error("   Details:", floorError.response?.data);
+          console.error("   Full error:", floorError);
+          throw new Error(`Tạo tầng thất bại: ${floorError.response?.data?.message || floorError.message}`);
+        }
 
         // Extract floor ID with multiple fallbacks
         const floorId = floorRes.data?.data?.id || floorRes.data?.id || floorRes.data?.floorId;
@@ -1096,9 +1126,22 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
       toast.success("🎉 Lưu sơ đồ thành công!");
       console.log("✅ All floors, areas, and spots saved successfully!");
       
+      // Auto-update status to PARTNER_CONFIGURATION after saving map
+      try {
+        console.log("🔄 Auto-updating status to PARTNER_CONFIGURATION...");
+        await parkingLotApi.update(lot.id, {
+          status: "PARTNER_CONFIGURATION",
+        });
+        console.log("✅ Status updated to PARTNER_CONFIGURATION");
+        toast.success("📋 Trạng thái đã được cập nhật: Cấu hình đối tác");
+      } catch (statusErr) {
+        console.warn("⚠️ Failed to auto-update status:", statusErr);
+        // Don't throw error, just log warning
+      }
+      
       setTimeout(() => {
         onClose();
-      }, 1500);
+      }, 2000);
       
     } catch (err) {
       toast.dismiss();

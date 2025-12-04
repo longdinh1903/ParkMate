@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import parkingLotApi from "../api/parkingLotApi";
 import floorApi from "../api/floorApi";
 import areaApi from "../api/areaApi";
@@ -32,6 +32,7 @@ export default function ViewParkingLotModal({
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentData, setPaymentData] = useState(null);
   const [checkingPayment, setCheckingPayment] = useState(false);
+  const [confirmingPayment, setConfirmingPayment] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
@@ -39,24 +40,56 @@ export default function ViewParkingLotModal({
   const [selectedImagesToDelete, setSelectedImagesToDelete] = useState([]);
   const [deletingImages, setDeletingImages] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  
+  // Store interval ref to cleanup on unmount
+  const paymentCheckIntervalRef = useRef(null);
+  const realtimeIntervalRef = useRef(null);
+
+  // Real-time updates - refresh lot data every 5 seconds
+  useEffect(() => {
+    const fetchLotData = async () => {
+      try {
+        const response = await parkingLotApi.getById(lot.id);
+        const updatedLot = response.data?.data || response.data;
+        setLotData(updatedLot);
+        console.log("🔄 Real-time update:", updatedLot.status);
+      } catch (err) {
+        console.error("❌ Error fetching real-time data:", err);
+      }
+    };
+
+    // Initial fetch
+    fetchLotData();
+
+    // Set up polling every 5 seconds
+    realtimeIntervalRef.current = setInterval(fetchLotData, 5000);
+
+    // Cleanup on unmount
+    return () => {
+      if (realtimeIntervalRef.current) {
+        clearInterval(realtimeIntervalRef.current);
+        console.log("🧹 Cleaned up real-time interval");
+      }
+    };
+  }, [lot.id]);
 
   // Auto-open payment modal if status is PENDING_PAYMENT
   useEffect(() => {
-    if (lot.status === "PENDING_PAYMENT") {
+    if (lotData.status === "PENDING_PAYMENT") {
       const loadPaymentInfo = async () => {
         try {
-          const qrCode = lot.paymentQrCode;
-          const paymentUrl = lot.paymentUrl;
+          const qrCode = lotData.paymentQrCode;
+          const paymentUrl = lotData.paymentUrl;
 
           if (qrCode || paymentUrl) {
             const data = {
               qrCode,
               paymentUrl,
-              totalFloors: lot.totalFloors,
-              openTime: lot.openTime,
-              closeTime: lot.closeTime,
-              operationalFee: lot.operationalFee || 12000,
-              paymentDueDate: lot.paymentDueDate,
+              totalFloors: lotData.totalFloors,
+              openTime: lotData.openTime,
+              closeTime: lotData.closeTime,
+              operationalFee: lotData.operationalFee || 12000,
+              paymentDueDate: lotData.paymentDueDate,
             };
             setPaymentData(data);
             setShowPaymentModal(true);
@@ -68,6 +101,16 @@ export default function ViewParkingLotModal({
       loadPaymentInfo();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lotData.status]);
+  
+  // Cleanup payment check interval on unmount
+  useEffect(() => {
+    return () => {
+      if (paymentCheckIntervalRef.current) {
+        clearInterval(paymentCheckIntervalRef.current);
+        console.log("🧹 Cleaned up payment check interval");
+      }
+    };
   }, []);
 
   // Edit states
@@ -98,34 +141,46 @@ export default function ViewParkingLotModal({
     try {
       const payloadStatus =
         typeof status === "string" ? status.trim().toUpperCase() : status;
-      showInfo(`⏳ Updating status to "${payloadStatus}"...`);
+      
       const res = await parkingLotApi.update(lot.id, {
         status: payloadStatus,
         reason,
       });
 
       if (res.status === 200) {
-        showSuccess(`✅ Status updated to "${payloadStatus}" successfully!`);
+        const statusLabel = getStatusLabel(payloadStatus);
+        showSuccess(`Cập nhật trạng thái "${statusLabel}" thành công!`);
         onActionDone();
         onClose();
       } else {
-        showError("⚠️ Failed to update status. Please try again.");
+        showError("Cập nhật trạng thái thất bại. Vui lòng thử lại.");
       }
     } catch (err) {
       console.error("❌ Error updating status:", err);
       showError(
-        err.response?.data?.message || "❌ An unexpected error occurred!"
+        err.response?.data?.message || "Đã xảy ra lỗi không mong muốn!"
       );
     }
   };
 
   const handleChangeStatus = async (newStatus) => {
-    // Check if trying to change to ACTIVE from PENDING_PAYMENT without payment
-    if (newStatus === "ACTIVE" && lot.status === "PENDING_PAYMENT") {
-      showError(
-        "❌ Vui lòng hoàn tất thanh toán trước khi kích hoạt bãi đỗ xe!"
-      );
-      return;
+    // Check if trying to change to ACTIVE without payment completion
+    if (newStatus === "ACTIVE") {
+      // Block if current status is PENDING_PAYMENT
+      if (lotData.status === "PENDING_PAYMENT") {
+        showError(
+          "Vui lòng hoàn tất thanh toán trước khi kích hoạt bãi đỗ xe!"
+        );
+        return;
+      }
+      
+      // Block if coming from PARTNER_CONFIGURATION without payment
+      if (lotData.status === "PARTNER_CONFIGURATION" && !lotData.isPaid) {
+        showError(
+          "Vui lòng thanh toán phí vận hành trước khi kích hoạt bãi đỗ xe!"
+        );
+        return;
+      }
     }
 
     // For statuses that require a reason from partner, open reason modal
@@ -139,14 +194,11 @@ export default function ViewParkingLotModal({
     if (newStatus === "PENDING_PAYMENT") {
       try {
         const payloadStatus = newStatus.trim().toUpperCase();
-        showInfo(`⏳ Updating status to "${payloadStatus}"...`);
         const res = await parkingLotApi.update(lot.id, {
           status: payloadStatus,
         });
 
         if (res.status === 200) {
-          showSuccess(`✅ Status updated to "${payloadStatus}" successfully!`);
-
           const updatedLot = res.data?.data || res.data;
           const qrCode = updatedLot.paymentQrCode;
           const paymentUrl = updatedLot.paymentUrl;
@@ -173,20 +225,19 @@ export default function ViewParkingLotModal({
             setPaymentData(data);
             setShowPaymentModal(true);
             startPaymentStatusCheck();
+            showSuccess("Đã chuyển sang trạng thái Thanh toán");
           } else {
-            showError(
-              "Payment information not available. Please contact support."
-            );
+            showError("Thông tin thanh toán không khả dụng. Vui lòng liên hệ hỗ trợ.");
           }
 
           onActionDone();
         } else {
-          showError("⚠️ Failed to update status. Please try again.");
+          showError("Cập nhật trạng thái thất bại. Vui lòng thử lại.");
         }
       } catch (err) {
         console.error("❌ Error updating status:", err);
         showError(
-          err.response?.data?.message || "❌ An unexpected error occurred!"
+          err.response?.data?.message || "Đã xảy ra lỗi không mong muốn!"
         );
       }
       return;
@@ -229,7 +280,7 @@ export default function ViewParkingLotModal({
       case "PENDING":
         return "Chờ duyệt";
       case "PENDING_PAYMENT":
-        return "Chờ thanh toán";
+        return "Thanh toán";
       case "MAP_DENIED":
         return "Từ chối bản đồ";
       case "INACTIVE":
@@ -243,8 +294,6 @@ export default function ViewParkingLotModal({
   const handlePaymentCheck = async () => {
     if (lot.status === "PENDING_PAYMENT") {
       try {
-        showInfo("⏳ Đang tải thông tin thanh toán...");
-
         const res = await parkingLotApi.update(lot.id, {
           status: "PENDING_PAYMENT",
         });
@@ -289,35 +338,179 @@ export default function ViewParkingLotModal({
     }
   };
 
+  // Manual payment confirmation
+  const handleConfirmPayment = async () => {
+    try {
+      setConfirmingPayment(true);
+      console.log("🔘 Manual payment confirmation started");
+      console.log("📍 Lot ID:", lot.id);
+      
+      const updateRes = await parkingLotApi.update(lot.id, {
+        status: "ACTIVE",
+      });
+      
+      console.log("📥 Update response:", updateRes);
+      
+      if (updateRes.status === 200 || updateRes.status === 204) {
+        console.log("✅ Payment confirmed and lot activated!");
+        setShowPaymentModal(false);
+        showSuccess("Xác nhận thanh toán thành công! Bãi đỗ xe đã được kích hoạt");
+        onActionDone();
+        
+        setTimeout(() => {
+          onClose();
+        }, 1500);
+      } else {
+        console.warn("⚠️ Unexpected response status:", updateRes.status);
+        showError("Không thể kích hoạt bãi đỗ xe. Vui lòng thử lại hoặc liên hệ admin.");
+      }
+    } catch (err) {
+      console.error("❌ Error confirming payment:", err);
+      console.error("❌ Error response:", err.response);
+      showError(
+        `Lỗi xác nhận thanh toán: ${err.response?.data?.message || err.message}`
+      );
+    } finally {
+      setConfirmingPayment(false);
+    }
+  };
+
+  // Cancel payment and return to PARTNER_CONFIGURATION
+  const handleCancelPayment = async () => {
+    try {
+      console.log("🚫 Canceling payment...");
+      console.log("📍 Lot ID:", lot.id);
+      
+      const updateRes = await parkingLotApi.update(lot.id, {
+        status: "PARTNER_CONFIGURATION",
+      });
+      
+      if (updateRes.status === 200 || updateRes.status === 204) {
+        console.log("✅ Payment cancelled, status reverted to PARTNER_CONFIGURATION");
+        setShowPaymentModal(false);
+        showSuccess("Hủy thanh toán thành công. Trạng thái đã chuyển về Cấu hình đối tác");
+        onActionDone();
+      } else {
+        showError("Không thể hủy thanh toán. Vui lòng thử lại.");
+      }
+    } catch (err) {
+      console.error("❌ Error canceling payment:", err);
+      showError(
+        `Lỗi hủy thanh toán: ${err.response?.data?.message || err.message}`
+      );
+    }
+  };
+
   // Poll payment status
   const startPaymentStatusCheck = () => {
+    // Clear any existing interval first
+    if (paymentCheckIntervalRef.current) {
+      clearInterval(paymentCheckIntervalRef.current);
+    }
+    
     setCheckingPayment(true);
+    let checkCount = 0;
+    const maxChecks = 120; // 120 checks × 5 seconds = 10 minutes
+    
     const interval = setInterval(async () => {
+      checkCount++;
+      console.log(`🔍 Payment check #${checkCount}/${maxChecks}`);
+      
       try {
         // Refresh lot data to check if status changed
         const response = await parkingLotApi.getById(lot.id);
         const updatedLot = response.data?.data || response.data;
+        
+        console.log("📦 Updated lot data:", JSON.stringify(updatedLot, null, 2));
+        console.log("📊 Current status:", updatedLot.status);
+        console.log("💳 Payment status field:", updatedLot.paymentStatus);
+        console.log("🔍 All lot fields:", Object.keys(updatedLot));
 
-        if (updatedLot.status === "ACTIVE") {
+        // Check payment-related fields with multiple possible names
+        const paymentStatus = updatedLot.paymentStatus || 
+                             updatedLot.payment_status || 
+                             updatedLot.isPaid ||
+                             updatedLot.is_paid;
+        
+        console.log("💰 Detected payment status:", paymentStatus);
+
+        // Check both status and paymentStatus
+        const isPaid = updatedLot.status === "ACTIVE" ||
+                      paymentStatus === "PAID" ||
+                      paymentStatus === "SUCCESS" ||
+                      paymentStatus === "COMPLETED" ||
+                      paymentStatus === true;
+        
+        console.log("✅ Is paid?:", isPaid);
+
+        if (isPaid) {
           clearInterval(interval);
+          paymentCheckIntervalRef.current = null;
           setCheckingPayment(false);
-          setShowPaymentModal(false);
-          showSuccess(
-            "✅ Thanh toán đã xác nhận! Bãi đỗ xe của bạn đã HOẠT ĐỘNG!"
-          );
-          onActionDone();
-          onClose();
+          
+          console.log("✅ Payment confirmed! Activating lot...");
+          console.log("🔍 Current lot status:", updatedLot.status);
+          console.log("🔍 Lot ID:", lot.id);
+          
+          // If status is not ACTIVE yet, update it
+          if (updatedLot.status !== "ACTIVE") {
+            try {
+              console.log("📞 Calling API to activate lot with ID:", lot.id);
+              
+              const updateRes = await parkingLotApi.update(lot.id, { status: "ACTIVE" });
+              
+              console.log("📥 API Response Status:", updateRes.status);
+              console.log("📥 API Response Data:", updateRes.data);
+              
+              if (updateRes.status === 200 || updateRes.status === 204) {
+                console.log("🎉 Lot activated successfully!");
+                setShowPaymentModal(false);
+                showSuccess("Thanh toán thành công! Bãi đỗ xe đã được kích hoạt");
+                onActionDone();
+                
+                setTimeout(() => {
+                  onClose();
+                }, 1500);
+              } else {
+                console.warn("⚠️ Unexpected response status:", updateRes.status);
+                showError("Thanh toán thành công nhưng không thể kích hoạt bãi. Vui lòng liên hệ admin.");
+              }
+            } catch (activationErr) {
+              console.error("❌ Error activating lot:", activationErr);
+              console.error("❌ Error response:", activationErr.response);
+              console.error("❌ Error data:", activationErr.response?.data);
+              console.error("❌ Error status:", activationErr.response?.status);
+              showError(
+                `Lỗi kích hoạt: ${activationErr.response?.data?.message || activationErr.message}`
+              );
+            }
+          } else {
+            console.log("ℹ️ Lot is already ACTIVE");
+            setShowPaymentModal(false);
+            showSuccess("Thanh toán đã được xác nhận! Bãi đỗ xe đang hoạt động");
+            onActionDone();
+            
+            setTimeout(() => {
+              onClose();
+            }, 1500);
+          }
+        }
+        
+        // Stop checking after max attempts
+        if (checkCount >= maxChecks) {
+          clearInterval(interval);
+          paymentCheckIntervalRef.current = null;
+          setCheckingPayment(false);
+          showInfo("⏱️ Đã hết thời gian kiểm tra. Vui lòng làm mới trang để xem trạng thái mới nhất.");
         }
       } catch (err) {
-        console.error("Error checking payment status:", err);
+        console.error("❌ Error checking payment status:", err);
+        console.error("Error details:", err.response?.data);
       }
     }, 5000); // Check every 5 seconds
 
-    // Stop checking after 10 minutes
-    setTimeout(() => {
-      clearInterval(interval);
-      setCheckingPayment(false);
-    }, 600000);
+    // Store interval reference for cleanup
+    paymentCheckIntervalRef.current = interval;
   };
 
   // Only allow reset when lot status is PREPARING or MAP_DENIED
@@ -329,7 +522,6 @@ export default function ViewParkingLotModal({
   const doReset = async () => {
     setResetLoading(true);
     try {
-      showInfo("⏳ Đang đặt lại bản đồ: xóa các tầng...");
       const floorsRes = await floorApi.getByLotId(lot.id);
       const floors =
         floorsRes.data?.data?.content ||
@@ -429,19 +621,16 @@ export default function ViewParkingLotModal({
       }
 
       if (failures.length === 0) {
-        showSuccess(
-          "✅ Map reset: all floors deleted. You can draw a new map now."
-        );
-        // open draw map drawer
+        showSuccess("Đặt lại bản đồ thành công. Bạn có thể vẽ bản đồ mới.");
         setShowDrawMap(true);
         onActionDone?.();
       } else {
         console.error("Reset map encountered failures:", failures);
-        showError(`Failed to fully reset map. Errors: ${failures.join("; ")}`);
+        showError(`Đặt lại bản đồ không hoàn toàn. Lỗi: ${failures.join("; ")}`);
       }
     } catch (err) {
       console.error("❌ Error resetting map:", err);
-      showError(err.response?.data?.message || "❌ Đặt lại bản đồ thất bại.");
+      showError(err.response?.data?.message || "Đặt lại bản đồ thất bại.");
     } finally {
       setResetLoading(false);
       setConfirmResetOpen(false);
@@ -450,15 +639,13 @@ export default function ViewParkingLotModal({
 
   const handleResetMap = async () => {
     if (!isResetAllowed) {
+      const statusLabel = getStatusLabel(lot?.status);
       showError(
-        `Cannot reset map: parking lot status is "${(
-          lot?.status || ""
-        ).toUpperCase()}". Reset is allowed only when status is Preparing or Map Denied.`
+        `Không thể đặt lại bản đồ: Trạng thái hiện tại là "${statusLabel}". Chỉ cho phép đặt lại khi trạng thái là "Đang chuẩn bị" hoặc "Từ chối bản đồ".`
       );
       return;
     }
 
-    // open centered confirm modal
     setConfirmResetOpen(true);
   };
 
@@ -551,7 +738,7 @@ export default function ViewParkingLotModal({
     } catch (err) {
       console.error("❌ Error updating horizon time:", err);
       showError(
-        err.response?.data?.message || "❌ Failed to update horizon time"
+        err.response?.data?.message || "Cập nhật thời gian dự trữ thất bại"
       );
     }
   };
@@ -575,7 +762,7 @@ export default function ViewParkingLotModal({
       await policyApi.update(editingPolicy.id, {
         value: parseInt(policyForm.value, 10),
       });
-      showSuccess("✅ Policy updated successfully!");
+      showSuccess("Cập nhật chính sách thành công!");
 
       // Update local state immediately
       setLotData({
@@ -590,7 +777,7 @@ export default function ViewParkingLotModal({
       setEditingPolicy(null);
     } catch (err) {
       console.error("❌ Error updating policy:", err);
-      showError(err.response?.data?.message || "❌ Failed to update policy");
+      showError(err.response?.data?.message || "Cập nhật chính sách thất bại");
     }
   };
 
@@ -836,34 +1023,34 @@ export default function ViewParkingLotModal({
           {/* Header - Fixed */}
           <div className="flex justify-between items-center px-8 pt-8 pb-4 border-b flex-shrink-0">
             <h2 className="text-3xl font-bold text-indigo-700 flex items-center gap-2">
-              🅿️ {lot.name}
+              🅿️ {lotData.name}
             </h2>
 
             {/* Status Dropdown */}
             <div className="relative">
               <details
                 className="group"
-                disabled={lot.status === "PENDING_PAYMENT"}
+                disabled={lotData.status === "PENDING_PAYMENT"}
               >
                 <summary
                   className={`list-none flex items-center gap-2 px-4 py-1.5 text-sm font-semibold rounded-lg shadow-sm select-none transition-all duration-200 ${getStatusStyle(
-                    lot.status
+                    lotData.status
                   )} ${
-                    lot.status === "PENDING_PAYMENT"
+                    lotData.status === "PENDING_PAYMENT"
                       ? "cursor-not-allowed opacity-60"
                       : "cursor-pointer"
                   }`}
                   onClick={(e) => {
-                    if (lot.status === "PENDING_PAYMENT") {
+                    if (lotData.status === "PENDING_PAYMENT") {
                       e.preventDefault();
                       showInfo(
-                        "⚠️ Không thể thay đổi trạng thái khi đang chờ thanh toán. Vui lòng hoàn tất thanh toán trước."
+                        "⚠️ Không thể thay đổi trạng thái khi đang Thanh toán. Vui lòng hoàn tất thanh toán trước."
                       );
                     }
                   }}
                 >
-                  {getStatusLabel(lot.status)}
-                  {lot.status !== "PENDING_PAYMENT" && (
+                  {getStatusLabel(lotData.status)}
+                  {lotData.status !== "PENDING_PAYMENT" && (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -879,12 +1066,12 @@ export default function ViewParkingLotModal({
                       />
                     </svg>
                   )}
-                  {lot.status === "PENDING_PAYMENT" && (
+                  {lotData.status === "PENDING_PAYMENT" && (
                     <i className="ri-lock-line text-sm"></i>
                   )}
                 </summary>
 
-                {lot.status !== "PENDING_PAYMENT" && (
+                {lotData.status !== "PENDING_PAYMENT" && (
                   <ul className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
                     {(
                       statusOptions || [
@@ -900,8 +1087,14 @@ export default function ViewParkingLotModal({
                         },
                         {
                           key: "PENDING_PAYMENT",
-                          label: "Chờ thanh toán",
+                          label: "Thanh toán",
                           color: "text-purple-600",
+                        },
+                        {
+                          key: "ACTIVE",
+                          label: "Hoạt động",
+                          color: "text-green-600",
+                          requirePayment: true,
                         },
                         {
                           key: "REJECTED",
@@ -914,7 +1107,15 @@ export default function ViewParkingLotModal({
                           color: "text-red-600",
                         },
                       ]
-                    ).map((s) => (
+                    )
+                      .filter((s) => {
+                        // Hide ACTIVE if payment required but not completed
+                        if (s.key === "ACTIVE" && lotData.status === "PARTNER_CONFIGURATION" && !lotData.isPaid) {
+                          return false;
+                        }
+                        return true;
+                      })
+                      .map((s) => (
                       <li
                         key={s.key}
                         onClick={() => handleChangeStatus(s.key)}
@@ -932,7 +1133,7 @@ export default function ViewParkingLotModal({
           {/* Content - Scrollable */}
           <div className="px-8 py-6 overflow-y-auto flex-1 custom-scrollbar">
             {/* PENDING_PAYMENT Banner - only show if showPaymentBanner is true */}
-            {showPaymentBanner && lot.status === "PENDING_PAYMENT" && (
+            {showPaymentBanner && lotData.status === "PENDING_PAYMENT" && (
               <div className="mb-6 bg-indigo-50 p-6 rounded-2xl border-2 border-indigo-300 shadow-lg">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
@@ -953,13 +1154,22 @@ export default function ViewParkingLotModal({
                       )}
                     </div>
                   </div>
-                  <button
-                    onClick={handlePaymentCheck}
-                    className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-all shadow-md flex items-center gap-2"
-                  >
-                    <i className="ri-qr-scan-2-line text-xl"></i>
-                    Xem mã QR
-                  </button>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={handleCancelPayment}
+                      className="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-all shadow-sm flex items-center gap-2"
+                    >
+                      <i className="ri-close-circle-line text-lg"></i>
+                      Hủy thanh toán
+                    </button>
+                    <button
+                      onClick={handlePaymentCheck}
+                      className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-all shadow-md flex items-center gap-2"
+                    >
+                      <i className="ri-qr-scan-2-line text-xl"></i>
+                      Xem mã QR
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -967,24 +1177,24 @@ export default function ViewParkingLotModal({
             {/* Basic Info */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-[15px] text-gray-700 mb-8">
               <p>
-                <strong>🏢 Địa chỉ:</strong> {lot.streetAddress}, {lot.ward},{" "}
-                {lot.city}
+                <strong>🏢 Địa chỉ:</strong> {lotData.streetAddress}, {lotData.ward},{" "}
+                {lotData.city}
               </p>
               <p>
-                <strong>🕒 Mở:</strong> {lot.openTime}
+                <strong>🕒 Mở:</strong> {lotData.openTime}
               </p>
               <p>
-                <strong>🕕 Đóng:</strong> {lot.closeTime}
+                <strong>🕕 Đóng:</strong> {lotData.closeTime}
               </p>
               <p>
-                <strong>🌙 24 Giờ:</strong> {lot.is24Hour ? "Có" : "Không"}
+                <strong>🌙 24 Giờ:</strong> {lotData.is24Hour ? "Có" : "Không"}
               </p>
               <p>
-                <strong>🏗 Tầng:</strong> {lot.totalFloors}
+                <strong>🏗 Tầng:</strong> {lotData.totalFloors}
               </p>
               <p>
                 <strong>📐 Diện tích bãi đỗ:</strong>{" "}
-                {lotData.lotSquare || lot.lotSquare ? `${lotData.lotSquare || lot.lotSquare} m²` : "-"}
+                {lotData.lotSquare ? `${lotData.lotSquare} m²` : "-"}
               </p>
               <p className="flex items-center gap-2">
                 <span>
@@ -1798,9 +2008,9 @@ export default function ViewParkingLotModal({
       {/* Payment Modal */}
       {showPaymentModal && paymentData && (
         <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black/50 z-[70]">
-          <div className="bg-white rounded-2xl shadow-2xl w-[600px] max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl w-[600px] max-h-[90vh] flex flex-col">
             {/* Header */}
-            <div className="bg-indigo-600 text-white px-8 py-6 rounded-t-2xl">
+            <div className="bg-indigo-600 text-white px-8 py-6 rounded-t-2xl flex-shrink-0">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold mb-2">
@@ -1819,8 +2029,8 @@ export default function ViewParkingLotModal({
               </div>
             </div>
 
-            {/* Content */}
-            <div className="px-8 py-6">
+            {/* Content - Scrollable */}
+            <div className="px-8 py-6 overflow-y-auto flex-1 custom-scrollbar">
               {/* Payment Details */}
               <div className="bg-indigo-50 rounded-xl p-5 mb-6 border border-indigo-200">
                 <h3 className="font-semibold text-indigo-900 mb-3 flex items-center gap-2">
@@ -1960,14 +2170,38 @@ export default function ViewParkingLotModal({
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="px-8 pb-6">
-              <button
-                onClick={() => setShowPaymentModal(false)}
-                className="w-full px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium cursor-pointer"
-              >
-                Đóng
-              </button>
+            {/* Footer - Fixed */}
+            <div className="px-8 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl flex-shrink-0">
+              <p className="text-xs text-center text-gray-500 mb-3">
+                <i className="ri-information-line"></i> Nhấn nút này sau khi bạn đã hoàn tất thanh toán qua QR Code hoặc link thanh toán
+              </p>
+              
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowPaymentModal(false)}
+                  className="flex-1 px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium cursor-pointer"
+                >
+                  Đóng
+                </button>
+                
+                <button
+                  onClick={handleConfirmPayment}
+                  disabled={confirmingPayment}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-lg hover:from-green-700 hover:to-green-600 transition font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {confirmingPayment ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <span>Đang xác nhận...</span>
+                    </>
+                  ) : (
+                    <>
+                      <i className="ri-checkbox-circle-line text-xl"></i>
+                      <span>Xác nhận đã thanh toán</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
