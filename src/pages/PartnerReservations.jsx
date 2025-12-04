@@ -26,7 +26,7 @@ export default function PartnerReservations() {
 
   // Pagination
   const [page, setPage] = useState(0);
-  const size = 7;
+  const size = 6;
 
   const [selectedReservation, setSelectedReservation] = useState(null);
 

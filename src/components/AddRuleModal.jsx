@@ -17,9 +17,33 @@ export default function AddRuleModal({
     validFrom: "",
     validTo: "",
   });
+  
+  const [errors, setErrors] = useState({
+    stepRate: "",
+    stepMinute: "",
+    initialCharge: "",
+    initialDurationMinute: "",
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // Validate number fields
+    if (["stepRate", "stepMinute", "initialCharge", "initialDurationMinute"].includes(name)) {
+      const numValue = parseFloat(value);
+      if (value && numValue < 0) {
+        setErrors(prev => ({
+          ...prev,
+          [name]: "Giá trị không được là số âm"
+        }));
+      } else {
+        setErrors(prev => ({
+          ...prev,
+          [name]: ""
+        }));
+      }
+    }
+    
     setRule({ ...rule, [name]: value });
   };
 
@@ -130,8 +154,18 @@ export default function AddRuleModal({
               onChange={handleChange}
               placeholder="vd. 15000"
               required
-              className={`w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 ${focusRing}`}
+              className={`w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 ${
+                errors.stepRate
+                  ? 'border-red-500 focus:ring-red-500'
+                  : focusRing
+              }`}
             />
+            {errors.stepRate && (
+              <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                <i className="ri-error-warning-line"></i>
+                {errors.stepRate}
+              </p>
+            )}
           </div>
           <div>
             <label className="text-sm font-medium">Bước nhảy (phút) *</label>
@@ -142,8 +176,18 @@ export default function AddRuleModal({
               onChange={handleChange}
               placeholder="vd. 10"
               required
-              className={`w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 ${focusRing}`}
+              className={`w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 ${
+                errors.stepMinute
+                  ? 'border-red-500 focus:ring-red-500'
+                  : focusRing
+              }`}
             />
+            {errors.stepMinute && (
+              <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                <i className="ri-error-warning-line"></i>
+                {errors.stepMinute}
+              </p>
+            )}
           </div>
         </div>
 
@@ -157,8 +201,18 @@ export default function AddRuleModal({
               value={rule.initialCharge}
               onChange={handleChange}
               placeholder="vd. 5000"
-              className={`w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 ${focusRing}`}
+              className={`w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 ${
+                errors.initialCharge
+                  ? 'border-red-500 focus:ring-red-500'
+                  : focusRing
+              }`}
             />
+            {errors.initialCharge && (
+              <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                <i className="ri-error-warning-line"></i>
+                {errors.initialCharge}
+              </p>
+            )}
           </div>
           <div>
             <label className="text-sm font-medium">
@@ -170,8 +224,18 @@ export default function AddRuleModal({
               value={rule.initialDurationMinute}
               onChange={handleChange}
               placeholder="vd. 30"
-              className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
+              className={`w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 ${
+                errors.initialDurationMinute
+                  ? 'border-red-500 focus:ring-red-500'
+                  : 'focus:ring-indigo-400'
+              }`}
             />
+            {errors.initialDurationMinute && (
+              <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                <i className="ri-error-warning-line"></i>
+                {errors.initialDurationMinute}
+              </p>
+            )}
           </div>
         </div>
 
