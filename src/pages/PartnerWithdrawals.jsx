@@ -207,11 +207,11 @@ export default function PartnerWithdrawals() {
     };
 
     const statusText = {
-      PENDING: "Đang Chờ",
-      APPROVED: "Đã Duyệt",
-      REJECTED: "Từ Chối",
-      COMPLETED: "Hoàn Tất",
-      PROCESSING: "Đang Xử Lý",
+      PENDING: "Đang chờ",
+      APPROVED: "Đã duyệt",
+      REJECTED: "Từ chối",
+      COMPLETED: "Hoàn tất",
+      PROCESSING: "Đang xử lý",
     };
 
     const displayText = statusText[status] || "Không rõ";
@@ -319,7 +319,7 @@ export default function PartnerWithdrawals() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-2">
             <BanknotesIcon className="w-10 h-10" />
-            <h1 className="text-3xl font-bold">Quản Lý Rút Tiền</h1>
+            <h1 className="text-3xl font-bold">Quản lý rút tiền</h1>
           </div>
           <p className="text-indigo-100">
             Yêu cầu và quản lý việc rút tiền thu nhập của bạn
@@ -342,7 +342,7 @@ export default function PartnerWithdrawals() {
             >
               <div className="flex items-center justify-center gap-2 cursor-pointer">
                 <PlusIcon className="w-5 h-5" />
-                <span>Yêu Cầu Rút Tiền</span>
+                <span>Yêu cầu rút tiền</span>
               </div>
             </button>
             <button
@@ -357,7 +357,7 @@ export default function PartnerWithdrawals() {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
-                <span>Tất Cả Kỳ Thu Nhập</span>
+                <span>Tất cả kỳ thu nhập</span>
               </div>
             </button>
             <button
@@ -370,7 +370,7 @@ export default function PartnerWithdrawals() {
             >
               <div className="flex items-center justify-center gap-2 cursor-pointer">
                 <BanknotesIcon className="w-5 h-5" />
-                <span>Lịch Sử Rút Tiền</span>
+                <span>Lịch sử rút tiền</span>
               </div>
             </button>
           </div>
@@ -397,7 +397,7 @@ export default function PartnerWithdrawals() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 {/* Parking Lot Filter */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Bãi Đỗ Xe</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Bãi đỗ xe</label>
                   <select
                     value={selectedLotFilter}
                     onChange={(e) => {
@@ -406,7 +406,7 @@ export default function PartnerWithdrawals() {
                     }}
                     className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all text-sm cursor-pointer"
                   >
-                    <option value="">Tất Cả Bãi Đỗ Xe</option>
+                    <option value="">Tất cả bãi đỗ xe</option>
                     {parkingLots.map((lot) => (
                       <option key={lot.id} value={lot.id}>
                         {lot.name}
@@ -417,7 +417,7 @@ export default function PartnerWithdrawals() {
 
                 {/* Status Filter */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Trạng Thái</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Trạng thái</label>
                   <select
                     value={periodStatusFilter}
                     onChange={(e) => {

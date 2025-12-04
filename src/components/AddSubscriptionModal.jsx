@@ -123,7 +123,7 @@ export default function AddSubscriptionModal({ onClose, onSuccess }) {
               <i className="ri-add-circle-line text-2xl" aria-hidden="true"></i>
             </div>
             <div>
-              <h2 className="text-xl font-bold">Thêm Gói Đăng Ký</h2>
+              <h2 className="text-xl font-bold">Thêm gói đăng ký</h2>
             </div>
           </div>
 
@@ -141,19 +141,19 @@ export default function AddSubscriptionModal({ onClose, onSuccess }) {
             <div className="space-y-4">
         {/* Package Name */}
         <InputField
-          label="Tên Gói"
+          label="Tên gói"
           name="name"
           type="text"
           value={formData.name}
           onChange={handleChange}
-          placeholder="VD: Gói Ôtô Theo Tháng Cao Cấp"
+          placeholder="VD: Gói ôtô theo tháng cao cấp"
           required
         />
 
         {/* Description */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Mô Tả
+            Mô tả
           </label>
           <textarea
             name="description"
@@ -171,7 +171,7 @@ export default function AddSubscriptionModal({ onClose, onSuccess }) {
         {/* Vehicle Type */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Loại Xe
+            Loại xe
           </label>
           <select
             name="vehicleType"
@@ -180,15 +180,15 @@ export default function AddSubscriptionModal({ onClose, onSuccess }) {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             required
           >
-            <option value="MOTORBIKE">Xe Máy</option>
-            <option value="CAR_UP_TO_9_SEATS">Ôtô (Tối đa 9 chỗ)</option>
+            <option value="MOTORBIKE">Xe máy</option>
+            <option value="CAR_UP_TO_9_SEATS">Ôtô (tối đa 9 chỗ)</option>
           </select>
         </div>
 
         {/* Duration Type */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Thời Hạn
+            Thời hạn
           </label>
           <select
             name="durationType"
@@ -197,9 +197,9 @@ export default function AddSubscriptionModal({ onClose, onSuccess }) {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             required
           >
-            <option value="MONTHLY">Theo Tháng</option>
-            <option value="QUARTERLY">Theo Quý (3 tháng)</option>
-            <option value="YEARLY">Theo Năm (12 tháng)</option>
+            <option value="MONTHLY">Theo tháng</option>
+            <option value="QUARTERLY">Theo quý (3 tháng)</option>
+            <option value="YEARLY">Theo năm (12 tháng)</option>
           </select>
         </div>
 
@@ -218,7 +218,7 @@ export default function AddSubscriptionModal({ onClose, onSuccess }) {
         {/* Parking Lot Selection */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Bãi Đỗ Xe
+            Bãi đỗ xe
           </label>
           {loadingLots ? (
             <div className="px-4 py-2 border border-gray-300 rounded-lg text-gray-500">
@@ -264,7 +264,7 @@ export default function AddSubscriptionModal({ onClose, onSuccess }) {
               className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium disabled:bg-gray-400 cursor-pointer"
               disabled={loading || loadingLots || !Array.isArray(parkingLots) || parkingLots.length === 0}
             >
-              {loading ? "Đang tạo..." : "Tạo Gói"}
+              {loading ? "Đang tạo..." : "Tạo gói"}
             </button>
           </div>
         </form>

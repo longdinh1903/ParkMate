@@ -244,19 +244,19 @@ export default function PartnerUsers() {
     const statusConfig = {
       PENDING_PAYMENT: { 
         color: "bg-orange-100 text-orange-800", 
-        label: "Chờ Thanh Toán" 
+        label: "Chờ thanh toán" 
       },
       ACTIVE: { 
         color: "bg-green-100 text-green-800", 
-        label: "Xe Đang Trong Bãi" 
+        label: "Xe đang trong bãi" 
       },
       INACTIVE: { 
         color: "bg-blue-100 text-blue-800", 
-        label: "Xe Đang Ngoài Bãi" 
+        label: "Xe đang ngoài bãi" 
       },
       EXPIRED: { 
         color: "bg-red-100 text-red-800", 
-        label: "Hết Hạn" 
+        label: "Hết hạn" 
       },
       CANCELLED: { 
         color: "bg-gray-100 text-gray-800", 
@@ -266,7 +266,7 @@ export default function PartnerUsers() {
     
     const config = statusConfig[status] || { 
       color: "bg-gray-100 text-gray-800", 
-      label: status || "Không Rõ" 
+      label: status || "Không rõ" 
     };
     
     return config.color;
@@ -275,13 +275,13 @@ export default function PartnerUsers() {
   // Get status label
   const getStatusLabel = (status) => {
     const statusConfig = {
-      PENDING_PAYMENT: "Chờ Thanh Toán",
-      ACTIVE: "Xe Đang Trong Bãi",
-      INACTIVE: "Xe Đang Ngoài Bãi",
-      EXPIRED: "Hết Hạn",
+      PENDING_PAYMENT: "Chờ thanh toán",
+      ACTIVE: "Xe đang trong bãi",
+      INACTIVE: "Xe đang ngoài bãi",
+      EXPIRED: "Hết hạn",
       CANCELLED: "Hủy",
     };
-    return statusConfig[status] || status || "Không Rõ";
+    return statusConfig[status] || status || "Không rõ";
   };
 
   // Client-side filtering and pagination
@@ -374,7 +374,7 @@ export default function PartnerUsers() {
           <div className="max-w-7xl mx-auto px-6 h-full flex flex-col">
             {/* Header */}
             <div className="pt-6 mb-4 flex-shrink-0">
-              <h1 className="text-3xl font-bold text-gray-900">Người Dùng</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Người dùng</h1>
               <p className="text-gray-600 mt-1">
                 Tất cả người dùng đã đăng ký gói thành viên tại bãi đỗ xe của bạn
               </p>
@@ -438,7 +438,7 @@ export default function PartnerUsers() {
                       loading ? "animate-spin" : ""
                     }`}
                   ></i>{" "}
-                  Làm Mới
+                  Làm mới
                 </button>
 
                 {/* Filters and Sort */}
@@ -453,7 +453,7 @@ export default function PartnerUsers() {
                     }}
                     className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
                   >
-                    <option value="">Tất Cả Gói</option>
+                    <option value="">Tất cả gói</option>
                     {Object.values(subscriptionPackagesMap).map((pkg) => (
                       <option key={pkg.id} value={pkg.id}>
                         {pkg.name}
@@ -469,7 +469,7 @@ export default function PartnerUsers() {
                     }}
                     className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
                   >
-                    <option value="">Tất Cả Bãi Đỗ Xe</option>
+                    <option value="">Tất cả bãi đỗ xe</option>
                     {Object.values(parkingLotsMap).map((lot) => (
                       <option key={lot.id} value={lot.id}>
                         {lot.name}
@@ -485,11 +485,11 @@ export default function PartnerUsers() {
                     }}
                     className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
                   >
-                    <option value="">Tất Cả Trạng Thái</option>
-                    <option value="PENDING_PAYMENT">Chờ Thanh Toán</option>
-                    <option value="ACTIVE">Xe Đang Trong Bãi</option>
-                    <option value="INACTIVE">Xe Đang Ngoài Bãi</option>
-                    <option value="EXPIRED">Hết Hạn</option>
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="PENDING_PAYMENT">Chờ thanh toán</option>
+                    <option value="ACTIVE">Xe đang trong bãi</option>
+                    <option value="INACTIVE">Xe đang ngoài bãi</option>
+                    <option value="EXPIRED">Hết hạn</option>
                     <option value="CANCELLED">Hủy</option>
                   </select>
 
@@ -546,22 +546,22 @@ export default function PartnerUsers() {
                             Tên
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Gói Đăng Ký
+                            Gói đăng ký
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Bãi Đỗ Xe
+                            Bãi đỗ xe
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Phương Tiện
+                            Phương tiện
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Thời Gian
+                            Thời gian
                           </th>
                           <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Trạng Thái
+                            Trạng thái
                           </th>
                           <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Thao Tác
+                            Thao tác
                           </th>
                         </tr>
                       </thead>
@@ -624,7 +624,7 @@ export default function PartnerUsers() {
                                       sub.vehicleType === "MOTORBIKE" ||
                                       sub.vehicleType === 1
                                     )
-                                      return "🏍️ Xe Máy";
+                                      return "🏍️ Xe máy";
                                     if (
                                       sub.vehicleType === "CAR_UP_TO_9_SEATS" ||
                                       sub.vehicleType === 2
@@ -634,7 +634,7 @@ export default function PartnerUsers() {
                                       sub.vehicleType === "BIKE" ||
                                       sub.vehicleType === 3
                                     )
-                                      return "🚲 Xe Đạp";
+                                      return "🚲 Xe đạp";
                                     if (
                                       sub.vehicleType === "OTHER" ||
                                       sub.vehicleType === 4
@@ -676,7 +676,7 @@ export default function PartnerUsers() {
                                 className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all text-xs font-medium cursor-pointer"
                               >
                                 <EyeIcon className="w-4 h-4" />
-                                Xem Chi Tiết
+                                Xem chi tiết
                               </button>
                             </td>
                           </tr>

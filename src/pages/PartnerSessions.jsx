@@ -274,14 +274,27 @@ export default function PartnerSessions() {
     }
   };
 
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case "ACTIVE":
+        return "Đang hoạt động";
+      case "COMPLETED":
+        return "Hoàn thành";
+      case "MANUAL_COMPLETED":
+        return "Hoàn thành thủ công";
+      default:
+        return status || "Không rõ";
+    }
+  };
+
   const getReferenceTypeBadge = (type) => {
     switch (type) {
       case "WALK_IN":
-        return { color: "bg-orange-100 text-orange-700", icon: "🚶", label: "Vãng Lai" };
+        return { color: "bg-orange-100 text-orange-700", icon: "🚶", label: "Vãng lai" };
       case "RESERVATION":
-        return { color: "bg-blue-100 text-blue-700", icon: "📅", label: "Đặt Trước" };
+        return { color: "bg-blue-100 text-blue-700", icon: "📅", label: "Đặt trước" };
       case "SUBSCRIPTION":
-        return { color: "bg-purple-100 text-purple-700", icon: "🎫", label: "Đăng Ký" };
+        return { color: "bg-purple-100 text-purple-700", icon: "🎫", label: "Đăng ký" };
       default:
         return { color: "bg-gray-100 text-gray-700", icon: "❓", label: type };
     }
@@ -311,7 +324,7 @@ export default function PartnerSessions() {
           <div className="max-w-7xl mx-auto px-6 h-full flex flex-col">
             {/* Header */}
             <div className="pt-6 mb-4 flex-shrink-0">
-              <h1 className="text-3xl font-bold text-gray-900">Phiên Gửi Xe</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Phiên gửi xe</h1>
               <p className="text-gray-600 mt-1">
                 Tất cả phiên gửi xe (vào/ra) tại bãi đỗ xe của bạn
               </p>
@@ -366,7 +379,7 @@ export default function PartnerSessions() {
                   disabled={loading}
                   className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all flex items-center gap-2 font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                 >
-                  <i className={`ri-refresh-line ${loading ? 'animate-spin' : ''}`}></i> Làm Mới
+                  <i className={`ri-refresh-line ${loading ? 'animate-spin' : ''}`}></i> Làm mới
                 </button>
               </div>
 
@@ -376,7 +389,7 @@ export default function PartnerSessions() {
 
                 {/* Date From Filter */}
                 <div className="flex flex-col">
-                  <label className="text-xs text-gray-600 mb-1 font-medium">Từ Ngày</label>
+                  <label className="text-xs text-gray-600 mb-1 font-medium">Từ ngày</label>
                   <input
                     type="date"
                     value={filterDateFrom}
@@ -390,7 +403,7 @@ export default function PartnerSessions() {
 
                 {/* Date To Filter */}
                 <div className="flex flex-col">
-                  <label className="text-xs text-gray-600 mb-1 font-medium">Đến Ngày</label>
+                  <label className="text-xs text-gray-600 mb-1 font-medium">Đến ngày</label>
                   <input
                     type="date"
                     value={filterDateTo}
@@ -408,7 +421,7 @@ export default function PartnerSessions() {
                   onChange={(e) => setFilterParkingLot(e.target.value)}
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
                 >
-                  <option value="">Tất Cả Bãi Xe</option>
+                  <option value="">Tất cả bãi xe</option>
                   {Object.values(parkingLotsMap).map(lot => (
                     <option key={lot.id} value={lot.id}>
                       {lot.name}
@@ -425,10 +438,10 @@ export default function PartnerSessions() {
                   }}
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
                 >
-                  <option value="">Tất Cả Loại</option>
-                  <option value="WALK_IN">🚶 Vãng Lai</option>
-                  <option value="RESERVATION">📅 Đặt Trước</option>
-                  <option value="SUBSCRIPTION">🎫 Đăng Ký</option>
+                  <option value="">Tất cả loại</option>
+                  <option value="WALK_IN">🚶 Vãng lai</option>
+                  <option value="RESERVATION">📅 Đặt trước</option>
+                  <option value="SUBSCRIPTION">🎫 Đăng ký</option>
                 </select>
 
                 {/* Status Filter */}
@@ -440,10 +453,10 @@ export default function PartnerSessions() {
                   }}
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
                 >
-                  <option value="">Tất Cả Trạng Thái</option>
-                  <option value="ACTIVE">Đang Hoạt Động</option>
-                  <option value="COMPLETED">Hoàn Thành</option>
-                  <option value="MANUAL_COMPLETED">Hoàn Thành Thủ Công</option>
+                  <option value="">Tất cả trạng thái</option>
+                  <option value="ACTIVE">Đang hoạt động</option>
+                  <option value="COMPLETED">Hoàn thành</option>
+                  <option value="MANUAL_COMPLETED">Hoàn thành thủ công</option>
                 </select>
 
                 {/* Sort By Dropdown */}
@@ -452,11 +465,11 @@ export default function PartnerSessions() {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white cursor-pointer cursor-pointer"
                 >
-                  <option value="entryTime">Thời Gian Vào</option>
-                  <option value="exitTime">Thời Gian Ra</option>
-                  <option value="status">Trạng Thái</option>
-                  <option value="totalAmount">Tổng Tiền</option>
-                  <option value="durationMinute">Thời Lượng</option>
+                  <option value="entryTime">Thời gian vào</option>
+                  <option value="exitTime">Thời gian ra</option>
+                  <option value="status">Trạng thái</option>
+                  <option value="totalAmount">Tổng tiền</option>
+                  <option value="durationMinute">Thời lượng</option>
                 </select>
               </div>
             </div>
@@ -486,28 +499,28 @@ export default function PartnerSessions() {
                             #
                           </th>
                           <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Phương Tiện
+                            Phương tiện
                           </th>
                           <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Bãi Đỗ Xe
+                            Bãi đỗ xe
                           </th>
                           <th className="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                             Loại
                           </th>
                           <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Thời Gian Vào/Ra
+                            Thời gian vào/ra
                           </th>
                           <th className="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-20">
-                            Thời Lượng
+                            Thời lượng
                           </th>
                           <th className="px-3 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Số Tiền
+                            Số tiền
                           </th>
                           <th className="px-3 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider w-24">
-                            Trạng Thái
+                            Trạng thái
                           </th>
                           <th className="px-3 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider w-32">
-                            Hành Động
+                            Hành động
                           </th>
                         </tr>
                       </thead>
@@ -546,7 +559,7 @@ export default function PartnerSessions() {
                               </td>
                               <td className="px-3 py-4 whitespace-nowrap text-center">
                                 <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusBadge(session.status)}`}>
-                                  {session.status || "UNKNOWN"}
+                                  {getStatusLabel(session.status)}
                                 </span>
                               </td>
                               <td className="px-3 py-4 whitespace-nowrap text-center">
@@ -558,7 +571,7 @@ export default function PartnerSessions() {
                                   className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all text-xs font-medium"
                                 >
                                   <EyeIcon className="w-4 h-4" />
-                                  Xem Chi Tiết
+                                  Xem chi tiết
                                 </button>
                               </td>
                             </tr>

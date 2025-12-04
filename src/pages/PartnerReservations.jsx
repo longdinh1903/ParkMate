@@ -206,7 +206,7 @@ export default function PartnerReservations() {
           <div className="max-w-7xl mx-auto px-6 h-full flex flex-col">
             {/* Header */}
             <div className="pt-6 mb-4 flex-shrink-0">
-              <h1 className="text-3xl font-bold text-gray-900">Đặt Chỗ</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Đặt chỗ</h1>
               <p className="text-gray-600 mt-1">
                 Quản lý đặt chỗ đỗ xe cho các bãi xe của bạn
               </p>
@@ -242,7 +242,7 @@ export default function PartnerReservations() {
                   disabled={loading}
                   className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all flex items-center gap-2 font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                 >
-                  <i className={`ri-refresh-line ${loading ? 'animate-spin' : ''}`}></i> Làm Mới
+                  <i className={`ri-refresh-line ${loading ? 'animate-spin' : ''}`}></i> Làm mới
                 </button>
               </div>
 
@@ -252,7 +252,7 @@ export default function PartnerReservations() {
 
                 {/* Date From Filter */}
                 <div className="flex flex-col">
-                  <label className="text-xs text-gray-600 mb-1 font-medium">Từ Ngày</label>
+                  <label className="text-xs text-gray-600 mb-1 font-medium">Từ ngày</label>
                   <input
                     type="date"
                     value={filterDateFrom}
@@ -266,7 +266,7 @@ export default function PartnerReservations() {
 
                 {/* Date To Filter */}
                 <div className="flex flex-col">
-                  <label className="text-xs text-gray-600 mb-1 font-medium">Đến Ngày</label>
+                  <label className="text-xs text-gray-600 mb-1 font-medium">Đến ngày</label>
                   <input
                     type="date"
                     value={filterDateTo}
@@ -284,7 +284,7 @@ export default function PartnerReservations() {
                   onChange={(e) => setFilterParkingLot(e.target.value)}
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
                 >
-                  <option value="">Tất Cả Bãi Xe</option>
+                  <option value="">Tất cả bãi xe</option>
                   {Object.values(parkingLotsMap).map(lot => (
                     <option key={lot.id} value={lot.id}>
                       {lot.name}
@@ -301,12 +301,12 @@ export default function PartnerReservations() {
                   }}
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
                 >
-                  <option value="">Tất Cả Trạng Thái</option>
-                  <option value="PENDING">Chờ Xử Lý</option>
-                  <option value="ACTIVE">Đang Hoạt Động</option>
-                  <option value="COMPLETED">Hoàn Thành</option>
-                  <option value="EXPIRED">Hết Hạn</option>
-                  <option value="CANCELLED">Đã Hủy</option>
+                  <option value="">Tất cả trạng thái</option>
+                  <option value="PENDING">Chờ xử lý</option>
+                  <option value="ACTIVE">Đang hoạt động</option>
+                  <option value="COMPLETED">Hoàn thành</option>
+                  <option value="EXPIRED">Hết hạn</option>
+                  <option value="CANCELLED">Đã hủy</option>
                 </select>
 
                 {/* Sort By Dropdown */}
@@ -315,10 +315,10 @@ export default function PartnerReservations() {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white cursor-pointer"
                 >
-                  <option value="reservedFrom">Thời Gian Bắt Đầu</option>
-                  <option value="reservedUntil">Thời Gian Kết Thúc</option>
-                  <option value="totalFee">Tổng Phí</option>
-                  <option value="status">Trạng Thái</option>
+                  <option value="reservedFrom">Thời gian bắt đầu</option>
+                  <option value="reservedUntil">Thời gian kết thúc</option>
+                  <option value="totalFee">Tổng phí</option>
+                  <option value="status">Trạng thái</option>
                 </select>
 
                 {/* Sort Order Button */}
@@ -365,22 +365,22 @@ export default function PartnerReservations() {
                             #
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Biển Số Xe
+                            Biển số xe
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Bãi Xe
+                            Bãi xe
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Thời Gian Đặt
+                            Thời gian đặt
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Tổng Phí
+                            Tổng phí
                           </th>
                           <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Trạng Thái
+                            Trạng thái
                           </th>
                           <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Thao Tác
+                            Thao tác
                           </th>
                         </tr>
                       </thead>
@@ -409,11 +409,11 @@ export default function PartnerReservations() {
                             </td>
                             <td className="px-6 py-4 text-center">
                               <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${getStatusBadge(reservation.status)}`}>
-                                {reservation.status === "PENDING" ? "Chờ Xử Lý" :
-                                 reservation.status === "ACTIVE" ? "Đang Hoạt Động" :
-                                 reservation.status === "COMPLETED" ? "Hoàn Thành" :
-                                 reservation.status === "EXPIRED" ? "Hết Hạn" :
-                                 reservation.status === "CANCELLED" ? "Đã Hủy" : reservation.status || "KHÔNG XÁC ĐỊNH"}
+                                {reservation.status === "PENDING" ? "Chờ xử lý" :
+                                 reservation.status === "ACTIVE" ? "Đang hoạt động" :
+                                 reservation.status === "COMPLETED" ? "Hoàn thành" :
+                                 reservation.status === "EXPIRED" ? "Hết hạn" :
+                                 reservation.status === "CANCELLED" ? "Đã hủy" : reservation.status || "KHÔNG XÁC ĐỊNH"}
                               </span>
                             </td>
                             <td className="px-6 py-4 text-center">
@@ -422,7 +422,7 @@ export default function PartnerReservations() {
                                 className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all text-sm font-medium"
                               >
                                 <i className="ri-eye-line"></i>
-                                Xem Chi Tiết
+                                Xem chi tiết
                               </button>
                             </td>
                           </tr>

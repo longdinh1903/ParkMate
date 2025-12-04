@@ -31,9 +31,9 @@ export default function ViewSubscriptionModal({
   // Vehicle type display
   const getVehicleTypeDisplay = (type) => {
     const types = {
-      BIKE: "Xe Đạp",
-      MOTORBIKE: "Xe Máy",
-      CAR_UP_TO_9_SEATS: "Ôtô (Tối đa 9 chỗ)",
+      BIKE: "Xe đạp",
+      MOTORBIKE: "Xe máy",
+      CAR_UP_TO_9_SEATS: "Ôtô (tối đa 9 chỗ)",
     };
     return types[type] || type;
   };
@@ -41,9 +41,9 @@ export default function ViewSubscriptionModal({
   // Duration type display
   const getDurationDisplay = (type) => {
     const durations = {
-      MONTHLY: "Theo Tháng",
-      QUARTERLY: "Theo Quý (3 tháng)",
-      YEARLY: "Theo Năm (12 tháng)",
+      MONTHLY: "Theo tháng",
+      QUARTERLY: "Theo quý (3 tháng)",
+      YEARLY: "Theo năm (12 tháng)",
     };
     return durations[type] || type;
   };
@@ -58,7 +58,7 @@ export default function ViewSubscriptionModal({
               <i className="ri-ticket-line text-2xl" aria-hidden="true"></i>
             </div>
             <div>
-              <h2 className="text-xl font-bold">Chi Tiết Gói Đăng Ký</h2>
+              <h2 className="text-xl font-bold">Chi tiết gói đăng ký</h2>
             </div>
           </div>
 
@@ -77,17 +77,17 @@ export default function ViewSubscriptionModal({
             <div className="bg-indigo-50 rounded-lg p-4">
               <h3 className="font-semibold text-indigo-900 mb-3 flex items-center gap-2">
                 <i className="ri-information-line"></i>
-                Thông Tin Cơ Bản
+                Thông tin cơ bản
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-gray-500 mb-1">Tên Gói</p>
+                  <p className="text-gray-500 mb-1">Tên gói</p>
                   <p className="font-semibold text-gray-900">
                     {subscription.name}
                   </p>
                 </div>
                 <div>
-                  <p className="text-gray-500 mb-1">Trạng Thái</p>
+                  <p className="text-gray-500 mb-1">Trạng thái</p>
                   <span
                     className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
                       subscription.isActive
@@ -95,23 +95,23 @@ export default function ViewSubscriptionModal({
                         : "bg-gray-100 text-gray-800"
                     }`}
                   >
-                    {subscription.isActive ? "● Hoạt Động" : "○ Không Hoạt Động"}
+                    {subscription.isActive ? "● Hoạt động" : "○ Không hoạt động"}
                   </span>
                 </div>
                 <div>
-                  <p className="text-gray-500 mb-1">Loại Xe</p>
+                  <p className="text-gray-500 mb-1">Loại xe</p>
                   <p className="font-semibold text-gray-900">
                     {getVehicleTypeDisplay(subscription.vehicleType)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-gray-500 mb-1">Thời Hạn</p>
+                  <p className="text-gray-500 mb-1">Thời hạn</p>
                   <p className="font-semibold text-gray-900">
                     {getDurationDisplay(subscription.durationType)}
                   </p>
                 </div>
                 <div className="md:col-span-2">
-                  <p className="text-gray-500 mb-1">Bãi Đỗ Xe</p>
+                  <p className="text-gray-500 mb-1">Bãi đỗ xe</p>
                   <p className="font-semibold text-indigo-600 flex items-center gap-1">
                     <i className="ri-map-pin-2-fill"></i>
                     {parkingLotName || `Lot ID: ${subscription.lotId}`}
@@ -140,7 +140,7 @@ export default function ViewSubscriptionModal({
             <div className="bg-gray-50 rounded-lg p-4">
               <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                 <i className="ri-file-text-line"></i>
-                Mô Tả
+                Mô tả
               </h3>
               <div className="text-gray-700 text-sm whitespace-pre-wrap max-h-[4.5rem] overflow-y-auto custom-scrollbar pr-2">
                 {subscription.description || "Không có mô tả."}
@@ -151,17 +151,17 @@ export default function ViewSubscriptionModal({
             <div className="bg-blue-50 rounded-lg p-4">
               <h3 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
                 <i className="ri-time-line"></i>
-                Thời Gian
+                Thời gian
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-gray-500 mb-1">Ngày Tạo</p>
+                  <p className="text-gray-500 mb-1">Ngày tạo</p>
                   <p className="font-medium text-gray-900">
                     {formatDate(subscription.createdAt)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-gray-500 mb-1">Cập Nhật Cuối</p>
+                  <p className="text-gray-500 mb-1">Cập nhật cuối</p>
                   <p className="font-medium text-gray-900">
                     {formatDate(subscription.updatedAt)}
                   </p>

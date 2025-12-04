@@ -82,11 +82,11 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
   const getReferenceTypeBadge = (type) => {
     switch (type) {
       case "WALK_IN":
-        return { color: "bg-orange-100 text-orange-700 ring-orange-600/20", icon: "🚶", label: "Vãng Lai" };
+        return { color: "bg-orange-100 text-orange-700 ring-orange-600/20", icon: "🚶", label: "Vãng lai" };
       case "RESERVATION":
-        return { color: "bg-blue-100 text-blue-700 ring-blue-600/20", icon: "📅", label: "Đặt Trước" };
+        return { color: "bg-blue-100 text-blue-700 ring-blue-600/20", icon: "📅", label: "Đặt trước" };
       case "SUBSCRIPTION":
-        return { color: "bg-purple-100 text-purple-700 ring-purple-600/20", icon: "🎫", label: "Đăng Ký" };
+        return { color: "bg-purple-100 text-purple-700 ring-purple-600/20", icon: "🎫", label: "Đăng ký" };
       default:
         return { color: "bg-gray-100 text-gray-700 ring-gray-600/20", icon: "❓", label: type };
     }
@@ -126,7 +126,7 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
               <i className="ri-car-line text-2xl"></i>
             </div>
             <div>
-              <h2 className="text-xl font-bold">Chi Tiết Phiên Gửi Xe</h2>
+              <h2 className="text-xl font-bold">Chi tiết phiên gửi xe</h2>
               <p className="text-sm text-indigo-100">Thông tin phiên đỗ xe</p>
             </div>
           </div>
@@ -144,16 +144,16 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
           
           {/* Status & Type Overview */}
           <div className="mb-6 pb-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-700 mb-3">Tổng Quan Trạng Thái</h3>
+            <h3 className="text-lg font-semibold text-gray-700 mb-3">Tổng quan trạng thái</h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-sm">
-                <span className="font-medium text-gray-600 block mb-2">Trạng Thái Phiên:</span>
+                <span className="font-medium text-gray-600 block mb-2">Trạng thái phiên:</span>
                 <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ring-1 ring-inset ${getStatusBadge(displaySession.status)}`}>
                   {displaySession.status || "KHÔNG XÁC ĐỊNH"}
                 </span>
               </div>
               <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-sm">
-                <span className="font-medium text-gray-600 block mb-2">Loại Phiên:</span>
+                <span className="font-medium text-gray-600 block mb-2">Loại phiên:</span>
                 <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-semibold ring-1 ring-inset ${refType.color}`}>
                   {refType.icon} {refType.label}
                 </span>
@@ -165,11 +165,11 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
           <section className="mb-6">
             <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
               <i className="ri-car-fill text-indigo-500"></i>
-              Thông Tin Phương Tiện & Bãi Xe
+              Thông tin phương tiện & bãi xe
             </h3>
             <div className="space-y-1">
-              <InfoRow label="Biển Số Xe" value={displaySession.licensePlate} />
-              <InfoRow label="Bãi Đỗ Xe" value={displaySession.lotName || parkingLotName} />
+              <InfoRow label="Biển số xe" value={displaySession.licensePlate} />
+              <InfoRow label="Bãi đỗ xe" value={displaySession.lotName || parkingLotName} />
             </div>
           </section>
 
@@ -177,12 +177,12 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
           <section className="mb-6">
             <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
               <i className="ri-time-fill text-indigo-500"></i>
-              Thông Tin Thời Gian
+              Thông tin thời gian
             </h3>
             <div className="space-y-1">
-              <InfoRow label="Thời Gian Vào" value={formatDateTime(displaySession.entryTime)} />
-              <InfoRow label="Thời Gian Ra" value={formatDateTime(displaySession.exitTime)} />
-              <InfoRow label="Thời Lượng">
+              <InfoRow label="Thời gian vào" value={formatDateTime(displaySession.entryTime)} />
+              <InfoRow label="Thời gian ra" value={formatDateTime(displaySession.exitTime)} />
+              <InfoRow label="Thời lượng">
                 <span className="font-semibold text-indigo-600">
                   {displaySession.durationMinute ? `${displaySession.durationMinute} phút` : calculateDuration(displaySession.entryTime, displaySession.exitTime)}
                 </span>
@@ -194,10 +194,10 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
           <section className="mb-6">
             <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
               <i className="ri-money-dollar-circle-fill text-indigo-500"></i>
-              Thông Tin Thanh Toán
+              Thông tin thanh toán
             </h3>
             <div className="space-y-1">
-              <InfoRow label="Tổng Tiền">
+              <InfoRow label="Tổng tiền">
                 <span className="text-lg font-bold text-green-600">
                   {displaySession.totalAmount ? `${displaySession.totalAmount.toLocaleString()} ₫` : "-"}
                 </span>
@@ -210,27 +210,27 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
             <section className="mb-6">
               <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
                 <i className="ri-price-tag-3-fill text-indigo-500"></i>
-                Quy Tắc Giá
+                Quy tắc giá
               </h3>
               <div className="space-y-1">
-                <InfoRow label="Loại Phương Tiện" value={displaySession.pricingRule.vehicleType} />
-                <InfoRow label="Tên Quy Tắc" value={displaySession.pricingRule.ruleName} />
-                <InfoRow label="Giá Mỗi Bước">
+                <InfoRow label="Loại phương tiện" value={displaySession.pricingRule.vehicleType} />
+                <InfoRow label="Tên quy tắc" value={displaySession.pricingRule.ruleName} />
+                <InfoRow label="Giá mỗi bước">
                   <span className="font-semibold text-blue-600">
                     {displaySession.pricingRule.stepRate ? `${displaySession.pricingRule.stepRate.toLocaleString()} ₫` : "-"}
                   </span>
                 </InfoRow>
-                <InfoRow label="Phút Mỗi Bước" value={displaySession.pricingRule.stepMinute ? `${displaySession.pricingRule.stepMinute} phút` : "-"} />
-                <InfoRow label="Phí Ban Đầu">
+                <InfoRow label="Phút mỗi bước" value={displaySession.pricingRule.stepMinute ? `${displaySession.pricingRule.stepMinute} phút` : "-"} />
+                <InfoRow label="Phí ban đầu">
                   <span className="font-semibold text-green-600">
                     {displaySession.pricingRule.initialCharge ? `${displaySession.pricingRule.initialCharge.toLocaleString()} ₫` : "-"}
                   </span>
                 </InfoRow>
-                <InfoRow label="Thời Lượng Ban Đầu" value={displaySession.pricingRule.initialDurationMinute ? `${displaySession.pricingRule.initialDurationMinute} phút` : "-"} />
-                <InfoRow label="Hiệu Lực Từ" value={formatDateTime(displaySession.pricingRule.validFrom)} />
-                <InfoRow label="Hiệu Lực Đến" value={formatDateTime(displaySession.pricingRule.validUntil)} />
+                <InfoRow label="Thời lượng ban đầu" value={displaySession.pricingRule.initialDurationMinute ? `${displaySession.pricingRule.initialDurationMinute} phút` : "-"} />
+                <InfoRow label="Hiệu lực từ" value={formatDateTime(displaySession.pricingRule.validFrom)} />
+                <InfoRow label="Hiệu lực đến" value={formatDateTime(displaySession.pricingRule.validUntil)} />
                 {displaySession.pricingRule.syncStatus && (
-                  <InfoRow label="Trạng Thái Đồng Bộ">
+                  <InfoRow label="Trạng thái đồng bộ">
                     <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${
                       displaySession.pricingRule.syncStatus === "SYNCED" 
                         ? "bg-purple-100 text-purple-700 ring-purple-600/20" 
@@ -249,24 +249,24 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
             <section className="mb-6">
               <h3 className="text-lg font-semibold text-amber-600 mb-3 border-b-2 border-amber-100 pb-1 flex items-center gap-2">
                 <i className="ri-price-tag-3-line text-amber-500"></i>
-                Quy Tắc Giá Ghi Đè
+                Quy tắc giá ghi đè
               </h3>
               <div className="space-y-1 bg-amber-50 p-4 rounded-lg border border-amber-200">
-                <InfoRow label="Tên Quy Tắc" value={displaySession.overridePricingRule.ruleName} />
-                <InfoRow label="Giá Mỗi Bước">
+                <InfoRow label="Tên quy tắc" value={displaySession.overridePricingRule.ruleName} />
+                <InfoRow label="Giá mỗi bước">
                   <span className="font-semibold text-amber-700">
                     {displaySession.overridePricingRule.stepRate ? `${displaySession.overridePricingRule.stepRate.toLocaleString()} ₫` : "-"}
                   </span>
                 </InfoRow>
-                <InfoRow label="Phút Mỗi Bước" value={displaySession.overridePricingRule.stepMinute ? `${displaySession.overridePricingRule.stepMinute} phút` : "-"} />
-                <InfoRow label="Phí Ban Đầu">
+                <InfoRow label="Phút mỗi bước" value={displaySession.overridePricingRule.stepMinute ? `${displaySession.overridePricingRule.stepMinute} phút` : "-"} />
+                <InfoRow label="Phí ban đầu">
                   <span className="font-semibold text-amber-700">
                     {displaySession.overridePricingRule.initialCharge ? `${displaySession.overridePricingRule.initialCharge.toLocaleString()} ₫` : "-"}
                   </span>
                 </InfoRow>
-                <InfoRow label="Thời Lượng Ban Đầu" value={displaySession.overridePricingRule.initialDurationMinute ? `${displaySession.overridePricingRule.initialDurationMinute} phút` : "-"} />
-                <InfoRow label="Hiệu Lực Từ" value={formatDateTime(displaySession.overridePricingRule.validFrom)} />
-                <InfoRow label="Hiệu Lực Đến" value={formatDateTime(displaySession.overridePricingRule.validUntil)} />
+                <InfoRow label="Thời lượng ban đầu" value={displaySession.overridePricingRule.initialDurationMinute ? `${displaySession.overridePricingRule.initialDurationMinute} phút` : "-"} />
+                <InfoRow label="Hiệu lực từ" value={formatDateTime(displaySession.overridePricingRule.validFrom)} />
+                <InfoRow label="Hiệu lực đến" value={formatDateTime(displaySession.overridePricingRule.validUntil)} />
               </div>
             </section>
           )}
@@ -276,7 +276,7 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
             <section className="mb-6">
               <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
                 <i className="ri-image-fill text-indigo-500"></i>
-                Hình Ảnh Lúc Vào
+                Hình ảnh lúc vào
               </h3>
               <div className="flex flex-col gap-3">
                 <img 
@@ -292,7 +292,7 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
                   className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-fit"
                 >
                   <i className="ri-external-link-line"></i>
-                  Mở Tab Mới
+                  Mở tab mới
                 </a>
               </div>
             </section>
@@ -303,7 +303,7 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
             <section className="mb-6">
               <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
                 <i className="ri-image-fill text-indigo-500"></i>
-                Hình Biển Số Lúc Vào
+                Hình biển số lúc vào
               </h3>
               <div className="flex flex-col gap-3">
                 <img 
@@ -319,7 +319,7 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
                   className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-fit"
                 >
                   <i className="ri-external-link-line"></i>
-                  Mở Tab Mới
+                  Mở tab mới
                 </a>
               </div>
             </section>
@@ -330,7 +330,7 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
             <section className="mb-6">
               <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
                 <i className="ri-image-fill text-indigo-500"></i>
-                Hình Ảnh Lúc Ra
+                Hình ảnh lúc ra
               </h3>
               <div className="flex flex-col gap-3">
                 <img 
@@ -346,7 +346,7 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
                   className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-fit"
                 >
                   <i className="ri-external-link-line"></i>
-                  Mở Tab Mới
+                  Mở tab mới
                 </a>
               </div>
             </section>
@@ -357,7 +357,7 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
             <section className="mb-6">
               <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
                 <i className="ri-image-fill text-indigo-500"></i>
-                Hình Biển Số Lúc Ra
+                Hình biển số lúc ra
               </h3>
               <div className="flex flex-col gap-3">
                 <img 
@@ -373,7 +373,7 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
                   className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-fit"
                 >
                   <i className="ri-external-link-line"></i>
-                  Mở Tab Mới
+                  Mở tab mới
                 </a>
               </div>
             </section>
@@ -383,10 +383,10 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
           <section className="mb-6">
             <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
               <i className="ri-links-fill text-indigo-500"></i>
-              Thông Tin Tham Chiếu
+              Thông tin tham chiếu
             </h3>
             <div className="space-y-1">
-              <InfoRow label="Loại Tham Chiếu">
+              <InfoRow label="Loại tham chiếu">
                 <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${refType.color}`}>
                   {refType.icon} {refType.label}
                 </span>
@@ -399,17 +399,17 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
             <section className="mb-6">
               <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
                 <i className="ri-refresh-fill text-indigo-500"></i>
-                Thông Tin Đồng Bộ
+                Thông tin đồng bộ
               </h3>
               <div className="space-y-1">
                 {displaySession.syncedFromLocal && (
-                  <InfoRow label="Đồng Bộ Từ Local" value={displaySession.syncedFromLocal} />
+                  <InfoRow label="Đồng bộ từ local" value={displaySession.syncedFromLocal} />
                 )}
                 {displaySession.syncedPromoId && (
-                  <InfoRow label="ID Khuyến Mại Đã Đồng Bộ" value={displaySession.syncedPromoId} />
+                  <InfoRow label="ID khuyến mại đã đồng bộ" value={displaySession.syncedPromoId} />
                 )}
                 {displaySession.syncStatus && (
-                  <InfoRow label="Trạng Thái Đồng Bộ">
+                  <InfoRow label="Trạng thái đồng bộ">
                     <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${
                       displaySession.syncStatus === "SYNCED" 
                         ? "bg-purple-100 text-purple-700 ring-purple-600/20" 
@@ -427,11 +427,11 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
           <section className="mb-6">
             <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
               <i className="ri-information-fill text-indigo-500"></i>
-              Thông Tin Hệ Thống
+              Thông tin hệ thống
             </h3>
             <div className="space-y-1">
-              <InfoRow label="Ngày Tạo" value={formatDateTime(displaySession.createdAt)} />
-              <InfoRow label="Ngày Cập Nhật" value={formatDateTime(displaySession.updatedAt)} />
+              <InfoRow label="Ngày tạo" value={formatDateTime(displaySession.createdAt)} />
+              <InfoRow label="Ngày cập nhật" value={formatDateTime(displaySession.updatedAt)} />
             </div>
           </section>
 
@@ -440,7 +440,7 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
             <section className="mb-6">
               <h3 className="text-lg font-semibold text-red-600 mb-3 border-b-2 border-red-100 pb-1 flex items-center gap-2">
                 <i className="ri-error-warning-fill text-red-500"></i>
-                Thông Tin Lỗi
+                Thông tin lỗi
               </h3>
               <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
                 <p className="text-sm text-red-800 whitespace-pre-wrap">{displaySession.error}</p>
@@ -453,7 +453,7 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
             <section className="mb-6">
               <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
                 <i className="ri-file-info-fill text-indigo-500"></i>
-                Dữ Liệu Mở Rộng
+                Dữ liệu mở rộng
               </h3>
               <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
                 <pre className="text-xs text-gray-800 whitespace-pre-wrap overflow-x-auto">
@@ -468,10 +468,10 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
             <section className="mb-6">
               <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
                 <i className="ri-calendar-fill text-indigo-500"></i>
-                Dấu Thời Gian
+                Dấu thời gian
               </h3>
               <div className="space-y-1">
-                <InfoRow label="Dấu Thời Gian" value={formatDateTime(displaySession.timestamp)} />
+                <InfoRow label="Dấu thời gian" value={formatDateTime(displaySession.timestamp)} />
               </div>
             </section>
           )}

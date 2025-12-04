@@ -182,90 +182,90 @@ export default function PartnerHome() {
         bg: "bg-green-100",
         text: "text-green-700",
         icon: "ri-checkbox-circle-fill",
-        label: "Đã Duyệt",
+        label: "Đã duyệt",
       },
       // aliases that APIs sometimes return
       APPROVE: {
         bg: "bg-green-100",
         text: "text-green-700",
         icon: "ri-checkbox-circle-fill",
-        label: "Đã Duyệt",
+        label: "Đã duyệt",
       },
       ACTIVE: {
         bg: "bg-green-100",
         text: "text-green-700",
         icon: "ri-checkbox-circle-fill",
-        label: "Hoạt Động",
+        label: "Hoạt động",
       },
 
       PENDING: {
         bg: "bg-yellow-100",
         text: "text-yellow-700",
         icon: "ri-time-fill",
-        label: "Chờ Duyệt",
+        label: "Chờ duyệt",
       },
       PREPARING: {
         bg: "bg-yellow-100",
         text: "text-yellow-700",
         icon: "ri-loader-2-fill",
-        label: "Đang Chuẩn Bị",
+        label: "Đang chuẩn bị",
       },
       PARTNER_CONFIGURATION: {
         bg: "bg-blue-100",
         text: "text-blue-600",
         icon: "ri-tools-fill",
-        label: "Cấu Hình Đối Tác",
+        label: "Cấu cấu hình đối tác",
       },
       PENDING_PAYMENT: {
         bg: "bg-purple-100",
         text: "text-purple-700",
         icon: "ri-qr-code-line",
-        label: "Chờ Thanh Toán",
+        label: "Chờ thanh toán",
       },
       WAITING: {
         bg: "bg-yellow-100",
         text: "text-yellow-700",
         icon: "ri-time-fill",
-        label: "Chờ Duyệt",
+        label: "Chờ duyệt",
       },
 
       REJECTED: {
         bg: "bg-red-100",
         text: "text-red-700",
         icon: "ri-close-circle-fill",
-        label: "Bị Từ Chối",
+        label: "Bị từ chối",
       },
       REJECT: {
         bg: "bg-red-100",
         text: "text-red-700",
         icon: "ri-close-circle-fill",
-        label: "Bị Từ Chối",
+        label: "Bị từ chối",
       },
       DENIED: {
         bg: "bg-red-100",
         text: "text-red-700",
         icon: "ri-close-circle-fill",
-        label: "Bị Từ Chối",
+        label: "Bị từ chối",
       },
       MAP_DENIED: {
         bg: "bg-red-100",
         text: "text-red-700",
         icon: "ri-map-pin-2-fill",
-        label: "Bản Đồ Bị Từ Chối",
+        label: "Bản đồ bị từ chối",
       },
 
       INACTIVE: {
         bg: "bg-red-100",
         text: "text-gray-700",
         icon: "ri-toggle-off-line",
-        label: "Không Hoạt Động",
+        label: "Không hoạt động",
       },
 
       UNKNOWN: {
         bg: "bg-gray-100",
         text: "text-gray-700",
         icon: "ri-question-line",
-        label: "Không Xác Định",
+        label: "Không xác định",
       },
     };
 
@@ -295,7 +295,7 @@ export default function PartnerHome() {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
-                  Bãi Đỗ Xe Của Tôi
+                  Bãi đỗ xe của tôi
                 </h1>
                 <p className="text-gray-600 text-sm mt-1">
                   Quản lý các bãi đỗ xe bạn đã đăng ký
@@ -307,7 +307,7 @@ export default function PartnerHome() {
               className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white rounded-xl hover:from-indigo-700 hover:to-indigo-600 transition-all shadow-lg hover:shadow-xl font-medium flex items-center gap-2 cursor-pointer"
             >
               <i className="ri-add-line text-lg"></i>
-              Đăng Ký Bãi Mới
+              Đăng ký bãi mới
             </button>
           </div>
 
@@ -331,17 +331,17 @@ export default function PartnerHome() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="w-full sm:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white cursor-pointer"
             >
-              <option value="">Tất Cả Trạng Thái</option>
-              <option value="PENDING">Chờ Duyệt</option>
-              <option value="PREPARING">Đang Chuẩn Bị</option>
+              <option value="">Tất cả trạng thái</option>
+              <option value="PENDING">Chờ duyệt</option>
+              <option value="PREPARING">Đang chuẩn bị</option>
               <option value="PARTNER_CONFIGURATION">
-                Cấu Hình Đối Tác
+                Cấu hình đối tác
               </option>
-              <option value="ACTIVE">Hoạt Động</option>
-              <option value="INACTIVE">Không Hoạt Động</option>
-              <option value="MAP_DENIED">Bản Đồ Bị Từ Chối</option>
-              <option value="REJECTED">Bị Từ Chối</option>
-              <option value="PENDING_PAYMENT">Chờ Thanh Toán</option>
+              <option value="ACTIVE">Hoạt động</option>
+              <option value="INACTIVE">Không hoạt động</option>
+              <option value="MAP_DENIED">Bản đồ bị từ chối</option>
+              <option value="REJECTED">Bị từ chối</option>
+              <option value="PENDING_PAYMENT">Chờ thanh toán</option>
             </select>
 
             {/* Sort By Dropdown */}
@@ -350,10 +350,10 @@ export default function PartnerHome() {
               onChange={(e) => setSortBy(e.target.value)}
               className="w-full sm:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white cursor-pointer"
             >
-              <option value="createdAt">Ngày Tạo</option>
+              <option value="createdAt">Ngày tạo</option>
               <option value="name">Tên</option>
-              <option value="status">Trạng Thái</option>
-              <option value="totalFloors">Tổng Số Tầng</option>
+              <option value="status">Trạng thái</option>
+              <option value="totalFloors">Tổng số tầng</option>
             </select>
 
             {/* Sort Order Button */}
@@ -381,7 +381,7 @@ export default function PartnerHome() {
             <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold text-gray-900">
-                  Danh Sách Bãi Đỗ Xe
+                  Danh sách bãi đỗ xe
                 </h2>
                 <p className="text-sm text-gray-600 mt-1">
                   {pagination.totalElements} bãi đỗ xe
@@ -399,7 +399,7 @@ export default function PartnerHome() {
                 }}
                 className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all flex items-center gap-2 font-medium cursor-pointer"
               >
-                <i className="ri-refresh-line"></i> Làm Mới
+                <i className="ri-refresh-line"></i> Làm mới
               </button>
             </div>
 
@@ -426,15 +426,15 @@ export default function PartnerHome() {
                       {[
                         "#",
                         "Tên",
-                        "Địa Chỉ",
-                        "Trạng Thái",
-                        "Tổng Số Tầng",
-                        "Thao Tác",
+                        "Địa chỉ",
+                        "Trạng thái",
+                        "Tổng số tầng",
+                        "Thao tác",
                       ].map((h) => (
                         <th
                           key={h}
                           className={`px-6 py-4 text-xs font-bold text-gray-700 uppercase tracking-wider ${
-                            h === "Trạng Thái" || h === "Thao Tác"
+                            h === "Trạng thái" || h === "Thao tác"
                               ? "text-center"
                               : "text-left"
                           }`}
@@ -512,7 +512,7 @@ export default function PartnerHome() {
                                       className="w-full px-4 py-2.5 text-left text-sm text-indigo-600 hover:bg-indigo-50 flex items-center gap-2 transition-colors cursor-pointer"
                                     >
                                       <EyeIcon className="w-4 h-4" />
-                                      Xem Chi Tiết
+                                      Xem chi tiết
                                     </button>
                                     <button
                                       onClick={async (e) => {
@@ -535,7 +535,7 @@ export default function PartnerHome() {
                                       className="w-full px-4 py-2.5 text-left text-sm text-emerald-600 hover:bg-emerald-50 flex items-center gap-2 transition-colors cursor-pointer"
                                     >
                                       <MapPinIcon className="w-4 h-4" />
-                                      Chỉnh Sửa Bản Đồ
+                                      Chỉnh sửa bản đồ
                                     </button>
                                     <button
                                       onClick={(e) => {
@@ -546,7 +546,7 @@ export default function PartnerHome() {
                                       className="w-full px-4 py-2.5 text-left text-sm text-purple-600 hover:bg-purple-50 flex items-center gap-2 transition-colors cursor-pointer"
                                     >
                                       <i className="ri-file-list-3-line text-base"></i>
-                                      Xem Đăng Ký
+                                      Xem đăng ký
                                     </button>
                                     <button
                                       onClick={(e) => {
@@ -557,7 +557,7 @@ export default function PartnerHome() {
                                       className="w-full px-4 py-2.5 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center gap-2 transition-colors cursor-pointer"
                                     >
                                       <i className="ri-timer-line text-base"></i>
-                                      Xem Phiên
+                                      Xem phiên
                                     </button>
                                     <button
                                       onClick={(e) => {
@@ -568,7 +568,7 @@ export default function PartnerHome() {
                                       className="w-full px-4 py-2.5 text-left text-sm text-orange-600 hover:bg-orange-50 flex items-center gap-2 transition-colors cursor-pointer"
                                     >
                                       <i className="ri-calendar-line text-base"></i>
-                                      Xem Đặt Chỗ
+                                      Xem đặt chỗ
                                     </button>
                                   </div>
                                 </>

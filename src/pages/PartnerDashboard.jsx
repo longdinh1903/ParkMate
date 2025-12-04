@@ -173,7 +173,7 @@ export default function PartnerDashboard() {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
               <i className="ri-bar-chart-box-line text-indigo-600"></i>
-              Trang Quản Lý Bãi Đỗ Xe
+              Trang quản lý bãi đỗ xe
             </h1>
             <p className="text-gray-600 mt-2">
               Xem doanh thu, phiên đỗ xe và thống kê hiệu suất
@@ -186,7 +186,7 @@ export default function PartnerDashboard() {
               {/* Parking Lot Selector */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Chọn Bãi Đỗ Xe
+                  Chọn bãi đỗ xe
                 </label>
                 <select
                   value={selectedLotId || ""}
@@ -205,7 +205,7 @@ export default function PartnerDashboard() {
               {/* Date From */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Từ Ngày
+                  Từ ngày
                 </label>
                 <input
                   type="datetime-local"
@@ -218,7 +218,7 @@ export default function PartnerDashboard() {
               {/* Date To */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Đến Ngày
+                  Đến ngày
                 </label>
                 <input
                   type="datetime-local"
@@ -272,7 +272,7 @@ export default function PartnerDashboard() {
                 title="Reset all filters and refresh data"
               >
                 <i className="ri-refresh-line"></i>
-                Làm Mới
+                Làm mới
               </button>
               <button
                 onClick={() => setQuickDateRange(0)}
@@ -282,7 +282,7 @@ export default function PartnerDashboard() {
                     : "bg-indigo-50 hover:bg-indigo-100 text-indigo-700"
                 }`}
               >
-                Hôm Nay
+                Hôm nay
               </button>
               <button
                 onClick={() => setQuickDateRange(7)}
@@ -292,7 +292,7 @@ export default function PartnerDashboard() {
                     : "bg-indigo-50 hover:bg-indigo-100 text-indigo-700"
                 }`}
               >
-                7 Ngày Qua
+                7 ngày qua
               </button>
               <button
                 onClick={() => setQuickDateRange(30)}
@@ -302,7 +302,7 @@ export default function PartnerDashboard() {
                     : "bg-indigo-50 hover:bg-indigo-100 text-indigo-700"
                 }`}
               >
-                30 Ngày Qua
+                30 ngày qua
               </button>
               <button
                 onClick={() => setQuickDateRange(90)}
@@ -312,7 +312,7 @@ export default function PartnerDashboard() {
                     : "bg-indigo-50 hover:bg-indigo-100 text-indigo-700"
                 }`}
               >
-                90 Ngày Qua
+                90 ngày qua
               </button>
             </div>
           </div>
@@ -335,7 +335,7 @@ export default function PartnerDashboard() {
                   <div className="flex items-center justify-between mb-3">
                     <div>
                       <p className="text-orange-100 text-xs font-medium uppercase tracking-wide">
-                        Tổng Doanh Thu
+                        Tổng doanh thu
                       </p>
                       <p className="text-4xl font-bold mt-2">
                         {formatCurrency((statistics.sessionStatistics || statistics.sessionStatistic)?.sessionTotalAmount || 0)}
@@ -352,7 +352,7 @@ export default function PartnerDashboard() {
                   <div className="flex items-center justify-between mb-3">
                     <div>
                       <p className="text-purple-100 text-xs font-medium uppercase tracking-wide">
-                        Doanh Thu Thành Viên
+                        Doanh thu thành viên
                       </p>
                       <p className="text-3xl font-bold mt-2">
                         {formatCurrency((statistics.sessionStatistics || statistics.sessionStatistic)?.memberTotalAmount || 0)}
@@ -379,7 +379,7 @@ export default function PartnerDashboard() {
                   <div className="flex items-center justify-between mb-3">
                     <div>
                       <p className="text-blue-100 text-xs font-medium uppercase tracking-wide">
-                        Doanh Thu Lẻ
+                        Doanh thu lẻ
                       </p>
                       <p className="text-3xl font-bold mt-2">
                         {formatCurrency((statistics.sessionStatistics || statistics.sessionStatistic)?.occasionalTotalAmount || 0)}
@@ -411,7 +411,7 @@ export default function PartnerDashboard() {
                       <i className="ri-time-line text-2xl text-blue-600"></i>
                     </div>
                     <div>
-                      <p className="text-gray-600 text-xs font-medium">Phiên Đang Hoạt Động</p>
+                      <p className="text-gray-600 text-xs font-medium">Phiên đang hoạt động</p>
                       <p className="text-2xl font-bold text-gray-900">
                         {(statistics.sessionStatistics || statistics.sessionStatistic)?.activeSessions || 0}
                       </p>
@@ -426,7 +426,7 @@ export default function PartnerDashboard() {
                       <i className="ri-checkbox-circle-line text-2xl text-green-600"></i>
                     </div>
                     <div>
-                      <p className="text-gray-600 text-xs font-medium">Hoàn Thành</p>
+                      <p className="text-gray-600 text-xs font-medium">Hoàn thành</p>
                       <p className="text-2xl font-bold text-gray-900">
                         {(statistics.sessionStatistics || statistics.sessionStatistic)?.completedSessions || 0}
                       </p>
@@ -441,7 +441,7 @@ export default function PartnerDashboard() {
                       <i className="ri-file-list-line text-2xl text-indigo-600"></i>
                     </div>
                     <div>
-                      <p className="text-gray-600 text-xs font-medium">Tổng Phiên</p>
+                      <p className="text-gray-600 text-xs font-medium">Tổng phiên</p>
                       <p className="text-2xl font-bold text-gray-900">
                         {((statistics.sessionStatistics || statistics.sessionStatistic)?.completedSessions || 0) +
                           ((statistics.sessionStatistics || statistics.sessionStatistic)?.activeSessions || 0)}
@@ -457,7 +457,7 @@ export default function PartnerDashboard() {
                       <i className="ri-timer-line text-2xl text-teal-600"></i>
                     </div>
                     <div>
-                      <p className="text-gray-600 text-xs font-medium">Thời Lượng TB</p>
+                      <p className="text-gray-600 text-xs font-medium">Thời lượng TB</p>
                       <p className="text-2xl font-bold text-gray-900">
                         {(statistics.sessionStatistics || statistics.sessionStatistic)?.averageDurationMinute
                           ? `${Math.round((statistics.sessionStatistics || statistics.sessionStatistic).averageDurationMinute)}m`
@@ -482,14 +482,14 @@ export default function PartnerDashboard() {
               <div className="mb-6">
                 <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
                   <i className="ri-bar-chart-box-line text-indigo-600"></i>
-                  Tổng Quan Phân Tích
+                  Tổng quan phân tích
                 </h2>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Session Distribution Pie Chart */}
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <h3 className="text-base font-semibold text-gray-700 mb-4 flex items-center gap-2">
                       <i className="ri-pie-chart-line text-indigo-500"></i>
-                      Phân Bố Phiên
+                      Phân bố phiên
                     </h3>
                     <ResponsiveContainer width="100%" height={280}>
                       <PieChart>
@@ -517,7 +517,7 @@ export default function PartnerDashboard() {
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <h3 className="text-base font-semibold text-gray-700 mb-4 flex items-center gap-2">
                       <i className="ri-car-line text-indigo-500"></i>
-                      Loại Xe
+                      Loại xe
                     </h3>
                     <ResponsiveContainer width="100%" height={280}>
                       <BarChart data={getVehicleTypeData()}>
@@ -541,11 +541,11 @@ export default function PartnerDashboard() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
                   <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                     <i className="ri-line-chart-line text-indigo-600"></i>
-                    Xu Hướng Doanh Thu
-                    {activeDateRange === 0 && " (Hôm Nay)"}
-                    {activeDateRange === 7 && " (7 Ngày Qua)"}
-                    {activeDateRange === 30 && " (30 Ngày Qua)"}
-                    {activeDateRange === 90 && " (90 Ngày Qua)"}
+                    Xu hướng doanh thu
+                    {activeDateRange === 0 && " (Hôm nay)"}
+                    {activeDateRange === 7 && " (7 ngày qua)"}
+                    {activeDateRange === 30 && " (30 ngày qua)"}
+                    {activeDateRange === 90 && " (90 ngày qua)"}
                   </h3>
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart data={getRevenueBarData()}>
@@ -573,7 +573,7 @@ export default function PartnerDashboard() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
                   <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                     <i className="ri-line-chart-line text-indigo-600"></i>
-                    Xu Hướng Doanh Thu
+                    Xu hướng doanh thu
                   </h3>
                   <div className="flex flex-col items-center justify-center py-12">
                     <i className="ri-line-chart-line text-6xl text-gray-300 mb-4"></i>
@@ -602,7 +602,7 @@ export default function PartnerDashboard() {
                         </div>
                         <div>
                           <h3 className="text-base font-semibold text-gray-800">
-                            Thống Kê Đặt Chỗ
+                            Thống kê đặt chỗ
                           </h3>
                           <p className="text-sm text-gray-600">
                             Tổng:{" "}
@@ -629,7 +629,7 @@ export default function PartnerDashboard() {
                             <div className="bg-yellow-100 rounded p-2">
                               <i className="ri-time-line text-xl text-yellow-600"></i>
                             </div>
-                            <p className="text-xs font-medium text-gray-600">Chờ Xử Lý</p>
+                            <p className="text-xs font-medium text-gray-600">Chờ xử lý</p>
                           </div>
                           <p className="text-2xl font-bold text-gray-900">
                             {statistics.reservationStatistic?.pendingCount || 0}
@@ -642,7 +642,7 @@ export default function PartnerDashboard() {
                             <div className="bg-blue-100 rounded p-2">
                               <i className="ri-calendar-check-line text-xl text-blue-600"></i>
                             </div>
-                            <p className="text-xs font-medium text-gray-600">Đang Hoạt Động</p>
+                            <p className="text-xs font-medium text-gray-600">Đang hoạt động</p>
                           </div>
                           <p className="text-2xl font-bold text-gray-900">
                             {statistics.reservationStatistic?.activeCount || 0}
@@ -668,7 +668,7 @@ export default function PartnerDashboard() {
                             <div className="bg-orange-100 rounded p-2">
                               <i className="ri-calendar-close-line text-xl text-orange-600"></i>
                             </div>
-                            <p className="text-xs font-medium text-gray-600">Hết Hạn</p>
+                            <p className="text-xs font-medium text-gray-600">Hết hạn</p>
                           </div>
                           <p className="text-2xl font-bold text-gray-900">
                             {statistics.reservationStatistic?.expiredCount || 0}
@@ -681,7 +681,7 @@ export default function PartnerDashboard() {
                             <div className="bg-red-100 rounded p-2">
                               <i className="ri-close-circle-line text-xl text-red-600"></i>
                             </div>
-                            <p className="text-xs font-medium text-gray-600">Đã Hủy</p>
+                            <p className="text-xs font-medium text-gray-600">Đã hủy</p>
                           </div>
                           <p className="text-2xl font-bold text-gray-900">
                             {statistics.reservationStatistic?.cancelledCount || 0}
@@ -714,7 +714,7 @@ export default function PartnerDashboard() {
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
                       <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                         <i className="ri-gift-line text-indigo-600"></i>
-                        Gói Đăng Ký
+                        Gói đăng ký
                       </h3>
                       <p className="text-sm text-gray-600 mb-4">
                         Tất cả gói đăng ký cho bãi đỗ xe của bạn với thông tin doanh thu
@@ -724,16 +724,16 @@ export default function PartnerDashboard() {
                           <thead className="bg-indigo-50">
                             <tr>
                               <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                Tên Gói
+                                Tên gói
                               </th>
                               <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                Giá Gói
+                                Giá gói
                               </th>
                               <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                Người Dùng Hoạt Động
+                                Người dùng hoạt động
                               </th>
                               <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                Tổng Doanh Thu
+                                Tổng doanh thu
                               </th>
                             </tr>
                           </thead>
@@ -788,7 +788,7 @@ export default function PartnerDashboard() {
                         <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                           <p className="text-sm text-blue-800">
                             <i className="ri-user-line mr-1"></i>
-                            Tổng Người Đăng Ký Hoạt Động:{" "}
+                            Tổng người đăng ký hoạt động:{" "}
                             <strong>
                               {allPackages.reduce(
                                 (sum, pkg) => sum + pkg.total,
@@ -800,7 +800,7 @@ export default function PartnerDashboard() {
                         <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
                           <p className="text-sm text-purple-800">
                             <i className="ri-money-dollar-circle-line mr-1"></i>
-                            Tổng Doanh Thu Từ Đăng Ký:{" "}
+                            Tổng doanh thu từ đăng ký:{" "}
                             <strong>
                               {formatCurrency(
                                 allPackages.reduce(

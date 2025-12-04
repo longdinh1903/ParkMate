@@ -82,7 +82,7 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
             <strong>🏗 Tầng:</strong> {lot.totalFloors ?? "-"}
           </p>
           <p>
-            <strong>� Diện Tích Bãi:</strong> {lot.lotSquare ? `${lot.lotSquare} m²` : "-"}
+            <strong>📐 Diện Tích Bãi Đỗ:</strong> {lot.lotSquare ? `${lot.lotSquare} m²` : "-"}
           </p>
           <p>
             <strong>⏱️ Thời Gian Chờ:</strong> {lot.horizonTime ? `${lot.horizonTime} phút` : "-"}
