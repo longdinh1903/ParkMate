@@ -220,7 +220,7 @@ export default function PartnerHome() {
         bg: "bg-purple-100",
         text: "text-purple-700",
         icon: "ri-qr-code-line",
-        label: "Chờ thanh toán",
+        label: "Thanh toán",
       },
       WAITING: {
         bg: "bg-yellow-100",
@@ -341,7 +341,7 @@ export default function PartnerHome() {
               <option value="INACTIVE">Không hoạt động</option>
               <option value="MAP_DENIED">Bản đồ bị từ chối</option>
               <option value="REJECTED">Bị từ chối</option>
-              <option value="PENDING_PAYMENT">Chờ thanh toán</option>
+              <option value="PENDING_PAYMENT">Thanh toán</option>
             </select>
 
             {/* Sort By Dropdown */}
@@ -627,7 +627,7 @@ export default function PartnerHome() {
           statusOptions={[
             { key: "ACTIVE", label: "Hoạt Động", color: "text-green-600" },
             { key: "MAP_DENIED", label: "Bản Đồ Bị Từ Chối", color: "text-red-600" },
-            { key: "PENDING_PAYMENT", label: "Chờ Thanh Toán", color: "text-purple-600" },
+            { key: "PENDING_PAYMENT", label: "Thanh Toán", color: "text-purple-600" },
           ]}
           allowEdit={true}
         />

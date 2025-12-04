@@ -33,6 +33,80 @@ export default function RegisterLot() {
   const [rules, setRules] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [citySearch, setCitySearch] = useState("");
+  const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false);
+
+  // Danh sách tỉnh thành Việt Nam
+  const vietnamCities = [
+    "Hà Nội",
+    "TP. Hồ Chí Minh",
+    "Đà Nẵng",
+    "Hải Phòng",
+    "Cần Thơ",
+    "An Giang",
+    "Bà Rịa - Vũng Tàu",
+    "Bắc Giang",
+    "Bắc Kạn",
+    "Bạc Liêu",
+    "Bắc Ninh",
+    "Bến Tre",
+    "Bình Định",
+    "Bình Dương",
+    "Bình Phước",
+    "Bình Thuận",
+    "Cà Mau",
+    "Cao Bằng",
+    "Đắk Lắk",
+    "Đắk Nông",
+    "Điện Biên",
+    "Đồng Nai",
+    "Đồng Tháp",
+    "Gia Lai",
+    "Hà Giang",
+    "Hà Nam",
+    "Hà Tĩnh",
+    "Hải Dương",
+    "Hậu Giang",
+    "Hòa Bình",
+    "Hưng Yên",
+    "Khánh Hòa",
+    "Kiên Giang",
+    "Kon Tum",
+    "Lai Châu",
+    "Lâm Đồng",
+    "Lạng Sơn",
+    "Lào Cai",
+    "Long An",
+    "Nam Định",
+    "Nghệ An",
+    "Ninh Bình",
+    "Ninh Thuận",
+    "Phú Thọ",
+    "Phú Yên",
+    "Quảng Bình",
+    "Quảng Nam",
+    "Quảng Ngãi",
+    "Quảng Ninh",
+    "Quảng Trị",
+    "Sóc Trăng",
+    "Sơn La",
+    "Tây Ninh",
+    "Thái Bình",
+    "Thái Nguyên",
+    "Thanh Hóa",
+    "Thừa Thiên Huế",
+    "Tiền Giang",
+    "Trà Vinh",
+    "Tuyên Quang",
+    "Vĩnh Long",
+    "Vĩnh Phúc",
+    "Yên Bái",
+  ];
+
+  // Filter cities based on search
+  const filteredCities = vietnamCities.filter((city) =>
+    city.toLowerCase().includes(citySearch.toLowerCase())
+  );
 
   // Fixed 4 policy types - users can only change the value
   const policyTypes = [
@@ -105,6 +179,12 @@ export default function RegisterLot() {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm({ ...form, [name]: type === "checkbox" ? checked : value });
+  };
+
+  const handleSelectCity = (city) => {
+    setForm({ ...form, city });
+    setCitySearch(city);
+    setIsCityDropdownOpen(false);
   };
 
   const handleCapacityChange = (e) => {
@@ -375,83 +455,71 @@ export default function RegisterLot() {
                     />
                   </div>
                 ))}
-                <div>
+                <div className="relative">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Tỉnh/Thành phố
                     <span className="text-red-500 ml-1">*</span>
                   </label>
-                  <select
-                    name="city"
-                    value={form.city}
-                    onChange={handleChange}
-                    required
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none bg-white"
-                  >
-                    <option value="">-- Chọn Tỉnh/Thành phố --</option>
-                    <option value="Hà Nội">Hà Nội</option>
-                    <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
-                    <option value="Đà Nẵng">Đà Nẵng</option>
-                    <option value="Hải Phòng">Hải Phòng</option>
-                    <option value="Cần Thơ">Cần Thơ</option>
-                    <option value="An Giang">An Giang</option>
-                    <option value="Bà Rịa - Vũng Tàu">Bà Rịa - Vũng Tàu</option>
-                    <option value="Bắc Giang">Bắc Giang</option>
-                    <option value="Bắc Kạn">Bắc Kạn</option>
-                    <option value="Bạc Liêu">Bạc Liêu</option>
-                    <option value="Bắc Ninh">Bắc Ninh</option>
-                    <option value="Bến Tre">Bến Tre</option>
-                    <option value="Bình Định">Bình Định</option>
-                    <option value="Bình Dương">Bình Dương</option>
-                    <option value="Bình Phước">Bình Phước</option>
-                    <option value="Bình Thuận">Bình Thuận</option>
-                    <option value="Cà Mau">Cà Mau</option>
-                    <option value="Cao Bằng">Cao Bằng</option>
-                    <option value="Đắk Lắk">Đắk Lắk</option>
-                    <option value="Đắk Nông">Đắk Nông</option>
-                    <option value="Điện Biên">Điện Biên</option>
-                    <option value="Đồng Nai">Đồng Nai</option>
-                    <option value="Đồng Tháp">Đồng Tháp</option>
-                    <option value="Gia Lai">Gia Lai</option>
-                    <option value="Hà Giang">Hà Giang</option>
-                    <option value="Hà Nam">Hà Nam</option>
-                    <option value="Hà Tĩnh">Hà Tĩnh</option>
-                    <option value="Hải Dương">Hải Dương</option>
-                    <option value="Hậu Giang">Hậu Giang</option>
-                    <option value="Hòa Bình">Hòa Bình</option>
-                    <option value="Hưng Yên">Hưng Yên</option>
-                    <option value="Khánh Hòa">Khánh Hòa</option>
-                    <option value="Kiên Giang">Kiên Giang</option>
-                    <option value="Kon Tum">Kon Tum</option>
-                    <option value="Lai Châu">Lai Châu</option>
-                    <option value="Lâm Đồng">Lâm Đồng</option>
-                    <option value="Lạng Sơn">Lạng Sơn</option>
-                    <option value="Lào Cai">Lào Cai</option>
-                    <option value="Long An">Long An</option>
-                    <option value="Nam Định">Nam Định</option>
-                    <option value="Nghệ An">Nghệ An</option>
-                    <option value="Ninh Bình">Ninh Bình</option>
-                    <option value="Ninh Thuận">Ninh Thuận</option>
-                    <option value="Phú Thọ">Phú Thọ</option>
-                    <option value="Phú Yên">Phú Yên</option>
-                    <option value="Quảng Bình">Quảng Bình</option>
-                    <option value="Quảng Nam">Quảng Nam</option>
-                    <option value="Quảng Ngãi">Quảng Ngãi</option>
-                    <option value="Quảng Ninh">Quảng Ninh</option>
-                    <option value="Quảng Trị">Quảng Trị</option>
-                    <option value="Sóc Trăng">Sóc Trăng</option>
-                    <option value="Sơn La">Sơn La</option>
-                    <option value="Tây Ninh">Tây Ninh</option>
-                    <option value="Thái Bình">Thái Bình</option>
-                    <option value="Thái Nguyên">Thái Nguyên</option>
-                    <option value="Thanh Hóa">Thanh Hóa</option>
-                    <option value="Thừa Thiên Huế">Thừa Thiên Huế</option>
-                    <option value="Tiền Giang">Tiền Giang</option>
-                    <option value="Trà Vinh">Trà Vinh</option>
-                    <option value="Tuyên Quang">Tuyên Quang</option>
-                    <option value="Vĩnh Long">Vĩnh Long</option>
-                    <option value="Vĩnh Phúc">Vĩnh Phúc</option>
-                    <option value="Yên Bái">Yên Bái</option>
-                  </select>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={citySearch}
+                      onChange={(e) => {
+                        setCitySearch(e.target.value);
+                        setIsCityDropdownOpen(true);
+                      }}
+                      onFocus={() => setIsCityDropdownOpen(true)}
+                      placeholder="Tìm kiếm tỉnh/thành phố..."
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 pr-10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      <i className={`ri-arrow-${isCityDropdownOpen ? 'up' : 'down'}-s-line text-xl`}></i>
+                    </button>
+                    
+                    {/* Dropdown list */}
+                    {isCityDropdownOpen && (
+                      <>
+                        {/* Backdrop to close dropdown */}
+                        <div
+                          className="fixed inset-0 z-10"
+                          onClick={() => setIsCityDropdownOpen(false)}
+                        ></div>
+                        
+                        {/* Dropdown menu */}
+                        <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                          {filteredCities.length > 0 ? (
+                            filteredCities.map((city) => (
+                              <div
+                                key={city}
+                                onClick={() => handleSelectCity(city)}
+                                className={`px-4 py-3 cursor-pointer hover:bg-indigo-50 transition-colors ${
+                                  form.city === city ? 'bg-indigo-100 text-indigo-700 font-medium' : 'text-gray-700'
+                                }`}
+                              >
+                                {city}
+                                {form.city === city && (
+                                  <i className="ri-check-line float-right text-indigo-600 text-xl"></i>
+                                )}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="px-4 py-3 text-gray-500 text-center">
+                              <i className="ri-search-line"></i> Không tìm thấy kết quả
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  {form.city && (
+                    <p className="mt-1 text-sm text-indigo-600">
+                      <i className="ri-map-pin-fill"></i> Đã chọn: <strong>{form.city}</strong>
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
