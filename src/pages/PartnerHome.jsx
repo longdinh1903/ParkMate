@@ -486,7 +486,7 @@ export default function PartnerHome() {
                                 <EllipsisVerticalIcon className="w-5 h-5" />
                               </button>
                               
-                              {/* Dropdown Panel - Fixed positioning to avoid overflow issues */}
+                              {/* Dropdown Panel - Smart positioning */}
                               {openDropdownId === lot.id && (
                                 <>
                                   {/* Overlay to close dropdown */}
@@ -497,11 +497,25 @@ export default function PartnerHome() {
                                   
                                   {/* Menu */}
                                   <div 
-                                    className="fixed w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden "
-                                    style={{
-                                      top: document.getElementById(`dropdown-button-${lot.id}`)?.getBoundingClientRect().bottom + 4 || 0,
-                                      left: document.getElementById(`dropdown-button-${lot.id}`)?.getBoundingClientRect().right - 192 || 0,
-                                    }}
+                                    className="fixed w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden"
+                                    style={(() => {
+                                      const button = document.getElementById(`dropdown-button-${lot.id}`);
+                                      if (!button) return {};
+                                      
+                                      const buttonRect = button.getBoundingClientRect();
+                                      const menuHeight = 300; // Approximate menu height
+                                      const spaceBelow = window.innerHeight - buttonRect.bottom;
+                                      const spaceAbove = buttonRect.top;
+                                      
+                                      // Show above if not enough space below
+                                      const showAbove = spaceBelow < menuHeight && spaceAbove > spaceBelow;
+                                      
+                                      return {
+                                        top: showAbove ? 'auto' : buttonRect.bottom + 4,
+                                        bottom: showAbove ? window.innerHeight - buttonRect.top + 4 : 'auto',
+                                        left: buttonRect.right - 192,
+                                      };
+                                    })()}
                                   >
                                     <button
                                       onClick={(e) => {
