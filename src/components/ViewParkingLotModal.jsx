@@ -1113,6 +1113,10 @@ export default function ViewParkingLotModal({
                         if (s.key === "ACTIVE" && lotData.status === "PARTNER_CONFIGURATION" && !lotData.isPaid) {
                           return false;
                         }
+                        // Hide PENDING_PAYMENT if already ACTIVE
+                        if (s.key === "PENDING_PAYMENT" && lotData.status === "ACTIVE") {
+                          return false;
+                        }
                         return true;
                       })
                       .map((s) => (
