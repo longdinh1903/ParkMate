@@ -1523,7 +1523,7 @@ export default function ViewParkingLotModal({
                         <th className="px-3 py-2 text-left">Phí ban đầu</th>
                         <th className="px-3 py-2 text-left">Thời gian BD</th>
                         <th className="px-3 py-2 text-left">Phí bước</th>
-                        <th className="px-3 py-2 text-left">Phút/Bước</th>
+                        <th className="px-3 py-2 text-left">Bước nhảy (phút)</th>
                         <th className="px-3 py-2 text-left">Hiệu lực từ</th>
                         <th className="px-3 py-2 text-left">Hiệu lực đến</th>
                         <th className="px-3 py-2 text-left">Trạng thái</th>
@@ -1922,7 +1922,7 @@ export default function ViewParkingLotModal({
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Phút/Bước
+                    Bước nhảy (phút)
                   </label>
                   <input
                     type="number"

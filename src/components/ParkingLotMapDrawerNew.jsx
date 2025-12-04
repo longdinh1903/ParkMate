@@ -71,6 +71,28 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     };
   }, [lot.lotCapacity]);
 
+  // Get which vehicle types support electric vehicles from lot's capacity
+  const getElectricVehicleSupportByType = useCallback(() => {
+    const support = {
+      CAR_UP_TO_9_SEATS: false,
+      MOTORBIKE: false,
+      BIKE: false,
+      OTHER: false,
+    };
+    
+    if (lot.lotCapacity && Array.isArray(lot.lotCapacity) && lot.lotCapacity.length > 0) {
+      lot.lotCapacity.forEach(capacity => {
+        if (capacity.vehicleType && capacity.supportElectricVehicle === true) {
+          if (Object.prototype.hasOwnProperty.call(support, capacity.vehicleType)) {
+            support[capacity.vehicleType] = true;
+          }
+        }
+      });
+    }
+    
+    return support;
+  }, [lot.lotCapacity]);
+
   // Calculate total registered capacity from lot
   const getTotalRegisteredCapacity = useCallback(() => {
     if (!lot.lotCapacity || !Array.isArray(lot.lotCapacity)) {
@@ -2230,6 +2252,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
               <div className="space-y-3">
                 {(() => {
                   const allowedTypes = getAllowedVehicleTypes();
+                  const electricSupport = getElectricVehicleSupportByType();
                   return (
                     <>
                       {/* Car */}
@@ -2253,9 +2276,11 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                             <i className="ri-car-fill text-blue-600 text-xl"></i>
                             <span className="font-medium text-gray-900">Ô tô dưới 9 chỗ</span>
                             {allowedTypes.CAR_UP_TO_9_SEATS ? (
-                              <span className="ml-auto px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
-                                ⚡ Hỗ trợ điện
-                              </span>
+                              electricSupport.CAR_UP_TO_9_SEATS && (
+                                <span className="ml-auto px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                                  ⚡ Hỗ trợ điện
+                                </span>
+                              )
                             ) : (
                               <span className="ml-auto px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
                                 🚫 Chưa đăng ký
@@ -2286,7 +2311,13 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                           <div className="flex items-center gap-2">
                             <i className="ri-motorbike-fill text-orange-600 text-xl"></i>
                             <span className="font-medium text-gray-900">Xe máy</span>
-                            {!allowedTypes.MOTORBIKE && (
+                            {allowedTypes.MOTORBIKE ? (
+                              electricSupport.MOTORBIKE && (
+                                <span className="ml-auto px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                                  ⚡ Hỗ trợ điện
+                                </span>
+                              )
+                            ) : (
                               <span className="ml-auto px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
                                 🚫 Chưa đăng ký
                               </span>
@@ -2316,7 +2347,13 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                           <div className="flex items-center gap-2">
                             <i className="ri-bike-fill text-green-600 text-xl"></i>
                             <span className="font-medium text-gray-900">Xe đạp</span>
-                            {!allowedTypes.BIKE && (
+                            {allowedTypes.BIKE ? (
+                              electricSupport.BIKE && (
+                                <span className="ml-auto px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                                  ⚡ Hỗ trợ điện
+                                </span>
+                              )
+                            ) : (
                               <span className="ml-auto px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
                                 🚫 Chưa đăng ký
                               </span>
@@ -2346,7 +2383,13 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                           <div className="flex items-center gap-2">
                             <i className="ri-truck-fill text-purple-600 text-xl"></i>
                             <span className="font-medium text-gray-900">Khác</span>
-                            {!allowedTypes.OTHER && (
+                            {allowedTypes.OTHER ? (
+                              electricSupport.OTHER && (
+                                <span className="ml-auto px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                                  ⚡ Hỗ trợ điện
+                                </span>
+                              )
+                            ) : (
                               <span className="ml-auto px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
                                 🚫 Chưa đăng ký
                               </span>
