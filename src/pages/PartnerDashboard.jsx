@@ -138,29 +138,6 @@ export default function PartnerDashboard() {
     <PartnerTopLayout>
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="mb-8 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 text-white shadow-xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-4xl font-bold flex items-center gap-3 mb-2">
-                  <div className="bg-white/20 rounded-xl p-3 backdrop-blur-sm">
-                    <i className="ri-dashboard-3-line text-3xl"></i>
-                  </div>
-                  Dashboard Partner
-                </h1>
-                <p className="text-indigo-100 text-lg ml-1">
-                  Theo dõi hiệu suất và doanh thu bãi đỗ xe của bạn
-                </p>
-              </div>
-              <div className="hidden md:block">
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl px-6 py-4 border border-white/20">
-                  <p className="text-xs text-indigo-100 uppercase tracking-wider mb-1">Tổng bãi xe</p>
-                  <p className="text-3xl font-bold">{parkingLots.length}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Filters */}
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-8 hover:shadow-xl transition-shadow duration-300">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -224,13 +201,13 @@ export default function PartnerDashboard() {
                     to: to.toISOString().split("T")[0] + "T23:59:59",
                   });
                   setActiveDateRange(7);
-                  
+
                   // Clear parking lot selection
                   setSelectedLotId(null);
-                  
+
                   // Clear statistics
                   setStatistics(null);
-                  
+
                   // Clear any expanded sections
                   setShowRevenueBreakdown(false);
 
@@ -321,7 +298,12 @@ export default function PartnerDashboard() {
                           💰 Tổng doanh thu
                         </p>
                         <p className="text-4xl font-extrabold mt-1 drop-shadow-lg">
-                          {formatCurrency((statistics.sessionStatistics || statistics.sessionStatistic)?.sessionTotalAmount || 0)}
+                          {formatCurrency(
+                            (
+                              statistics.sessionStatistics ||
+                              statistics.sessionStatistic
+                            )?.sessionTotalAmount || 0
+                          )}
                         </p>
                       </div>
                       <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 group-hover:bg-white/30 transition-colors">
@@ -341,18 +323,44 @@ export default function PartnerDashboard() {
                           👑 Doanh thu thành viên
                         </p>
                         <p className="text-4xl font-extrabold mt-1 drop-shadow-lg">
-                          {formatCurrency((statistics.sessionStatistics || statistics.sessionStatistic)?.memberTotalAmount || 0)}
+                          {formatCurrency(
+                            (
+                              statistics.sessionStatistics ||
+                              statistics.sessionStatistic
+                            )?.memberTotalAmount || 0
+                          )}
                         </p>
-                        {(statistics.sessionStatistics || statistics.sessionStatistic)?.memberTotalAmountGrowthRate !== undefined && (
-                          <div className={`inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-bold ${
-                            (statistics.sessionStatistics || statistics.sessionStatistic).memberTotalAmountGrowthRate >= 0 
-                              ? 'bg-green-500/30 text-green-100' 
-                              : 'bg-red-500/30 text-red-100'
-                          }`}>
-                            <i className={`ri-arrow-${
-                              (statistics.sessionStatistics || statistics.sessionStatistic).memberTotalAmountGrowthRate >= 0 ? 'up' : 'down'
-                            }-line text-sm`}></i>
-                            {Math.abs((statistics.sessionStatistics || statistics.sessionStatistic).memberTotalAmountGrowthRate).toFixed(1)}%
+                        {(
+                          statistics.sessionStatistics ||
+                          statistics.sessionStatistic
+                        )?.memberTotalAmountGrowthRate !== undefined && (
+                          <div
+                            className={`inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-bold ${
+                              (
+                                statistics.sessionStatistics ||
+                                statistics.sessionStatistic
+                              ).memberTotalAmountGrowthRate >= 0
+                                ? "bg-green-500/30 text-green-100"
+                                : "bg-red-500/30 text-red-100"
+                            }`}
+                          >
+                            <i
+                              className={`ri-arrow-${
+                                (
+                                  statistics.sessionStatistics ||
+                                  statistics.sessionStatistic
+                                ).memberTotalAmountGrowthRate >= 0
+                                  ? "up"
+                                  : "down"
+                              }-line text-sm`}
+                            ></i>
+                            {Math.abs(
+                              (
+                                statistics.sessionStatistics ||
+                                statistics.sessionStatistic
+                              ).memberTotalAmountGrowthRate
+                            ).toFixed(1)}
+                            %
                           </div>
                         )}
                       </div>
@@ -373,18 +381,44 @@ export default function PartnerDashboard() {
                           🚶 Doanh thu vãng lai
                         </p>
                         <p className="text-4xl font-extrabold mt-1 drop-shadow-lg">
-                          {formatCurrency((statistics.sessionStatistics || statistics.sessionStatistic)?.occasionalTotalAmount || 0)}
+                          {formatCurrency(
+                            (
+                              statistics.sessionStatistics ||
+                              statistics.sessionStatistic
+                            )?.occasionalTotalAmount || 0
+                          )}
                         </p>
-                        {(statistics.sessionStatistics || statistics.sessionStatistic)?.occasionalTotalAmountGrowthRate !== undefined && (
-                          <div className={`inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-bold ${
-                            (statistics.sessionStatistics || statistics.sessionStatistic).occasionalTotalAmountGrowthRate >= 0 
-                              ? 'bg-green-500/30 text-green-100' 
-                              : 'bg-red-500/30 text-red-100'
-                          }`}>
-                            <i className={`ri-arrow-${
-                              (statistics.sessionStatistics || statistics.sessionStatistic).occasionalTotalAmountGrowthRate >= 0 ? 'up' : 'down'
-                            }-line text-sm`}></i>
-                            {Math.abs((statistics.sessionStatistics || statistics.sessionStatistic).occasionalTotalAmountGrowthRate).toFixed(1)}%
+                        {(
+                          statistics.sessionStatistics ||
+                          statistics.sessionStatistic
+                        )?.occasionalTotalAmountGrowthRate !== undefined && (
+                          <div
+                            className={`inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-bold ${
+                              (
+                                statistics.sessionStatistics ||
+                                statistics.sessionStatistic
+                              ).occasionalTotalAmountGrowthRate >= 0
+                                ? "bg-green-500/30 text-green-100"
+                                : "bg-red-500/30 text-red-100"
+                            }`}
+                          >
+                            <i
+                              className={`ri-arrow-${
+                                (
+                                  statistics.sessionStatistics ||
+                                  statistics.sessionStatistic
+                                ).occasionalTotalAmountGrowthRate >= 0
+                                  ? "up"
+                                  : "down"
+                              }-line text-sm`}
+                            ></i>
+                            {Math.abs(
+                              (
+                                statistics.sessionStatistics ||
+                                statistics.sessionStatistic
+                              ).occasionalTotalAmountGrowthRate
+                            ).toFixed(1)}
+                            %
                           </div>
                         )}
                       </div>
@@ -405,9 +439,14 @@ export default function PartnerDashboard() {
                       <i className="ri-time-line text-2xl text-blue-600"></i>
                     </div>
                     <div>
-                      <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide">Đang hoạt động</p>
+                      <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide">
+                        Đang hoạt động
+                      </p>
                       <p className="text-2xl font-bold text-gray-900 mt-1">
-                        {(statistics.sessionStatistics || statistics.sessionStatistic)?.activeSessions || 0}
+                        {(
+                          statistics.sessionStatistics ||
+                          statistics.sessionStatistic
+                        )?.activeSessions || 0}
                       </p>
                     </div>
                   </div>
@@ -420,9 +459,14 @@ export default function PartnerDashboard() {
                       <i className="ri-checkbox-circle-line text-2xl text-green-600"></i>
                     </div>
                     <div>
-                      <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide">Hoàn thành</p>
+                      <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide">
+                        Hoàn thành
+                      </p>
                       <p className="text-2xl font-bold text-gray-900 mt-1">
-                        {(statistics.sessionStatistics || statistics.sessionStatistic)?.completedSessions || 0}
+                        {(
+                          statistics.sessionStatistics ||
+                          statistics.sessionStatistic
+                        )?.completedSessions || 0}
                       </p>
                     </div>
                   </div>
@@ -435,10 +479,18 @@ export default function PartnerDashboard() {
                       <i className="ri-file-list-line text-2xl text-indigo-600"></i>
                     </div>
                     <div>
-                      <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide">Tổng phiên</p>
+                      <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide">
+                        Tổng phiên
+                      </p>
                       <p className="text-2xl font-bold text-gray-900 mt-1">
-                        {((statistics.sessionStatistics || statistics.sessionStatistic)?.completedSessions || 0) +
-                          ((statistics.sessionStatistics || statistics.sessionStatistic)?.activeSessions || 0)}
+                        {((
+                          statistics.sessionStatistics ||
+                          statistics.sessionStatistic
+                        )?.completedSessions || 0) +
+                          ((
+                            statistics.sessionStatistics ||
+                            statistics.sessionStatistic
+                          )?.activeSessions || 0)}
                       </p>
                     </div>
                   </div>
@@ -451,20 +503,53 @@ export default function PartnerDashboard() {
                       <i className="ri-timer-line text-2xl text-teal-600"></i>
                     </div>
                     <div>
-                      <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide">Thời lượng TB</p>
+                      <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide">
+                        Thời lượng TB
+                      </p>
                       <p className="text-2xl font-bold text-gray-900 mt-1">
-                        {(statistics.sessionStatistics || statistics.sessionStatistic)?.averageDurationMinute
-                          ? `${Math.round((statistics.sessionStatistics || statistics.sessionStatistic).averageDurationMinute)}m`
+                        {(
+                          statistics.sessionStatistics ||
+                          statistics.sessionStatistic
+                        )?.averageDurationMinute
+                          ? `${Math.round(
+                              (
+                                statistics.sessionStatistics ||
+                                statistics.sessionStatistic
+                              ).averageDurationMinute
+                            )}m`
                           : "N/A"}
                       </p>
-                      {(statistics.sessionStatistics || statistics.sessionStatistic)?.averageDurationMinuteGrowthRate !== undefined && (
-                        <div className={`inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full text-xs font-bold ${
-                          (statistics.sessionStatistics || statistics.sessionStatistic).averageDurationMinuteGrowthRate >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                        }`}>
-                          <i className={`ri-arrow-${
-                            (statistics.sessionStatistics || statistics.sessionStatistic).averageDurationMinuteGrowthRate >= 0 ? 'up' : 'down'
-                          }-line`}></i>
-                          {Math.abs((statistics.sessionStatistics || statistics.sessionStatistic).averageDurationMinuteGrowthRate)}%
+                      {(
+                        statistics.sessionStatistics ||
+                        statistics.sessionStatistic
+                      )?.averageDurationMinuteGrowthRate !== undefined && (
+                        <div
+                          className={`inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full text-xs font-bold ${
+                            (
+                              statistics.sessionStatistics ||
+                              statistics.sessionStatistic
+                            ).averageDurationMinuteGrowthRate >= 0
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
+                        >
+                          <i
+                            className={`ri-arrow-${
+                              (
+                                statistics.sessionStatistics ||
+                                statistics.sessionStatistic
+                              ).averageDurationMinuteGrowthRate >= 0
+                                ? "up"
+                                : "down"
+                            }-line`}
+                          ></i>
+                          {Math.abs(
+                            (
+                              statistics.sessionStatistics ||
+                              statistics.sessionStatistic
+                            ).averageDurationMinuteGrowthRate
+                          )}
+                          %
                         </div>
                       )}
                     </div>
@@ -515,7 +600,9 @@ export default function PartnerDashboard() {
               {statistics?.reservationStatistic && (
                 <div className="mb-8">
                   <div
-                    onClick={() => setShowRevenueBreakdown(!showRevenueBreakdown)}
+                    onClick={() =>
+                      setShowRevenueBreakdown(!showRevenueBreakdown)
+                    }
                     className="bg-gradient-to-r from-white to-indigo-50 rounded-2xl shadow-lg border border-indigo-100 p-6 cursor-pointer hover:shadow-xl hover:border-indigo-200 transition-all duration-300 group"
                   >
                     <div className="flex items-center justify-between">
@@ -527,16 +614,24 @@ export default function PartnerDashboard() {
                           <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                             Thống kê đặt chỗ
                             <span className="bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-full">
-                              {(statistics.reservationStatistic?.pendingCount || 0) +
-                                (statistics.reservationStatistic?.activeCount || 0) +
-                                (statistics.reservationStatistic?.completedCount || 0) +
-                                (statistics.reservationStatistic?.expiredCount || 0) +
-                                (statistics.reservationStatistic?.cancelledCount || 0)}
+                              {(statistics.reservationStatistic?.pendingCount ||
+                                0) +
+                                (statistics.reservationStatistic?.activeCount ||
+                                  0) +
+                                (statistics.reservationStatistic
+                                  ?.completedCount || 0) +
+                                (statistics.reservationStatistic
+                                  ?.expiredCount || 0) +
+                                (statistics.reservationStatistic
+                                  ?.cancelledCount || 0)}
                             </span>
                           </h3>
                           <p className="text-sm text-gray-600 mt-1 flex items-center gap-2">
                             <span className="font-semibold text-indigo-600">
-                              {formatCurrency(statistics.reservationStatistic?.totalRevenue || 0)}
+                              {formatCurrency(
+                                statistics.reservationStatistic?.totalRevenue ||
+                                  0
+                              )}
                             </span>
                             <span className="text-gray-400">•</span>
                             <span>Tổng doanh thu từ đặt chỗ</span>
@@ -544,7 +639,11 @@ export default function PartnerDashboard() {
                         </div>
                       </div>
                       <div className="bg-white rounded-full p-2 group-hover:bg-indigo-50 transition-colors">
-                        <i className={`ri-arrow-${showRevenueBreakdown ? 'up' : 'down'}-s-line text-2xl text-gray-600 group-hover:text-indigo-600 transition-colors`}></i>
+                        <i
+                          className={`ri-arrow-${
+                            showRevenueBreakdown ? "up" : "down"
+                          }-s-line text-2xl text-gray-600 group-hover:text-indigo-600 transition-colors`}
+                        ></i>
                       </div>
                     </div>
                   </div>
@@ -558,7 +657,9 @@ export default function PartnerDashboard() {
                             <div className="bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-lg p-2.5 group-hover:scale-110 transition-transform">
                               <i className="ri-time-line text-xl text-yellow-600"></i>
                             </div>
-                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Chờ xử lý</p>
+                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                              Chờ xử lý
+                            </p>
                           </div>
                           <p className="text-3xl font-bold text-gray-900">
                             {statistics.reservationStatistic?.pendingCount || 0}
@@ -571,7 +672,9 @@ export default function PartnerDashboard() {
                             <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg p-2.5 group-hover:scale-110 transition-transform">
                               <i className="ri-calendar-check-line text-xl text-blue-600"></i>
                             </div>
-                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Đang hoạt động</p>
+                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                              Đang hoạt động
+                            </p>
                           </div>
                           <p className="text-3xl font-bold text-gray-900">
                             {statistics.reservationStatistic?.activeCount || 0}
@@ -584,10 +687,13 @@ export default function PartnerDashboard() {
                             <div className="bg-gradient-to-br from-green-100 to-green-200 rounded-lg p-2.5 group-hover:scale-110 transition-transform">
                               <i className="ri-checkbox-circle-line text-xl text-green-600"></i>
                             </div>
-                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Hoàn Thành</p>
+                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                              Hoàn Thành
+                            </p>
                           </div>
                           <p className="text-3xl font-bold text-gray-900">
-                            {statistics.reservationStatistic?.completedCount || 0}
+                            {statistics.reservationStatistic?.completedCount ||
+                              0}
                           </p>
                         </div>
 
@@ -597,7 +703,9 @@ export default function PartnerDashboard() {
                             <div className="bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg p-2.5 group-hover:scale-110 transition-transform">
                               <i className="ri-calendar-close-line text-xl text-orange-600"></i>
                             </div>
-                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Hết hạn</p>
+                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                              Hết hạn
+                            </p>
                           </div>
                           <p className="text-3xl font-bold text-gray-900">
                             {statistics.reservationStatistic?.expiredCount || 0}
@@ -610,10 +718,13 @@ export default function PartnerDashboard() {
                             <div className="bg-gradient-to-br from-red-100 to-red-200 rounded-lg p-2.5 group-hover:scale-110 transition-transform">
                               <i className="ri-close-circle-line text-xl text-red-600"></i>
                             </div>
-                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Đã hủy</p>
+                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                              Đã hủy
+                            </p>
                           </div>
                           <p className="text-3xl font-bold text-gray-900">
-                            {statistics.reservationStatistic?.cancelledCount || 0}
+                            {statistics.reservationStatistic?.cancelledCount ||
+                              0}
                           </p>
                         </div>
                       </div>
@@ -674,53 +785,53 @@ export default function PartnerDashboard() {
                               </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-100">
-                            {allPackages.map((pkg, index) => (
-                              <tr
-                                key={index}
-                                className={`hover:bg-indigo-50/50 transition-colors duration-200 ${
-                                  pkg.total === 0 ? "opacity-50" : ""
-                                }`}
-                              >
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <div className="flex items-center gap-2">
-                                    <div className="bg-indigo-100 rounded-lg p-1.5">
-                                      <i className="ri-price-tag-3-line text-indigo-600"></i>
+                              {allPackages.map((pkg, index) => (
+                                <tr
+                                  key={index}
+                                  className={`hover:bg-indigo-50/50 transition-colors duration-200 ${
+                                    pkg.total === 0 ? "opacity-50" : ""
+                                  }`}
+                                >
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className="flex items-center gap-2">
+                                      <div className="bg-indigo-100 rounded-lg p-1.5">
+                                        <i className="ri-price-tag-3-line text-indigo-600"></i>
+                                      </div>
+                                      <span className="text-sm font-semibold text-gray-900">
+                                        {pkg.packageName}
+                                      </span>
                                     </div>
-                                    <span className="text-sm font-semibold text-gray-900">
-                                      {pkg.packageName}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <span className="text-sm font-bold text-emerald-600">
+                                      {pkg.price
+                                        ? `${pkg.price.toLocaleString()} ₫`
+                                        : "-"}
                                     </span>
-                                  </div>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <span className="text-sm font-bold text-emerald-600">
-                                    {pkg.price
-                                      ? `${pkg.price.toLocaleString()} ₫`
-                                      : "-"}
-                                  </span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <span
-                                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm ${
-                                      pkg.total > 0
-                                        ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white"
-                                        : "bg-gray-200 text-gray-600"
-                                    }`}
-                                  >
-                                    <i className="ri-user-line"></i>
-                                    {pkg.total}
-                                  </span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <span className="text-sm font-extrabold text-purple-600">
-                                    {pkg.totalAmount
-                                      ? `${pkg.totalAmount.toLocaleString()} ₫`
-                                      : "-"}
-                                  </span>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <span
+                                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm ${
+                                        pkg.total > 0
+                                          ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white"
+                                          : "bg-gray-200 text-gray-600"
+                                      }`}
+                                    >
+                                      <i className="ri-user-line"></i>
+                                      {pkg.total}
+                                    </span>
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <span className="text-sm font-extrabold text-purple-600">
+                                      {pkg.totalAmount
+                                        ? `${pkg.totalAmount.toLocaleString()} ₫`
+                                        : "-"}
+                                    </span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
                         </div>
                       </div>
                       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-5">
