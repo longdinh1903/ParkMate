@@ -15,6 +15,37 @@ import EditDeviceModal from "../components/EditDeviceModal";
 import ViewDeviceModal from "../components/ViewDeviceModal";
 import ConfirmModal from "../components/ConfirmModal";
 
+// Device Type Labels mapping
+const deviceTypeLabels = {
+  ULTRASONIC_SENSOR: "Cảm biến siêu âm (Phát hiện chỗ đỗ)",
+  "Ultrasonic Sensor": "Cảm biến siêu âm (Phát hiện chỗ đỗ)",
+  NFC_READER: "Đầu đọc thẻ NFC (Ra/Vào)",
+  "NFC Reader": "Đầu đọc thẻ NFC (Ra/Vào)",
+  BLE_SCANNER: "Máy quét BLE (Phát hiện gần)",
+  "BLE Scanner": "Máy quét BLE (Phát hiện gần)",
+  CAMERA: "Camera (Nhận diện biển số)",
+  Camera: "Camera (Nhận diện biển số)",
+  BARRIER_CONTROLLER: "Bộ điều khiển cổng chặn",
+  "Barrier Controller": "Bộ điều khiển cổng chặn",
+  DISPLAY_BOARD: "Bảng hiển thị điện tử",
+  "Display Board": "Bảng hiển thị điện tử",
+  // Legacy types
+  BARRIER: "Cổng chặn",
+  Barrier: "Cổng chặn",
+  SENSOR: "Cảm biến",
+  Sensor: "Cảm biến",
+  INFRARED_SENSOR: "Cảm biến hồng ngoại",
+  "Infrared Sensor": "Cảm biến hồng ngoại",
+  PAYMENT_TERMINAL: "Máy thanh toán",
+  "Payment Terminal": "Máy thanh toán",
+  DISPLAY: "Màn hình hiển thị",
+  Display: "Màn hình hiển thị",
+  LED_DISPLAY: "Màn hình LED",
+  "LED Display": "Màn hình LED",
+  OTHER: "Khác",
+  Other: "Khác",
+};
+
 export default function AdminDevices() {
   const [devices, setDevices] = useState([]);
   const [search, setSearch] = useState("");
@@ -345,7 +376,7 @@ export default function AdminDevices() {
             <option value="">Tất Cả Loại</option>
             {deviceTypes.map((type) => (
               <option key={type} value={type}>
-                {type}
+                {deviceTypeLabels[type] || type}
               </option>
             ))}
           </select>
@@ -451,7 +482,7 @@ export default function AdminDevices() {
                   <td className="px-6 py-3">{device.deviceName || "-"}</td>
                   <td className="px-6 py-3">
                     <span className="px-2 py-1 bg-indigo-50 text-indigo-700 rounded-md text-xs font-medium">
-                      {device.deviceType}
+                      {deviceTypeLabels[device.deviceType] || device.deviceType}
                     </span>
                   </td>
                   <td className="px-6 py-3">{device.model || "-"}</td>

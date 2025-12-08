@@ -5,6 +5,37 @@ import parkingLotApi from "../api/parkingLotApi";
 import partnerApi from "../api/partnerApi";
 import { showSuccess, showError } from "../utils/toastUtils";
 
+// Device Type Labels mapping
+const deviceTypeLabels = {
+  ULTRASONIC_SENSOR: "Cảm biến siêu âm (Phát hiện chỗ đỗ)",
+  "Ultrasonic Sensor": "Cảm biến siêu âm (Phát hiện chỗ đỗ)",
+  NFC_READER: "Đầu đọc thẻ NFC (Ra/Vào)",
+  "NFC Reader": "Đầu đọc thẻ NFC (Ra/Vào)",
+  BLE_SCANNER: "Máy quét BLE (Phát hiện gần)",
+  "BLE Scanner": "Máy quét BLE (Phát hiện gần)",
+  CAMERA: "Camera (Nhận diện biển số)",
+  Camera: "Camera (Nhận diện biển số)",
+  BARRIER_CONTROLLER: "Bộ điều khiển cổng chặn",
+  "Barrier Controller": "Bộ điều khiển cổng chặn",
+  DISPLAY_BOARD: "Bảng hiển thị điện tử",
+  "Display Board": "Bảng hiển thị điện tử",
+  // Legacy types
+  BARRIER: "Cổng chặn",
+  Barrier: "Cổng chặn",
+  SENSOR: "Cảm biến",
+  Sensor: "Cảm biến",
+  INFRARED_SENSOR: "Cảm biến hồng ngoại",
+  "Infrared Sensor": "Cảm biến hồng ngoại",
+  PAYMENT_TERMINAL: "Máy thanh toán",
+  "Payment Terminal": "Máy thanh toán",
+  DISPLAY: "Màn hình hiển thị",
+  Display: "Màn hình hiển thị",
+  LED_DISPLAY: "Màn hình LED",
+  "LED Display": "Màn hình LED",
+  OTHER: "Khác",
+  Other: "Khác",
+};
+
 export default function AddDeviceModal({ open, onClose, onCreated }) {
   const [formData, setFormData] = useState({
     deviceId: "",
@@ -103,40 +134,46 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
     e.preventDefault();
 
     if (!formData.lotId) {
-      showError("Please select a parking lot");
+      showError("Vui lòng chọn bãi đỗ xe");
       return;
     }
 
     if (!formData.deviceId || !formData.deviceType) {
-      showError("Device ID and Device Type are required");
+      showError("ID Thiết bị và Loại thiết bị là bắt buộc");
+      return;
+    }
+
+    if (!formData.partnerId) {
+      showError("Vui lòng chọn đối tác");
       return;
     }
 
     setLoading(true);
     try {
-      // Build payload according to backend contract (minimal fields expected)
-      const partnerId = formData.partnerId ? Number(formData.partnerId) : undefined;
-
-      const payload = {
+      // Build device object as per Swagger spec
+      const deviceData = {
         deviceId: String(formData.deviceId).trim(),
-        deviceName: formData.deviceName?.trim() || undefined,
+        deviceName: formData.deviceName?.trim() || "",
         deviceType: formData.deviceType,
-        partnerId: partnerId,
-        model: formData.model?.trim() || undefined,
-        serialNumber: formData.serialNumber?.trim() || undefined,
-        notes: formData.notes?.trim() || undefined,
+        partnerId: Number(formData.partnerId),
+        model: formData.model?.trim() || "",
+        serialNumber: formData.serialNumber?.trim() || "",
+        notes: formData.notes?.trim() || "",
       };
 
-      // Call API with numeric lotId when possible
-      const lotIdParam = Number(formData.lotId) || formData.lotId;
+      // Backend expects an array of devices
+      const payload = [deviceData];
+
+      // Call API with lotId as string
+      const lotIdParam = String(formData.lotId);
       await deviceApi.create(lotIdParam, payload);
-      showSuccess("Device registered successfully!");
+      showSuccess("Đăng ký thiết bị thành công!");
       onCreated();
       handleClose();
     } catch (err) {
       console.error("Error creating device:", err);
       const serverMsg = err?.response?.data?.message || err?.response?.data || err.message;
-      showError(serverMsg || "Failed to register device");
+      showError(serverMsg || "Đăng ký thiết bị thất bại");
     } finally {
       setLoading(false);
     }
@@ -268,7 +305,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
                 <option value="">Chọn loại</option>
                 {deviceTypes.map((type) => (
                   <option key={type} value={type}>
-                    {type}
+                    {deviceTypeLabels[type] || type}
                   </option>
                 ))}
               </select>

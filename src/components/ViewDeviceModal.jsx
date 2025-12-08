@@ -2,6 +2,37 @@ import { useEffect, useState } from "react";
 import { XMarkIcon, CpuChipIcon } from "@heroicons/react/24/outline";
 import partnerApi from "../api/partnerApi";
 
+// Device Type Labels mapping
+const deviceTypeLabels = {
+  ULTRASONIC_SENSOR: "Cảm biến siêu âm (Phát hiện chỗ đỗ)",
+  "Ultrasonic Sensor": "Cảm biến siêu âm (Phát hiện chỗ đỗ)",
+  NFC_READER: "Đầu đọc thẻ NFC (Ra/Vào)",
+  "NFC Reader": "Đầu đọc thẻ NFC (Ra/Vào)",
+  BLE_SCANNER: "Máy quét BLE (Phát hiện gần)",
+  "BLE Scanner": "Máy quét BLE (Phát hiện gần)",
+  CAMERA: "Camera (Nhận diện biển số)",
+  Camera: "Camera (Nhận diện biển số)",
+  BARRIER_CONTROLLER: "Bộ điều khiển cổng chặn",
+  "Barrier Controller": "Bộ điều khiển cổng chặn",
+  DISPLAY_BOARD: "Bảng hiển thị điện tử",
+  "Display Board": "Bảng hiển thị điện tử",
+  // Legacy types
+  BARRIER: "Cổng chặn",
+  Barrier: "Cổng chặn",
+  SENSOR: "Cảm biến",
+  Sensor: "Cảm biến",
+  INFRARED_SENSOR: "Cảm biến hồng ngoại",
+  "Infrared Sensor": "Cảm biến hồng ngoại",
+  PAYMENT_TERMINAL: "Máy thanh toán",
+  "Payment Terminal": "Máy thanh toán",
+  DISPLAY: "Màn hình hiển thị",
+  Display: "Màn hình hiển thị",
+  LED_DISPLAY: "Màn hình LED",
+  "LED Display": "Màn hình LED",
+  OTHER: "Khác",
+  Other: "Khác",
+};
+
 export default function ViewDeviceModal({ device, onClose }) {
   const [partnerName, setPartnerName] = useState(null);
 
@@ -152,7 +183,7 @@ export default function ViewDeviceModal({ device, onClose }) {
               <InfoRow label="ID Thiết Bị" value={device.deviceId} />
               <InfoRow label="Tên Thiết Bị" value={device.deviceName} />
               <InfoRow label="Đối Tác" value={partnerLabel} />
-              <InfoRow label="Loại Thiết Bị" value={device.deviceType} />
+              <InfoRow label="Loại Thiết Bị" value={deviceTypeLabels[device.deviceType] || device.deviceType} />
               <InfoRow label="Model" value={device.model} />
               <InfoRow label="Số Seri" value={device.serialNumber} />
             </div>

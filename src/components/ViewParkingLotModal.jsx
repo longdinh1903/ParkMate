@@ -5,9 +5,12 @@ import areaApi from "../api/areaApi";
 import spotApi from "../api/spotApi";
 import policyApi from "../api/policyApi";
 import pricingRuleApi from "../api/pricingRuleApi";
+import deviceApi from "../api/deviceApi";
+import deviceFeeApi from "../api/deviceFeeApi";
 import { showSuccess, showError, showInfo } from "../utils/toastUtils.jsx";
 import ParkingLotMapDrawer from "../components/ParkingLotMapDrawerNew"; // ✅ thêm import
 import ConfirmModal from "../components/ConfirmModal";
+import AssignDevicesToLotModal from "../components/AssignDevicesToLotModal";
 
 export default function ViewParkingLotModal({
   lot,
@@ -19,6 +22,7 @@ export default function ViewParkingLotModal({
   showResetMapButton = false,
   allowEdit = false, // only show edit buttons when true (for Partner)
   showPaymentBanner = true, // control payment banner visibility (default true for partners)
+  showAssignDevicesButton = false, // control device assignment button visibility (for Admin)
 }) {
   // Local state for lot data (for realtime updates)
   const [lotData, setLotData] = useState(lot);
@@ -40,6 +44,10 @@ export default function ViewParkingLotModal({
   const [selectedImagesToDelete, setSelectedImagesToDelete] = useState([]);
   const [deletingImages, setDeletingImages] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showAssignDevicesModal, setShowAssignDevicesModal] = useState(false);
+  const [assignedDevices, setAssignedDevices] = useState([]);
+  const [loadingDevices, setLoadingDevices] = useState(false);
+  const [deviceFees, setDeviceFees] = useState([]);
   
   // Store interval ref to cleanup on unmount
   const paymentCheckIntervalRef = useRef(null);
@@ -78,6 +86,10 @@ export default function ViewParkingLotModal({
     if (lotData.status === "PENDING_PAYMENT") {
       const loadPaymentInfo = async () => {
         try {
+          // Load devices and fees first
+          await fetchAssignedDevices();
+          await fetchDeviceFees();
+          
           const qrCode = lotData.paymentQrCode;
           const paymentUrl = lotData.paymentUrl;
 
@@ -193,6 +205,10 @@ export default function ViewParkingLotModal({
     // If changing to PENDING_PAYMENT, show payment modal
     if (newStatus === "PENDING_PAYMENT") {
       try {
+        // Load devices and fees first
+        await fetchAssignedDevices();
+        await fetchDeviceFees();
+        
         const payloadStatus = newStatus.trim().toUpperCase();
         const res = await parkingLotApi.update(lot.id, {
           status: payloadStatus,
@@ -399,6 +415,77 @@ export default function ViewParkingLotModal({
         `Lỗi hủy thanh toán: ${err.response?.data?.message || err.message}`
       );
     }
+  };
+
+  // Fetch assigned devices for parking lot
+  const fetchAssignedDevices = async () => {
+    try {
+      setLoadingDevices(true);
+      const res = await deviceApi.getAll({ lotId: lot.id, page: 0, size: 1000 });
+      const devices = res.data?.data?.content || res.data?.content || [];
+      // Filter only ACTIVE devices for Admin ParkingLotRequests view
+      const activeDevices = devices.filter(
+        (d) => String(d.status || d.deviceStatus).toUpperCase() === "ACTIVE"
+      );
+      setAssignedDevices(activeDevices);
+    } catch (err) {
+      console.error("Error fetching assigned devices:", err);
+      setAssignedDevices([]);
+    } finally {
+      setLoadingDevices(false);
+    }
+  };
+
+  // Fetch device fees
+  const fetchDeviceFees = async () => {
+    try {
+      const res = await deviceFeeApi.getAll({ page: 0, size: 1000 });
+      const feeList = res.data?.data?.content || res.data?.content || [];
+      console.log("📊 Device Fees loaded:", feeList);
+      console.log("📊 Total fees:", feeList.length);
+      setDeviceFees(feeList);
+    } catch (err) {
+      console.error("Error fetching device fees:", err);
+      showError("Không thể tải phí thiết bị!");
+    }
+  };
+
+  // Get device fee by type
+  const getDeviceFee = (deviceType) => {
+    if (!deviceType) return 0;
+    
+    // Try to find ACTIVE fee first
+    let fee = deviceFees.find((f) => f.deviceType === deviceType && f.status === "ACTIVE");
+    
+    // If not found, try without status check (fallback)
+    if (!fee) {
+      fee = deviceFees.find((f) => f.deviceType === deviceType);
+      if (fee) {
+        console.log(`⚠️ Found fee for ${deviceType} but status is ${fee.status}, not ACTIVE`);
+      } else {
+        console.warn(`❌ No fee configuration found for deviceType: ${deviceType}`);
+        console.log("Available device types in fees:", deviceFees.map(f => f.deviceType));
+      }
+    }
+    
+    const feeValue = fee ? fee.deviceFee : 0;
+    console.log(`💰 Fee for ${deviceType}:`, feeValue);
+    return feeValue;
+  };
+
+  // Load assigned devices when modal opens
+  useEffect(() => {
+    if (showAssignDevicesButton) {
+      fetchAssignedDevices();
+      fetchDeviceFees();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showAssignDevicesButton, lot.id]);
+
+  // Handle device assignment completion
+  const handleDevicesAssigned = () => {
+    fetchAssignedDevices();
+    onActionDone();
   };
 
   // Poll payment status
@@ -1161,20 +1248,172 @@ export default function ViewParkingLotModal({
                   <div className="flex gap-3">
                     <button
                       onClick={handleCancelPayment}
-                      className="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-all shadow-sm flex items-center gap-2"
+                      className="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-all shadow-sm flex items-center gap-2 cursor-pointer"
                     >
                       <i className="ri-close-circle-line text-lg"></i>
                       Hủy thanh toán
                     </button>
                     <button
                       onClick={handlePaymentCheck}
-                      className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-all shadow-md flex items-center gap-2"
+                      className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-all shadow-md flex items-center gap-2 cursor-pointer"
                     >
                       <i className="ri-qr-scan-2-line text-xl"></i>
                       Xem mã QR
                     </button>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* Assigned Devices Section - only show for Admin */}
+            {showAssignDevicesButton && (
+              <div className="mb-6 bg-orange-50 p-6 rounded-2xl border-2 border-orange-200">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
+                      <i className="ri-device-line text-white text-xl"></i>
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900 text-lg">
+                        Thiết Bị Đã Gán
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        Quản lý thiết bị cho bãi đỗ xe này
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      // Check if lot is in ACTIVE status
+                      if (String(lotData.status).toUpperCase() === "ACTIVE") {
+                        showError("Không thể thêm thiết bị cho bãi đỗ xe đang ở trạng thái Hoạt Động!");
+                        return;
+                      }
+                      setShowAssignDevicesModal(true);
+                    }}
+                    className="px-4 py-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium flex items-center gap-2 cursor-pointer"
+                  >
+                    <i className="ri-add-line text-xl"></i>
+                    Gán Thiết Bị
+                  </button>
+                </div>
+
+                {loadingDevices ? (
+                  <div className="text-center py-8">
+                    <i className="ri-loader-4-line text-3xl text-orange-500 animate-spin"></i>
+                    <p className="text-gray-600 mt-2">Đang tải thiết bị...</p>
+                  </div>
+                ) : assignedDevices.length === 0 ? (
+                  <div className="text-center py-8 bg-white rounded-xl border border-orange-200">
+                    <i className="ri-device-line text-4xl text-gray-400 mb-2"></i>
+                    <p className="text-gray-500 font-medium">
+                      Chưa có thiết bị nào được gán
+                    </p>
+                    <p className="text-sm text-gray-400 mt-1">
+                      Nhấp "Gán Thiết Bị" để thêm thiết bị
+                    </p>
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-xl border border-orange-200 overflow-hidden">
+                    <table className="min-w-full">
+                      <thead className="bg-orange-100">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">
+                            ID Thiết Bị
+                          </th>
+                          <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">
+                            Tên Thiết Bị
+                          </th>
+                          <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">
+                            Loại Thiết Bị
+                          </th>
+                          <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">
+                            Model/Serial
+                          </th>
+                          <th className="px-4 py-3 text-right text-sm font-bold text-gray-700">
+                            Phí Thiết Bị
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {assignedDevices.map((device, index) => {
+                          const deviceTypeLabels = {
+                            ULTRASONIC_SENSOR: "Cảm biến siêu âm (Phát hiện chỗ đỗ)",
+                            "Ultrasonic Sensor": "Cảm biến siêu âm (Phát hiện chỗ đỗ)",
+                            NFC_READER: "Đầu đọc thẻ NFC (Ra/Vào)",
+                            "NFC Reader": "Đầu đọc thẻ NFC (Ra/Vào)",
+                            BLE_SCANNER: "Máy quét BLE (Phát hiện gần)",
+                            "BLE Scanner": "Máy quét BLE (Phát hiện gần)",
+                            CAMERA: "Camera (Nhận diện biển số)",
+                            Camera: "Camera (Nhận diện biển số)",
+                            BARRIER_CONTROLLER: "Bộ điều khiển cổng chặn",
+                            "Barrier Controller": "Bộ điều khiển cổng chặn",
+                            DISPLAY_BOARD: "Bảng hiển thị điện tử",
+                            "Display Board": "Bảng hiển thị điện tử",
+                            // Legacy types
+                            BARRIER: "Cổng chặn",
+                            Barrier: "Cổng chặn",
+                            SENSOR: "Cảm biến",
+                            Sensor: "Cảm biến",
+                            INFRARED_SENSOR: "Cảm biến hồng ngoại",
+                            "Infrared Sensor": "Cảm biến hồng ngoại",
+                            PAYMENT_TERMINAL: "Máy thanh toán",
+                            "Payment Terminal": "Máy thanh toán",
+                            DISPLAY: "Màn hình hiển thị",
+                            Display: "Màn hình hiển thị",
+                            LED_DISPLAY: "Màn hình LED",
+                            "LED Display": "Màn hình LED",
+                            OTHER: "Khác",
+                            Other: "Khác",
+                          };
+                          const fee = getDeviceFee(device.deviceType);
+                          
+                          return (
+                            <tr key={index} className="hover:bg-orange-50">
+                              <td className="px-4 py-3 text-sm text-gray-900 font-medium">
+                                {device.deviceId}
+                              </td>
+                              <td className="px-4 py-3 text-sm text-gray-700">
+                                {device.deviceName || "-"}
+                              </td>
+                              <td className="px-4 py-3 text-sm text-gray-700">
+                                {deviceTypeLabels[device.deviceType] || device.deviceType}
+                              </td>
+                              <td className="px-4 py-3 text-sm text-gray-600">
+                                {device.model || device.serialNumber ? (
+                                  <>
+                                    {device.model && <div>{device.model}</div>}
+                                    {device.serialNumber && (
+                                      <div className="text-xs text-gray-500">
+                                        SN: {device.serialNumber}
+                                      </div>
+                                    )}
+                                  </>
+                                ) : (
+                                  "-"
+                                )}
+                              </td>
+                              <td className="px-4 py-3 text-sm font-bold text-orange-600 text-right">
+                                {fee > 0 ? `${fee.toLocaleString()} ₫` : "-"}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                        <tr className="bg-orange-50 font-bold">
+                          <td colSpan="4" className="px-4 py-3 text-right text-gray-900">
+                            Tổng Chi Phí Thiết Bị:
+                          </td>
+                          <td className="px-4 py-3 text-right text-orange-600 text-lg">
+                            {assignedDevices
+                              .reduce((sum, d) => sum + getDeviceFee(d.deviceType), 0)
+                              .toLocaleString()}{" "}
+                            ₫
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             )}
 
@@ -1780,6 +2019,22 @@ export default function ViewParkingLotModal({
                 🗺️ Vẽ bản đồ
               </button>
             )}
+            {showAssignDevicesButton && (
+              <button
+                onClick={() => {
+                  // Check if lot is in ACTIVE status
+                  if (String(lotData.status).toUpperCase() === "ACTIVE") {
+                    showError("Không thể thêm thiết bị cho bãi đỗ xe đang ở trạng thái Hoạt Động!");
+                    return;
+                  }
+                  setShowAssignDevicesModal(true);
+                }}
+                className="px-6 py-2 rounded-md text-sm font-medium flex items-center gap-2 bg-orange-100 text-orange-700 hover:bg-orange-200 cursor-pointer"
+              >
+                <i className="ri-device-line text-lg"></i>
+                Gán Thiết Bị
+              </button>
+            )}
             <button
               onClick={handleClose}
               className="bg-gray-100 text-gray-700 px-6 py-2 rounded-md text-sm font-medium hover:bg-gray-200 cursor-pointer"
@@ -2026,7 +2281,7 @@ export default function ViewParkingLotModal({
                 </div>
                 <button
                   onClick={() => setShowPaymentModal(false)}
-                  className="text-white hover:bg-white/20 rounded-full p-2 transition"
+                  className="text-white hover:bg-white/20 rounded-full p-2 transition cursor-pointer"
                 >
                   <i className="ri-close-line text-2xl"></i>
                 </button>
@@ -2080,6 +2335,86 @@ export default function ViewParkingLotModal({
                   </div>
                 </div>
               </div>
+
+              {/* Device Details */}
+              {assignedDevices.length > 0 && (
+                <div className="bg-orange-50 rounded-xl p-5 mb-6 border border-orange-200">
+                  <h3 className="font-semibold text-orange-900 mb-3 flex items-center gap-2">
+                    <i className="ri-device-line"></i>
+                    Chi tiết thiết bị ({assignedDevices.length})
+                  </h3>
+                  <div className="space-y-3">
+                    {assignedDevices.map((device, index) => {
+                      const deviceTypeLabels = {
+                        ULTRASONIC_SENSOR: "Cảm biến siêu âm (Phát hiện chỗ đỗ)",
+                        "Ultrasonic Sensor": "Cảm biến siêu âm (Phát hiện chỗ đỗ)",
+                        NFC_READER: "Đầu đọc thẻ NFC (Ra/Vào)",
+                        "NFC Reader": "Đầu đọc thẻ NFC (Ra/Vào)",
+                        BLE_SCANNER: "Máy quét BLE (Phát hiện gần)",
+                        "BLE Scanner": "Máy quét BLE (Phát hiện gần)",
+                        CAMERA: "Camera (Nhận diện biển số)",
+                        Camera: "Camera (Nhận diện biển số)",
+                        BARRIER_CONTROLLER: "Bộ điều khiển cổng chặn",
+                        "Barrier Controller": "Bộ điều khiển cổng chặn",
+                        DISPLAY_BOARD: "Bảng hiển thị điện tử",
+                        "Display Board": "Bảng hiển thị điện tử",
+                        // Legacy types
+                        BARRIER: "Cổng chặn",
+                        Barrier: "Cổng chặn",
+                        SENSOR: "Cảm biến",
+                        Sensor: "Cảm biến",
+                        INFRARED_SENSOR: "Cảm biến hồng ngoại",
+                        "Infrared Sensor": "Cảm biến hồng ngoại",
+                        PAYMENT_TERMINAL: "Máy thanh toán",
+                        "Payment Terminal": "Máy thanh toán",
+                        DISPLAY: "Màn hình hiển thị",
+                        Display: "Màn hình hiển thị",
+                        LED_DISPLAY: "Màn hình LED",
+                        "LED Display": "Màn hình LED",
+                        OTHER: "Khác",
+                        Other: "Khác",
+                      };
+                      const fee = getDeviceFee(device.deviceType);
+                      
+                      return (
+                        <div key={index} className="bg-white rounded-lg p-3 border border-orange-200">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex-1">
+                              <div className="font-semibold text-gray-900">
+                                {device.deviceName || device.deviceId}
+                              </div>
+                              <div className="text-xs text-gray-600 mt-1">
+                                {deviceTypeLabels[device.deviceType] || device.deviceType}
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="font-bold text-orange-600">
+                                {fee > 0 ? `${fee.toLocaleString()} ₫` : "-"}
+                              </div>
+                            </div>
+                          </div>
+                          {(device.model || device.serialNumber) && (
+                            <div className="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-100">
+                              {device.model && <div>Model: {device.model}</div>}
+                              {device.serialNumber && <div>SN: {device.serialNumber}</div>}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                    <div className="pt-3 mt-3 border-t border-orange-300 flex justify-between items-center">
+                      <span className="text-gray-700 font-medium">
+                        Tổng phí thiết bị:
+                      </span>
+                      <span className="font-bold text-orange-700 text-lg">
+                        {assignedDevices
+                          .reduce((total, device) => total + getDeviceFee(device.deviceType), 0)
+                          .toLocaleString()} ₫
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* QR Code */}
               <div className="flex flex-col items-center mb-6">
@@ -2362,6 +2697,16 @@ export default function ViewParkingLotModal({
           confirmText="Xóa"
           cancelText="Hủy"
           type="danger"
+        />
+      )}
+
+      {/* Assign Devices Modal */}
+      {showAssignDevicesModal && (
+        <AssignDevicesToLotModal
+          open={showAssignDevicesModal}
+          onClose={() => setShowAssignDevicesModal(false)}
+          lot={lot}
+          onAssigned={handleDevicesAssigned}
         />
       )}
     </>
