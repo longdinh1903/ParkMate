@@ -27,6 +27,11 @@ export default function AdminLayout({ children }) {
       path: "/admin/fee-config",
       icon: "ri-money-dollar-circle-fill",
     },
+    {
+      name: "Phí Thiết Bị",
+      path: "/admin/device-fees",
+      icon: "ri-copper-coin-fill",
+    },
     { name: "Tổng Quan", path: "/admin/dashboard", icon: "ri-dashboard-fill" },
   ];
 

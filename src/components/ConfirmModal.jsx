@@ -41,7 +41,7 @@ export default function ConfirmModal({ open = true, title, message, onConfirm, o
               disabled={loading}
               className={`px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition cursor-pointer ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}
             >
-              Cancel
+              Hủy
             </button>
             <button
               onClick={handleConfirm}
@@ -54,7 +54,7 @@ export default function ConfirmModal({ open = true, title, message, onConfirm, o
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                 </svg>
               )}
-              {loading ? `${confirmLabel}...` : confirmLabel}
+              {loading ? `${confirmLabel}...` : "Xác nhận"}
             </button>
           </div>
         </div>

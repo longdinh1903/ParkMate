@@ -84,6 +84,16 @@ const parkingLotApi = {
       data: imageIds
     });
   },
+
+  // Assign devices to parking lot with quantities
+  assignDevicesToLot: (lotId, devices) => {
+    return axiosClient.post(`/api/v1/parking-service/lots/${lotId}/devices`, devices);
+  },
+
+  // Get devices assigned to parking lot
+  getAssignedDevices: (lotId) => {
+    return axiosClient.get(`/api/v1/parking-service/lots/${lotId}/devices`);
+  },
 };
 
 export default parkingLotApi;

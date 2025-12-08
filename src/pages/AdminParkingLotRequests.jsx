@@ -555,6 +555,7 @@ export default function AdminParkingLotRequests() {
           showDrawMapButton={true}
           showResetMapButton={true}
           showPaymentBanner={false}
+          showAssignDevicesButton={true}
           statusOptions={[
             { key: "PREPARING", label: "Đang Chuẩn Bị", color: "text-yellow-600" },
             {

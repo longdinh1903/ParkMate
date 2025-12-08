@@ -19,6 +19,7 @@ import AdminParkingLots from "../pages/AdminParkingLots";
 import AdminFeeConfig from "../pages/AdminFeeConfig";
 import AdminDashboard from "../pages/AdminDashboard";
 import AdminDevices from "../pages/AdminDevices";
+import AdminDeviceFees from "../pages/AdminDeviceFees";
 import ProtectedPartnerRoute from "../components/ProtectedPartnerRoute";
 
 export default function AppRoutes() {
@@ -52,6 +53,7 @@ export default function AppRoutes() {
       <Route path="/admin/parking-lots" element={<AdminParkingLots />} />
       <Route path="/admin/fee-config" element={<AdminFeeConfig />} />
       <Route path="/admin/devices" element={<AdminDevices />} />
+      <Route path="/admin/device-fees" element={<AdminDeviceFees />} />
     </Routes>
   );
 }
