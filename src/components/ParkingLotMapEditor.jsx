@@ -15,24 +15,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
   const [editAreaType, setEditAreaType] = useState("");
   const [showRightPanel, setShowRightPanel] = useState(true); // Toggle right panel
 
-  // Get allowed vehicle types from lot.lotCapacity (approved types only)
-  const getAllowedVehicleTypes = () => {
-    console.log("🔍 Checking lot.lotCapacity:", lot.lotCapacity);
-    console.log("🔍 Full lot object:", lot);
-    
-    if (lot.lotCapacity && Array.isArray(lot.lotCapacity) && lot.lotCapacity.length > 0) {
-      const allowedTypes = lot.lotCapacity.map(capacity => capacity.vehicleType);
-      console.log("✅ Allowed vehicle types from lotCapacity:", allowedTypes);
-      return allowedTypes;
-    }
-    
-    // Fallback to all types if no lotCapacity
-    console.log("⚠️ No lotCapacity found, allowing all vehicle types");
-    return ["CAR_UP_TO_9_SEATS", "MOTORBIKE", "BIKE", "OTHER"];
-  };
-
-  const vehicleTypes = getAllowedVehicleTypes();
-
+  // Area types - no need for vehicle types since Partner can't change them
   const areaTypes = [
     "WALK_IN_ONLY",
     "SUBSCRIPTION_ONLY",
@@ -192,22 +175,24 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
       } else if (selectedItem.type === "area") {
         // Build a minimal payload with only fields expected by the API to avoid 400 errors
         const area = selectedItem.data;
-        // Normalize vehicleType to API enum format: UPPERCASE_WITH_UNDERSCORES
-        const vehicleTypeNormalized = (editVehicleType || "").toString()
+        
+        // Partner can ONLY change name and areaType, NOT vehicleType
+        // Use existing vehicleType from the area
+        const vehicleTypeNormalized = (area.vehicleType || "CAR_UP_TO_9_SEATS").toString()
           .toUpperCase()
           .trim()
           .replace(/\s+/g, "_")
           .replace(/[^A-Z0-9_]/g, "_");
 
-        // Normalize areaType
+        // Normalize areaType (Partner can change this)
         const areaTypeNormalized = (editAreaType || "WALK_IN_ONLY").toString()
           .toUpperCase()
           .trim();
 
         const payload = {
           name: editName,
-          vehicleType: vehicleTypeNormalized,
-          areaType: areaTypeNormalized,
+          vehicleType: vehicleTypeNormalized, // Keep existing vehicleType (read-only for Partner)
+          areaType: areaTypeNormalized, // Partner can update this
           areaTopLeftX: Number(Math.round((area.areaTopLeftX || area.x || 0) * 100) / 100),
           areaTopLeftY: Number(Math.round((area.areaTopLeftY || area.y || 0) * 100) / 100),
           areaWidth: Number(Math.round((area.areaWidth || area.width || 0) * 100) / 100),
@@ -225,7 +210,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
                   ...f,
                   areas: f.areas.map((a) =>
                     a.id === selectedItem.id
-                      ? { ...a, name: editName, vehicleType: editVehicleType, areaType: editAreaType }
+                      ? { ...a, name: editName, areaType: editAreaType } // Only update name and areaType
                       : a
                   ),
                 }
@@ -281,11 +266,6 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
     setEditAreaType("");
   };
 
-  // Check if any areas still have default vehicle type
-  const hasDefaultVehicleTypes = areas.some(
-    (a) => a.vehicleType === "CAR_UP_TO_9_SEATS"
-  );
-
   if (loading) {
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -321,18 +301,6 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
           Đóng
         </button>
       </div>
-
-      {/* Warning Banner */}
-      {hasDefaultVehicleTypes && (
-        <div className="bg-orange-100 border-l-4 border-orange-500 p-4 mx-4 mt-4 rounded flex-shrink-0">
-          <div className="flex items-center">
-            <i className="ri-alert-line text-orange-600 text-xl mr-3"></i>
-            <p className="text-orange-800 font-medium">
-              ⚠️ Yêu cầu hành động: Một số khu vực vẫn có loại xe mặc định. Vui lòng cập nhật chúng.
-            </p>
-          </div>
-        </div>
-      )}
 
       {/* Main Content Area - Flex Row */}
       <div className="flex flex-1 overflow-hidden">
@@ -449,7 +417,12 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
                     <Text
                       x={area.areaTopLeftX}
                       y={area.areaTopLeftY - 38}
-                      text={`${area.name} (${area.spots?.length || 0} spots)`}
+                      text={(() => {
+                        const isMotorbike = area.vehicleType === "MOTORBIKE" || area.vehicleType === "BIKE" || area.vehicleType === "OTHER";
+                        return isMotorbike 
+                          ? `${area.name} (${area.totalSpots || 0} chỗ)`
+                          : `${area.name} (${area.spots?.length || 0} spots)`;
+                      })()}
                       fontSize={12}
                       fill="#2563eb"
                       fontStyle="bold"
@@ -465,8 +438,8 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
                       fontStyle="normal"
                     />
 
-                    {/* Draw Spots */}
-                    {area.spots?.map((spot) => (
+                    {/* Draw Spots - ONLY for cars, not for motorbikes/bikes/other */}
+                    {area.vehicleType === "CAR_UP_TO_9_SEATS" && area.spots?.map((spot) => (
                       <Group
                         key={spot.id}
                         onClick={(e) => {
@@ -544,33 +517,23 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
                 <>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Loại xe <span className="text-red-500">*</span>
+                      Loại xe <span className="text-gray-400">(do Admin thiết lập)</span>
                     </label>
-                    <select
-                      value={editVehicleType}
-                      onChange={(e) => setEditVehicleType(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    >
-                      {vehicleTypes.map((type) => {
+                    <div className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-700 font-medium">
+                      {(() => {
                         const displayNames = {
-                          'CAR_UP_TO_9_SEATS': 'Ô tô (dưới 9 chỗ)',
-                          'MOTORBIKE': 'Xe máy',
-                          'BIKE': 'Xe đạp',
-                          'OTHER': 'Khác'
+                          'CAR_UP_TO_9_SEATS': '🚗 Ô tô (dưới 9 chỗ)',
+                          'MOTORBIKE': '🏍️ Xe máy',
+                          'BIKE': '🚲 Xe đạp',
+                          'OTHER': '🚙 Khác'
                         };
-                        return (
-                          <option key={type} value={type}>
-                            {displayNames[type] || type.replace(/_/g, " ")}
-                          </option>
-                        );
-                      })}
-                    </select>
-                    <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
-                      <p className="text-xs text-blue-800">
-                        <i className="ri-information-line mr-1"></i>
-                        <strong>Lưu ý:</strong> Chỉ có các loại xe đã đăng ký trong phê duyệt bãi đỗ của bạn mới khả dụng.
-                      </p>
+                        return displayNames[editVehicleType] || editVehicleType;
+                      })()}
                     </div>
+                    <p className="mt-2 text-xs text-gray-500">
+                      <i className="ri-lock-line mr-1"></i>
+                      Loại xe không thể thay đổi. Chỉ Admin mới có thể thiết lập khi vẽ bản đồ.
+                    </p>
                   </div>
 
                   <div>

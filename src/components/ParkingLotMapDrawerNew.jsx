@@ -32,6 +32,13 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     BIKE: false,
     OTHER: false,
   });
+  
+  // State for Area configuration modal
+  const [showAreaConfigModal, setShowAreaConfigModal] = useState(false);
+  const [pendingArea, setPendingArea] = useState(null); // Stores temporary area bounds
+  const [areaVehicleType, setAreaVehicleType] = useState("CAR_UP_TO_9_SEATS");
+  const [areaType, setAreaType] = useState("WALK_IN_ONLY");
+  const [areaCapacity, setAreaCapacity] = useState(""); // For motorbikes: total capacity
 
   const isDrawing = useRef(false);
   const isCreatingArea = useRef(false);
@@ -107,7 +114,13 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
       const floorSpots = floor.areas.reduce((sum, area) => {
         // Không tính temp-area
         if (area.id === "temp-area") return sum;
-        return sum + (area.spots?.length || 0);
+        
+        // For motorbikes/bikes: use totalSpots
+        // For cars: use spots array length
+        const isMotorbike = area.vehicleType === "MOTORBIKE" || area.vehicleType === "BIKE" || area.vehicleType === "OTHER";
+        const areaCount = isMotorbike ? (area.totalSpots || 0) : (area.spots?.length || 0);
+        
+        return sum + areaCount;
       }, 0);
       return total + floorSpots;
     }, 0);
@@ -299,6 +312,16 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
         console.log("Clicked on shape, not creating area");
         return;
       }
+      
+      // Check if reached capacity limit
+      const totalRegistered = getTotalRegisteredCapacity();
+      const totalDrawn = getTotalDrawnSpots();
+      
+      if (totalDrawn >= totalRegistered) {
+        toast.error("⚠️ Đã đạt giới hạn chỗ đỗ! Không thể tạo thêm khu vực.", { duration: 2000, id: 'area-limit' });
+        return;
+      }
+      
       console.log("Starting area creation at:", pos);
       isCreatingArea.current = true;
       areaStartPos.current = pos;
@@ -501,18 +524,47 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
           const filtered = f.areas.filter((a) => a.id !== "temp-area");
 
           if (Math.abs(width) > 30 && Math.abs(height) > 30) {
-            const newArea = {
-              id: Date.now().toString(),
-              name: `Area ${filtered.length + 1}`,
+            // Check if reached capacity limit before creating area
+            const totalRegistered = getTotalRegisteredCapacity();
+            const totalDrawn = getTotalDrawnSpots();
+            
+            if (totalDrawn >= totalRegistered) {
+              // Don't show toast here - already shown in mouseDown
+              return { ...f, areas: filtered };
+            }
+            
+            // Calculate max spots this area can hold
+            const spotWidth = 40;
+            const spotHeight = 60;
+            const padding = 10;
+            const areaWidth = Math.abs(width);
+            const areaHeight = Math.abs(height);
+            const spotsPerRow = Math.floor(areaWidth / (spotWidth + padding));
+            const spotsPerCol = Math.floor(areaHeight / (spotHeight + padding));
+            const maxSpots = spotsPerRow * spotsPerCol;
+            
+            // Store pending area and show configuration modal
+            const areaNumber = filtered.length + 1;
+            setPendingArea({
+              name: `Area ${areaNumber}`,
               x: startX,
               y: startY,
               width: Math.abs(width),
               height: Math.abs(height),
-              spots: [],
-              fill: "rgba(147,197,253,0.3)",
-              stroke: "#3b82f6",
-            };
-            return { ...f, areas: [...filtered, newArea] };
+              maxSpots: maxSpots, // Store max capacity
+            });
+            
+            // Reset modal state
+            const allowedTypes = getAllowedVehicleTypes();
+            const defaultType = allowedTypes.CAR_UP_TO_9_SEATS ? "CAR_UP_TO_9_SEATS" : 
+                               allowedTypes.MOTORBIKE ? "MOTORBIKE" : 
+                               allowedTypes.BIKE ? "BIKE" : "OTHER";
+            setAreaVehicleType(defaultType);
+            setAreaType("WALK_IN_ONLY");
+            setAreaCapacity("");
+            setShowAreaConfigModal(true);
+            
+            return { ...f, areas: filtered };
           } else {
             return { ...f, areas: filtered };
           }
@@ -524,6 +576,65 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
   };
 
   // ===== AREA MANAGEMENT =====
+  
+  // Confirm area creation with selected vehicle type and capacity
+  const handleConfirmAreaCreation = () => {
+    if (!pendingArea) return;
+    
+    // Validate capacity for motorbikes
+    const isMotorbike = areaVehicleType === "MOTORBIKE" || areaVehicleType === "BIKE" || areaVehicleType === "OTHER";
+    if (isMotorbike) {
+      const capacity = parseInt(areaCapacity);
+      if (!capacity || capacity < 1) {
+        toast.error("⚠️ Vui lòng nhập số lượng chỗ đỗ hợp lệ!");
+        return;
+      }
+      
+      // Check if exceeds max capacity of this area
+      const maxSpots = pendingArea.maxSpots || 0;
+      if (capacity > maxSpots) {
+        toast.error(`⚠️ Khu vực này chỉ chứa được tối đa ${maxSpots} chỗ! (Bạn đang nhập: ${capacity})`);
+        return;
+      }
+      
+      // Check if exceeds total registered capacity
+      const totalRegistered = getTotalRegisteredCapacity();
+      const totalDrawn = getTotalDrawnSpots();
+      const spotsRemaining = totalRegistered - totalDrawn;
+      
+      if (capacity > spotsRemaining) {
+        toast.error(`⚠️ Vượt quá giới hạn tổng! Chỉ còn ${spotsRemaining} chỗ (đang nhập: ${capacity})`);
+        return;
+      }
+    }
+    
+    const newArea = {
+      id: Date.now().toString(),
+      name: pendingArea.name,
+      x: pendingArea.x,
+      y: pendingArea.y,
+      width: pendingArea.width,
+      height: pendingArea.height,
+      vehicleType: areaVehicleType,
+      areaType: areaType,
+      spots: isMotorbike ? [] : [], // Empty spots array initially for both
+      totalSpots: isMotorbike ? parseInt(areaCapacity) : 0, // For motorbikes: store capacity, for cars: 0 (will add spots manually)
+      fill: "rgba(147,197,253,0.3)",
+      stroke: "#3b82f6",
+    };
+    
+    updateCurrentFloor({
+      areas: [...areas, newArea],
+    });
+    
+    setShowAreaConfigModal(false);
+    setPendingArea(null);
+    
+    const typeLabel = areaVehicleType === "MOTORBIKE" ? "Xe máy" : 
+                     areaVehicleType === "BIKE" ? "Xe đạp" : 
+                     areaVehicleType === "CAR_UP_TO_9_SEATS" ? "Ô tô" : "Khác";
+    toast.success(`✅ Đã tạo ${newArea.name} (${typeLabel})${isMotorbike ? ` - ${areaCapacity} chỗ` : ""}!`);
+  };
 
   const handleAddSpotToArea = () => {
     if (!selectedAreaId) {
@@ -536,6 +647,12 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
       // toast.error("⚠️ Selected area not found!");
       return;
     }
+    
+    // Check if area is for motorbikes/bikes/other - don't allow adding spots
+    if (selectedArea.vehicleType === "MOTORBIKE" || selectedArea.vehicleType === "BIKE" || selectedArea.vehicleType === "OTHER") {
+      toast.error("⚠️ Không thể thêm chỗ đỗ riêng lẻ cho khu vực xe máy/xe đạp! Số lượng đã được thiết lập khi tạo khu vực.");
+      return;
+    }
 
     // Kiểm tra có vượt quá tổng số đã đăng ký không
     const totalRegistered = getTotalRegisteredCapacity();
@@ -543,8 +660,8 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     
     if (totalDrawn >= totalRegistered) {
       toast.error(
-        `⚠️ Không thể thêm spot! Đã đạt giới hạn đăng ký (${totalDrawn}/${totalRegistered} chỗ)`,
-        { duration: 4000 }
+        `⚠️ Không thể thêm spot! Đã đạt giới hạn (${totalDrawn}/${totalRegistered} chỗ)`,
+        { duration: 2000, id: 'spot-limit' }
       );
       return;
     }
@@ -561,12 +678,25 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     const existingSpots = selectedArea.spots.length;
     const row = Math.floor(existingSpots / spotsPerRow);
     const col = existingSpots % spotsPerRow;
+    
+    // Calculate position
+    const spotX = col * (spotWidth + 10) + 5;
+    const spotY = row * (spotHeight + 10) + 5;
+    
+    // Check if spot would be outside area bounds
+    if (spotX + spotWidth > selectedArea.width || spotY + spotHeight > selectedArea.height) {
+      toast.error(
+        `⚠️ Khu vực không còn đủ không gian! (Đã chứa ${existingSpots} chỗ)`,
+        { duration: 2000, id: `area-full-${selectedAreaId}` }
+      );
+      return;
+    }
 
     const newSpot = {
       id: Date.now().toString(),
       name: `${selectedArea.name}-S${existingSpots + 1}`,
-      x: col * (spotWidth + 10) + 5,
-      y: row * (spotHeight + 10) + 5,
+      x: spotX,
+      y: spotY,
       width: spotWidth,
       height: spotHeight,
       fill: "rgba(34,197,94,0.3)",
@@ -602,6 +732,12 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
       // toast.error("⚠️ Selected area not found!");
       return;
     }
+    
+    // Check if area is for motorbikes/bikes/other - don't allow adding spots
+    if (selectedArea.vehicleType === "MOTORBIKE" || selectedArea.vehicleType === "BIKE" || selectedArea.vehicleType === "OTHER") {
+      toast.error("⚠️ Không thể thêm chỗ đỗ riêng lẻ cho khu vực xe máy/xe đạp!", { duration: 2000, id: 'motorbike-spot-error' });
+      return;
+    }
 
     // Kiểm tra có vượt quá tổng số đã đăng ký không
     const totalRegistered = getTotalRegisteredCapacity();
@@ -610,8 +746,8 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     
     if (spotsRemaining <= 0) {
       toast.error(
-        `⚠️ Không thể thêm spot! Đã đạt giới hạn đăng ký (${totalDrawn}/${totalRegistered} chỗ)`,
-        { duration: 4000 }
+        `⚠️ Không thể thêm spot! Đã đạt giới hạn (${totalDrawn}/${totalRegistered} chỗ)`,
+        { duration: 2000, id: 'spot-limit' }
       );
       return;
     }
@@ -621,8 +757,8 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
     
     if (actualCount < count) {
       toast.warning(
-        `⚠️ Chỉ có thể thêm ${actualCount} spot! (Còn lại: ${spotsRemaining}/${totalRegistered})`,
-        { duration: 4000 }
+        `⚠️ Chỉ có thể thêm ${actualCount} spot! (Còn lại: ${spotsRemaining})`,
+        { duration: 2000, id: 'spot-limit-warning' }
       );
     }
 
@@ -641,12 +777,25 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
       const spotIndex = existingSpots + i;
       const row = Math.floor(spotIndex / spotsPerRow);
       const col = spotIndex % spotsPerRow;
+      
+      // Calculate position
+      const spotX = col * (spotWidth + 10) + 5;
+      const spotY = row * (spotHeight + 10) + 5;
+      
+      // Check if spot would be outside area bounds
+      if (spotX + spotWidth > selectedArea.width || spotY + spotHeight > selectedArea.height) {
+        toast.warning(
+          `⚠️ Khu vực ${selectedArea.name} chỉ chứa được ${existingSpots + i} chỗ đỗ! (Không đủ không gian cho ${actualCount} chỗ)`,
+          { duration: 4000 }
+        );
+        break; // Stop adding more spots
+      }
 
       newSpots.push({
         id: `${Date.now()}-${i}`,
         name: `${selectedArea.name}-S${spotIndex + 1}`,
-        x: col * (spotWidth + 10) + 5,
-        y: row * (spotHeight + 10) + 5,
+        x: spotX,
+        y: spotY,
         width: spotWidth,
         height: spotHeight,
         fill: "rgba(34,197,94,0.3)",
@@ -961,17 +1110,19 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             console.log(`📍 Saving ${floor.areas.length} NEW areas for existing floor ${floorId}...`);
             
             for (const area of floor.areas) {
+              const isMotorbikeArea = area.vehicleType === "MOTORBIKE" || area.vehicleType === "BIKE" || area.vehicleType === "OTHER";
+              
               const areaPayload = {
                 name: area.name,
-                vehicleType: "CAR_UP_TO_9_SEATS",
-                areaType: "WALK_IN_ONLY",
+                vehicleType: area.vehicleType || "CAR_UP_TO_9_SEATS",
+                areaType: area.areaType || "WALK_IN_ONLY",
                 areaTopLeftX: Math.round(area.x),
                 areaTopLeftY: Math.round(area.y),
                 areaWidth: Math.round(area.width),
                 areaHeight: Math.round(area.height),
                 supportElectricVehicle: false,
-                totalSpots: area.spots?.length || 0,
-                spotRequests: (area.spots || []).map((s) => ({
+                totalSpots: isMotorbikeArea ? (area.totalSpots || 0) : (area.spots?.length || 0),
+                spotRequests: isMotorbikeArea ? [] : (area.spots || []).map((s) => ({
                   name: s.name,
                   spotTopLeftX: Math.round(s.x),
                   spotTopLeftY: Math.round(s.y),
@@ -1093,23 +1244,26 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
         }
 
         console.log(`✅ Floor ${floor.floorNumber} created with ID: ${floorId}`);
-        // Partner sẽ đặt tên và chọn vehicleType sau
+        // Save areas with their configured vehicle types and area types
         if (floor.areas.length > 0) {
           console.log(`📍 Saving ${floor.areas.length} areas for floor ${floorId}...`);
           
           for (const area of floor.areas) {
+            // Use the vehicle type and area type selected by Admin
+            const isMotorbikeArea = area.vehicleType === "MOTORBIKE" || area.vehicleType === "BIKE" || area.vehicleType === "OTHER";
+            
             const areaPayload = {
-              name: area.name, // Tên tạm: "Area 1", "Area 2"...
-              vehicleType: "CAR_UP_TO_9_SEATS", // ⚠️ Temporary - REQUIRED by API
-              areaType: "WALK_IN_ONLY", // ⚠️ Temporary - REQUIRED by API
+              name: area.name,
+              vehicleType: area.vehicleType || "CAR_UP_TO_9_SEATS",
+              areaType: area.areaType || "WALK_IN_ONLY",
               areaTopLeftX: Math.round(area.x),
               areaTopLeftY: Math.round(area.y),
               areaWidth: Math.round(area.width),
               areaHeight: Math.round(area.height),
               supportElectricVehicle: false,
-              totalSpots: area.spots?.length || 0,
-              spotRequests: (area.spots || []).map((s) => ({
-                name: s.name, // Tên tạm: "Area 1-S1"...
+              totalSpots: isMotorbikeArea ? (area.totalSpots || 0) : (area.spots?.length || 0),
+              spotRequests: isMotorbikeArea ? [] : (area.spots || []).map((s) => ({
+                name: s.name,
                 spotTopLeftX: Math.round(s.x),
                 spotTopLeftY: Math.round(s.y),
                 spotWidth: Math.round(s.width),
@@ -1117,15 +1271,14 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
               })),
             };
 
-            console.log(`📤 Area "${area.name}":`, JSON.stringify(areaPayload, null, 2));
-            console.log(`   ⚠️ Note: vehicleType is temporary - Partner will update later`);
+            console.log(`📤 Area "${area.name}" (${area.vehicleType}):`, JSON.stringify(areaPayload, null, 2));
 
             try {
               const areaRes = await areaApi.create(floorId, areaPayload);
               console.log(`✅ Area "${area.name}" created:`, areaRes.data);
               
               const areaId = areaRes.data?.data?.id || areaRes.data?.id;
-              console.log(`   Area ID: ${areaId}, Spots: ${area.spots?.length || 0}`);
+              console.log(`   Area ID: ${areaId}, ${isMotorbikeArea ? 'Total capacity' : 'Spots'}: ${isMotorbikeArea ? area.totalSpots : area.spots?.length || 0}`);
             } catch (areaError) {
               console.error(`❌ Area "${area.name}" failed:`, areaError);
               console.error("   Error response:", areaError.response?.data);
@@ -1867,7 +2020,9 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                 <Text
                   x={area.x}
                   y={area.y - 20}
-                  text={`${area.name} (${area.spots?.length || 0} spots)`}
+                  text={area.vehicleType === "MOTORBIKE" || area.vehicleType === "BIKE" || area.vehicleType === "OTHER"
+                    ? `${area.name} (${area.totalSpots || 0} chỗ)`
+                    : `${area.name} (${area.spots?.length || 0} spots)`}
                   fontSize={12}
                   fill="#2563eb"
                   fontStyle="bold"
@@ -1883,8 +2038,8 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                   opacity={0.8}
                 />
 
-                {/* Spots inside area */}
-                {(area.spots || []).map((spot) => (
+                {/* Spots inside area - ONLY for cars */}
+                {area.vehicleType === "CAR_UP_TO_9_SEATS" && (area.spots || []).map((spot) => (
                   <Group key={spot.id}>
                     <Rect
                       id={spot.id}
@@ -1974,6 +2129,212 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
           </Layer>
         </Stage>
       </div>
+
+      {/* Area Configuration Modal */}
+      {showAreaConfigModal && pendingArea && (
+        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black/30 z-50">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-[500px]">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <i className="ri-map-pin-add-line text-green-600 text-2xl"></i>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">Cấu hình Khu Vực</h3>
+                <p className="text-sm text-gray-500">Chọn loại xe và thông tin cho {pendingArea.name}</p>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Loại xe <span className="text-red-500">*</span>
+              </label>
+              
+              <div className="space-y-2">
+                {(() => {
+                  const allowedTypes = getAllowedVehicleTypes();
+                  return (
+                    <>
+                      {/* Car */}
+                      {allowedTypes.CAR_UP_TO_9_SEATS && (
+                        <label className="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-all">
+                          <input
+                            type="radio"
+                            name="areaVehicleType"
+                            value="CAR_UP_TO_9_SEATS"
+                            checked={areaVehicleType === "CAR_UP_TO_9_SEATS"}
+                            onChange={(e) => setAreaVehicleType(e.target.value)}
+                            className="w-5 h-5 text-blue-600"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <i className="ri-car-fill text-blue-600 text-xl"></i>
+                              <span className="font-medium text-gray-900">Ô tô dưới 9 chỗ</span>
+                            </div>
+                            <p className="text-xs text-gray-500 ml-7">Vẽ các chỗ đỗ riêng lẻ</p>
+                          </div>
+                        </label>
+                      )}
+
+                      {/* Motorbike */}
+                      {allowedTypes.MOTORBIKE && (
+                        <label className="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-all">
+                          <input
+                            type="radio"
+                            name="areaVehicleType"
+                            value="MOTORBIKE"
+                            checked={areaVehicleType === "MOTORBIKE"}
+                            onChange={(e) => setAreaVehicleType(e.target.value)}
+                            className="w-5 h-5 text-blue-600"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <i className="ri-motorbike-fill text-blue-600 text-xl"></i>
+                              <span className="font-medium text-gray-900">Xe máy</span>
+                            </div>
+                            <p className="text-xs text-gray-500 ml-7">Chỉ nhập số lượng chỗ</p>
+                          </div>
+                        </label>
+                      )}
+
+                      {/* Bike */}
+                      {allowedTypes.BIKE && (
+                        <label className="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer hover:bg-green-50 hover:border-green-300 transition-all">
+                          <input
+                            type="radio"
+                            name="areaVehicleType"
+                            value="BIKE"
+                            checked={areaVehicleType === "BIKE"}
+                            onChange={(e) => setAreaVehicleType(e.target.value)}
+                            className="w-5 h-5 text-green-600"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <i className="ri-bike-fill text-green-600 text-xl"></i>
+                              <span className="font-medium text-gray-900">Xe đạp</span>
+                            </div>
+                            <p className="text-xs text-gray-500 ml-7">Chỉ nhập số lượng chỗ</p>
+                          </div>
+                        </label>
+                      )}
+
+                      {/* Other */}
+                      {allowedTypes.OTHER && (
+                        <label className="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer hover:bg-purple-50 hover:border-purple-300 transition-all">
+                          <input
+                            type="radio"
+                            name="areaVehicleType"
+                            value="OTHER"
+                            checked={areaVehicleType === "OTHER"}
+                            onChange={(e) => setAreaVehicleType(e.target.value)}
+                            className="w-5 h-5 text-purple-600"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <i className="ri-truck-fill text-purple-600 text-xl"></i>
+                              <span className="font-medium text-gray-900">Khác</span>
+                            </div>
+                            <p className="text-xs text-gray-500 ml-7">Chỉ nhập số lượng chỗ</p>
+                          </div>
+                        </label>
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+
+            {/* Capacity input for motorbikes/bikes/other */}
+            {(areaVehicleType === "MOTORBIKE" || areaVehicleType === "BIKE" || areaVehicleType === "OTHER") && (
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Số lượng chỗ đỗ <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max={pendingArea?.maxSpots || 999}
+                  value={areaCapacity}
+                  onChange={(e) => setAreaCapacity(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  placeholder={`Tối đa: ${pendingArea?.maxSpots || 0}`}
+                />
+                {(() => {
+                  const maxAreaSpots = pendingArea?.maxSpots || 0;
+                  const totalRegistered = getTotalRegisteredCapacity();
+                  const totalDrawn = getTotalDrawnSpots();
+                  const spotsRemaining = totalRegistered - totalDrawn;
+                  const actualMax = Math.min(maxAreaSpots, spotsRemaining);
+                  
+                  return (
+                    <div className="mt-2 space-y-1">
+                      <p className="text-sm font-bold text-red-600">
+                        📐 Khu vực này chứa tối đa: <strong>{maxAreaSpots} chỗ</strong>
+                      </p>
+                      <div className="border-t border-gray-200 pt-1 mt-1">
+                        <p className="text-xs text-gray-600">
+                          📊 Tổng đã đăng ký: <strong>{totalRegistered} chỗ</strong>
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          ✏️ Đã vẽ/nhập: <strong>{totalDrawn} chỗ</strong>
+                        </p>
+                        <p className={`text-sm font-bold ${spotsRemaining > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          💡 Còn lại: {spotsRemaining} chỗ
+                        </p>
+                      </div>
+                      <p className="text-sm font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                        ✅ Có thể nhập: tối đa {actualMax} chỗ
+                      </p>
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Loại khu vực <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={areaType}
+                onChange={(e) => setAreaType(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 cursor-pointer"
+              >
+                <option value="WALK_IN_ONLY">Khách vãng lai</option>
+                <option value="SUBSCRIPTION_ONLY">Theo gói đăng ký</option>
+                <option value="EMERGENCY_ONLY">Khẩn cấp</option>
+              </select>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
+              <p className="text-sm text-blue-800">
+                <i className="ri-information-line mr-1"></i>
+                <strong>Lưu ý:</strong> {areaVehicleType === "CAR_UP_TO_9_SEATS" 
+                  ? "Sau khi tạo khu vực, bạn có thể thêm các chỗ đỗ riêng lẻ bằng cách vẽ." 
+                  : "Khu vực này sẽ lưu tổng số chỗ mà không vẽ từng chỗ riêng lẻ."}
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowAreaConfigModal(false);
+                  setPendingArea(null);
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-all cursor-pointer"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleConfirmAreaCreation}
+                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-all cursor-pointer shadow-md"
+              >
+                <i className="ri-check-line mr-2"></i>
+                Tạo Khu Vực
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Copy Floor Modal */}
       {showCopyModal && (
