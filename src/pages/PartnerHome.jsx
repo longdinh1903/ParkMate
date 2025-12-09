@@ -197,6 +197,12 @@ export default function PartnerHome() {
         icon: "ri-checkbox-circle-fill",
         label: "Hoạt động",
       },
+      UNDER_MAINTENANCE: {
+        bg: "bg-orange-100",
+        text: "text-orange-700",
+        icon: "ri-tools-fill",
+        label: "Đang bảo trì",
+      },
 
       PENDING: {
         bg: "bg-yellow-100",
@@ -338,6 +344,7 @@ export default function PartnerHome() {
                 Cấu hình đối tác
               </option>
               <option value="ACTIVE">Hoạt động</option>
+              <option value="UNDER_MAINTENANCE">Đang bảo trì</option>
               <option value="INACTIVE">Không hoạt động</option>
               <option value="MAP_DENIED">Bản đồ bị từ chối</option>
               <option value="REJECTED">Bị từ chối</option>
@@ -637,12 +644,37 @@ export default function PartnerHome() {
             setSelectedLot(null);
           }}
           onActionDone={() => fetchMyLots(page)}
-          // restrict status change options for partners to only ACTIVE and MAP_DENIED
-          statusOptions={[
-            { key: "ACTIVE", label: "Hoạt Động", color: "text-green-600" },
-            { key: "MAP_DENIED", label: "Bản Đồ Bị Từ Chối", color: "text-red-600" },
-            { key: "PENDING_PAYMENT", label: "Thanh Toán", color: "text-purple-600" },
-          ]}
+          // ACTIVE: hiển thị UNDER_MAINTENANCE và PENDING_PAYMENT
+          // UNDER_MAINTENANCE: chỉ hiển thị ACTIVE
+          // PENDING, PREPARING, PARTNER_CONFIGURATION: không hiển thị ACTIVE, nhưng có PENDING_PAYMENT
+          // PENDING_PAYMENT: chỉ hiển thị MAP_DENIED
+          statusOptions={
+            selectedLot.status === "ACTIVE" 
+              ? [
+                  { key: "UNDER_MAINTENANCE", label: "Đang Bảo Trì", color: "text-orange-600" },
+                  { key: "PENDING_PAYMENT", label: "Thanh Toán", color: "text-purple-600" },
+                ]
+              : selectedLot.status === "UNDER_MAINTENANCE"
+              ? [
+                  { key: "ACTIVE", label: "Hoạt Động", color: "text-green-600" },
+                ]
+              : selectedLot.status === "PENDING_PAYMENT"
+              ? [
+                  { key: "MAP_DENIED", label: "Bản Đồ Bị Từ Chối", color: "text-red-600" },
+                ]
+              : selectedLot.status === "PENDING" || 
+                selectedLot.status === "PREPARING" || 
+                selectedLot.status === "PARTNER_CONFIGURATION"
+              ? [
+                  { key: "MAP_DENIED", label: "Bản Đồ Bị Từ Chối", color: "text-red-600" },
+                  { key: "PENDING_PAYMENT", label: "Thanh Toán", color: "text-purple-600" },
+                ]
+              : [
+                  { key: "ACTIVE", label: "Hoạt Động", color: "text-green-600" },
+                  { key: "MAP_DENIED", label: "Bản Đồ Bị Từ Chối", color: "text-red-600" },
+                  { key: "PENDING_PAYMENT", label: "Thanh Toán", color: "text-purple-600" },
+                ]
+          }
           allowEdit={true}
         />
       )}

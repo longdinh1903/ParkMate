@@ -268,6 +268,8 @@ export default function ViewParkingLotModal({
     switch (status) {
       case "ACTIVE":
         return "bg-green-100 text-green-700 border border-green-300";
+      case "UNDER_MAINTENANCE":
+        return "bg-orange-100 text-orange-700 border border-orange-300";
       case "REJECTED":
         return "bg-red-100 text-red-700 border border-red-300";
       case "PREPARING":
@@ -289,6 +291,8 @@ export default function ViewParkingLotModal({
     switch (status) {
       case "ACTIVE":
         return "Hoạt động";
+      case "UNDER_MAINTENANCE":
+        return "Đang bảo trì";
       case "REJECTED":
         return "Bị từ chối";
       case "PREPARING":

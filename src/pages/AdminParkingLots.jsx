@@ -130,6 +130,14 @@ export default function AdminParkingLots() {
             Hoạt Động
           </span>
         );
+      case "UNDER_MAINTENANCE":
+        return (
+          <span
+            className={`${base} bg-orange-50 text-orange-700 border-orange-300`}
+          >
+            Đang Bảo Trì
+          </span>
+        );
       case "INACTIVE":
         return (
           <span className={`${base} bg-gray-50 text-gray-600 border-gray-300`}>
@@ -369,6 +377,7 @@ export default function AdminParkingLots() {
             <option value="PREPARING">Đang Chuẩn Bị</option>
             <option value="PARTNER_CONFIGURATION">Cấu Hình Đối Tác</option>
             <option value="ACTIVE">Hoạt Động</option>
+            <option value="UNDER_MAINTENANCE">Đang Bảo Trì</option>
             <option value="INACTIVE">Ngừng Hoạt Động</option>
             <option value="MAP_DENIED">Từ Chối Bản Đồ</option>
             <option value="REJECTED">Bị Từ Chối</option>
