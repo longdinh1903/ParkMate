@@ -69,8 +69,20 @@ export default function AssignDevicesToLotModal({ open, onClose, lot, onAssigned
   };
 
   const getDeviceFee = (deviceType) => {
-    const fee = deviceFees.find((f) => f.deviceType === deviceType && f.status === "ACTIVE");
-    return fee ? fee.deviceFee : 0;
+    if (!deviceType) return 0;
+    // Try different status field names that backend might use
+    const fee = deviceFees.find((f) => {
+      const isTypeMatch = f.deviceType === deviceType;
+      const isActive = f.status === "ACTIVE" || f.isActive === true || f.active === true;
+      return isTypeMatch && isActive;
+    });
+    
+    // If no active fee found, try without status check
+    const anyFee = deviceFees.find((f) => f.deviceType === deviceType);
+    
+    console.log("Looking for fee:", deviceType, "Found:", fee || anyFee);
+    console.log("Available fees:", deviceFees);
+    return (fee || anyFee) ? (fee || anyFee).deviceFee : 0;
   };
 
   const calculateTotalFee = () => {
@@ -225,6 +237,7 @@ export default function AssignDevicesToLotModal({ open, onClose, lot, onAssigned
                 ) : (
                   newDevices.map((device, index) => {
                     const fee = getDeviceFee(device.deviceType);
+                    console.log(`Device ${index + 1} - Type: ${device.deviceType}, Fee: ${fee}`);
                     
                     return (
                       <div
@@ -355,7 +368,7 @@ export default function AssignDevicesToLotModal({ open, onClose, lot, onAssigned
                             <div className="flex items-center justify-between text-sm">
                               <span className="text-gray-700">Phí thiết bị:</span>
                               <span className="font-bold text-orange-600">
-                                {fee.toLocaleString()} ₫
+                                {fee > 0 ? `${fee.toLocaleString()} ₫` : "Chưa cấu hình phí"}
                               </span>
                             </div>
                           </div>

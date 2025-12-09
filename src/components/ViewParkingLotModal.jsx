@@ -48,6 +48,8 @@ export default function ViewParkingLotModal({
   const [assignedDevices, setAssignedDevices] = useState([]);
   const [loadingDevices, setLoadingDevices] = useState(false);
   const [deviceFees, setDeviceFees] = useState([]);
+  const [deletingDeviceId, setDeletingDeviceId] = useState(null);
+  const [showDeleteDeviceConfirm, setShowDeleteDeviceConfirm] = useState(false);
   
   // Store interval ref to cleanup on unmount
   const paymentCheckIntervalRef = useRef(null);
@@ -486,6 +488,29 @@ export default function ViewParkingLotModal({
   const handleDevicesAssigned = () => {
     fetchAssignedDevices();
     onActionDone();
+  };
+
+  // Handle delete device
+  const handleDeleteDevice = async (device) => {
+    setDeletingDeviceId(device);
+    setShowDeleteDeviceConfirm(true);
+  };
+
+  const confirmDeleteDevice = async () => {
+    if (!deletingDeviceId) return;
+
+    try {
+      await deviceApi.delete(deletingDeviceId.id);
+      showSuccess("Xóa thiết bị thành công!");
+      fetchAssignedDevices();
+      onActionDone();
+    } catch (err) {
+      console.error("Error deleting device:", err);
+      showError(err.response?.data?.message || "Không thể xóa thiết bị!");
+    } finally {
+      setShowDeleteDeviceConfirm(false);
+      setDeletingDeviceId(null);
+    }
   };
 
   // Poll payment status
@@ -1333,6 +1358,9 @@ export default function ViewParkingLotModal({
                           <th className="px-4 py-3 text-right text-sm font-bold text-gray-700">
                             Phí Thiết Bị
                           </th>
+                          <th className="px-4 py-3 text-center text-sm font-bold text-gray-700">
+                            Thao Tác
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
@@ -1396,11 +1424,20 @@ export default function ViewParkingLotModal({
                               <td className="px-4 py-3 text-sm font-bold text-orange-600 text-right">
                                 {fee > 0 ? `${fee.toLocaleString()} ₫` : "-"}
                               </td>
+                              <td className="px-4 py-3 text-center">
+                                <button
+                                  onClick={() => handleDeleteDevice(device)}
+                                  className="p-2 rounded-full hover:bg-red-100 text-red-600 transition-colors"
+                                  title="Xóa thiết bị"
+                                >
+                                  <i className="ri-delete-bin-line text-lg"></i>
+                                </button>
+                              </td>
                             </tr>
                           );
                         })}
                         <tr className="bg-orange-50 font-bold">
-                          <td colSpan="4" className="px-4 py-3 text-right text-gray-900">
+                          <td colSpan="5" className="px-4 py-3 text-right text-gray-900">
                             Tổng Chi Phí Thiết Bị:
                           </td>
                           <td className="px-4 py-3 text-right text-orange-600 text-lg">
@@ -2709,6 +2746,21 @@ export default function ViewParkingLotModal({
           onAssigned={handleDevicesAssigned}
         />
       )}
+
+      {/* Delete Device Confirmation Modal */}
+      <ConfirmModal
+        open={showDeleteDeviceConfirm}
+        title="Xác nhận xóa thiết bị"
+        message={`Bạn có chắc chắn muốn xóa thiết bị "${deletingDeviceId?.deviceName || deletingDeviceId?.deviceId}"?`}
+        onConfirm={confirmDeleteDevice}
+        onCancel={() => {
+          setShowDeleteDeviceConfirm(false);
+          setDeletingDeviceId(null);
+        }}
+        loading={false}
+        confirmLabel="Xóa"
+        cancelLabel="Hủy"
+      />
     </>
   );
 }
