@@ -86,7 +86,7 @@ export default function AdminLogin() {
         <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center mb-3">
           <span className="text-white text-xl font-bold">A</span>
         </div>
-        <h2 className="text-xl font-semibold">Đăng Nhập Admin</h2>
+        <h2 className="text-xl font-semibold">Đăng nhập Admin</h2>
         <p className="text-sm text-gray-500">Chào mừng đến hệ thống quản trị bãi đỗ xe</p>
       </div>
 
@@ -115,12 +115,12 @@ export default function AdminLogin() {
             Quên mật khẩu?
           </a>
         </div>
-
+    
         <button
           type="submit"
           className="w-full bg-orange-600 text-white py-2 rounded-md hover:bg-orange-700"
         >
-          Đăng Nhập
+          Đăng nhập
         </button>
       </form>
     </AuthLayout>

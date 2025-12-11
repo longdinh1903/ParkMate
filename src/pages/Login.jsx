@@ -177,8 +177,8 @@ export default function Login() {
           <div className="w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center mb-3">
             <span className="text-white text-xl font-bold">P</span>
           </div>
-          <h2 className="text-xl font-semibold">Đối Tác Bãi Đỗ Xe</h2>
-          <p className="text-sm text-gray-500">Đăng Nhập Đối Tác</p>
+          <h2 className="text-xl font-semibold">Đối tác bãi đỗ xe</h2>
+          <p className="text-sm text-gray-500">Đăng nhập đối tác</p>
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
@@ -233,7 +233,7 @@ export default function Login() {
             type="submit"
             className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
           >
-            Đăng Nhập
+            Đăng nhập
           </button>
         </form>
 

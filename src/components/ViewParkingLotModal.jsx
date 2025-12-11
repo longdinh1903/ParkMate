@@ -2366,96 +2366,149 @@ export default function ViewParkingLotModal({
                       </span>
                     </div>
                   )}
-                  <div className="pt-3 mt-3 border-t border-indigo-200 flex justify-between">
-                    <span className="text-gray-700 font-medium">
-                      Phí vận hành:
-                    </span>
-                    <span className="font-bold text-indigo-700 text-lg">
-                      {paymentData.operationalFee.toLocaleString()} ₫
-                    </span>
-                  </div>
                 </div>
               </div>
 
-              {/* Device Details */}
-              {assignedDevices.length > 0 && (
-                <div className="bg-orange-50 rounded-xl p-5 mb-6 border border-orange-200">
-                  <h3 className="font-semibold text-orange-900 mb-3 flex items-center gap-2">
-                    <i className="ri-device-line"></i>
-                    Chi tiết thiết bị ({assignedDevices.length})
-                  </h3>
-                  <div className="space-y-3">
-                    {assignedDevices.map((device, index) => {
-                      const deviceTypeLabels = {
-                        ULTRASONIC_SENSOR: "Cảm biến siêu âm (Phát hiện chỗ đỗ)",
-                        "Ultrasonic Sensor": "Cảm biến siêu âm (Phát hiện chỗ đỗ)",
-                        NFC_READER: "Đầu đọc thẻ NFC (Ra/Vào)",
-                        "NFC Reader": "Đầu đọc thẻ NFC (Ra/Vào)",
-                        BLE_SCANNER: "Máy quét BLE (Phát hiện gần)",
-                        "BLE Scanner": "Máy quét BLE (Phát hiện gần)",
-                        CAMERA: "Camera (Nhận diện biển số)",
-                        Camera: "Camera (Nhận diện biển số)",
-                        BARRIER_CONTROLLER: "Bộ điều khiển cổng chặn",
-                        "Barrier Controller": "Bộ điều khiển cổng chặn",
-                        DISPLAY_BOARD: "Bảng hiển thị điện tử",
-                        "Display Board": "Bảng hiển thị điện tử",
-                        // Legacy types
-                        BARRIER: "Cổng chặn",
-                        Barrier: "Cổng chặn",
-                        SENSOR: "Cảm biến",
-                        Sensor: "Cảm biến",
-                        INFRARED_SENSOR: "Cảm biến hồng ngoại",
-                        "Infrared Sensor": "Cảm biến hồng ngoại",
-                        PAYMENT_TERMINAL: "Máy thanh toán",
-                        "Payment Terminal": "Máy thanh toán",
-                        DISPLAY: "Màn hình hiển thị",
-                        Display: "Màn hình hiển thị",
-                        LED_DISPLAY: "Màn hình LED",
-                        "LED Display": "Màn hình LED",
-                        OTHER: "Khác",
-                        Other: "Khác",
-                      };
-                      const fee = getDeviceFee(device.deviceType);
-                      
-                      return (
-                        <div key={index} className="bg-white rounded-lg p-3 border border-orange-200">
-                          <div className="flex justify-between items-start mb-2">
-                            <div className="flex-1">
-                              <div className="font-semibold text-gray-900">
-                                {device.deviceName || device.deviceId}
-                              </div>
-                              <div className="text-xs text-gray-600 mt-1">
-                                {deviceTypeLabels[device.deviceType] || device.deviceType}
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="font-bold text-orange-600">
-                                {fee > 0 ? `${fee.toLocaleString()} ₫` : "-"}
-                              </div>
-                            </div>
+              {/* Calculate fees */}
+              {(() => {
+                const totalDeviceFee = assignedDevices.reduce((total, device) => total + getDeviceFee(device.deviceType), 0);
+                const areaFee = paymentData.operationalFee - totalDeviceFee;
+                const totalPayment = paymentData.operationalFee;
+                
+                return (
+                  <>
+                    {/* Area Fee */}
+                    <div className="bg-blue-50 rounded-xl p-5 mb-4 border border-blue-200">
+                      <h3 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                        <i className="ri-building-line"></i>
+                        Phí theo diện tích bãi đỗ
+                      </h3>
+                      <div className="text-xs text-blue-700 mb-3 flex items-center gap-1">
+                        <i className="ri-information-line"></i>
+                        Chi phí dựa trên diện tích và quy mô bãi đỗ xe
+                      </div>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between items-center py-2">
+                          <div>
+                            <div className="text-gray-700">Phí diện tích</div>
+                            <div className="text-xs text-gray-500">Diện tích: {lotData.lotSquare || lot.lotSquare || '0'} m²</div>
                           </div>
-                          {(device.model || device.serialNumber) && (
-                            <div className="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-100">
-                              {device.model && <div>Model: {device.model}</div>}
-                              {device.serialNumber && <div>SN: {device.serialNumber}</div>}
-                            </div>
-                          )}
+                          <span className="font-bold text-blue-700 text-lg">
+                            {areaFee.toLocaleString()} ₫
+                          </span>
                         </div>
-                      );
-                    })}
-                    <div className="pt-3 mt-3 border-t border-orange-300 flex justify-between items-center">
-                      <span className="text-gray-700 font-medium">
-                        Tổng phí thiết bị:
-                      </span>
-                      <span className="font-bold text-orange-700 text-lg">
-                        {assignedDevices
-                          .reduce((total, device) => total + getDeviceFee(device.deviceType), 0)
-                          .toLocaleString()} ₫
-                      </span>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              )}
+
+                    {/* Device Details */}
+                    {assignedDevices.length > 0 && (
+                      <div className="bg-orange-50 rounded-xl p-5 mb-4 border border-orange-200">
+                        <h3 className="font-semibold text-orange-900 mb-3 flex items-center gap-2">
+                          <i className="ri-device-line"></i>
+                          Phí thiết bị ({assignedDevices.length} thiết bị)
+                        </h3>
+                        <div className="text-xs text-orange-700 mb-3 flex items-center gap-1">
+                          <i className="ri-information-line"></i>
+                          Chi phí cho các thiết bị phần cứng được gán vào bãi đỗ xe
+                        </div>
+                        <div className="space-y-2">
+                          {assignedDevices.map((device, index) => {
+                            const deviceTypeLabels = {
+                              ULTRASONIC_SENSOR: "Cảm biến siêu âm (Phát hiện chỗ đỗ)",
+                              "Ultrasonic Sensor": "Cảm biến siêu âm (Phát hiện chỗ đỗ)",
+                              NFC_READER: "Đầu đọc thẻ NFC (Ra/Vào)",
+                              "NFC Reader": "Đầu đọc thẻ NFC (Ra/Vào)",
+                              BLE_SCANNER: "Máy quét BLE (Phát hiện gần)",
+                              "BLE Scanner": "Máy quét BLE (Phát hiện gần)",
+                              CAMERA: "Camera (Nhận diện biển số)",
+                              Camera: "Camera (Nhận diện biển số)",
+                              BARRIER_CONTROLLER: "Bộ điều khiển cổng chặn",
+                              "Barrier Controller": "Bộ điều khiển cổng chặn",
+                              DISPLAY_BOARD: "Bảng hiển thị điện tử",
+                              "Display Board": "Bảng hiển thị điện tử",
+                              // Legacy types
+                              BARRIER: "Cổng chặn",
+                              Barrier: "Cổng chặn",
+                              SENSOR: "Cảm biến",
+                              Sensor: "Cảm biến",
+                              INFRARED_SENSOR: "Cảm biến hồng ngoại",
+                              "Infrared Sensor": "Cảm biến hồng ngoại",
+                              PAYMENT_TERMINAL: "Máy thanh toán",
+                              "Payment Terminal": "Máy thanh toán",
+                              DISPLAY: "Màn hình hiển thị",
+                              Display: "Màn hình hiển thị",
+                              LED_DISPLAY: "Màn hình LED",
+                              "LED Display": "Màn hình LED",
+                              OTHER: "Khác",
+                              Other: "Khác",
+                            };
+                            const fee = getDeviceFee(device.deviceType);
+                            
+                            return (
+                              <div key={index} className="bg-white rounded-lg p-3 border border-orange-200">
+                                <div className="flex justify-between items-start">
+                                  <div className="flex-1">
+                                    <div className="font-medium text-gray-900 text-sm">
+                                      {device.deviceName || device.deviceId}
+                                    </div>
+                                    <div className="text-xs text-gray-600 mt-0.5">
+                                      {deviceTypeLabels[device.deviceType] || device.deviceType}
+                                    </div>
+                                    {(device.model || device.serialNumber) && (
+                                      <div className="text-xs text-gray-400 mt-1">
+                                        {device.model && <span>Model: {device.model}</span>}
+                                        {device.model && device.serialNumber && <span className="mx-1">•</span>}
+                                        {device.serialNumber && <span>SN: {device.serialNumber}</span>}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="text-right ml-3">
+                                    <div className="font-bold text-orange-600">
+                                      {fee > 0 ? `${fee.toLocaleString()} ₫` : "-"}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div className="pt-3 mt-3 border-t border-orange-300 flex justify-between items-center">
+                          <span className="text-gray-700 font-medium">
+                            Tổng cộng:
+                          </span>
+                          <span className="font-bold text-orange-700 text-lg">
+                            {totalDeviceFee.toLocaleString()} ₫
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Total Payment Summary */}
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-5 mb-6 border-2 border-green-300 shadow-sm">
+                      <h3 className="font-semibold text-green-900 mb-3 flex items-center gap-2">
+                        <i className="ri-calculator-line"></i>
+                        Tổng thanh toán
+                      </h3>
+                      <div className="space-y-2 text-sm mb-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">Phí diện tích:</span>
+                          <span className="font-semibold text-gray-900">{areaFee.toLocaleString()} ₫</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">Phí thiết bị:</span>
+                          <span className="font-semibold text-gray-900">{totalDeviceFee.toLocaleString()} ₫</span>
+                        </div>
+                      </div>
+                      <div className="pt-3 border-t-2 border-green-400 flex justify-between items-center">
+                        <span className="text-gray-700 font-bold text-lg">Tổng cộng:</span>
+                        <span className="text-3xl font-bold text-green-700">
+                          {totalPayment.toLocaleString()} ₫
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
 
               {/* QR Code */}
               <div className="flex flex-col items-center mb-6">

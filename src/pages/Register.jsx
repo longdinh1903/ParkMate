@@ -151,8 +151,8 @@ export default function Register() {
           <div className="w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center mb-3">
             <span className="text-white text-xl font-bold">P</span>
           </div>
-          <h2 className="text-xl font-semibold">Đối Tác Bãi Đỗ Xe</h2>
-          <p className="text-sm text-gray-500">Đăng Ký Đối Tác</p>
+          <h2 className="text-xl font-semibold">Đối tác bãi đỗ xe</h2>
+          <p className="text-sm text-gray-500">Đăng ký đối tác</p>
         </div>
 
         {/* Form */}
@@ -160,7 +160,7 @@ export default function Register() {
           <input
             type="text"
             name="companyName"
-            placeholder="Tên Công Ty"
+            placeholder="Tên công ty"
             value={form.companyName}
             onChange={handleChange}
             className="col-span-2 border px-4 py-2 rounded-md"
@@ -169,7 +169,7 @@ export default function Register() {
           <input
             type="email"
             name="companyEmail"
-            placeholder="Email Công Ty"
+            placeholder="Email công ty"
             value={form.companyEmail}
             onChange={handleChange}
             className="border px-4 py-2 rounded-md"
@@ -177,7 +177,7 @@ export default function Register() {
           <input
             type="text"
             name="taxNumber"
-            placeholder="Mã Số Thuế"
+            placeholder="Mã số thuế"
             value={form.taxNumber}
             onChange={handleChange}
             className="border px-4 py-2 rounded-md"
@@ -186,7 +186,7 @@ export default function Register() {
           <input
             type="password"
             name="password"
-            placeholder="Mật Khẩu"
+            placeholder="Mật khẩu"
             value={form.password}
             onChange={handleChange}
             className="border px-4 py-2 rounded-md"
@@ -194,7 +194,7 @@ export default function Register() {
           <input
             type="password"
             name="confirmPassword"
-            placeholder="Xác Nhận Mật Khẩu"
+            placeholder="Xác nhận mật khẩu"
             value={form.confirmPassword}
             onChange={handleChange}
             className="border px-4 py-2 rounded-md"
@@ -203,7 +203,7 @@ export default function Register() {
           <input
             type="text"
             name="businessLicenseNumber"
-            placeholder="Số Giấy Phép Kinh Doanh"
+            placeholder="Số giấy phép kinh doanh"
             value={form.businessLicenseNumber}
             onChange={handleChange}
             className="col-span-2 border px-4 py-2 rounded-md"
@@ -222,7 +222,7 @@ export default function Register() {
             />
             {form.businessLicenseFile && (
               <p className="text-sm text-gray-600 mt-1">
-                File selected: {form.businessLicenseFile.name}
+                Tệp đã được chọn: {form.businessLicenseFile.name}
               </p>
             )}
           </div>
@@ -230,7 +230,7 @@ export default function Register() {
           <input
             type="text"
             name="companyPhone"
-            placeholder="Số Điện Thoại Công Ty"
+            placeholder="Số điện thoại công ty"
             value={form.companyPhone}
             onChange={handleChange}
             className="border px-4 py-2 rounded-md"
@@ -238,7 +238,7 @@ export default function Register() {
           <input
             type="text"
             name="companyAddress"
-            placeholder="Địa Chỉ Công Ty"
+            placeholder="Địa chỉ công ty"
             value={form.companyAddress}
             onChange={handleChange}
             className="border px-4 py-2 rounded-md"
@@ -246,7 +246,7 @@ export default function Register() {
 
           <textarea
             name="businessDescription"
-            placeholder="Mô Tả Kinh Doanh"
+            placeholder="Mô tả kinh doanh"
             value={form.businessDescription}
             onChange={handleChange}
             className="col-span-2 border px-4 py-2 rounded-md"
@@ -255,7 +255,7 @@ export default function Register() {
           <input
             type="text"
             name="contactPersonName"
-            placeholder="Tên Người Liên Hệ"
+            placeholder="Tên người liên hệ"
             value={form.contactPersonName}
             onChange={handleChange}
             className="border px-4 py-2 rounded-md"
@@ -263,7 +263,7 @@ export default function Register() {
           <input
             type="text"
             name="contactPersonPhone"
-            placeholder="Số Điện Thoại Người Liên Hệ"
+            placeholder="Số điện thoại người liên hệ"
             value={form.contactPersonPhone}
             onChange={handleChange}
             className="border px-4 py-2 rounded-md"
@@ -271,7 +271,7 @@ export default function Register() {
           <input
             type="email"
             name="contactPersonEmail"
-            placeholder="Email Người Liên Hệ"
+            placeholder="Email người liên hệ"
             value={form.contactPersonEmail}
             onChange={handleChange}
             className="col-span-2 border px-4 py-2 rounded-md"
@@ -294,7 +294,7 @@ export default function Register() {
                   : "bg-indigo-600 hover:bg-indigo-700"
               }`}
             >
-              {uploading ? "Đang xử lý..." : "Đăng Ký"}
+              {uploading ? "Đang xử lý..." : "Đăng ký"}
             </button>
           </div>
         </form>
