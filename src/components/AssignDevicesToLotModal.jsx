@@ -15,6 +15,20 @@ export default function AssignDevicesToLotModal({ open, onClose, lot, onAssigned
     if (open) {
       fetchDeviceTypes();
       fetchDeviceFees();
+      // Tự động thêm 1 thiết bị trống khi mở modal để giảm thao tác
+      if (newDevices.length === 0) {
+        setNewDevices([
+          {
+            id: Date.now(),
+            deviceId: "",
+            deviceName: "",
+            deviceType: "",
+            model: "",
+            serialNumber: "",
+            notes: "",
+          },
+        ]);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);

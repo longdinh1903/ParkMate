@@ -161,7 +161,7 @@ export default function PartnerTopLayout({ children }) {
           <div className="w-8 h-8 bg-white text-indigo-600 rounded-full flex items-center justify-center font-bold">
             P
           </div>
-          <span className="text-lg font-semibold">Đối Tác Bãi Đỗ Xe</span>
+          <span className="text-lg font-semibold">Đối tác bãi đỗ xe</span>
         </div>
 
         {/* Menu */}
@@ -180,7 +180,7 @@ export default function PartnerTopLayout({ children }) {
               } ${!isApproved ? "opacity-50 cursor-not-allowed" : ""}`
             }
           >
-            Trang Chủ
+            Trang chủ
           </NavLink>
           <NavLink
             to="/register-lot"
@@ -196,7 +196,7 @@ export default function PartnerTopLayout({ children }) {
               } ${!isApproved ? "opacity-50 cursor-not-allowed" : ""}`
             }
           >
-            Đăng Ký Bãi
+            Đăng ký bãi
           </NavLink>
           <NavLink
             to="/subscriptions"
@@ -212,7 +212,7 @@ export default function PartnerTopLayout({ children }) {
               } ${!isApproved ? "opacity-50 cursor-not-allowed" : ""}`
             }
           >
-            Đăng Ký Thành Viên
+            Đăng ký thành viên
           </NavLink>
           <NavLink
             to="/withdrawals"
@@ -228,7 +228,7 @@ export default function PartnerTopLayout({ children }) {
               } ${!isApproved ? "opacity-50 cursor-not-allowed" : ""}`
             }
           >
-            Rút Tiền
+            Rút tiền
           </NavLink>
 
           {/* Management Dropdown */}
@@ -245,7 +245,7 @@ export default function PartnerTopLayout({ children }) {
                 !isApproved ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
-              Quản Lý
+              Quản lý
               <ChevronDownIcon
                 className={`w-4 h-4 transition-transform ${
                   showManagementMenu ? "rotate-180" : ""
@@ -264,7 +264,7 @@ export default function PartnerTopLayout({ children }) {
                     }`
                   }
                 >
-                  Người Dùng
+                  Người dùng
                 </NavLink>
                 <NavLink
                   to="/sessions"
@@ -286,7 +286,7 @@ export default function PartnerTopLayout({ children }) {
                     }`
                   }
                 >
-                  Đặt Chỗ
+                  Đặt chỗ
                 </NavLink>
               </div>
             )}
@@ -306,7 +306,7 @@ export default function PartnerTopLayout({ children }) {
               } ${!isApproved ? "opacity-50 cursor-not-allowed" : ""}`
             }
           >
-            Thống Kê
+            Thống kê
           </NavLink>
         </nav>
 
@@ -345,7 +345,7 @@ export default function PartnerTopLayout({ children }) {
                 className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 flex items-center gap-2 transition-colors cursor-pointer"
               >
                 <UserCircleIcon className="w-5 h-5" />
-                <span>Hồ Sơ</span>
+                <span>Hồ sơ</span>
               </button>
 
               <hr className="my-1 border-gray-200" />
@@ -359,7 +359,7 @@ export default function PartnerTopLayout({ children }) {
                 className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors cursor-pointer"
               >
                 <ArrowRightOnRectangleIcon className="w-5 h-5" />
-                <span>Đăng Xuất</span>
+                <span>Đăng xuất</span>
               </button>
             </div>
           )}
