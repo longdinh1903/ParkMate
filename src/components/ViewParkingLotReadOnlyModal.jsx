@@ -49,7 +49,7 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
         {/* Header - Fixed */}
         <div className="flex justify-between items-center px-8 pt-8 pb-4 border-b flex-shrink-0">
           <h2 className="text-3xl font-bold text-indigo-700 flex items-center gap-2">
-            🅿️ {lot.name}
+            {lot.name}
           </h2>
           <span
             className={`px-4 py-1.5 text-sm font-semibold rounded-lg shadow-sm ${getStatusStyle(
@@ -63,50 +63,135 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
         {/* Content - Scrollable */}
         <div className="px-8 py-6 overflow-y-auto flex-1 custom-scrollbar">
         {/* Basic Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-[15px] text-gray-700 mb-6">
-          <p>
-            <strong>🏢 Address:</strong> {lot.streetAddress || "-"}
-            {lot.ward ? `, ${lot.ward}` : ""}
-            {lot.city ? `, ${lot.city}` : ""}
-          </p>
-          <p>
-            <strong>🕒 Mở:</strong> {lot.openTime ?? "-"}
-          </p>
-          <p>
-            <strong>🕕 Đóng:</strong> {lot.closeTime ?? "-"}
-          </p>
-          <p>
-            <strong>🌙 24 Giờ:</strong> {lot.is24Hour ? "Có" : "Không"}
-          </p>
-          <p>
-            <strong>🏗 Tầng:</strong> {lot.totalFloors ?? "-"}
-          </p>
-          <p>
-            <strong>📐 Diện Tích Bãi Đỗ:</strong> {lot.lotSquare ? `${lot.lotSquare} m²` : "-"}
-          </p>
-          <p>
-            <strong>⏱️ Thời Gian Chờ:</strong> {lot.horizonTime ? `${lot.horizonTime} phút` : "-"}
-          </p>
-          <p>
-            <strong>�📍 Vĩ Độ:</strong> {lot.latitude ?? "-"}
-          </p>
-          <p>
-            <strong>📍 Kinh Độ:</strong> {lot.longitude ?? "-"}
-          </p>
-          <p>
-            <strong>📅 Ngày Tạo:</strong>{" "}
-            {lot.createdAt ? new Date(lot.createdAt).toLocaleString() : "-"}
-          </p>
-          <p>
-            <strong>⚙ Cập Nhật:</strong>{" "}
-            {lot.updatedAt ? new Date(lot.updatedAt).toLocaleString() : "-"}
-          </p>
+        <div className="mb-8 bg-gradient-to-br from-indigo-50/80 via-white to-indigo-50/30 p-6 rounded-2xl border border-indigo-100 shadow-sm">
+          <h3 className="font-semibold text-indigo-700 text-lg mb-5 flex items-center gap-2">
+            <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
+              <i className="ri-information-line text-white"></i>
+            </div>
+            Thông tin chi tiết
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {/* Địa chỉ - Full width */}
+            <div className="md:col-span-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
+                  <i className="ri-map-pin-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 mb-1">Địa chỉ</p>
+                  <p className="text-sm font-medium text-gray-900">
+                    {lot.streetAddress || "-"}
+                    {lot.ward ? `, ${lot.ward}` : ""}
+                    {lot.city ? `, ${lot.city}` : ""}
+                  </p>
+                </div>
+              </div>
+            </div>
+            {/* Giờ mở cửa */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
+                  <i className="ri-time-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 mb-1">Giờ mở cửa</p>
+                  <p className="text-lg font-bold text-gray-900">{lot.openTime ?? "-"}</p>
+                </div>
+              </div>
+            </div>
+            {/* Giờ đóng cửa */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
+                  <i className="ri-time-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 mb-1">Giờ đóng cửa</p>
+                  <p className="text-lg font-bold text-gray-900">{lot.closeTime ?? "-"}</p>
+                </div>
+              </div>
+            </div>
+            {/* 24 Giờ */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
+                  <i className="ri-24-hours-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 mb-1">Hoạt động 24/7</p>
+                  <p className={`text-sm font-bold ${lot.is24Hour ? 'text-green-600' : 'text-gray-900'}`}>
+                    {lot.is24Hour ? "✓ Có" : "Không"}
+                  </p>
+                </div>
+              </div>
+            </div>
+            {/* Số tầng */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
+                  <i className="ri-building-2-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 mb-1">Số tầng</p>
+                  <p className="text-lg font-bold text-gray-900">{lot.totalFloors ?? "-"}</p>
+                </div>
+              </div>
+            </div>
+            {/* Diện tích */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
+                  <i className="ri-ruler-2-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 mb-1">Diện tích</p>
+                  <p className="text-lg font-bold text-gray-900">{lot.lotSquare ? `${lot.lotSquare} m²` : "-"}</p>
+                </div>
+              </div>
+            </div>
+            {/* Thời gian Horizon */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
+                  <i className="ri-timer-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 mb-1">Thời gian Horizon</p>
+                  <p className="text-lg font-bold text-gray-900">{lot.horizonTime ? `${lot.horizonTime} phút` : "-"}</p>
+                </div>
+              </div>
+            </div>
+            {/* Tọa độ */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
+                  <i className="ri-compass-3-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 mb-1">Tọa độ</p>
+                  <p className="text-sm font-medium text-gray-900">{lot.latitude ?? "-"}, {lot.longitude ?? "-"}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="mt-5 pt-4 border-t border-indigo-100 flex gap-8 text-xs text-slate-500">
+            <span className="flex items-center gap-2">
+              <i className="ri-calendar-line text-indigo-400"></i>
+              Ngày tạo: <span className="font-medium text-gray-700">{lot.createdAt ? new Date(lot.createdAt).toLocaleString() : "-"}</span>
+            </span>
+            <span className="flex items-center gap-2">
+              <i className="ri-refresh-line text-indigo-400"></i>
+              Cập nhật: <span className="font-medium text-gray-700">{lot.updatedAt ? new Date(lot.updatedAt).toLocaleString() : "-"}</span>
+            </span>
+          </div>
         </div>
 
         {/* Reason (if provided by partner) */}
         {lot.reason && (
           <div className="mb-6 bg-red-50 p-4 rounded-2xl border border-red-100 shadow-sm">
-            <h3 className="font-semibold text-red-600 mb-2">📝 Lý Do</h3>
+            <h3 className="font-semibold text-red-600 mb-2 flex items-center gap-2">
+              <i className="ri-file-text-line"></i> Lý Do
+            </h3>
             <p className="text-sm text-gray-800 whitespace-pre-wrap">
               {lot.reason}
             </p>
@@ -116,7 +201,9 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
         {/* Partner / Owner Info */}
         {(lot.partner || lot.owner || lot.companyName) && (
           <div className="mb-6 bg-gray-50 p-4 rounded-2xl border border-gray-200 shadow-sm">
-            <h3 className="font-semibold text-indigo-600 mb-3">🏢 Đối Tác / Chủ Sở Hữu</h3>
+            <h3 className="font-semibold text-indigo-600 mb-3 flex items-center gap-2">
+              <i className="ri-building-line"></i> Đối Tác / Chủ Sở Hữu
+            </h3>
             <div className="text-sm text-gray-700">
               <p>
                 <strong>Tên:</strong> {lot.partner?.companyName ?? lot.owner?.name ?? lot.companyName ?? "-"}
@@ -143,7 +230,9 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
         {/* Contact Info */}
         {(lot.contactPhone || lot.contactEmail || lot.phone) && (
           <div className="mb-6 bg-gray-50 p-4 rounded-2xl border border-gray-200 shadow-sm">
-            <h3 className="font-semibold text-indigo-600 mb-3">📞 Liên Hệ</h3>
+            <h3 className="font-semibold text-indigo-600 mb-3 flex items-center gap-2">
+              <i className="ri-phone-line"></i> Liên Hệ
+            </h3>
             <div className="text-sm text-gray-700">
               {lot.contactPhone && (<p><strong>Điện Thoại:</strong> {lot.contactPhone}</p>)}
               {lot.phone && !lot.contactPhone && (<p><strong>Điện Thoại:</strong> {lot.phone}</p>)}
@@ -155,7 +244,9 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
         {/* Description */}
         {lot.description && (
           <div className="mb-6 bg-gray-50 p-4 rounded-2xl border border-gray-200 shadow-sm">
-            <h3 className="font-semibold text-indigo-600 mb-2">📝 Mô Tả</h3>
+            <h3 className="font-semibold text-indigo-600 mb-2 flex items-center gap-2">
+              <i className="ri-file-text-line"></i> Mô Tả
+            </h3>
             <p className="text-sm text-gray-700">{lot.description}</p>
           </div>
         )}
@@ -194,7 +285,7 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
         {lot.lotCapacity?.length > 0 && (
           <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
             <h3 className="font-semibold text-indigo-600 mb-4 text-xl flex items-center gap-2">
-              🚗 Tổng Sức Chứa
+              <i className="ri-car-line"></i> Tổng Sức Chứa
             </h3>
             <table className="min-w-full text-xs border bg-white rounded-lg shadow-sm">
               <thead className="bg-gray-100 text-gray-600">
@@ -223,7 +314,7 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
         {lot.pricingRules?.length > 0 && (
           <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
             <h3 className="font-semibold text-indigo-600 mb-4 text-xl flex items-center gap-2">
-              💰 Quy Tắc Giá
+              <i className="ri-price-tag-3-line"></i> Quy Tắc Giá
             </h3>
             <div className="overflow-x-auto">
               <table className="min-w-full text-xs border bg-white rounded-lg shadow-sm">
@@ -296,7 +387,7 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
         {lot.policies?.length > 0 && (
           <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
             <h3 className="font-semibold text-indigo-600 mb-4 text-xl flex items-center gap-2">
-              🛡️ Chính Sách Đỗ Xe
+              <i className="ri-shield-check-line"></i> Chính Sách Đỗ Xe
             </h3>
             <div className="grid grid-cols-2 gap-4">
               {lot.policies.map((policy, idx) => {

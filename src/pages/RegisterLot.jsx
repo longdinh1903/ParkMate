@@ -7,6 +7,17 @@ import RuleDetailModal from "../components/RuleDetailModal";
 import LocationPickerMap from "../components/LocationPickerMap";
 import toast from "react-hot-toast";
 
+// Helper function to convert vehicle type to Vietnamese
+const getVehicleTypeLabel = (type) => {
+  const labels = {
+    CAR_UP_TO_9_SEATS: "🚗 Ôtô (≤9 chỗ)",
+    MOTORBIKE: "🏍️ Xe máy",
+    BIKE: "🚲 Xe đạp",
+    OTHER: "📦 Khác",
+  };
+  return labels[type] || type;
+};
+
 export default function RegisterLot() {
   const [form, setForm] = useState({
     name: "",
@@ -448,12 +459,12 @@ export default function RegisterLot() {
   return (
     <PartnerTopLayout>
       {/* Container với padding cho header và footer cố định */}
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-indigo-50/30 to-gray-50">
+      <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto px-6 py-6">
           {/* Header Section */}
           <div className="mb-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
                 <i className="ri-parking-box-fill text-2xl text-white"></i>
               </div>
               <div>
@@ -601,7 +612,7 @@ export default function RegisterLot() {
                 <button
                   type="button"
                   onClick={() => setShowMap(true)}
-                  className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-8 py-3 rounded-xl shadow-lg hover:shadow-xl hover:from-indigo-700 hover:to-indigo-600 transition-all transform hover:-translate-y-0.5 cursor-pointer"
+                  className="flex items-center gap-2 bg-indigo-600 text-white px-8 py-3 rounded-xl shadow-lg hover:shadow-xl hover:bg-indigo-700 transition-all transform hover:-translate-y-0.5 cursor-pointer"
                 >
                   <i className="ri-map-pin-line text-xl"></i>
                   <span className="font-medium">Chọn vị trí trên bản đồ</span>
@@ -691,6 +702,11 @@ export default function RegisterLot() {
                     name="operatingHoursStart"
                     value={form.operatingHoursStart}
                     onChange={handleChange}
+                    onFocus={(e) => {
+                      if (!form.operatingHoursStart) {
+                        setForm({ ...form, operatingHoursStart: "00:00" });
+                      }
+                    }}
                     className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
                   />
                 </div>
@@ -703,6 +719,11 @@ export default function RegisterLot() {
                     name="operatingHoursEnd"
                     value={form.operatingHoursEnd}
                     onChange={handleChange}
+                    onFocus={(e) => {
+                      if (!form.operatingHoursEnd) {
+                        setForm({ ...form, operatingHoursEnd: "00:00" });
+                      }
+                    }}
                     className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
                   />
                 </div>
@@ -885,7 +906,7 @@ export default function RegisterLot() {
                           className="hover:bg-gray-50 transition-colors"
                         >
                           <td className="px-6 py-4 text-sm text-gray-900 font-medium">
-                            {c.vehicleType}
+                            {getVehicleTypeLabel(c.vehicleType)}
                           </td>
                           <td className="px-6 py-4 text-center text-sm text-gray-700">
                             {c.capacity}

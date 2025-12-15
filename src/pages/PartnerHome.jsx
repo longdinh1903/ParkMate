@@ -291,12 +291,12 @@ export default function PartnerHome() {
 
   return (
     <PartnerTopLayout>
-      <div className="h-[calc(100vh-4rem)] bg-gradient-to-br from-gray-50 via-indigo-50/30 to-gray-50" style={{ overflowY: 'auto' }}>
+      <div className="h-[calc(100vh-4rem)] bg-gray-50" style={{ overflowY: 'auto' }}>
         <div className="max-w-7xl mx-auto px-6 py-6 min-h-full">
           {/* Header */}
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
                 <i className="ri-parking-box-fill text-2xl text-white"></i>
               </div>
               <div>
@@ -310,7 +310,7 @@ export default function PartnerHome() {
             </div>
             <button
               onClick={() => (window.location.href = "/register-lot")}
-              className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white rounded-xl hover:from-indigo-700 hover:to-indigo-600 transition-all shadow-lg hover:shadow-xl font-medium flex items-center gap-2 cursor-pointer"
+              className="px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all shadow-lg hover:shadow-xl font-medium flex items-center gap-2 cursor-pointer"
             >
               <i className="ri-add-line text-lg"></i>
               Đăng ký bãi mới
@@ -385,7 +385,7 @@ export default function PartnerHome() {
 
           {/* Table */}
           <div className="bg-white shadow-xl rounded-2xl border border-gray-200 overflow-hidden">
-            <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white flex items-center justify-between">
+            <div className="p-6 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold text-gray-900">
                   Danh sách bãi đỗ xe

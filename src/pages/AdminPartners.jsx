@@ -236,7 +236,8 @@ export default function AdminPartners() {
     <AdminLayout>
       {/* 🔹 Header */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-orange-700">
+        <h2 className="text-2xl font-bold text-orange-700 flex items-center gap-2">
+          <i className="ri-building-fill"></i>
           Quản Lý Đối Tác
         </h2>
       </div>

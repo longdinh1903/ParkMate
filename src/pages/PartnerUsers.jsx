@@ -374,7 +374,10 @@ export default function PartnerUsers() {
           <div className="max-w-7xl mx-auto px-6 h-full flex flex-col">
             {/* Header */}
             <div className="pt-6 mb-4 flex-shrink-0">
-              <h1 className="text-3xl font-bold text-gray-900">Người dùng</h1>
+              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                <i className="ri-user-3-line text-indigo-600"></i>
+                Người dùng
+              </h1>
               <p className="text-gray-600 mt-1">
                 Tất cả người dùng đã đăng ký gói thành viên tại bãi đỗ xe của bạn
               </p>

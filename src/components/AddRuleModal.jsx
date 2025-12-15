@@ -1,5 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
+
+const initialRuleState = {
+  ruleName: "",
+  vehicleType: "",
+  stepRate: "",
+  stepMinute: "",
+  initialCharge: "",
+  initialDurationMinute: "",
+  validFrom: "",
+  validTo: "",
+};
+
+const initialErrorState = {
+  stepRate: "",
+  stepMinute: "",
+  initialCharge: "",
+  initialDurationMinute: "",
+};
 
 export default function AddRuleModal({
   open,
@@ -7,23 +25,16 @@ export default function AddRuleModal({
   onClose,
   variant = "partner",
 }) {
-  const [rule, setRule] = useState({
-    ruleName: "",
-    vehicleType: "",
-    stepRate: "",
-    stepMinute: "",
-    initialCharge: "",
-    initialDurationMinute: "",
-    validFrom: "",
-    validTo: "",
-  });
-  
-  const [errors, setErrors] = useState({
-    stepRate: "",
-    stepMinute: "",
-    initialCharge: "",
-    initialDurationMinute: "",
-  });
+  const [rule, setRule] = useState(initialRuleState);
+  const [errors, setErrors] = useState(initialErrorState);
+
+  // Reset form when modal opens
+  useEffect(() => {
+    if (open) {
+      setRule(initialRuleState);
+      setErrors(initialErrorState);
+    }
+  }, [open]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
