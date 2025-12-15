@@ -170,79 +170,150 @@ export default function Login() {
     }
   };
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-indigo-100">
-      <div className="bg-white shadow-lg rounded-lg w-full max-w-md p-8">
-        <div className="flex flex-col items-center mb-6">
-          <div className="w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center mb-3">
-            <span className="text-white text-xl font-bold">P</span>
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gray-50">
+      {/* Light Background with Subtle Pattern */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 opacity-50" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234f46e5' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+        }}></div>
+      </div>
+
+      {/* Login Card */}
+      <div className="relative w-full max-w-md mx-4 z-10">
+        {/* Card */}
+        <div className="bg-white border border-gray-200 rounded-3xl shadow-xl p-8 transform transition-all duration-500 hover:shadow-2xl">
+          {/* Logo & Branding */}
+          <div className="flex flex-col items-center mb-8">
+            {/* Parking Icon */}
+            <div className="relative mb-4">
+              <img 
+                src="/IconWeb.png" 
+                alt="ParkMate Logo" 
+                className="w-20 h-20 rounded-2xl shadow-lg transform transition-transform hover:scale-105 object-cover"
+              />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+              Park<span className="text-indigo-600">Mate</span>
+            </h1>
+            <p className="text-gray-500 text-sm mt-2">Đối tác bãi đỗ xe thông minh</p>
           </div>
-          <h2 className="text-xl font-semibold">Đối tác bãi đỗ xe</h2>
-          <p className="text-sm text-gray-500">Đăng nhập đối tác</p>
+
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            {/* Email Field */}
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                <i className="ri-mail-line text-gray-400 group-focus-within:text-indigo-600 transition-colors duration-300"></i>
+              </div>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Địa chỉ email"
+                className={`w-full pl-11 pr-4 py-4 bg-gray-50 border rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:bg-white transition-all duration-300 ${
+                  errors.email
+                    ? "border-red-500 focus:ring-red-500/50 focus:border-red-500"
+                    : "border-gray-200 focus:ring-indigo-500/50 focus:border-indigo-500 hover:border-gray-300"
+                }`}
+              />
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-2 flex items-center gap-1">
+                  <i className="ri-error-warning-line"></i>
+                  {errors.email}
+                </p>
+              )}
+            </div>
+
+            {/* Password Field with Toggle */}
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                <i className="ri-lock-line text-gray-400 group-focus-within:text-indigo-600 transition-colors duration-300"></i>
+              </div>
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Mật khẩu"
+                className={`w-full pl-11 pr-12 py-4 bg-gray-50 border rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:bg-white transition-all duration-300 ${
+                  errors.password
+                    ? "border-red-500 focus:ring-red-500/50 focus:border-red-500"
+                    : "border-gray-200 focus:ring-indigo-500/50 focus:border-indigo-500 hover:border-gray-300"
+                }`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-indigo-600 transition-colors z-10"
+              >
+                <i className={`${showPassword ? "ri-eye-off-line" : "ri-eye-line"} text-lg`}></i>
+              </button>
+              {errors.password && (
+                <p className="text-red-500 text-xs mt-2 flex items-center gap-1">
+                  <i className="ri-error-warning-line"></i>
+                  {errors.password}
+                </p>
+              )}
+            </div>
+
+            {/* Remember Me & Forgot Password */}
+            <div className="flex items-center justify-between text-sm">
+              <label className="flex items-center gap-2 text-gray-600 cursor-pointer group">
+                <div className="relative">
+                  <input 
+                    type="checkbox" 
+                    className="peer sr-only"
+                  />
+                  <div className="w-5 h-5 border border-gray-300 rounded-md bg-white peer-checked:bg-indigo-600 peer-checked:border-indigo-600 transition-all duration-200 flex items-center justify-center">
+                    <i className="ri-check-line text-white text-sm opacity-0 peer-checked:opacity-100 transition-opacity"></i>
+                  </div>
+                </div>
+                <span className="group-hover:text-gray-900 transition-colors">Ghi nhớ tôi</span>
+              </label>
+              <a 
+                href="#" 
+                className="text-indigo-600 hover:text-indigo-700 transition-colors hover:underline underline-offset-2"
+              >
+                Quên mật khẩu?
+              </a>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-4 rounded-xl font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
+            >
+              {isLoading ? (
+                <>
+                  <i className="ri-loader-4-line animate-spin"></i>
+                  Đang đăng nhập...
+                </>
+              ) : (
+                <>
+                  <i className="ri-login-box-line"></i>
+                  Đăng nhập
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Register Link */}
+          <p className="text-center mt-6 text-gray-500">
+            Chưa có tài khoản?{" "}
+            <Link 
+              to="/register" 
+              className="text-indigo-600 hover:text-indigo-700 font-medium transition-colors hover:underline underline-offset-2"
+            >
+              Đăng ký ngay
+            </Link>
+          </p>
         </div>
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          {/* Email */}
-          <div>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Địa chỉ email"
-              className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                errors.email
-                  ? "border-red-500 focus:ring-red-400"
-                  : "focus:ring-indigo-400"
-              }`}
-            />
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-            )}
-          </div>
-
-          {/* Password */}
-          <div>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Mật khẩu"
-              className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                errors.password
-                  ? "border-red-500 focus:ring-red-400"
-                  : "focus:ring-indigo-400"
-              }`}
-            />
-            {errors.password && (
-              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-            )}
-          </div>
-
-          {/* Remember + Forgot */}
-          <div className="flex items-center justify-between text-sm">
-            <label className="flex items-center">
-              <input type="checkbox" className="mr-2" /> Ghi nhớ tôi
-            </label>
-            <a href="#" className="text-indigo-600 hover:underline">
-              Quên mật khẩu?
-            </a>
-          </div>
-
-          {/* Submit */}
-          <button
-            type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
-          >
-            Đăng nhập
-          </button>
-        </form>
-
-        <p className="text-sm text-center mt-4">
-          Chưa có tài khoản?{" "}
-          <Link to="/register" className="text-indigo-600 hover:underline">
-            Đăng ký tại đây
-          </Link>
-        </p>
+        {/* Bottom Decoration */}
+        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-3/4 h-8 bg-indigo-100 rounded-full blur-xl"></div>
       </div>
     </div>
   );

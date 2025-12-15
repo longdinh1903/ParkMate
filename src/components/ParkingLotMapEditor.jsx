@@ -280,9 +280,9 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
   return (
     <div className="fixed inset-0 flex flex-col bg-white z-[60]">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-green-50 to-white shadow-sm flex-shrink-0">
+      <div className="flex items-center justify-between p-4 border-b bg-gray-50 shadow-sm flex-shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center">
             <i className="ri-edit-2-fill text-white text-xl"></i>
           </div>
           <div>
@@ -482,7 +482,7 @@ export default function ParkingLotMapEditor({ lot, onClose }) {
         {/* Right Panel - Edit Form */}
         {showRightPanel && (
         <div className="w-96 border-l bg-white shadow-lg flex flex-col">
-          <div className="p-6 border-b bg-gradient-to-r from-green-50 to-white">
+          <div className="p-6 border-b bg-gray-50">
             <h3 className="text-lg font-bold text-gray-900">
               {selectedItem ? "Chỉnh sửa chi tiết" : "Thông tin bãi đỗ"}
             </h3>

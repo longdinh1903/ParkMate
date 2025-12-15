@@ -186,7 +186,8 @@ export default function AdminDeviceFees() {
     <AdminLayout>
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-orange-700">
+        <h2 className="text-2xl font-bold text-orange-700 flex items-center gap-2">
+          <i className="ri-copper-coin-fill"></i>
           Quản Lý Phí Thiết Bị
         </h2>
       </div>

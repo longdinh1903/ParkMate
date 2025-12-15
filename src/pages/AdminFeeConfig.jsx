@@ -176,7 +176,8 @@ export default function AdminFeeConfig() {
     <AdminLayout>
       {/* 🔹 Header */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-orange-700">
+        <h2 className="text-2xl font-bold text-orange-700 flex items-center gap-2">
+          <i className="ri-money-dollar-circle-fill"></i>
           Cấu Hình Phí Hoạt Động
         </h2>
       </div>

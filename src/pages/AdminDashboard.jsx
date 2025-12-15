@@ -141,8 +141,21 @@ export default function AdminDashboard() {
 
   return (
     <AdminLayout>
+      {/* Header Section */}
+      <div className="mb-8">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 bg-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
+            <i className="ri-dashboard-3-line text-2xl text-white"></i>
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Tổng quan hệ thống</h1>
+            <p className="text-gray-500 mt-1">Theo dõi thống kê và doanh thu nền tảng</p>
+          </div>
+        </div>
+      </div>
+
       {/* Filters */}
-      <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-8 hover:shadow-xl transition-shadow duration-300">
+      <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             {/* Month Filter Dropdown */}
@@ -321,7 +334,7 @@ export default function AdminDashboard() {
             {/* Revenue Overview with Charts */}
             <section>
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <div className="bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl p-2.5">
+                <div className="bg-green-100 rounded-xl p-2.5">
                   <i className="ri-money-dollar-circle-line text-2xl text-green-600"></i>
                 </div>
                 Tổng Quan Doanh Thu
@@ -329,7 +342,7 @@ export default function AdminDashboard() {
 
               {/* Total Revenue Card - Highlighted */}
               <div className="mb-8">
-                <div className="relative bg-gradient-to-br from-orange-500 via-orange-600 to-red-600 rounded-2xl shadow-xl p-8 text-white transform hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl overflow-hidden group">
+                <div className="relative bg-orange-500 rounded-2xl shadow-xl p-8 text-white transform hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl overflow-hidden group">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
                   <div className="relative z-10">
                     <div className="flex items-center justify-between">
@@ -485,7 +498,7 @@ export default function AdminDashboard() {
             {/* Partners Overview with Chart */}
             <section>
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <div className="bg-gradient-to-br from-orange-100 to-red-100 rounded-xl p-2.5">
+                <div className="bg-orange-100 rounded-xl p-2.5">
                   <i className="ri-building-line text-2xl text-orange-600"></i>
                 </div>
                 Đối Tác & Bãi Đỗ Xe
@@ -617,19 +630,19 @@ export default function AdminDashboard() {
             </section>
 
             {/* Platform Summary - Compact */}
-            <section className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-8 border-2 border-indigo-200 shadow-lg">
+            <section className="bg-indigo-50 rounded-2xl p-8 border border-indigo-200 shadow-lg">
               <h2 className="text-2xl font-bold text-indigo-900 mb-6 flex items-center gap-3">
-                <div className="bg-white/80 rounded-xl p-2.5">
+                <div className="bg-white rounded-xl p-2.5">
                   <i className="ri-apps-line text-2xl text-indigo-600"></i>
                 </div>
                 Tóm Tắt Nền Tảng
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
                 <div className="relative bg-white rounded-xl p-5 border border-indigo-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group overflow-hidden">
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-indigo-100/30 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500"></div>
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-indigo-50 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500"></div>
                   <div className="relative z-10">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-xl p-2.5 group-hover:scale-110 transition-transform">
+                      <div className="bg-indigo-100 rounded-xl p-2.5 group-hover:scale-110 transition-transform">
                         <i className="ri-user-3-fill text-2xl text-indigo-600"></i>
                       </div>
                       <div>
@@ -647,10 +660,10 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <div className="relative bg-white rounded-xl p-5 border border-green-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group overflow-hidden">
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-green-100/30 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500"></div>
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-green-50 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500"></div>
                   <div className="relative z-10">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="bg-gradient-to-br from-green-100 to-green-200 rounded-xl p-2.5 group-hover:scale-110 transition-transform">
+                      <div className="bg-green-100 rounded-xl p-2.5 group-hover:scale-110 transition-transform">
                         <i className="ri-building-fill text-2xl text-green-600"></i>
                       </div>
                       <div>
@@ -669,10 +682,10 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <div className="relative bg-white rounded-xl p-5 border border-blue-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group overflow-hidden">
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-blue-100/30 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500"></div>
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-blue-50 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500"></div>
                   <div className="relative z-10">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl p-2.5 group-hover:scale-110 transition-transform">
+                      <div className="bg-blue-100 rounded-xl p-2.5 group-hover:scale-110 transition-transform">
                         <i className="ri-parking-box-fill text-2xl text-blue-600"></i>
                       </div>
                       <div>
@@ -690,10 +703,10 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <div className="relative bg-white rounded-xl p-5 border border-orange-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group overflow-hidden">
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-orange-100/30 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500"></div>
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-orange-50 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500"></div>
                   <div className="relative z-10">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl p-2.5 group-hover:scale-110 transition-transform">
+                      <div className="bg-orange-100 rounded-xl p-2.5 group-hover:scale-110 transition-transform">
                         <i className="ri-money-dollar-circle-fill text-2xl text-orange-600"></i>
                       </div>
                       <div>
@@ -714,7 +727,7 @@ export default function AdminDashboard() {
             </section>
           </>
         ) : (
-          <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl shadow-lg border-2 border-gray-200 p-16 text-center">
+          <div className="bg-gray-50 rounded-2xl shadow-lg border border-gray-200 p-16 text-center">
             <div className="bg-white rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6 shadow-md">
               <i className="ri-database-2-line text-6xl text-gray-400"></i>
             </div>

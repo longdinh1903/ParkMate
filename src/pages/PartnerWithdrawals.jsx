@@ -318,7 +318,7 @@ export default function PartnerWithdrawals() {
       <div className="bg-indigo-600 text-white py-8 px-6 shadow-md">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-2">
-            <BanknotesIcon className="w-10 h-10" />
+            <i className="ri-money-dollar-circle-line text-4xl"></i>
             <h1 className="text-3xl font-bold">Quản lý rút tiền</h1>
           </div>
           <p className="text-indigo-100">
@@ -584,7 +584,7 @@ export default function PartnerWithdrawals() {
                         <button
                           disabled={periodPage <= 0}
                           onClick={() => setPeriodPage((p) => Math.max(p - 1, 0))}
-                          className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm cursor-pointer"
+                          className="px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium cursor-pointer"
                         >
                           ← Trước
                         </button>
@@ -601,7 +601,7 @@ export default function PartnerWithdrawals() {
                         <button
                           disabled={periodPage >= totalPages - 1}
                           onClick={() => setPeriodPage((p) => Math.min(p + 1, totalPages - 1))}
-                          className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm cursor-pointer"
+                          className="px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium cursor-pointer"
                         >
                           Sau →
                         </button>
@@ -799,7 +799,7 @@ export default function PartnerWithdrawals() {
           <button
             disabled={page <= 0}
             onClick={() => setPage((p) => Math.max(p - 1, 0))}
-            className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+            className="px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium cursor-pointer"
           >
             ← Trước
           </button>
@@ -817,7 +817,7 @@ export default function PartnerWithdrawals() {
           <button
             disabled={page >= totalPages - 1}
             onClick={() => setPage((p) => p + 1)}
-            className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+            className="px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium cursor-pointer"
           >
             Sau →
           </button>

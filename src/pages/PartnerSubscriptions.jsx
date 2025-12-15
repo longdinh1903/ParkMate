@@ -250,7 +250,8 @@ export default function PartnerSubscriptions() {
           <div className="max-w-7xl mx-auto px-6 h-full flex flex-col">
             {/* Header */}
             <div className="pt-6 mb-4 flex-shrink-0">
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                <i className="ri-vip-crown-line text-indigo-600"></i>
                 Gói đăng ký gói thành viên
               </h1>
               <p className="text-gray-600 mt-1">
@@ -558,7 +559,7 @@ export default function PartnerSubscriptions() {
                   <button
                     disabled={page <= 0}
                     onClick={() => setPage((p) => Math.max(p - 1, 0))}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium cursor-pointer"
+                    className="px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium cursor-pointer"
                   >
                     ← Trước
                   </button>
@@ -574,7 +575,7 @@ export default function PartnerSubscriptions() {
                   <button
                     disabled={page >= pagination.totalPages - 1}
                     onClick={() => setPage((p) => p + 1)}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium cursor-pointer"
+                    className="px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium cursor-pointer"
                   >
                     Sau →
                   </button>

@@ -155,17 +155,17 @@ export default function PartnerTopLayout({ children }) {
   return (
     <>
       {/* 🔹 Navbar cố định trên cùng */}
-      <header className="fixed top-0 left-0 w-full z-50 bg-indigo-600 text-white shadow-md h-16 flex items-center px-8">
+      <header className="fixed top-0 left-0 w-full z-50 bg-indigo-600 text-white shadow-lg h-16 flex items-center px-8">
         {/* Logo */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <div className="w-8 h-8 bg-white text-indigo-600 rounded-full flex items-center justify-center font-bold">
-            P
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shadow-md">
+            <i className="ri-parking-fill text-white text-lg"></i>
           </div>
-          <span className="text-lg font-semibold">Đối tác bãi đỗ xe</span>
+          <span className="text-lg font-bold">Park<span className="text-indigo-400">Mate</span></span>
         </div>
 
         {/* Menu */}
-        <nav className="flex items-center gap-8 text-sm font-medium ml-16 flex-1">
+        <nav className="flex items-center gap-2 text-sm font-medium ml-12 flex-1">
           <NavLink
             to="/home"
             onClick={(e) => {
@@ -175,11 +175,14 @@ export default function PartnerTopLayout({ children }) {
               }
             }}
             className={({ isActive }) =>
-              `hover:text-indigo-200 transition ${
-                isActive ? "underline text-indigo-200" : ""
+              `flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                isActive 
+                  ? "bg-white/20 text-white font-semibold shadow-sm" 
+                  : "hover:bg-white/10 text-white/90 hover:text-white"
               } ${!isApproved ? "opacity-50 cursor-not-allowed" : ""}`
             }
           >
+            <i className="ri-home-4-line text-lg"></i>
             Trang chủ
           </NavLink>
           <NavLink
@@ -191,11 +194,14 @@ export default function PartnerTopLayout({ children }) {
               }
             }}
             className={({ isActive }) =>
-              `hover:text-indigo-200 transition ${
-                isActive ? "underline text-indigo-200" : ""
+              `flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                isActive 
+                  ? "bg-white/20 text-white font-semibold shadow-sm" 
+                  : "hover:bg-white/10 text-white/90 hover:text-white"
               } ${!isApproved ? "opacity-50 cursor-not-allowed" : ""}`
             }
           >
+            <i className="ri-parking-box-line text-lg"></i>
             Đăng ký bãi
           </NavLink>
           <NavLink
@@ -207,11 +213,14 @@ export default function PartnerTopLayout({ children }) {
               }
             }}
             className={({ isActive }) =>
-              `hover:text-indigo-200 transition ${
-                isActive ? "underline text-indigo-200" : ""
+              `flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                isActive 
+                  ? "bg-white/20 text-white font-semibold shadow-sm" 
+                  : "hover:bg-white/10 text-white/90 hover:text-white"
               } ${!isApproved ? "opacity-50 cursor-not-allowed" : ""}`
             }
           >
+            <i className="ri-vip-crown-line text-lg"></i>
             Đăng ký thành viên
           </NavLink>
           <NavLink
@@ -223,11 +232,14 @@ export default function PartnerTopLayout({ children }) {
               }
             }}
             className={({ isActive }) =>
-              `hover:text-indigo-200 transition ${
-                isActive ? "underline text-indigo-200" : ""
+              `flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                isActive 
+                  ? "bg-white/20 text-white font-semibold shadow-sm" 
+                  : "hover:bg-white/10 text-white/90 hover:text-white"
               } ${!isApproved ? "opacity-50 cursor-not-allowed" : ""}`
             }
           >
+            <i className="ri-money-dollar-circle-line text-lg"></i>
             Rút tiền
           </NavLink>
 
@@ -241,51 +253,57 @@ export default function PartnerTopLayout({ children }) {
                 }
                 setShowManagementMenu(!showManagementMenu);
               }}
-              className={`flex items-center gap-1 hover:text-indigo-200 transition ${
-                !isApproved ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                showManagementMenu 
+                  ? "bg-white/20 text-white font-semibold shadow-sm" 
+                  : "hover:bg-white/10 text-white/90 hover:text-white"
+              } ${!isApproved ? "opacity-50 cursor-not-allowed" : ""}`}
             >
+              <i className="ri-settings-3-line text-lg"></i>
               Quản lý
               <ChevronDownIcon
-                className={`w-4 h-4 transition-transform ${
+                className={`w-4 h-4 transition-transform duration-200 ${
                   showManagementMenu ? "rotate-180" : ""
                 }`}
               />
             </button>
 
             {showManagementMenu && isApproved && (
-              <div className="absolute top-full left-0 mt-2 w-40 bg-white rounded-lg shadow-lg py-2 z-50">
+              <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                 <NavLink
                   to="/users"
                   onClick={() => setShowManagementMenu(false)}
                   className={({ isActive }) =>
-                    `block px-4 py-2 text-gray-700 hover:bg-indigo-50 transition ${
-                      isActive ? "bg-indigo-100 font-semibold" : ""
+                    `flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-indigo-50 transition-all ${
+                      isActive ? "bg-indigo-100 font-semibold text-indigo-700" : ""
                     }`
                   }
                 >
+                  <i className="ri-user-3-line text-lg"></i>
                   Người dùng
                 </NavLink>
                 <NavLink
                   to="/sessions"
                   onClick={() => setShowManagementMenu(false)}
                   className={({ isActive }) =>
-                    `block px-4 py-2 text-gray-700 hover:bg-indigo-50 transition ${
-                      isActive ? "bg-indigo-100 font-semibold" : ""
+                    `flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-indigo-50 transition-all ${
+                      isActive ? "bg-indigo-100 font-semibold text-indigo-700" : ""
                     }`
                   }
                 >
+                  <i className="ri-login-box-line text-lg"></i>
                   Ra/Vào
                 </NavLink>
                 <NavLink
                   to="/reservations"
                   onClick={() => setShowManagementMenu(false)}
                   className={({ isActive }) =>
-                    `block px-4 py-2 text-gray-700 hover:bg-indigo-50 transition ${
-                      isActive ? "bg-indigo-100 font-semibold" : ""
+                    `flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-indigo-50 transition-all ${
+                      isActive ? "bg-indigo-100 font-semibold text-indigo-700" : ""
                     }`
                   }
                 >
+                  <i className="ri-calendar-check-line text-lg"></i>
                   Đặt chỗ
                 </NavLink>
               </div>
@@ -301,11 +319,14 @@ export default function PartnerTopLayout({ children }) {
               }
             }}
             className={({ isActive }) =>
-              `hover:text-indigo-200 transition ${
-                isActive ? "underline text-indigo-200" : ""
+              `flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                isActive 
+                  ? "bg-white/20 text-white font-semibold shadow-sm" 
+                  : "hover:bg-white/10 text-white/90 hover:text-white"
               } ${!isApproved ? "opacity-50 cursor-not-allowed" : ""}`
             }
           >
+            <i className="ri-bar-chart-box-line text-lg"></i>
             Thống kê
           </NavLink>
         </nav>
@@ -335,7 +356,7 @@ export default function PartnerTopLayout({ children }) {
 
           {/* Dropdown Menu */}
           {showDropdown && (
-            <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 ">
+            <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50 ">
               {/* Profile Button */}
               <button
                 onClick={() => {
@@ -367,7 +388,7 @@ export default function PartnerTopLayout({ children }) {
       </header>
 
       {/* 🔹 Nội dung - không có overflow riêng, scroll toàn trang */}
-      <main className="pt-16 bg-gray-50">
+      <main className="pt-16 bg-gray-50 min-h-screen">
         {children}
 
         {/* Toaster Global */}

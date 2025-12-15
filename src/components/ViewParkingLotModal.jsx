@@ -1139,7 +1139,7 @@ export default function ViewParkingLotModal({
           {/* Header - Fixed */}
           <div className="flex justify-between items-center px-8 pt-8 pb-4 border-b flex-shrink-0">
             <h2 className="text-3xl font-bold text-indigo-700 flex items-center gap-2">
-              🅿️ {lotData.name}
+              {lotData.name}
             </h2>
 
             {/* Status Dropdown */}
@@ -1459,90 +1459,168 @@ export default function ViewParkingLotModal({
             )}
 
             {/* Basic Info */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-[15px] text-gray-700 mb-8">
-              <p>
-                <strong>🏢 Địa chỉ:</strong> {lotData.streetAddress}, {lotData.ward},{" "}
-                {lotData.city}
-              </p>
-              <p>
-                <strong>🕒 Mở:</strong> {lotData.openTime}
-              </p>
-              <p>
-                <strong>🕕 Đóng:</strong> {lotData.closeTime}
-              </p>
-              <p>
-                <strong>🌙 24 Giờ:</strong> {lotData.is24Hour ? "Có" : "Không"}
-              </p>
-              <p>
-                <strong>🏗 Tầng:</strong> {lotData.totalFloors}
-              </p>
-              <p>
-                <strong>📐 Diện tích bãi đỗ:</strong>{" "}
-                {lotData.lotSquare ? `${lotData.lotSquare} m²` : "-"}
-              </p>
-              <p className="flex items-center gap-2">
-                <span>
-                  <strong>⏱️ Thời gian Horizon:</strong>{" "}
-                  {editingHorizonTime ? (
-                    <input
-                      type="number"
-                      min="0"
-                      value={horizonTimeForm.horizonTime}
-                      onChange={(e) =>
-                        setHorizonTimeForm({
-                          ...horizonTimeForm,
-                          horizonTime: e.target.value,
-                        })
-                      }
-                      className="w-20 px-2 py-1 border rounded text-sm"
-                      placeholder="0"
-                    />
-                  ) : lotData.horizonTime ? (
-                    `${lotData.horizonTime} phút`
-                  ) : (
-                    "-"
-                  )}
+            <div className="mb-8 bg-gradient-to-br from-indigo-50/80 via-white to-indigo-50/30 p-6 rounded-2xl border border-indigo-100 shadow-sm">
+              <h3 className="font-semibold text-indigo-700 text-lg mb-5 flex items-center gap-2">
+                <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
+                  <i className="ri-information-line text-white"></i>
+                </div>
+                Thông tin chi tiết
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {/* Địa chỉ - Full width */}
+                <div className="md:col-span-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
+                      <i className="ri-map-pin-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-500 mb-1">Địa chỉ</p>
+                      <p className="text-sm font-medium text-gray-900">{lotData.streetAddress}, {lotData.ward}, {lotData.city}</p>
+                    </div>
+                  </div>
+                </div>
+                {/* Giờ mở cửa */}
+                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
+                      <i className="ri-time-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-500 mb-1">Giờ mở cửa</p>
+                      <p className="text-lg font-bold text-gray-900">{lotData.openTime}</p>
+                    </div>
+                  </div>
+                </div>
+                {/* Giờ đóng cửa */}
+                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
+                      <i className="ri-time-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-500 mb-1">Giờ đóng cửa</p>
+                      <p className="text-lg font-bold text-gray-900">{lotData.closeTime}</p>
+                    </div>
+                  </div>
+                </div>
+                {/* 24 Giờ */}
+                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
+                      <i className="ri-24-hours-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-500 mb-1">Hoạt động 24/7</p>
+                      <p className={`text-sm font-bold ${lotData.is24Hour ? 'text-green-600' : 'text-gray-900'}`}>
+                        {lotData.is24Hour ? "✓ Có" : "Không"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                {/* Số tầng */}
+                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
+                      <i className="ri-building-2-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-500 mb-1">Số tầng</p>
+                      <p className="text-lg font-bold text-gray-900">{lotData.totalFloors}</p>
+                    </div>
+                  </div>
+                </div>
+                {/* Diện tích */}
+                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
+                      <i className="ri-ruler-2-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-500 mb-1">Diện tích</p>
+                      <p className="text-lg font-bold text-gray-900">{lotData.lotSquare ? `${lotData.lotSquare} m²` : "-"}</p>
+                    </div>
+                  </div>
+                </div>
+                {/* Thời gian Horizon */}
+                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
+                        <i className="ri-timer-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-500 mb-1">Thời gian Horizon</p>
+                        {editingHorizonTime ? (
+                          <input
+                            type="number"
+                            min="0"
+                            value={horizonTimeForm.horizonTime}
+                            onChange={(e) =>
+                              setHorizonTimeForm({
+                                ...horizonTimeForm,
+                                horizonTime: e.target.value,
+                              })
+                            }
+                            className="w-20 px-2 py-1 border rounded text-sm"
+                            placeholder="0"
+                          />
+                        ) : (
+                          <p className="text-lg font-bold text-gray-900">{lotData.horizonTime ? `${lotData.horizonTime} phút` : "-"}</p>
+                        )}
+                      </div>
+                    </div>
+                    {allowEdit &&
+                      (editingHorizonTime ? (
+                        <span className="flex gap-1">
+                          <button
+                            onClick={saveHorizonTime}
+                            className="p-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600 cursor-pointer"
+                            title="Lưu"
+                          >
+                            <i className="ri-check-line"></i>
+                          </button>
+                          <button
+                            onClick={cancelEditHorizonTime}
+                            className="p-1.5 bg-gray-400 text-white rounded-lg hover:bg-gray-500 cursor-pointer"
+                            title="Hủy"
+                          >
+                            <i className="ri-close-line"></i>
+                          </button>
+                        </span>
+                      ) : (
+                        <button
+                          onClick={startEditHorizonTime}
+                          className="p-1.5 text-indigo-500 hover:bg-indigo-50 rounded-lg transition cursor-pointer"
+                          title="Chỉnh sửa"
+                        >
+                          <i className="ri-edit-line"></i>
+                        </button>
+                      ))}
+                  </div>
+                </div>
+                {/* Tọa độ */}
+                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
+                      <i className="ri-compass-3-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-500 mb-1">Tọa độ</p>
+                      <p className="text-sm font-medium text-gray-900">{lot.latitude}, {lot.longitude}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-5 pt-4 border-t border-indigo-100 flex gap-8 text-xs text-slate-500">
+                <span className="flex items-center gap-2">
+                  <i className="ri-calendar-line text-indigo-400"></i>
+                  Ngày tạo: <span className="font-medium text-gray-700">{lot.createdAt}</span>
                 </span>
-                {allowEdit &&
-                  (editingHorizonTime ? (
-                    <span className="flex gap-1">
-                      <button
-                        onClick={saveHorizonTime}
-                        className="px-2 py-0.5 text-xs bg-green-500 text-white rounded hover:bg-green-600 cursor-pointer"
-                        title="Lưu"
-                      >
-                        ✓
-                      </button>
-                      <button
-                        onClick={cancelEditHorizonTime}
-                        className="px-2 py-0.5 text-xs bg-gray-400 text-white rounded hover:bg-gray-500 cursor-pointer"
-                        title="Hủy"
-                      >
-                        ✕
-                      </button>
-                    </span>
-                  ) : (
-                    <button
-                      onClick={startEditHorizonTime}
-                      className="px-2 py-0.5 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
-                      title="Chỉnh sửa thời gian horizon"
-                    >
-                      ✏️
-                    </button>
-                  ))}
-              </p>
-              <p>
-                <strong>📍 Vĩ độ:</strong> {lot.latitude}
-              </p>
-              <p>
-                <strong>📍 Kinh độ:</strong> {lot.longitude}
-              </p>
-              <p>
-                <strong>📅 Ngày tạo:</strong> {lot.createdAt}
-              </p>
-              <p>
-                <strong>⚙ Cập nhật:</strong> {lot.updatedAt}
-              </p>
+                <span className="flex items-center gap-2">
+                  <i className="ri-refresh-line text-indigo-400"></i>
+                  Cập nhật: <span className="font-medium text-gray-700">{lot.updatedAt}</span>
+                </span>
+              </div>
             </div>
 
             {/* Images Section */}
@@ -1652,14 +1730,14 @@ export default function ViewParkingLotModal({
             <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-indigo-600 text-xl flex items-center gap-2">
-                  🕐 Giờ hoạt động
+                  <i className="ri-time-line"></i> Giờ hoạt động
                 </h3>
                 {allowEdit && !editingOperatingHours && (
                   <button
                     onClick={startEditOperatingHours}
-                    className="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 cursor-pointer"
+                    className="px-3 py-1.5 text-sm bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition flex items-center gap-2 cursor-pointer"
                   >
-                    ✏️ Chỉnh sửa
+                    <i className="ri-edit-line"></i> Chỉnh sửa
                   </button>
                 )}
               </div>
@@ -1743,7 +1821,7 @@ export default function ViewParkingLotModal({
                   </p>
                   <p>
                     <strong>24 Giờ:</strong>{" "}
-                    {lotData.is24Hour ? "✅ Có" : "❌ Không"}
+                    {lotData.is24Hour ? "Có" : "Không"}
                   </p>
                 </div>
               )}
@@ -1870,9 +1948,9 @@ export default function ViewParkingLotModal({
                             <td className="px-3 py-2">
                               <button
                                 onClick={() => startEditRule(r.id)}
-                                className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
+                                className="px-2.5 py-1.5 text-xs bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition flex items-center gap-1.5 cursor-pointer"
                               >
-                                ✏️ Chỉnh Sửa
+                                <i className="ri-edit-line"></i> Chỉnh Sửa
                               </button>
                             </td>
                           )}
@@ -1952,15 +2030,15 @@ export default function ViewParkingLotModal({
                               </span>
                               <button
                                 onClick={savePolicy}
-                                className="px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600 cursor-pointer"
+                                className="p-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600 cursor-pointer"
                               >
-                                💾
+                                <i className="ri-check-line"></i>
                               </button>
                               <button
                                 onClick={cancelEditPolicy}
-                                className="px-2 py-1 text-xs bg-gray-300 text-gray-700 rounded hover:bg-gray-400 cursor-pointer"
+                                className="p-1.5 bg-gray-400 text-white rounded-lg hover:bg-gray-500 cursor-pointer"
                               >
-                                ✖️
+                                <i className="ri-close-line"></i>
                               </button>
                             </div>
                           ) : (
@@ -1971,9 +2049,9 @@ export default function ViewParkingLotModal({
                               {allowEdit && (
                                 <button
                                   onClick={() => startEditPolicy(policy.id)}
-                                  className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
+                                  className="p-1.5 text-indigo-500 hover:bg-indigo-50 rounded-lg transition cursor-pointer"
                                 >
-                                  ✏️
+                                  <i className="ri-edit-line"></i>
                                 </button>
                               )}
                             </div>

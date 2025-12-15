@@ -136,12 +136,24 @@ export default function PartnerDashboard() {
 
   return (
     <PartnerTopLayout>
-      <div className="min-h-screen bg-gray-50 p-8">
+      <div className="min-h-screen p-8 bg-gray-50">
         <div className="max-w-7xl mx-auto">
+          {/* Page Header */}
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+              <i className="ri-bar-chart-box-line text-indigo-600"></i>
+              Thống kê
+            </h1>
+            <p className="text-gray-600 mt-1">Xem báo cáo thống kê và phân tích dữ liệu bãi đỗ xe của bạn</p>
+          </div>
+
           {/* Filters */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-8 hover:shadow-xl transition-shadow duration-300">
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-8">
+            <div className="flex items-center gap-2 mb-6">
+              <i className="ri-filter-3-line text-indigo-600 text-lg"></i>
+              <h3 className="font-semibold text-gray-900">Bộ lọc</h3>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              {/* Parking Lot Selector */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Chọn bãi đỗ xe
@@ -149,7 +161,7 @@ export default function PartnerDashboard() {
                 <select
                   value={selectedLotId || ""}
                   onChange={(e) => setSelectedLotId(Number(e.target.value))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent hover:border-gray-300 transition-all"
                 >
                   <option value="">-- Chọn một bãi đỗ xe --</option>
                   {parkingLots.map((lot) => (
@@ -169,7 +181,7 @@ export default function PartnerDashboard() {
                   type="datetime-local"
                   value={dateRange.from}
                   onChange={(e) => handleDateChange("from", e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent hover:border-gray-300 transition-all"
                 />
               </div>
 
@@ -182,7 +194,7 @@ export default function PartnerDashboard() {
                   type="datetime-local"
                   value={dateRange.to}
                   onChange={(e) => handleDateChange("to", e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent hover:border-gray-300 transition-all"
                 />
               </div>
             </div>
@@ -226,7 +238,7 @@ export default function PartnerDashboard() {
                     showError("Failed to refresh parking lots");
                   }
                 }}
-                className="px-4 py-2 text-sm rounded-lg transition font-medium bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 flex items-center gap-2 cursor-pointer"
+                className="px-4 py-2 text-sm rounded-lg transition font-medium bg-green-600 hover:bg-green-500 text-white flex items-center gap-2 cursor-pointer"
                 title="Reset all filters and refresh data"
               >
                 <i className="ri-refresh-line"></i>
@@ -289,7 +301,7 @@ export default function PartnerDashboard() {
               {/* Revenue Cards - 3 cards in a row */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 {/* Total Revenue */}
-                <div className="relative bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 hover:shadow-2xl overflow-hidden group">
+                <div className="relative bg-indigo-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 hover:shadow-2xl overflow-hidden group">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
                   <div className="relative z-10">
                     <div className="flex items-center justify-between mb-4">
@@ -314,7 +326,7 @@ export default function PartnerDashboard() {
                 </div>
 
                 {/* Member Revenue */}
-                <div className="relative bg-gradient-to-br from-purple-500 via-purple-600 to-pink-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 hover:shadow-2xl overflow-hidden group">
+                <div className="relative bg-purple-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 hover:shadow-2xl overflow-hidden group">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
                   <div className="relative z-10">
                     <div className="flex items-center justify-between mb-4">
@@ -372,7 +384,7 @@ export default function PartnerDashboard() {
                 </div>
 
                 {/* Occasional Revenue */}
-                <div className="relative bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 hover:shadow-2xl overflow-hidden group">
+                <div className="relative bg-blue-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 hover:shadow-2xl overflow-hidden group">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
                   <div className="relative z-10">
                     <div className="flex items-center justify-between mb-4">
@@ -435,7 +447,7 @@ export default function PartnerDashboard() {
                 {/* Active Sessions */}
                 <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5 hover:shadow-xl hover:border-blue-200 transition-all duration-300 transform hover:-translate-y-1 group">
                   <div className="flex items-center gap-3">
-                    <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl p-3.5 group-hover:scale-110 transition-transform duration-300">
+                    <div className="bg-blue-100 rounded-xl p-3.5 group-hover:scale-110 transition-transform duration-300">
                       <i className="ri-time-line text-2xl text-blue-600"></i>
                     </div>
                     <div>
@@ -455,7 +467,7 @@ export default function PartnerDashboard() {
                 {/* Completed Sessions */}
                 <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5 hover:shadow-xl hover:border-green-200 transition-all duration-300 transform hover:-translate-y-1 group">
                   <div className="flex items-center gap-3">
-                    <div className="bg-gradient-to-br from-green-100 to-green-200 rounded-xl p-3.5 group-hover:scale-110 transition-transform duration-300">
+                    <div className="bg-green-100 rounded-xl p-3.5 group-hover:scale-110 transition-transform duration-300">
                       <i className="ri-checkbox-circle-line text-2xl text-green-600"></i>
                     </div>
                     <div>
@@ -475,7 +487,7 @@ export default function PartnerDashboard() {
                 {/* Total Sessions */}
                 <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5 hover:shadow-xl hover:border-indigo-200 transition-all duration-300 transform hover:-translate-y-1 group">
                   <div className="flex items-center gap-3">
-                    <div className="bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-xl p-3.5 group-hover:scale-110 transition-transform duration-300">
+                    <div className="bg-indigo-100 rounded-xl p-3.5 group-hover:scale-110 transition-transform duration-300">
                       <i className="ri-file-list-line text-2xl text-indigo-600"></i>
                     </div>
                     <div>
@@ -499,7 +511,7 @@ export default function PartnerDashboard() {
                 {/* Average Duration */}
                 <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5 hover:shadow-xl hover:border-teal-200 transition-all duration-300 transform hover:-translate-y-1 group">
                   <div className="flex items-center gap-3">
-                    <div className="bg-gradient-to-br from-teal-100 to-teal-200 rounded-xl p-3.5 group-hover:scale-110 transition-transform duration-300">
+                    <div className="bg-teal-100 rounded-xl p-3.5 group-hover:scale-110 transition-transform duration-300">
                       <i className="ri-timer-line text-2xl text-teal-600"></i>
                     </div>
                     <div>
@@ -560,7 +572,7 @@ export default function PartnerDashboard() {
               {/* Analytics Charts */}
               <div className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                  <div className="bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl p-2.5">
+                  <div className="bg-indigo-100 rounded-xl p-2.5">
                     <i className="ri-bar-chart-box-line text-2xl text-indigo-600"></i>
                   </div>
                   Phân tích chi tiết
@@ -603,12 +615,12 @@ export default function PartnerDashboard() {
                     onClick={() =>
                       setShowRevenueBreakdown(!showRevenueBreakdown)
                     }
-                    className="bg-gradient-to-r from-white to-indigo-50 rounded-2xl shadow-lg border border-indigo-100 p-6 cursor-pointer hover:shadow-xl hover:border-indigo-200 transition-all duration-300 group"
+                    className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 cursor-pointer hover:shadow-xl hover:border-indigo-200 transition-all duration-300 group"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className="bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl p-3 group-hover:scale-110 transition-transform duration-300">
-                          <i className="ri-calendar-check-line text-3xl text-white"></i>
+                        <div className="bg-indigo-100 rounded-xl p-3 group-hover:scale-110 transition-transform duration-300">
+                          <i className="ri-calendar-check-line text-3xl text-indigo-600"></i>
                         </div>
                         <div>
                           <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
@@ -885,8 +897,8 @@ export default function PartnerDashboard() {
 
           {/* Empty State */}
           {!loading && !statistics && selectedLotId && (
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl shadow-lg border-2 border-gray-200 p-16 text-center">
-              <div className="bg-white rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6 shadow-md">
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-16 text-center">
+              <div className="bg-gray-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6 shadow-md">
                 <i className="ri-database-2-line text-6xl text-gray-400"></i>
               </div>
               <p className="text-gray-900 text-xl font-bold mb-2">
@@ -900,9 +912,9 @@ export default function PartnerDashboard() {
 
           {/* No Lot Selected */}
           {!loading && !selectedLotId && (
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl shadow-lg border-2 border-indigo-200 p-16 text-center">
-              <div className="bg-white rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6 shadow-md">
-                <i className="ri-parking-box-line text-6xl text-indigo-500"></i>
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-16 text-center">
+              <div className="bg-indigo-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6 shadow-md">
+                <i className="ri-parking-box-line text-6xl text-indigo-600"></i>
               </div>
               <p className="text-gray-900 text-xl font-bold mb-2">
                 Chọn bãi đỗ xe
