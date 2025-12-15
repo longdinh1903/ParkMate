@@ -1,4 +1,5 @@
 import axiosClient from "../api/axiosClient";
+import axios from "axios";
 
 const authApi = {
   resendEmail: (email) =>
@@ -11,6 +12,19 @@ const authApi = {
 
   logout: (refreshToken) =>
     axiosClient.post("/api/v1/user-service/auth/logout", { refreshToken }),
+
+  // ✅ Refresh token - dùng axios trực tiếp để tránh vòng lặp interceptor
+  refresh: (refreshToken) =>
+    axios.post(
+      `${import.meta.env.VITE_API_URL || "https://avokadu.com"}/api/v1/user-service/auth/refresh`,
+      { refreshToken },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    ),
 };
 
 export default authApi;
+
