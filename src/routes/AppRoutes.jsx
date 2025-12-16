@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/Login";
+import ForgotPassword from "../pages/ForgotPassword";
 import Register from "../pages/Register";
 import ConfirmEmail from "../pages/ConfirmEmail";
 import PartnerHome from "../pages/PartnerHome";
@@ -30,6 +31,7 @@ export default function AppRoutes() {
       
       {/* Partner/User routes */}
       <Route path="/login" element={<Login />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/register" element={<Register />} />
       <Route path="/confirm-email" element={<ConfirmEmail />} />
       <Route path="/partner-profile" element={<PartnerProfile />} />

@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import partnerApi from "../api/partnerApi";
 import { showError } from "../utils/toastUtils";
+import { BuildingOffice2Icon } from "@heroicons/react/24/outline";
 
 // Icon Imports (Giả sử bạn đang dùng React Icons hoặc tương tự,
 // tôi sẽ thay thế các class "ri-" bằng icon giả định hoặc giữ lại nếu bạn dùng Remixed Icons)
 
 export default function ViewPartnerDetailModal({ partnerId, onClose }) {
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -122,6 +125,19 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
                     <InfoRow label="Địa Chỉ" value={data.companyAddress} />
                     <InfoRow label="Email Công Ty" value={data.companyEmail} />
                     <InfoRow label="SĐT Công Ty" value={data.companyPhone} />
+                    <InfoRow label="Số Bãi Đỗ Xe">
+                        <button
+                            onClick={() => {
+                                onClose();
+                                navigate(`/admin/parking-lots?partnerId=${partnerId}&partnerName=${encodeURIComponent(data.companyName || '')}`);
+                            }}
+                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 font-semibold text-sm hover:bg-blue-100 transition-colors cursor-pointer"
+                            title="Xem danh sách bãi đỗ xe của đối tác này"
+                        >
+                            <BuildingOffice2Icon className="w-4 h-4" />
+                            {data.numbersOfParkingLots ?? 0} bãi đỗ
+                        </button>
+                    </InfoRow>
                     <InfoRow label="File Giấy Phép">
                         {data.businessLicenseFileUrl ? (
                             <a

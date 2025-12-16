@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import AdminLayout from "../layouts/AdminLayout";
 import parkingLotApi from "../api/parkingLotApi";
 import {
@@ -17,6 +18,10 @@ import ViewParkingLotReadOnlyModal from "../components/ViewParkingLotReadOnlyMod
 import AddParkingLotModal from "../components/AddParkingLotModal.jsx";
 
 export default function AdminParkingLots() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const partnerIdFromUrl = searchParams.get("partnerId");
+  const partnerNameFromUrl = searchParams.get("partnerName");
+
   const [lots, setLots] = useState([]);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
@@ -80,6 +85,11 @@ export default function AdminParkingLots() {
 
   // ✅ Filter
   const filtered = lots.filter((lot) => {
+    // Filter by partnerId from URL
+    if (partnerIdFromUrl && lot.partnerId?.toString() !== partnerIdFromUrl) {
+      return false;
+    }
+
     const keyword = search.toLowerCase();
     const fields = [
       lot.name,
@@ -296,6 +306,25 @@ export default function AdminParkingLots() {
           Quản Lý Bãi Đỗ Xe
         </h2>
       </div>
+
+      {/* 🔹 Partner Filter Banner */}
+      {partnerIdFromUrl && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
+          <div className="flex items-center gap-2 text-blue-700">
+            <i className="ri-filter-3-line text-lg"></i>
+            <span>
+              Đang lọc bãi đỗ xe của đối tác: <strong>{partnerNameFromUrl || `ID: ${partnerIdFromUrl}`}</strong>
+            </span>
+          </div>
+          <button
+            onClick={() => setSearchParams({})}
+            className="flex items-center gap-1 px-3 py-1.5 text-sm bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer"
+          >
+            <i className="ri-close-line"></i>
+            Xóa bộ lọc
+          </button>
+        </div>
+      )}
 
       {/* 🔹 Filters + Actions */}
       <div className="flex flex-wrap justify-between items-center mb-6 gap-3">

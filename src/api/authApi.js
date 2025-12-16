@@ -24,6 +24,18 @@ const authApi = {
         },
       }
     ),
+
+  // ✅ Forgot Password - Send reset code to email
+  forgotPassword: (email) =>
+    axiosClient.post("/api/v1/user-service/auth/forgot-password", { email }),
+
+  // ✅ Reset Password - Verify code and set new password
+  resetPassword: ({ email, resetCode, newPassword }) =>
+    axiosClient.post("/api/v1/user-service/auth/reset-password", {
+      email,
+      resetCode,
+      newPassword,
+    }),
 };
 
 export default authApi;

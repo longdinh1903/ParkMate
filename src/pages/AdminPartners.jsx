@@ -399,6 +399,7 @@ export default function AdminPartners() {
               <th className="px-6 py-3 text-left">Email</th>
               <th className="px-6 py-3 text-left">Số Điện Thoại</th>
               <th className="px-6 py-3 text-left">Địa Chỉ</th>
+              <th className="px-6 py-3 text-center">Số Bãi Đỗ</th>
               <th className="px-6 py-3 text-left">Trạng Thái</th>
               <th className="px-6 py-3 text-center">Thao Tác</th>
             </tr>
@@ -407,7 +408,7 @@ export default function AdminPartners() {
             {loading ? (
               <tr>
                 <td
-                  colSpan="8"
+                  colSpan="9"
                   className="px-6 py-6 text-center text-gray-500 italic"
                 >
                   Đang tải...
@@ -427,6 +428,11 @@ export default function AdminPartners() {
                   <td className="px-6 py-3">{p.companyEmail}</td>
                   <td className="px-6 py-3">{p.companyPhone}</td>
                   <td className="px-6 py-3">{p.companyAddress}</td>
+                  <td className="px-6 py-3 text-center">
+                    <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-semibold text-sm">
+                      {p.numbersOfParkingLots ?? 0}
+                    </span>
+                  </td>
                   <td className="px-6 py-3">{renderStatus(p.status)}</td>
                   <td className="px-6 py-3 text-center">
                     <div className="flex justify-center items-center gap-3">
@@ -458,7 +464,7 @@ export default function AdminPartners() {
             ) : (
               <tr>
                 <td
-                  colSpan="8"
+                  colSpan="9"
                   className="px-6 py-6 text-center text-gray-500 italic"
                 >
                   Không tìm thấy đối tác nào.
