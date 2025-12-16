@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import adminApi from "../api/adminApi";
 
 export default function AdminLogin() {
@@ -73,7 +74,46 @@ export default function AdminLogin() {
         navigate("/admin/partners");
       } catch (error) {
         console.error("❌ Login failed:", error);
-        setErrors({ email: "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin." });
+        
+        // Get error info from API response
+        const apiMessage = error.response?.data?.message?.toLowerCase() || "";
+        const statusCode = error.response?.status;
+        
+        // Always show Vietnamese error message
+        let errorMessage = "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.";
+        
+        // Check API message for common errors and translate to Vietnamese
+        if (statusCode === 429) {
+          errorMessage = "Bạn đã gửi quá nhiều yêu cầu. Vui lòng đợi vài phút rồi thử lại!";
+        } else if (apiMessage.includes("invalid") || apiMessage.includes("incorrect") || apiMessage.includes("wrong")) {
+          errorMessage = "Email hoặc mật khẩu không đúng. Vui lòng thử lại!";
+        } else if (apiMessage.includes("not found") || apiMessage.includes("not exist")) {
+          errorMessage = "Tài khoản không tồn tại. Vui lòng kiểm tra lại email.";
+        } else if (apiMessage.includes("password")) {
+          errorMessage = "Mật khẩu không chính xác. Vui lòng thử lại!";
+        } else if (apiMessage.includes("email")) {
+          errorMessage = "Email không chính xác. Vui lòng kiểm tra lại!";
+        } else if (statusCode === 401 || statusCode === 403) {
+          errorMessage = "Email hoặc mật khẩu không đúng. Vui lòng thử lại!";
+        } else if (statusCode === 404) {
+          errorMessage = "Tài khoản không tồn tại. Vui lòng kiểm tra lại email.";
+        } else if (statusCode === 400) {
+          errorMessage = "Thông tin đăng nhập không hợp lệ. Vui lòng kiểm tra lại.";
+        }
+        
+        toast.error(errorMessage, {
+          duration: 5000,
+          position: 'top-center',
+          style: {
+            background: '#ef4444',
+            color: '#fff',
+            fontWeight: '500',
+            padding: '16px',
+            borderRadius: '12px',
+          },
+          icon: '❌',
+        });
+        setErrors({ email: errorMessage });
       } finally {
         setIsLoading(false);
       }

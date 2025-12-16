@@ -162,10 +162,48 @@ export default function Login() {
         console.error("❌ Login failed:", err);
         toast.dismiss(toastId);
 
-        const errorMessage =
-          err.response?.data?.message ||
-          "❌ Email hoặc mật khẩu không đúng. Vui lòng thử lại!";
-        toast.error(errorMessage);
+        // Get error info from API response
+        const apiMessage = err.response?.data?.message?.toLowerCase() || "";
+        const statusCode = err.response?.status;
+        
+        // Always show Vietnamese error message
+        let errorMessage = "Đăng nhập thất bại. Vui lòng thử lại!";
+        
+        // Check API message for common errors and translate to Vietnamese
+        if (statusCode === 429) {
+          errorMessage = "Bạn đã gửi quá nhiều yêu cầu. Vui lòng đợi vài phút rồi thử lại!";
+        } else if (apiMessage.includes("invalid") || apiMessage.includes("incorrect") || apiMessage.includes("wrong")) {
+          errorMessage = "Email hoặc mật khẩu không đúng. Vui lòng thử lại!";
+        } else if (apiMessage.includes("not found") || apiMessage.includes("not exist")) {
+          errorMessage = "Tài khoản không tồn tại. Vui lòng kiểm tra lại email.";
+        } else if (apiMessage.includes("password")) {
+          errorMessage = "Mật khẩu không chính xác. Vui lòng thử lại!";
+        } else if (apiMessage.includes("email")) {
+          errorMessage = "Email không chính xác. Vui lòng kiểm tra lại!";
+        } else if (statusCode === 401 || statusCode === 403) {
+          errorMessage = "Email hoặc mật khẩu không đúng. Vui lòng thử lại!";
+        } else if (statusCode === 404) {
+          errorMessage = "Tài khoản không tồn tại. Vui lòng kiểm tra lại email.";
+        } else if (statusCode === 400) {
+          errorMessage = "Thông tin đăng nhập không hợp lệ. Vui lòng kiểm tra lại.";
+        }
+        
+        // Show inline error under email field (like AdminLogin)
+        setErrors({ email: errorMessage });
+        
+        // Also show toast notification
+        toast.error(errorMessage, {
+          duration: 5000,
+          position: 'top-center',
+          style: {
+            background: '#ef4444',
+            color: '#fff',
+            fontWeight: '500',
+            padding: '16px',
+            borderRadius: '12px',
+          },
+          icon: '❌',
+        });
       }
     }
   };
@@ -272,12 +310,12 @@ export default function Login() {
                 </div>
                 <span className="group-hover:text-gray-900 transition-colors">Ghi nhớ tôi</span>
               </label>
-              <a 
-                href="#" 
+              <Link 
+                to="/forgot-password" 
                 className="text-indigo-600 hover:text-indigo-700 transition-colors hover:underline underline-offset-2"
               >
                 Quên mật khẩu?
-              </a>
+              </Link>
             </div>
 
             {/* Submit Button */}
