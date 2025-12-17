@@ -55,6 +55,21 @@ export default function ViewParkingLotModal({
   const paymentCheckIntervalRef = useRef(null);
   const realtimeIntervalRef = useRef(null);
 
+  // Admin = Orange theme, Partner = light Indigo theme (no gradients)
+  const isAdminView = showAssignDevicesButton || showResetMapButton;
+  const themeColors = {
+    primary: isAdminView ? 'orange' : 'indigo',
+    bg: isAdminView ? 'bg-orange-50' : 'bg-indigo-50',
+    bgLight: isAdminView ? 'bg-orange-100' : 'bg-indigo-100',
+    border: isAdminView ? 'border-orange-500' : 'border-indigo-500',
+    borderLight: isAdminView ? 'border-orange-200' : 'border-indigo-200',
+    text: isAdminView ? 'text-orange-600' : 'text-indigo-600',
+    textDark: isAdminView ? 'text-orange-700' : 'text-indigo-700',
+    btn: isAdminView ? 'bg-orange-500 hover:bg-orange-600' : 'bg-indigo-500 hover:bg-indigo-600',
+    btnLight: isAdminView ? 'bg-orange-100 text-orange-700 hover:bg-orange-200' : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200',
+    ring: isAdminView ? 'ring-orange-500' : 'ring-indigo-500',
+  };
+
   // Real-time updates - refresh lot data every 5 seconds
   useEffect(() => {
     const fetchLotData = async () => {
@@ -988,7 +1003,7 @@ export default function ViewParkingLotModal({
     }
   };
 
-  const handleImageSelect = (e) => {
+  const handleImageSelect = async (e) => {
     const files = Array.from(e.target.files);
     
     if (files.length === 0) return;
@@ -1009,27 +1024,32 @@ export default function ViewParkingLotModal({
       return true;
     });
 
-    // Limit to 4 images total
-    const currentCount = selectedImages.length;
-    const availableSlots = 4 - currentCount;
-    
-    if (validFiles.length > availableSlots) {
-      showError(`⚠️ Chỉ có thể thêm tối đa ${availableSlots} ảnh nữa (tối đa 4 ảnh)`);
-      return;
+    if (validFiles.length === 0) return;
+
+    // Upload images directly
+    setUploadingImages(true);
+    try {
+      await parkingLotApi.uploadImages(lot.id, validFiles);
+      showSuccess(`🎉 Đã tải lên ${validFiles.length} ảnh thành công!`);
+      
+      // Reload lot data to get updated images
+      const res = await parkingLotApi.getById(lot.id);
+      if (res.data?.data) {
+        setLotData(res.data.data);
+      }
+      
+      if (onActionDone) {
+        onActionDone();
+      }
+    } catch (error) {
+      console.error("Error uploading images:", error);
+      showError("❌ Tải ảnh lên thất bại! Vui lòng thử lại.");
+    } finally {
+      setUploadingImages(false);
     }
-
-    setSelectedImages([...selectedImages, ...validFiles]);
     
-    // Create previews
-    validFiles.forEach(file => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreviews(prev => [...prev, reader.result]);
-      };
-      reader.readAsDataURL(file);
-    });
-
-    showSuccess(`Đã thêm ${validFiles.length} ảnh`);
+    // Reset file input
+    e.target.value = "";
   };
 
   const handleRemoveImage = (index) => {
@@ -1136,11 +1156,12 @@ export default function ViewParkingLotModal({
       {/* ================= MODAL CHÍNH (popup overlay) ================= */}
       <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black/30 z-50">
         <div className="w-[90vw] max-w-[1200px] bg-white rounded-2xl shadow-2xl border border-gray-200 max-h-[85vh] flex flex-col">
-          {/* Header - Fixed */}
-          <div className="flex justify-between items-center px-8 pt-8 pb-4 border-b flex-shrink-0">
-            <h2 className="text-3xl font-bold text-indigo-700 flex items-center gap-2">
+          {/* Header - Dynamic Color (Orange for Admin, Indigo for Partner) */}
+          <div className={`flex justify-between items-center px-8 py-5 ${isAdminView ? 'bg-orange-600' : 'bg-indigo-600'} rounded-t-2xl flex-shrink-0`}>
+            <h2 className="text-2xl font-bold text-white">
               {lotData.name}
             </h2>
+            <div className="flex items-center gap-3">
 
             {/* Status Dropdown */}
             <div className="relative">
@@ -1247,6 +1268,14 @@ export default function ViewParkingLotModal({
                   </ul>
                 )}
               </details>
+            </div>
+            <button
+              onClick={handleClose}
+              className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center transition-all cursor-pointer border border-white/20"
+              title="Đóng"
+            >
+              <i className="ri-close-line text-xl text-white"></i>
+            </button>
             </div>
           </div>
 
@@ -1458,284 +1487,237 @@ export default function ViewParkingLotModal({
               </div>
             )}
 
-            {/* Basic Info */}
-            <div className="mb-8 bg-gradient-to-br from-indigo-50/80 via-white to-indigo-50/30 p-6 rounded-2xl border border-indigo-100 shadow-sm">
-              <h3 className="font-semibold text-indigo-700 text-lg mb-5 flex items-center gap-2">
-                <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
-                  <i className="ri-information-line text-white"></i>
-                </div>
-                Thông tin chi tiết
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {/* Địa chỉ - Full width */}
-                <div className="md:col-span-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
-                      <i className="ri-map-pin-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
-                    </div>
-                    <div>
-                      <p className="text-xs text-slate-500 mb-1">Địa chỉ</p>
-                      <p className="text-sm font-medium text-gray-900">{lotData.streetAddress}, {lotData.ward}, {lotData.city}</p>
-                    </div>
-                  </div>
-                </div>
-                {/* Giờ mở cửa */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
-                      <i className="ri-time-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
-                    </div>
-                    <div>
-                      <p className="text-xs text-slate-500 mb-1">Giờ mở cửa</p>
-                      <p className="text-lg font-bold text-gray-900">{lotData.openTime}</p>
-                    </div>
-                  </div>
-                </div>
-                {/* Giờ đóng cửa */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
-                      <i className="ri-time-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
-                    </div>
-                    <div>
-                      <p className="text-xs text-slate-500 mb-1">Giờ đóng cửa</p>
-                      <p className="text-lg font-bold text-gray-900">{lotData.closeTime}</p>
-                    </div>
-                  </div>
-                </div>
-                {/* 24 Giờ */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
-                      <i className="ri-24-hours-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
-                    </div>
-                    <div>
-                      <p className="text-xs text-slate-500 mb-1">Hoạt động 24/7</p>
-                      <p className={`text-sm font-bold ${lotData.is24Hour ? 'text-green-600' : 'text-gray-900'}`}>
-                        {lotData.is24Hour ? "✓ Có" : "Không"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                {/* Số tầng */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
-                      <i className="ri-building-2-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
-                    </div>
-                    <div>
-                      <p className="text-xs text-slate-500 mb-1">Số tầng</p>
-                      <p className="text-lg font-bold text-gray-900">{lotData.totalFloors}</p>
-                    </div>
-                  </div>
-                </div>
-                {/* Diện tích */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
-                      <i className="ri-ruler-2-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
-                    </div>
-                    <div>
-                      <p className="text-xs text-slate-500 mb-1">Diện tích</p>
-                      <p className="text-lg font-bold text-gray-900">{lotData.lotSquare ? `${lotData.lotSquare} m²` : "-"}</p>
-                    </div>
-                  </div>
-                </div>
-                {/* Thời gian Horizon */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
-                  <div className="flex items-start justify-between">
+            {/* ===== ROW 1: Basic Info + Images (2 columns) ===== */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              {/* Left Column: Thông Tin Cơ Bản */}
+              <div>
+                <h3 className="font-bold text-gray-900 text-lg mb-4">Thông Tin Cơ Bản</h3>
+                <div className="space-y-3">
+                  {/* Địa chỉ */}
+                  <div className={`bg-white p-4 rounded-xl border-l-4 ${themeColors.border} shadow-sm`}>
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
-                        <i className="ri-timer-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
-                      </div>
+                      <i className={`ri-map-pin-line ${themeColors.text} text-xl mt-0.5`}></i>
                       <div>
-                        <p className="text-xs text-slate-500 mb-1">Thời gian Horizon</p>
+                        <p className="text-sm text-gray-500 mb-1">Địa chỉ:</p>
+                        <p className="font-medium text-gray-900">{lotData.streetAddress}, {lotData.ward}, {lotData.city}</p>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Giờ mở cửa / đóng cửa - 2 columns */}
+                  <div className={`bg-white p-4 rounded-xl border-l-4 ${themeColors.border} shadow-sm`}>
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="flex items-start gap-3">
+                        <i className={`ri-time-line ${themeColors.text} text-xl mt-0.5`}></i>
+                        <div>
+                          <p className="text-sm text-gray-500 mb-1">Giờ mở cửa:</p>
+                          <p className="text-xl font-bold text-gray-900">{lotData.openTime}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <i className={`ri-time-line ${themeColors.text} text-xl mt-0.5`}></i>
+                        <div>
+                          <p className="text-sm text-gray-500 mb-1">Giờ đóng cửa:</p>
+                          <p className="text-xl font-bold text-gray-900">{lotData.closeTime}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {/* 24/7 */}
+                  <div className={`bg-white p-4 rounded-xl border-l-4 ${themeColors.border} shadow-sm`}>
+                    <div className="flex items-center gap-3">
+                      <i className={`ri-24-hours-line ${themeColors.text} text-xl`}></i>
+                      <span className="text-gray-700">24/7:</span>
+                      <span className={`px-3 py-1 rounded-full text-sm font-semibold ${lotData.is24Hour ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'}`}>
+                        {lotData.is24Hour ? "Có" : "Không"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Tổng số tầng */}
+                  <div className={`bg-white p-4 rounded-xl border-l-4 ${themeColors.border} shadow-sm`}>
+                    <div className="flex items-center gap-3">
+                      <i className={`ri-building-2-line ${themeColors.text} text-xl`}></i>
+                      <span className="text-gray-700">Tổng số tầng:</span>
+                      <span className="font-bold text-gray-900">{lotData.totalFloors}</span>
+                    </div>
+                  </div>
+
+                  {/* Diện tích */}
+                  <div className={`bg-white p-4 rounded-xl border-l-4 ${themeColors.border} shadow-sm`}>
+                    <div className="flex items-center gap-3">
+                      <i className={`ri-ruler-2-line ${themeColors.text} text-xl`}></i>
+                      <span className="text-gray-700">Diện tích:</span>
+                      <span className="font-bold text-gray-900">{lotData.lotSquare ? `${lotData.lotSquare} m²` : "-"}</span>
+                    </div>
+                  </div>
+
+                  {/* Thời gian tầm nhìn (Horizon Time) - Editable */}
+                  <div className={`bg-white p-4 rounded-xl border-l-4 ${themeColors.border} shadow-sm`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <i className={`ri-time-line ${themeColors.text} text-xl`}></i>
+                        <span className="text-gray-700">Thời gian tầm nhìn:</span>
                         {editingHorizonTime ? (
-                          <input
-                            type="number"
-                            min="0"
-                            value={horizonTimeForm.horizonTime}
-                            onChange={(e) =>
-                              setHorizonTimeForm({
-                                ...horizonTimeForm,
-                                horizonTime: e.target.value,
-                              })
-                            }
-                            className="w-20 px-2 py-1 border rounded text-sm"
-                            placeholder="0"
-                          />
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="number"
+                              value={horizonTimeForm.horizonTime}
+                              onChange={(e) => setHorizonTimeForm({ horizonTime: e.target.value })}
+                              className="w-20 px-2 py-1 border border-indigo-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                              min="0"
+                              placeholder="Phút"
+                            />
+                            <span className="text-gray-600 text-sm">phút</span>
+                            <button
+                              onClick={saveHorizonTime}
+                              className="p-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition cursor-pointer"
+                            >
+                              <i className="ri-check-line"></i>
+                            </button>
+                            <button
+                              onClick={cancelEditHorizonTime}
+                              className="p-1.5 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition cursor-pointer"
+                            >
+                              <i className="ri-close-line"></i>
+                            </button>
+                          </div>
                         ) : (
-                          <p className="text-lg font-bold text-gray-900">{lotData.horizonTime ? `${lotData.horizonTime} phút` : "-"}</p>
+                          <span className="font-bold text-gray-900">
+                            {lotData.horizonTime ? `${lotData.horizonTime} phút` : "-"}
+                          </span>
                         )}
                       </div>
-                    </div>
-                    {allowEdit &&
-                      (editingHorizonTime ? (
-                        <span className="flex gap-1">
-                          <button
-                            onClick={saveHorizonTime}
-                            className="p-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600 cursor-pointer"
-                            title="Lưu"
-                          >
-                            <i className="ri-check-line"></i>
-                          </button>
-                          <button
-                            onClick={cancelEditHorizonTime}
-                            className="p-1.5 bg-gray-400 text-white rounded-lg hover:bg-gray-500 cursor-pointer"
-                            title="Hủy"
-                          >
-                            <i className="ri-close-line"></i>
-                          </button>
-                        </span>
-                      ) : (
+                      {allowEdit && !editingHorizonTime && (
                         <button
                           onClick={startEditHorizonTime}
-                          className="p-1.5 text-indigo-500 hover:bg-indigo-50 rounded-lg transition cursor-pointer"
-                          title="Chỉnh sửa"
+                          className="text-indigo-600 hover:text-indigo-800 text-sm cursor-pointer"
                         >
                           <i className="ri-edit-line"></i>
                         </button>
-                      ))}
-                  </div>
-                </div>
-                {/* Tọa độ */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500 transition-colors">
-                      <i className="ri-compass-3-line text-indigo-600 text-lg group-hover:text-white transition-colors"></i>
-                    </div>
-                    <div>
-                      <p className="text-xs text-slate-500 mb-1">Tọa độ</p>
-                      <p className="text-sm font-medium text-gray-900">{lot.latitude}, {lot.longitude}</p>
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="mt-5 pt-4 border-t border-indigo-100 flex gap-8 text-xs text-slate-500">
-                <span className="flex items-center gap-2">
-                  <i className="ri-calendar-line text-indigo-400"></i>
-                  Ngày tạo: <span className="font-medium text-gray-700">{lot.createdAt}</span>
-                </span>
-                <span className="flex items-center gap-2">
-                  <i className="ri-refresh-line text-indigo-400"></i>
-                  Cập nhật: <span className="font-medium text-gray-700">{lot.updatedAt}</span>
-                </span>
-              </div>
-            </div>
 
-            {/* Images Section */}
-            <div className="mb-8 bg-gradient-to-br from-purple-50 to-purple-100/30 p-6 rounded-2xl border border-purple-200 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-purple-600 text-xl flex items-center gap-2">
-                  <i className="ri-image-fill"></i> Hình ảnh bãi xe
-                  {selectedImagesToDelete.length > 0 && (
-                    <span className="text-sm font-normal">
-                      ({selectedImagesToDelete.length} đã chọn)
-                    </span>
-                  )}
-                </h3>
-                <div className="flex gap-2">
-                  {allowEdit && lotData.images && lotData.images.length > 0 && (
-                    <>
-                      <button
-                        onClick={handleSelectAllImages}
-                        className="px-3 py-2 text-sm bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-all flex items-center gap-2 shadow-md cursor-pointer"
-                      >
-                        <i className="ri-checkbox-multiple-line"></i>
-                        {selectedImagesToDelete.length === lotData.images.length ? "Bỏ Chọn" : "Chọn Tất Cả"}
-                      </button>
-                      {selectedImagesToDelete.length > 0 && (
+              {/* Right Column: Thư Viện Ảnh */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-gray-900 text-lg flex items-center gap-2">
+                    Thư Viện Ảnh
+                    {selectedImagesToDelete.length > 0 && (
+                      <span className={`text-sm font-normal ${themeColors.bgLight} ${themeColors.text} px-2 py-0.5 rounded-full`}>
+                        {selectedImagesToDelete.length} đã chọn
+                      </span>
+                    )}
+                  </h3>
+                  <div className="flex gap-2">
+                    {allowEdit && lotData.images && lotData.images.length > 0 && (
+                      <>
                         <button
-                          onClick={handleDeleteSelectedImages}
-                          disabled={deletingImages}
-                          className="px-3 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all flex items-center gap-2 shadow-md disabled:opacity-50 cursor-pointer"
+                          onClick={handleSelectAllImages}
+                          className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition flex items-center gap-2 cursor-pointer"
                         >
-                          {deletingImages ? (
-                            <>
-                              <i className="ri-loader-4-line animate-spin"></i>
-                              Đang xóa...
-                            </>
-                          ) : (
-                            <>
-                              <i className="ri-delete-bin-line"></i>
-                              Xóa ({selectedImagesToDelete.length})
-                            </>
-                          )}
+                          <i className="ri-checkbox-multiple-line"></i>
+                          {selectedImagesToDelete.length === lotData.images.length ? "Bỏ chọn" : "Chọn tất cả"}
                         </button>
-                      )}
-                    </>
-                  )}
-                  {allowEdit && (
-                    <button
-                      onClick={() => setShowImageUpload(true)}
-                      className="px-4 py-2 text-sm bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-all flex items-center gap-2 cursor-pointer shadow-md hover:shadow-lg"
-                    >
-                      <i className="ri-upload-2-line"></i>
-                      {(lotData.images && lotData.images.length > 0) ? "Thêm ảnh" : "Thêm ảnh"}
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {lotData.images && lotData.images.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {lotData.images.map((image, index) => (
-                    <div 
-                      key={image.id || index} 
-                      className={`relative group cursor-pointer rounded-lg border-2 transition-all ${
-                        selectedImagesToDelete.includes(image.id)
-                          ? 'border-purple-500 ring-4 ring-purple-200'
-                          : 'border-purple-200'
-                      }`}
-                      onClick={() => allowEdit && handleToggleImageSelection(image.id)}
-                    >
-                      <img
-                        src={image.path}
-                        alt={`Parking lot ${index + 1}`}
-                        className="w-full h-40 object-cover rounded-lg shadow-md hover:shadow-xl transition-all"
-                      />
-                      <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
-                        {index + 1}/{lotData.images.length}
-                      </div>
-                      {allowEdit && (
-                        <div className="absolute top-2 right-2">
-                          <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all ${
-                            selectedImagesToDelete.includes(image.id)
-                              ? 'bg-purple-500 border-purple-500'
-                              : 'bg-white border-gray-300 group-hover:border-purple-400'
-                          }`}>
-                            {selectedImagesToDelete.includes(image.id) && (
-                              <i className="ri-check-line text-white text-sm"></i>
+                        {selectedImagesToDelete.length > 0 && (
+                          <button
+                            onClick={handleDeleteSelectedImages}
+                            disabled={deletingImages}
+                            className="px-3 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                          >
+                            {deletingImages ? (
+                              <>
+                                <i className="ri-loader-4-line animate-spin"></i>
+                                Đang xóa...
+                              </>
+                            ) : (
+                              <>
+                                <i className="ri-delete-bin-line"></i>
+                                Xóa ({selectedImagesToDelete.length})
+                              </>
                             )}
-                          </div>
+                          </button>
+                        )}
+                      </>
+                    )}
+                    {allowEdit && (
+                      <label className={`px-4 py-2 text-sm ${themeColors.btn} text-white rounded-lg transition cursor-pointer flex items-center gap-2`}>
+                        <i className="ri-upload-2-line"></i> Thêm ảnh
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          onChange={handleImageSelect}
+                          className="hidden"
+                          disabled={uploadingImages}
+                        />
+                      </label>
+                    )}
+                  </div>
+                </div>
+                {lotData.images && lotData.images.length > 0 ? (
+                  <div className="grid grid-cols-2 gap-3">
+                    {lotData.images.map((image, index) => (
+                      <div 
+                        key={image.id || index} 
+                        className={`relative rounded-xl overflow-hidden shadow-md cursor-pointer transition-all ${
+                          selectedImagesToDelete.includes(image.id)
+                            ? `ring-4 ${themeColors.ring} border-2 ${themeColors.border}`
+                            : `border-2 border-gray-200 hover:${themeColors.borderLight}`
+                        }`}
+                        onClick={() => allowEdit && handleToggleImageSelection(image.id)}
+                      >
+                        <img
+                          src={image.path}
+                          alt={`Parking lot ${index + 1}`}
+                          className="w-full h-32 object-cover"
+                        />
+                        <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                          {index + 1}/{lotData.images.length}
                         </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12 bg-white/50 rounded-xl border-2 border-dashed border-purple-300">
-                  <i className="ri-image-line text-5xl text-purple-300 mb-3"></i>
-                  <p className="text-purple-600 font-medium">Chưa có hình ảnh</p>
-                  {allowEdit && (
-                    <p className="text-purple-400 text-sm mt-1">
-                      Nhấp "Thêm ảnh" để tải ảnh lên
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
+                        {allowEdit && (
+                          <div className="absolute top-2 right-2">
+                            <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all ${
+                              selectedImagesToDelete.includes(image.id)
+                                ? `${themeColors.btn} ${themeColors.border}`
+                                : 'bg-white border-gray-300'
+                            }`}>
+                              {selectedImagesToDelete.includes(image.id) && (
+                                <i className="ri-check-line text-white text-sm"></i>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className={`text-center py-12 ${themeColors.bg} rounded-xl border-2 border-dashed ${themeColors.borderLight}`}>
+                    <i className={`ri-image-line text-5xl ${themeColors.text} mb-3`}></i>
+                    <p className={`${themeColors.text} font-medium`}>Chưa có hình ảnh</p>
+                    {allowEdit && (
+                      <p className={`${themeColors.text} opacity-70 text-sm mt-1`}>
+                        Nhấp "Thêm ảnh" để tải ảnh lên
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>          
 
             {/* Operating Hours - Editable */}
-            <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
+            <div className={`mb-8 bg-white p-6 rounded-2xl border-l-4 ${themeColors.border} shadow-sm`}>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-indigo-600 text-xl flex items-center gap-2">
-                  <i className="ri-time-line"></i> Giờ hoạt động
+                <h3 className="font-bold text-gray-900 text-lg flex items-center gap-3">
+                  <i className={`ri-time-line ${themeColors.text} text-xl`}></i>
+                  Giờ hoạt động
                 </h3>
                 {allowEdit && !editingOperatingHours && (
                   <button
                     onClick={startEditOperatingHours}
-                    className="px-3 py-1.5 text-sm bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition flex items-center gap-2 cursor-pointer"
+                    className={`px-3 py-1.5 text-sm ${themeColors.btn} text-white rounded-lg transition flex items-center gap-2 cursor-pointer`}
                   >
                     <i className="ri-edit-line"></i> Chỉnh sửa
                   </button>
@@ -1839,19 +1821,21 @@ export default function ViewParkingLotModal({
 
             {/* Capacity */}
             {lot.lotCapacity?.length > 0 && (
-              <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
-                <h3 className="font-semibold text-indigo-600 mb-4 text-xl flex items-center gap-2">
-                  🚗 Sức chứa tổng
+              <div className={`mb-8 bg-white p-6 rounded-2xl border-l-4 ${themeColors.border} shadow-sm`}>
+                <h3 className="font-bold text-gray-900 mb-4 text-lg flex items-center gap-3">
+                  <i className={`ri-car-line ${themeColors.text} text-xl`}></i>
+                  Sức chứa tổng
                 </h3>
-                <table className="min-w-full text-xs border bg-white rounded-lg shadow-sm">
-                  <thead className="bg-gray-100 text-gray-600">
-                    <tr>
-                      <th className="px-3 py-2 text-left">Loại xe</th>
-                      <th className="px-3 py-2 text-left">Sức chứa</th>
-                      <th className="px-3 py-2 text-left">Hỗ trợ EV</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                <div className="overflow-hidden rounded-xl border border-gray-200">
+                  <table className="min-w-full text-sm">
+                    <thead className={`${themeColors.bg} border-b ${themeColors.borderLight}`}>
+                      <tr>
+                        <th className={`px-4 py-3 text-left ${themeColors.textDark} font-semibold`}>Loại xe</th>
+                        <th className={`px-4 py-3 text-left ${themeColors.textDark} font-semibold`}>Sức chứa</th>
+                        <th className={`px-4 py-3 text-left ${themeColors.textDark} font-semibold`}>Hỗ trợ EV</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-100">
                     {lot.lotCapacity.map((c, idx) => (
                       <tr key={idx} className="border-t text-gray-700">
                         <td className="px-3 py-2">{c.vehicleType}</td>
@@ -1863,34 +1847,36 @@ export default function ViewParkingLotModal({
                     ))}
                   </tbody>
                 </table>
+                </div>
               </div>
             )}
 
             {/* Pricing Rules */}
             {lotData.pricingRules?.length > 0 && (
-              <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
-                <h3 className="font-semibold text-indigo-600 mb-4 text-xl flex items-center gap-2">
-                  💰 Quy tắc giá
+              <div className={`mb-8 bg-white p-6 rounded-2xl border-l-4 ${themeColors.border} shadow-sm`}>
+                <h3 className="font-bold text-gray-900 mb-4 text-lg flex items-center gap-3">
+                  <i className={`ri-money-dollar-circle-line ${themeColors.text} text-xl`}></i>
+                  Bảng giá dịch vụ
                 </h3>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full text-xs border bg-white rounded-lg shadow-sm">
-                    <thead className="bg-gray-100 text-gray-600">
+                <div className="overflow-x-auto rounded-xl border border-gray-200">
+                  <table className="min-w-full text-sm">
+                    <thead className={`${themeColors.bg} border-b ${themeColors.borderLight}`}>
                       <tr>
-                        <th className="px-3 py-2 text-left">Tên quy tắc</th>
-                        <th className="px-3 py-2 text-left">Loại xe</th>
-                        <th className="px-3 py-2 text-left">Phí ban đầu</th>
-                        <th className="px-3 py-2 text-left">Thời gian BD</th>
-                        <th className="px-3 py-2 text-left">Phí bước</th>
-                        <th className="px-3 py-2 text-left">Bước nhảy (phút)</th>
-                        <th className="px-3 py-2 text-left">Hiệu lực từ</th>
-                        <th className="px-3 py-2 text-left">Hiệu lực đến</th>
-                        <th className="px-3 py-2 text-left">Trạng thái</th>
+                        <th className={`px-3 py-3 text-left ${themeColors.textDark} font-semibold`}>Tên quy tắc</th>
+                        <th className={`px-3 py-3 text-left ${themeColors.textDark} font-semibold`}>Loại xe</th>
+                        <th className={`px-3 py-3 text-left ${themeColors.textDark} font-semibold`}>Phí ban đầu</th>
+                        <th className={`px-3 py-3 text-left ${themeColors.textDark} font-semibold`}>Thời gian BD</th>
+                        <th className={`px-3 py-3 text-left ${themeColors.textDark} font-semibold`}>Phí bước</th>
+                        <th className={`px-3 py-3 text-left ${themeColors.textDark} font-semibold`}>Bước nhảy</th>
+                        <th className={`px-3 py-3 text-left ${themeColors.textDark} font-semibold`}>Hiệu lực từ</th>
+                        <th className={`px-3 py-3 text-left ${themeColors.textDark} font-semibold`}>Hiệu lực đến</th>
+                        <th className={`px-3 py-3 text-left ${themeColors.textDark} font-semibold`}>Trạng thái</th>
                         {allowEdit && (
-                          <th className="px-3 py-2 text-left">Thao tác</th>
+                          <th className={`px-3 py-3 text-left ${themeColors.textDark} font-semibold`}>Thao tác</th>
                         )}
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="bg-white divide-y divide-gray-100">
                       {lotData.pricingRules.map((r) => (
                         <tr key={r.id} className="border-t text-gray-700">
                           <td className="px-3 py-2">{r.ruleName}</td>
@@ -1948,7 +1934,7 @@ export default function ViewParkingLotModal({
                             <td className="px-3 py-2">
                               <button
                                 onClick={() => startEditRule(r.id)}
-                                className="px-2.5 py-1.5 text-xs bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition flex items-center gap-1.5 cursor-pointer"
+                                className={`px-2.5 py-1.5 text-xs ${themeColors.bg} ${themeColors.text} rounded-lg hover:${themeColors.bgLight} transition flex items-center gap-1.5 cursor-pointer`}
                               >
                                 <i className="ri-edit-line"></i> Chỉnh Sửa
                               </button>
@@ -1964,9 +1950,10 @@ export default function ViewParkingLotModal({
 
             {/* Parking Policies */}
             {lotData.policies?.length > 0 && (
-              <div className="mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-sm">
-                <h3 className="font-semibold text-indigo-600 mb-4 text-xl flex items-center gap-2">
-                  🛡️ Chính sách bãi đỗ
+              <div className={`mb-8 bg-white p-6 rounded-2xl border-l-4 ${themeColors.border} shadow-sm`}>
+                <h3 className="font-bold text-gray-900 mb-4 text-lg flex items-center gap-3">
+                  <i className={`ri-shield-check-line ${themeColors.text} text-xl`}></i>
+                  Chính sách bãi đỗ
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                   {lotData.policies.map((policy, idx) => {
@@ -2006,12 +1993,14 @@ export default function ViewParkingLotModal({
                     return (
                       <div
                         key={idx}
-                        className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm"
+                        className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-slate-400 transition-all group"
                       >
                         <div className="flex items-center justify-between gap-2 mb-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg">{policyInfo.icon}</span>
-                            <h4 className="font-semibold text-gray-900 text-sm">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-slate-100 group-hover:bg-slate-700 rounded-lg flex items-center justify-center transition-colors">
+                              <span className="text-lg group-hover:text-white transition-colors">{policyInfo.icon}</span>
+                            </div>
+                            <h4 className="font-semibold text-slate-800 text-sm">
                               {policyInfo.label}
                             </h4>
                           </div>
@@ -2043,13 +2032,13 @@ export default function ViewParkingLotModal({
                             </div>
                           ) : (
                             <div className="flex items-center gap-2">
-                              <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
+                              <span className={`${themeColors.bgLight} ${themeColors.textDark} px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap`}>
                                 {policy.value} phút
                               </span>
                               {allowEdit && (
                                 <button
                                   onClick={() => startEditPolicy(policy.id)}
-                                  className="p-1.5 text-indigo-500 hover:bg-indigo-50 rounded-lg transition cursor-pointer"
+                                  className={`p-1.5 ${themeColors.text} hover:${themeColors.bg} rounded-lg transition cursor-pointer`}
                                 >
                                   <i className="ri-edit-line"></i>
                                 </button>
@@ -2066,10 +2055,22 @@ export default function ViewParkingLotModal({
                 </div>
               </div>
             )}
+
+            {/* Timestamps */}
+            <div className="mt-5 pt-4 border-t border-gray-200 flex gap-8 text-xs text-slate-500">
+              <span className="flex items-center gap-2">
+                <i className={`ri-calendar-line ${themeColors.text}`}></i>
+                Ngày tạo: <span className="font-medium text-gray-700">{lotData.createdAt ? new Date(lotData.createdAt).toLocaleString() : "-"}</span>
+              </span>
+              <span className="flex items-center gap-2">
+                <i className={`ri-refresh-line ${themeColors.text}`}></i>
+                Cập nhật: <span className="font-medium text-gray-700">{lotData.updatedAt ? new Date(lotData.updatedAt).toLocaleString() : "-"}</span>
+              </span>
+            </div>
           </div>
 
-          {/* Footer - Fixed */}
-          <div className="flex justify-end gap-3 items-center px-8 pb-8 pt-5 border-t flex-shrink-0">
+          {/* Footer - Light Mode */}
+          <div className="flex justify-end gap-3 items-center px-8 py-5 bg-white border-t border-gray-200 flex-shrink-0 rounded-b-2xl">
             {/* Reset Map (admin) - delete all floors so admin can redraw */}
             {showResetMapButton && (
               <button
@@ -2127,15 +2128,15 @@ export default function ViewParkingLotModal({
                       }. Only available in PREPARING or MAP_DENIED status.`
                     : "Open map editor"
                 }
-                className={`px-6 py-2 rounded-md text-sm font-medium flex items-center gap-2 cursor-pointer ${
+                className={`px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 cursor-pointer transition-all shadow-sm ${
                   ["PREPARING", "MAP_DENIED"].includes(
                     (lot?.mapStatus || lot?.status || "").toUpperCase()
                   )
-                    ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
-                    : "bg-gray-50 text-gray-400 border border-gray-200 cursor-not-allowed "
+                    ? "bg-indigo-500 text-white hover:bg-indigo-600 shadow-md"
+                    : "bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed"
                 }`}
               >
-                🗺️ Vẽ bản đồ
+                <i className="ri-map-2-line"></i> Vẽ bản đồ
               </button>
             )}
             {showAssignDevicesButton && (
@@ -2148,16 +2149,17 @@ export default function ViewParkingLotModal({
                   }
                   setShowAssignDevicesModal(true);
                 }}
-                className="px-6 py-2 rounded-md text-sm font-medium flex items-center gap-2 bg-orange-100 text-orange-700 hover:bg-orange-200 cursor-pointer"
+                className="px-4 py-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium flex items-center gap-2 cursor-pointer"
               >
-                <i className="ri-device-line text-lg"></i>
+                <i className="ri-device-line"></i>
                 Gán Thiết Bị
               </button>
             )}
             <button
               onClick={handleClose}
-              className="bg-gray-100 text-gray-700 px-6 py-2 rounded-md text-sm font-medium hover:bg-gray-200 cursor-pointer"
+              className="bg-gray-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-gray-600 cursor-pointer shadow-md transition-all flex items-center gap-2"
             >
+              <i className="ri-close-line"></i>
               Đóng
             </button>
           </div>
