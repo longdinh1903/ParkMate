@@ -535,19 +535,19 @@ export default function PartnerWithdrawals() {
                               
                               <div className="grid grid-cols-4 gap-2 text-xs">
                                 <div className="flex flex-col p-2 bg-blue-50 rounded">
-                                  <span className="text-gray-600 mb-1">Đặt Chỗ</span>
+                                  <span className="text-gray-600 mb-1">Đặt chỗ</span>
                                   <span className="font-semibold text-blue-700">{formatCurrency(period.reservationRevenue)}</span>
                                 </div>
                                 <div className="flex flex-col p-2 bg-purple-50 rounded">
-                                  <span className="text-gray-600 mb-1">Đăng Ký</span>
+                                  <span className="text-gray-600 mb-1">Đăng ký</span>
                                   <span className="font-semibold text-purple-700">{formatCurrency(period.subscriptionRevenue)}</span>
                                 </div>
                                 <div className="flex flex-col p-2 bg-green-50 rounded">
-                                  <span className="text-gray-600 mb-1">Vãng Lai</span>
+                                  <span className="text-gray-600 mb-1">Vãng lai</span>
                                   <span className="font-semibold text-green-700">{formatCurrency(period.walkInRevenue)}</span>
                                 </div>
                                 <div className="flex flex-col p-2 bg-indigo-50 rounded">
-                                  <span className="text-gray-600 font-medium mb-1">Tổng Thu</span>
+                                  <span className="text-gray-600 font-medium mb-1">Tổng thu</span>
                                   <span className="font-bold text-indigo-700">{formatCurrency(period.grossRevenue)}</span>
                                 </div>
                               </div>
@@ -555,13 +555,13 @@ export default function PartnerWithdrawals() {
 
                             {/* Middle: Platform Fee */}
                             <div className="text-center px-4 border-l border-r border-gray-200">
-                              <div className="text-xs text-gray-500 mb-1">Phí Nền Tảng</div>
+                              <div className="text-xs text-gray-500 mb-1">Phí nền tảng</div>
                               <div className="font-bold text-red-600">-{formatCurrency(period.platformFee)}</div>
                             </div>
 
                             {/* Right: Net Revenue and Status */}
                             <div className="text-right min-w-[140px]">
-                              <div className="text-xs text-gray-500 mb-1">Thu Nhập Ròng</div>
+                              <div className="text-xs text-gray-500 mb-1">Thu nhập ròng</div>
                               <div className="font-bold text-green-600 text-xl mb-2">
                                 {formatCurrency(period.netRevenue)}
                               </div>
@@ -715,12 +715,12 @@ export default function PartnerWithdrawals() {
             <thead className="bg-indigo-50 text-indigo-700 uppercase text-sm font-semibold">
               <tr>
                 <th className="px-6 py-3 text-left w-16">#</th>
-                <th className="px-6 py-3 text-left">Số Tiền</th>
-                <th className="px-6 py-3 text-left">Tổng Thu</th>
-                <th className="px-6 py-3 text-left">Phí Nền Tảng</th>
-                <th className="px-6 py-3 text-left">Ngày Yêu Cầu</th>
-                <th className="px-6 py-3 text-left">Trạng Thái</th>
-                <th className="px-6 py-3 text-center">Thao Tác</th>
+                <th className="px-6 py-3 text-left">Số tiền</th>
+                <th className="px-6 py-3 text-left">Tổng thu</th>
+                <th className="px-6 py-3 text-left">Phí nền tảng</th>
+                <th className="px-6 py-3 text-left">Ngày yêu cầu</th>
+                <th className="px-6 py-3 text-left">Trạng thái</th>
+                <th className="px-6 py-3 text-center">Thao tác</th>
               </tr>
             </thead>
             <tbody className="text-gray-700 text-sm">
@@ -862,7 +862,7 @@ export default function PartnerWithdrawals() {
                 <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-200">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-700 font-medium text-lg">
-                      Số Tiền Rút:
+                      Số tiền rút:
                     </span>
                     <span className="text-indigo-700 font-bold text-2xl">
                       {formatCurrency(viewingWithdrawal.netAmount)}
@@ -874,7 +874,7 @@ export default function PartnerWithdrawals() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
                     <div className="text-xs text-blue-600 font-medium mb-1">
-                      Tổng Thu Thô
+                      Tổng thu
                     </div>
                     <div className="text-blue-800 font-bold text-lg">
                       {formatCurrency(viewingWithdrawal.totalGrossRevenue)}
@@ -882,7 +882,7 @@ export default function PartnerWithdrawals() {
                   </div>
                   <div className="bg-red-50 rounded-lg p-3 border border-red-200">
                     <div className="text-xs text-red-600 font-medium mb-1">
-                      Phí Nền Tảng
+                      Phí nền tảng
                     </div>
                     <div className="text-red-800 font-bold text-lg">
                       -{formatCurrency(viewingWithdrawal.totalPlatformFee)}
@@ -894,7 +894,7 @@ export default function PartnerWithdrawals() {
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
                     <div className="text-xs text-purple-600 font-medium mb-1">
-                      Đặt Chỗ
+                      Đặt chỗ
                     </div>
                     <div className="text-purple-800 font-semibold">
                       {formatCurrency(
@@ -904,7 +904,7 @@ export default function PartnerWithdrawals() {
                   </div>
                   <div className="bg-green-50 rounded-lg p-3 border border-green-200">
                     <div className="text-xs text-green-600 font-medium mb-1">
-                      Đăng Ký
+                      Đăng ký
                     </div>
                     <div className="text-green-800 font-semibold">
                       {formatCurrency(
@@ -914,7 +914,7 @@ export default function PartnerWithdrawals() {
                   </div>
                   <div className="bg-amber-50 rounded-lg p-3 border border-amber-200">
                     <div className="text-xs text-amber-600 font-medium mb-1">
-                      Vãng Lai
+                      Vãng lai
                     </div>
                     <div className="text-amber-800 font-semibold">
                       {formatCurrency(viewingWithdrawal.totalAmountWalkIn || 0)}
@@ -924,19 +924,19 @@ export default function PartnerWithdrawals() {
 
                 {/* Status */}
                 <div className="flex justify-between items-center py-2">
-                  <span className="font-medium text-gray-600">Trạng Thái:</span>
+                  <span className="font-medium text-gray-600">Trạng thái:</span>
                   <span>{renderStatus(viewingWithdrawal.status)}</span>
                 </div>
 
                 {/* Dates */}
                 <div className="space-y-2">
                   <div className="flex justify-between py-2">
-                    <span className="font-medium text-gray-600">Ngày Yêu Cầu:</span>
+                    <span className="font-medium text-gray-600">Ngày yêu cầu:</span>
                     <span className="text-gray-800">{formatDate(viewingWithdrawal.requestedAt)}</span>
                   </div>
                   {viewingWithdrawal.processedAt && (
                     <div className="flex justify-between py-2">
-                      <span className="font-medium text-gray-600">Ngày Xử Lý:</span>
+                      <span className="font-medium text-gray-600">Ngày xử lý:</span>
                       <span className="text-gray-800">{formatDate(viewingWithdrawal.processedAt)}</span>
                     </div>
                   )}
@@ -952,7 +952,7 @@ export default function PartnerWithdrawals() {
                 {viewingWithdrawal.externalTransactionId && (
                   <div className="bg-gray-50 rounded-lg p-3">
                     <div className="text-xs text-gray-600 font-medium mb-1">
-                      Mã Giao Dịch
+                      Mã giao dịch
                     </div>
                     <div className="text-gray-800 font-mono text-sm break-all">
                       {viewingWithdrawal.externalTransactionId}
@@ -963,7 +963,7 @@ export default function PartnerWithdrawals() {
                 {/* Periods */}
                 {viewingWithdrawal.periods && viewingWithdrawal.periods.length > 0 && (
                     <div className="pt-4 mt-4">
-                      <h3 className="font-semibold text-gray-700 mb-3">Các Kỳ Rút Tiền ({viewingWithdrawal.periods.length})</h3>
+                      <h3 className="font-semibold text-gray-700 mb-3">Các kỳ rút tiền ({viewingWithdrawal.periods.length})</h3>
                         <div className="space-y-3">
                         {viewingWithdrawal.periods.map((period, idx) => {
                           console.log("Period data:", period);

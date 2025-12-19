@@ -382,6 +382,37 @@ export default function ViewParkingLotModal({
       console.log("🔘 Manual payment confirmation started");
       console.log("📍 Lot ID:", lot.id);
       
+      // First, check if payment has been completed by fetching latest lot data
+      const checkRes = await parkingLotApi.getById(lot.id);
+      const latestLot = checkRes.data?.data || checkRes.data;
+      
+      console.log("📦 Latest lot data:", latestLot);
+      console.log("📊 Payment status:", latestLot.paymentStatus);
+      console.log("💳 isPaid:", latestLot.isPaid);
+      
+      // Check if payment is complete
+      const paymentStatus = latestLot.paymentStatus || 
+                           latestLot.payment_status || 
+                           latestLot.isPaid ||
+                           latestLot.is_paid;
+      
+      const isPaid = latestLot.status === "ACTIVE" ||
+                    paymentStatus === "PAID" ||
+                    paymentStatus === "SUCCESS" ||
+                    paymentStatus === "COMPLETED" ||
+                    paymentStatus === true ||
+                    latestLot.isPaid === true;
+      
+      console.log("✅ Is paid?:", isPaid);
+      
+      // If not paid, show error and return
+      if (!isPaid) {
+        console.warn("⚠️ Payment not completed yet!");
+        showError("Thanh toán chưa hoàn tất! Vui lòng thanh toán trước khi xác nhận.");
+        return;
+      }
+      
+      // Payment is complete, proceed to activate
       const updateRes = await parkingLotApi.update(lot.id, {
         status: "ACTIVE",
       });
@@ -1333,7 +1364,7 @@ export default function ViewParkingLotModal({
                     </div>
                     <div>
                       <h3 className="font-bold text-gray-900 text-lg">
-                        Thiết Bị Đã Gán
+                        Thiết bị đã gán
                       </h3>
                       <p className="text-sm text-gray-600">
                         Quản lý thiết bị cho bãi đỗ xe này
@@ -1341,18 +1372,11 @@ export default function ViewParkingLotModal({
                     </div>
                   </div>
                   <button
-                    onClick={() => {
-                      // Check if lot is in ACTIVE status
-                      if (String(lotData.status).toUpperCase() === "ACTIVE") {
-                        showError("Không thể thêm thiết bị cho bãi đỗ xe đang ở trạng thái Hoạt Động!");
-                        return;
-                      }
-                      setShowAssignDevicesModal(true);
-                    }}
+                    onClick={() => setShowAssignDevicesModal(true)}
                     className="px-4 py-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium flex items-center gap-2 cursor-pointer"
                   >
                     <i className="ri-add-line text-xl"></i>
-                    Gán Thiết Bị
+                    Gán thiết bị
                   </button>
                 </div>
 
@@ -1368,7 +1392,7 @@ export default function ViewParkingLotModal({
                       Chưa có thiết bị nào được gán
                     </p>
                     <p className="text-sm text-gray-400 mt-1">
-                      Nhấp "Gán Thiết Bị" để thêm thiết bị
+                      Nhấp "Gán thiết bị" để thêm thiết bị
                     </p>
                   </div>
                 ) : (
@@ -1377,22 +1401,22 @@ export default function ViewParkingLotModal({
                       <thead className="bg-orange-100">
                         <tr>
                           <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">
-                            ID Thiết Bị
+                            ID thiết bị
                           </th>
                           <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">
-                            Tên Thiết Bị
+                            Tên thiết bị
                           </th>
                           <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">
-                            Loại Thiết Bị
+                            Loại thiết bị
                           </th>
                           <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">
                             Model/Serial
                           </th>
                           <th className="px-4 py-3 text-right text-sm font-bold text-gray-700">
-                            Phí Thiết Bị
+                            Phí thiết bị
                           </th>
                           <th className="px-4 py-3 text-center text-sm font-bold text-gray-700">
-                            Thao Tác
+                            Thao tác
                           </th>
                         </tr>
                       </thead>
@@ -1491,7 +1515,7 @@ export default function ViewParkingLotModal({
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
               {/* Left Column: Thông Tin Cơ Bản */}
               <div>
-                <h3 className="font-bold text-gray-900 text-lg mb-4">Thông Tin Cơ Bản</h3>
+                <h3 className="font-bold text-gray-900 text-lg mb-4">Thông tin cơ bản</h3>
                 <div className="space-y-3">
                   {/* Địa chỉ */}
                   <div className={`bg-white p-4 rounded-xl border-l-4 ${themeColors.border} shadow-sm`}>
@@ -1604,7 +1628,7 @@ export default function ViewParkingLotModal({
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-bold text-gray-900 text-lg flex items-center gap-2">
-                    Thư Viện Ảnh
+                    Thư viện ảnh
                     {selectedImagesToDelete.length > 0 && (
                       <span className={`text-sm font-normal ${themeColors.bgLight} ${themeColors.text} px-2 py-0.5 rounded-full`}>
                         {selectedImagesToDelete.length} đã chọn
@@ -1961,25 +1985,25 @@ export default function ViewParkingLotModal({
                       switch (type) {
                         case "EARLY_CHECK_IN_BUFFER":
                           return {
-                            label: "Bộ đệm Nhận Chỗ Sớm",
+                            label: "Bộ đệm nhận chỗ sớm",
                             icon: "🕐",
                             desc: "Cho phép khách nhận chỗ sớm hơn thời gian đặt",
                           };
                         case "LATE_CHECK_OUT_BUFFER":
                           return {
-                            label: "Bộ đệm Trả Chỗ Muộn",
+                            label: "Bộ đệm trả chỗ muộn",
                             icon: "🕐",
                             desc: "Cho phép khách trả chỗ muộn hơn thời gian đặt",
                           };
                         case "LATE_CHECK_IN_CANCEL_AFTER":
                           return {
-                            label: "Hủy Nhận Chỗ Muộn Sau",
+                            label: "Hủy nhận chỗ muộn sau",
                             icon: "⏰",
                             desc: "Tự động hủy nếu nhận chỗ quá muộn",
                           };
                         case "EARLY_CANCEL_REFUND_BEFORE":
                           return {
-                            label: "Hoàn Tiền Hủy Sớm Trước",
+                            label: "Hoàn tiền hủy sớm trước",
                             icon: "💰",
                             desc: "Hoàn tiền 100% nếu hủy trước",
                           };
@@ -2107,7 +2131,7 @@ export default function ViewParkingLotModal({
                     Đang đặt lại...
                   </>
                 ) : (
-                  "Đặt Lại Bản Đồ"
+                  "Đặt lại bản đồ"
                 )}
               </button>
             )}
@@ -2141,18 +2165,11 @@ export default function ViewParkingLotModal({
             )}
             {showAssignDevicesButton && (
               <button
-                onClick={() => {
-                  // Check if lot is in ACTIVE status
-                  if (String(lotData.status).toUpperCase() === "ACTIVE") {
-                    showError("Không thể thêm thiết bị cho bãi đỗ xe đang ở trạng thái Hoạt Động!");
-                    return;
-                  }
-                  setShowAssignDevicesModal(true);
-                }}
+                onClick={() => setShowAssignDevicesModal(true)}
                 className="px-4 py-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium flex items-center gap-2 cursor-pointer"
               >
                 <i className="ri-device-line"></i>
-                Gán Thiết Bị
+                Gán thiết bị
               </button>
             )}
             <button

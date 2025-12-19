@@ -12,7 +12,7 @@ export default function AdminRequests() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-orange-700 flex items-center gap-2">
           <i className="ri-file-list-3-fill"></i>
-          Yêu Cầu Đối Tác & Bãi Đỗ Xe
+          Yêu cầu đối tác & bãi đỗ xe
         </h2>
       </div>
 
@@ -26,7 +26,7 @@ export default function AdminRequests() {
           }`}
           onClick={() => setActiveTab("partner")}
         >
-          Yêu Cầu Tài Khoản Đối Tác
+          Yêu cầu tài khoản đối tác
         </button>
 
         <button
@@ -37,7 +37,7 @@ export default function AdminRequests() {
           }`}
           onClick={() => setActiveTab("parkingLot")}
         >
-          Yêu Cầu Bãi Đỗ Xe
+          Yêu cầu bãi đỗ xe
         </button>
       </div>
 

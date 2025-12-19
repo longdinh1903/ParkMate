@@ -113,7 +113,7 @@ export default function AdminParkingLots() {
       case "PENDING":
         return (
           <span className={`${base} bg-yellow-50 text-yellow-700 border-yellow-300`}>
-            Chờ Duyệt
+            Chờ duyệt
           </span>
         );
       case "PREPARING":
@@ -121,15 +121,15 @@ export default function AdminParkingLots() {
           <span
             className={`${base} bg-orange-50 text-orange-700 border-orange-300`}
           >
-            Đang Chuẩn Bị
+            Đang chuẩn bị
           </span>
         );
       case "PARTNER_CONFIGURATION":
         return (
           <span
-            className={`${base} bg-orange-50 text-orange-700 border-orange-300`}
+            className={`${base} bg-indigo-50 text-indigo-700 border-indigo-300`}
           >
-            Cấu Hình Đối Tác
+            Cấu hình đối tác
           </span>
         );
       case "ACTIVE":
@@ -137,7 +137,7 @@ export default function AdminParkingLots() {
           <span
             className={`${base} bg-green-50 text-green-700 border-green-300`}
           >
-            Hoạt Động
+            Hoạt động
           </span>
         );
       case "UNDER_MAINTENANCE":
@@ -145,13 +145,13 @@ export default function AdminParkingLots() {
           <span
             className={`${base} bg-orange-50 text-orange-700 border-orange-300`}
           >
-            Đang Bảo Trì
+            Đang bảo trì
           </span>
         );
       case "INACTIVE":
         return (
           <span className={`${base} bg-gray-50 text-gray-600 border-gray-300`}>
-            Ngừng Hoạt Động
+            Ngừng hoạt động
           </span>
         );
       case "MAP_DENIED":
@@ -159,25 +159,25 @@ export default function AdminParkingLots() {
           <span
             className={`${base} bg-red-50 text-red-700 border-red-300`}
           >
-            Từ Chối Bản Đồ
+            Từ chối bản đồ
           </span>
         );
       case "REJECTED":
         return (
           <span className={`${base} bg-red-50 text-red-700 border-red-300`}>
-            Bị Từ Chối
+            Bị từ chối
           </span>
         );
         case "PENDING_PAYMENT":
         return (
           <span className={`${base} bg-purple-50 text-purple-700 border-purple-300`}>
-            Chờ Thanh Toán
+            Chờ thanh toán
           </span>
         );
       default:
         return (
           <span className={`${base} text-gray-500 bg-gray-50 border-gray-300`}>
-            Không Xác Định
+            Không xác định
           </span>
         );
     }
@@ -303,7 +303,7 @@ export default function AdminParkingLots() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-orange-700 flex items-center gap-2">
           <i className="ri-parking-box-fill"></i>
-          Quản Lý Bãi Đỗ Xe
+          Quản lý bãi đỗ xe
         </h2>
       </div>
 
@@ -362,11 +362,11 @@ export default function AdminParkingLots() {
               onChange={(e) => setSortBy(e.target.value)}
               className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
             >
-              <option value="createdAt">Ngày Tạo</option>
+              <option value="createdAt">Ngày tạo</option>
               <option value="name">Tên</option>
-              <option value="city">Thành Phố</option>
-              <option value="totalFloors">Số Tầng</option>
-              <option value="status">Trạng Thái</option>
+              <option value="city">Thành phố</option>
+              <option value="totalFloors">Số tầng</option>
+              <option value="status">Trạng thái</option>
             </select>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -402,16 +402,16 @@ export default function AdminParkingLots() {
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
-            <option value="">Tất Cả Trạng Thái</option>
-            <option value="PENDING">Chờ Duyệt</option>
-            <option value="PREPARING">Đang Chuẩn Bị</option>
-            <option value="PARTNER_CONFIGURATION">Cấu Hình Đối Tác</option>
-            <option value="ACTIVE">Hoạt Động</option>
-            <option value="UNDER_MAINTENANCE">Đang Bảo Trì</option>
-            <option value="INACTIVE">Ngừng Hoạt Động</option>
-            <option value="MAP_DENIED">Từ Chối Bản Đồ</option>
-            <option value="REJECTED">Bị Từ Chối</option>
-            <option value="PENDING_PAYMENT">Chờ Thanh Toán</option>
+            <option value="">Tất cả trạng thái</option>
+            <option value="PENDING">Chờ duyệt</option>
+            <option value="PREPARING">Đang chuẩn bị</option>
+            <option value="PARTNER_CONFIGURATION">Cấu hình đối tác</option>
+            <option value="ACTIVE">Hoạt động</option>
+            <option value="UNDER_MAINTENANCE">Đang bảo trì</option>
+            <option value="INACTIVE">Ngừng hoạt động</option>
+            <option value="MAP_DENIED">Từ chối bản đồ</option>
+            <option value="REJECTED">Bị từ chối</option>
+            <option value="PENDING_PAYMENT">Chờ thanh toán</option>
           </select>
 
           {/* Refresh Button */}
@@ -428,7 +428,7 @@ export default function AdminParkingLots() {
             title="Làm mới bộ lọc"
           >
             <i className="ri-refresh-line text-lg text-gray-600"></i>
-            <span className="text-sm text-gray-600">Làm Mới</span>
+            <span className="text-sm text-gray-600">Làm mới</span>
           </button>
         </div>
 
@@ -439,13 +439,13 @@ export default function AdminParkingLots() {
             className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition cursor-pointer"
           >
             <PlusIcon className="w-5 h-5 text-white" />
-            Thêm Bãi Đỗ Xe
+            Thêm bãi đỗ xe
           </button>
 
           {/* ✅ Import */}
           <label className="flex items-center hover:bg-yellow-200 font-medium px-4 py-2 rounded-lg border transition cursor-pointer">
             <ArrowUpTrayIcon className="w-5 h-5 text-yellow-700" />
-            Nhập Excel
+            Nhập excel
             <input
               type="file"
               accept=".xlsx"
@@ -460,7 +460,7 @@ export default function AdminParkingLots() {
             className="flex items-center hover:bg-green-200 font-medium px-4 py-2 rounded-lg border transition cursor-pointer"
           >
             <ArrowDownTrayIcon className="w-5 h-5 text-green-700" />
-            Xuất Excel
+            Xuất excel
           </button>
         </div>
       </div>
@@ -472,12 +472,12 @@ export default function AdminParkingLots() {
             <tr>
               <th className="px-6 py-3 text-left w-16">#</th>
               <th className="px-6 py-3 text-left">Tên</th>
-              <th className="px-6 py-3 text-left">Thành Phố</th>
-              <th className="px-6 py-3 text-left">Địa Chỉ</th>
-              <th className="px-6 py-3 text-left">Số Tầng</th>
-              <th className="px-6 py-3 text-left">24 Giờ</th>
-              <th className="px-6 py-3 text-left">Trạng Thái</th>
-              <th className="px-6 py-3 text-center">Thao Tác</th>
+              <th className="px-6 py-3 text-left">Thành phố</th>
+              <th className="px-6 py-3 text-left">Địa chỉ</th>
+              <th className="px-6 py-3 text-left">Số tầng</th>
+              <th className="px-6 py-3 text-left">24 giờ</th>
+              <th className="px-6 py-3 text-left">Trạng thái</th>
+              <th className="px-6 py-3 text-center">Thao tác</th>
             </tr>
           </thead>
 

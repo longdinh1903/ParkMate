@@ -53,7 +53,7 @@ export default function AddPartnerModal({ onClose, onAdded }) {
         <div className="flex items-center justify-between px-6 py-4 bg-orange-50 border-b border-orange-100">
           <h2 className="text-xl font-bold text-orange-700 flex items-center gap-3">
             <i className="ri-user-add-line text-2xl text-orange-500"></i>
-            Thêm Đối Tác
+            Thêm đối tác
           </h2>
           <button
             onClick={onClose}
@@ -69,14 +69,14 @@ export default function AddPartnerModal({ onClose, onAdded }) {
         {/* Content */}
         <form id="add-partner-form" className="p-6 space-y-4 max-h-[calc(90vh-180px)] overflow-y-auto custom-scrollbar" onSubmit={handleSubmit}>
           {[
-            { label: "Tên Công Ty", name: "companyName", placeholder: "Nhập tên công ty" },
-            { label: "Mã Số Thuế", name: "taxNumber", placeholder: "Nhập mã số thuế" },
-            { label: "Số Giấy Phép", name: "businessLicenseNumber", placeholder: "Nhập số giấy phép kinh doanh" },
-            { label: "URL File Giấy Phép", name: "businessLicenseFileUrl", placeholder: "Nhập đường dẫn file giấy phép" },
-            { label: "Số Điện Thoại", name: "companyPhone", placeholder: "Nhập số điện thoại" },
+            { label: "Tên công ty", name: "companyName", placeholder: "Nhập tên công ty" },
+            { label: "Mã số thuế", name: "taxNumber", placeholder: "Nhập mã số thuế" },
+            { label: "Số giấy phép", name: "businessLicenseNumber", placeholder: "Nhập số giấy phép kinh doanh" },
+            { label: "URL file giấy phép", name: "businessLicenseFileUrl", placeholder: "Nhập đường dẫn file giấy phép" },
+            { label: "Số điện thoại", name: "companyPhone", placeholder: "Nhập số điện thoại" },
             { label: "Email", name: "companyEmail", placeholder: "Nhập địa chỉ email" },
-            { label: "Địa Chỉ", name: "companyAddress", placeholder: "Nhập địa chỉ công ty" },
-            { label: "Mô Tả", name: "businessDescription", placeholder: "Nhập mô tả hoạt động kinh doanh" },
+            { label: "Địa chỉ", name: "companyAddress", placeholder: "Nhập địa chỉ công ty" },
+            { label: "Mô tả", name: "businessDescription", placeholder: "Nhập mô tả hoạt động kinh doanh" },
           ].map((f) => (
             <div key={f.name}>
               <label className="block text-sm font-medium text-gray-700 mb-2">
