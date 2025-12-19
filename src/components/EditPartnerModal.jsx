@@ -47,7 +47,7 @@ export default function EditPartnerModal({ partner, onClose, onUpdated }) {
         <div className="flex items-center justify-between px-6 py-4 bg-orange-50 border-b border-orange-100">
           <h2 className="text-xl font-bold text-orange-700 flex items-center gap-3">
             <i className="ri-edit-box-line text-2xl text-orange-500"></i>
-            Chỉnh Sửa 
+            Chỉnh sửa 
           </h2>
           <button
             onClick={onClose}
@@ -63,7 +63,7 @@ export default function EditPartnerModal({ partner, onClose, onUpdated }) {
         {/* Content */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[calc(90vh-180px)] overflow-y-auto custom-scrollbar">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Tên Công Ty</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Tên công ty</label>
             <input
               name="companyName"
               placeholder="Nhập tên công ty"
@@ -74,7 +74,7 @@ export default function EditPartnerModal({ partner, onClose, onUpdated }) {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Mã Số Thuế</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Mã số thuế</label>
             <input
               name="taxNumber"
               placeholder="Nhập mã số thuế"
@@ -96,7 +96,7 @@ export default function EditPartnerModal({ partner, onClose, onUpdated }) {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Số Điện Thoại</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Số điện thoại</label>
             <input
               name="companyPhone"
               placeholder="Nhập số điện thoại"
@@ -107,7 +107,7 @@ export default function EditPartnerModal({ partner, onClose, onUpdated }) {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Địa Chỉ</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Địa chỉ</label>
             <input
               name="companyAddress"
               placeholder="Nhập địa chỉ công ty"
@@ -118,7 +118,7 @@ export default function EditPartnerModal({ partner, onClose, onUpdated }) {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Mô Tả Kinh Doanh</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Mô tả kinh doanh</label>
             <textarea
               name="businessDescription"
               placeholder="Nhập mô tả kinh doanh"
@@ -130,7 +130,7 @@ export default function EditPartnerModal({ partner, onClose, onUpdated }) {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Lý Do Tạm Ngưng</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Lý do tạm ngưng</label>
             <textarea
               name="suspensionReason"
               placeholder="Nhập lý do tạm ngưng (nếu có)"

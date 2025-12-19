@@ -238,7 +238,7 @@ export default function AdminPartners() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-orange-700 flex items-center gap-2">
           <i className="ri-building-fill"></i>
-          Quản Lý Đối Tác
+          Quản lý đối tác
         </h2>
       </div>
 
@@ -357,7 +357,7 @@ export default function AdminPartners() {
             className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition cursor-pointer"
           >
             <PlusIcon className="w-5 h-5 text-white" />
-            Thêm Đối Tác
+            Thêm đối tác
           </button>
 
           <button

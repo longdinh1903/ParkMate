@@ -155,7 +155,51 @@ export default function AssignDevicesToLotModal({ open, onClose, lot, onAssigned
       setNewDevices([]);
     } catch (err) {
       console.error("Error creating devices:", err);
-      toast.error(err.response?.data?.message || "Tạo thiết bị thất bại!");
+      console.error("Error response data:", err.response?.data);
+      
+      // Extract error details
+      const errorData = err.response?.data;
+      let errorMessage = "Tạo thiết bị thất bại!";
+      
+      if (errorData) {
+        // Check for specific error messages and translate to Vietnamese
+        const serverMessage = errorData.message || errorData.error || "";
+        
+        if (serverMessage.toLowerCase().includes("device id already exists") || 
+            serverMessage.toLowerCase().includes("duplicate")) {
+          errorMessage = "❌ ID thiết bị đã tồn tại! Vui lòng sử dụng ID khác.";
+        } else if (serverMessage.toLowerCase().includes("invalid device type")) {
+          errorMessage = "❌ Loại thiết bị không hợp lệ!";
+        } else if (serverMessage.toLowerCase().includes("partner not found")) {
+          errorMessage = "❌ Không tìm thấy thông tin đối tác!";
+        } else if (serverMessage.toLowerCase().includes("lot not found")) {
+          errorMessage = "❌ Không tìm thấy bãi đỗ xe!";
+        } else if (serverMessage.toLowerCase().includes("unauthorized") || 
+                   serverMessage.toLowerCase().includes("forbidden")) {
+          errorMessage = "❌ Bạn không có quyền thực hiện thao tác này!";
+        } else if (serverMessage.toLowerCase().includes("validation")) {
+          errorMessage = `❌ Dữ liệu không hợp lệ: ${serverMessage}`;
+        } else if (serverMessage) {
+          // Show server message with Vietnamese prefix
+          errorMessage = `❌ Lỗi: ${serverMessage}`;
+        }
+        
+        // If there are field-specific errors
+        if (errorData.errors && Array.isArray(errorData.errors)) {
+          const fieldErrors = errorData.errors.map(e => e.message || e.field).join(", ");
+          errorMessage += ` Chi tiết: ${fieldErrors}`;
+        }
+      } else if (err.message) {
+        if (err.message.includes("Network Error")) {
+          errorMessage = "❌ Lỗi kết nối mạng! Vui lòng kiểm tra kết nối internet.";
+        } else if (err.message.includes("timeout")) {
+          errorMessage = "❌ Hết thời gian chờ! Vui lòng thử lại.";
+        } else {
+          errorMessage = `❌ Lỗi: ${err.message}`;
+        }
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setSubmitting(false);
     }

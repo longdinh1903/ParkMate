@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import PartnerTopLayout from "../layouts/PartnerTopLayout";
 import parkingLotApi from "../api/parkingLotApi";
 import Modal from "../components/Modal";
@@ -54,6 +54,32 @@ export default function RegisterLot() {
     horizonTime: "",
     capacity: "",
   });
+
+  // Field validation errors (for required fields)
+  const [fieldErrors, setFieldErrors] = useState({
+    name: "",
+    streetAddress: "",
+    ward: "",
+    city: "",
+    latitude: "",
+    longitude: "",
+    capacities: "",
+    rules: "",
+    policies: "",
+  });
+
+  // Refs for scrolling to error fields
+  const fieldRefs = {
+    name: useRef(null),
+    streetAddress: useRef(null),
+    ward: useRef(null),
+    city: useRef(null),
+    latitude: useRef(null),
+    longitude: useRef(null),
+    capacities: useRef(null),
+    rules: useRef(null),
+    policies: useRef(null),
+  };
 
   // Danh sách tỉnh thành Việt Nam
   const vietnamCities = [
@@ -261,6 +287,10 @@ export default function RegisterLot() {
       vehicleType: "",
       supportElectricVehicle: false,
     });
+    // Clear capacity error when capacity is added
+    if (fieldErrors.capacities) {
+      setFieldErrors(prev => ({ ...prev, capacities: "" }));
+    }
     toast.success("Đã thêm sức chứa!");
   };
 
@@ -271,6 +301,10 @@ export default function RegisterLot() {
 
   const handleAddRule = (rule) => {
     setRules([...rules, rule]);
+    // Clear rules error when rule is added
+    if (fieldErrors.rules) {
+      setFieldErrors(prev => ({ ...prev, rules: "" }));
+    }
     toast.success("Đã thêm quy tắc giá!");
   };
 
@@ -340,17 +374,69 @@ export default function RegisterLot() {
     const partnerId = getPartnerIdFromStorage();
     if (!partnerId) return;
 
-    if (!form.name || !form.city || !form.latitude || !form.longitude) {
-      toast.error("⚠️ Vui lòng nhập đầy đủ thông tin cơ bản!");
-      return;
+    // Clear previous field errors
+    const newFieldErrors = {
+      name: "",
+      streetAddress: "",
+      ward: "",
+      city: "",
+      latitude: "",
+      longitude: "",
+      capacities: "",
+      rules: "",
+      policies: "",
+    };
+
+    let hasError = false;
+    let firstErrorField = null;
+
+    // Validate required fields one by one
+    if (!form.name || !form.name.trim()) {
+      newFieldErrors.name = "Vui lòng nhập tên bãi đỗ xe";
+      if (!firstErrorField) firstErrorField = "name";
+      hasError = true;
     }
+
+    if (!form.streetAddress || !form.streetAddress.trim()) {
+      newFieldErrors.streetAddress = "Vui lòng nhập địa chỉ";
+      if (!firstErrorField) firstErrorField = "streetAddress";
+      hasError = true;
+    }
+
+    if (!form.ward || !form.ward.trim()) {
+      newFieldErrors.ward = "Vui lòng nhập phường/xã";
+      if (!firstErrorField) firstErrorField = "ward";
+      hasError = true;
+    }
+
+    if (!form.city || !form.city.trim()) {
+      newFieldErrors.city = "Vui lòng chọn tỉnh/thành phố";
+      if (!firstErrorField) firstErrorField = "city";
+      hasError = true;
+    }
+
+    if (!form.latitude) {
+      newFieldErrors.latitude = "Vui lòng nhập vĩ độ hoặc chọn vị trí trên bản đồ";
+      if (!firstErrorField) firstErrorField = "latitude";
+      hasError = true;
+    }
+
+    if (!form.longitude) {
+      newFieldErrors.longitude = "Vui lòng nhập kinh độ hoặc chọn vị trí trên bản đồ";
+      if (!firstErrorField) firstErrorField = "longitude";
+      hasError = true;
+    }
+
     if (capacities.length === 0) {
-      toast.error("⚠️ Vui lòng thêm ít nhất 1 cấu hình sức chứa!");
-      return;
+      newFieldErrors.capacities = "Vui lòng thêm ít nhất 1 cấu hình sức chứa";
+      if (!firstErrorField) firstErrorField = "capacities";
+      hasError = true;
     }
+
     if (rules.length === 0) {
-      toast.error("⚠️ Vui lòng thêm ít nhất 1 quy tắc giá!");
-      return;
+      newFieldErrors.rules = "Vui lòng thêm ít nhất 1 quy tắc giá";
+      if (!firstErrorField) firstErrorField = "rules";
+      hasError = true;
     }
 
     // Validate policy values
@@ -358,7 +444,41 @@ export default function RegisterLot() {
       (p) => !p.value || parseInt(p.value) <= 0
     );
     if (invalidPolicy) {
-      toast.error("⚠️ Giá trị chính sách phải là số dương!");
+      newFieldErrors.policies = "Giá trị chính sách phải là số dương";
+      if (!firstErrorField) firstErrorField = "policies";
+      hasError = true;
+    }
+
+    // Update field errors state
+    setFieldErrors(newFieldErrors);
+
+    // If there are errors, show toast and scroll to first error
+    if (hasError) {
+      // Show specific error message
+      const errorMessages = [];
+      if (newFieldErrors.name) errorMessages.push("Tên bãi xe");
+      if (newFieldErrors.streetAddress) errorMessages.push("Địa chỉ");
+      if (newFieldErrors.ward) errorMessages.push("Phường/Xã");
+      if (newFieldErrors.city) errorMessages.push("Tỉnh/Thành phố");
+      if (newFieldErrors.latitude || newFieldErrors.longitude) errorMessages.push("Vị trí (Vĩ độ/Kinh độ)");
+      if (newFieldErrors.capacities) errorMessages.push("Sức chứa");
+      if (newFieldErrors.rules) errorMessages.push("Quy tắc giá");
+      if (newFieldErrors.policies) errorMessages.push("Chính sách");
+
+      toast.error(`⚠️ Vui lòng điền đầy đủ thông tin: ${errorMessages.join(", ")}`);
+
+      // Scroll to first error field
+      if (firstErrorField && fieldRefs[firstErrorField]?.current) {
+        fieldRefs[firstErrorField].current.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+        // Focus the input if possible
+        const input = fieldRefs[firstErrorField].current.querySelector("input, select, textarea");
+        if (input) {
+          setTimeout(() => input.focus(), 500);
+        }
+      }
       return;
     }
 
@@ -494,7 +614,7 @@ export default function RegisterLot() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {["name", "streetAddress", "ward"].map((field) => (
-                  <div key={field}>
+                  <div key={field} ref={fieldRefs[field]}>
                     <label className="block text-sm font-semibold text-gray-700 mb-2 capitalize">
                       {field === "name" ? "Tên" : field === "streetAddress" ? "Địa chỉ" : "Phường/Xã"}
                       <span className="text-red-500 ml-1">*</span>
@@ -502,15 +622,31 @@ export default function RegisterLot() {
                     <input
                       type="text"
                       name={field}
-                      placeholder={`Nhập ${field === "name" ? "tên" : field === "streetAddress" ? "địa chỉ" : "phường/xã"}`}
+                      placeholder={`Nhập ${field === "name" ? "tên bãi đỗ xe" : field === "streetAddress" ? "địa chỉ đường" : "phường/xã"}`}
                       value={form[field]}
-                      onChange={handleChange}
-                      required
-                      className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                      onChange={(e) => {
+                        handleChange(e);
+                        // Clear error when user types
+                        if (fieldErrors[field]) {
+                          setFieldErrors(prev => ({ ...prev, [field]: "" }));
+                        }
+                      }}
+                      autoComplete={field === "name" ? "organization" : field === "streetAddress" ? "street-address" : "address-level3"}
+                      className={`w-full border rounded-xl px-4 py-3 focus:ring-2 transition-all outline-none ${
+                        fieldErrors[field]
+                          ? "border-red-500 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                          : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                      }`}
                     />
+                    {fieldErrors[field] && (
+                      <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                        <i className="ri-error-warning-line"></i>
+                        {fieldErrors[field]}
+                      </p>
+                    )}
                   </div>
                 ))}
-                <div className="relative">
+                <div className="relative" ref={fieldRefs.city}>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Tỉnh/Thành phố
                     <span className="text-red-500 ml-1">*</span>
@@ -522,10 +658,19 @@ export default function RegisterLot() {
                       onChange={(e) => {
                         setCitySearch(e.target.value);
                         setIsCityDropdownOpen(true);
+                        // Clear error when user types
+                        if (fieldErrors.city) {
+                          setFieldErrors(prev => ({ ...prev, city: "" }));
+                        }
                       }}
                       onFocus={() => setIsCityDropdownOpen(true)}
                       placeholder="Tìm kiếm tỉnh/thành phố..."
-                      className="w-full border border-gray-300 rounded-xl px-4 py-3 pr-10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                      autoComplete="address-level1"
+                      className={`w-full border rounded-xl px-4 py-3 pr-10 focus:ring-2 transition-all outline-none ${
+                        fieldErrors.city
+                          ? "border-red-500 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                          : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                      }`}
                     />
                     <button
                       type="button"
@@ -550,7 +695,13 @@ export default function RegisterLot() {
                             filteredCities.map((city) => (
                               <div
                                 key={city}
-                                onClick={() => handleSelectCity(city)}
+                                onClick={() => {
+                                  handleSelectCity(city);
+                                  // Clear error when city is selected
+                                  if (fieldErrors.city) {
+                                    setFieldErrors(prev => ({ ...prev, city: "" }));
+                                  }
+                                }}
                                 className={`px-4 py-3 cursor-pointer hover:bg-indigo-50 transition-colors ${
                                   form.city === city ? 'bg-indigo-100 text-indigo-700 font-medium' : 'text-gray-700'
                                 }`}
@@ -570,13 +721,18 @@ export default function RegisterLot() {
                       </>
                     )}
                   </div>
-                  {form.city && (
+                  {fieldErrors.city ? (
+                    <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                      <i className="ri-error-warning-line"></i>
+                      {fieldErrors.city}
+                    </p>
+                  ) : form.city && (
                     <p className="mt-1 text-sm text-indigo-600">
                       <i className="ri-map-pin-fill"></i> Đã chọn: <strong>{form.city}</strong>
                     </p>
                   )}
                 </div>
-                <div>
+                <div ref={fieldRefs.latitude}>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Vĩ độ (Latitude)
                     <span className="text-red-500 ml-1">*</span>
@@ -585,13 +741,29 @@ export default function RegisterLot() {
                     type="number"
                     name="latitude"
                     value={form.latitude}
-                    onChange={handleChange}
-                    placeholder="Vĩ độ"
+                    onChange={(e) => {
+                      handleChange(e);
+                      if (fieldErrors.latitude) {
+                        setFieldErrors(prev => ({ ...prev, latitude: "" }));
+                      }
+                    }}
+                    placeholder="VD: 10.762622"
                     step="any"
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                    autoComplete="off"
+                    className={`w-full border rounded-xl px-4 py-3 focus:ring-2 transition-all outline-none ${
+                      fieldErrors.latitude
+                        ? "border-red-500 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                        : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                    }`}
                   />
+                  {fieldErrors.latitude && (
+                    <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                      <i className="ri-error-warning-line"></i>
+                      {fieldErrors.latitude}
+                    </p>
+                  )}
                 </div>
-                <div>
+                <div ref={fieldRefs.longitude}>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Kinh độ (Longitude)
                     <span className="text-red-500 ml-1">*</span>
@@ -600,11 +772,27 @@ export default function RegisterLot() {
                     type="number"
                     name="longitude"
                     value={form.longitude}
-                    onChange={handleChange}
-                    placeholder="Kinh độ"
+                    onChange={(e) => {
+                      handleChange(e);
+                      if (fieldErrors.longitude) {
+                        setFieldErrors(prev => ({ ...prev, longitude: "" }));
+                      }
+                    }}
+                    placeholder="VD: 106.660172"
                     step="any"
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                    autoComplete="off"
+                    className={`w-full border rounded-xl px-4 py-3 focus:ring-2 transition-all outline-none ${
+                      fieldErrors.longitude
+                        ? "border-red-500 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                        : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                    }`}
                   />
+                  {fieldErrors.longitude && (
+                    <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                      <i className="ri-error-warning-line"></i>
+                      {fieldErrors.longitude}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -804,14 +992,34 @@ export default function RegisterLot() {
             </section>
 
             {/* ---- CAPACITY ---- */}
-            <section className="p-8 border-b border-gray-100 bg-gray-50">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                  <i className="ri-car-fill text-green-600 text-xl"></i>
+            <section 
+              ref={fieldRefs.capacities}
+              className={`p-8 border-b border-gray-100 bg-gray-50 ${
+                fieldErrors.capacities ? "ring-2 ring-red-500 ring-inset" : ""
+              }`}
+            >
+              <div className="flex items-center justify-between gap-3 mb-6">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                    fieldErrors.capacities ? "bg-red-100" : "bg-green-100"
+                  }`}>
+                    <i className={`ri-car-fill text-xl ${
+                      fieldErrors.capacities ? "text-red-600" : "text-green-600"
+                    }`}></i>
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900">
+                      Cấu hình sức chứa
+                      <span className="text-red-500 ml-1">*</span>
+                    </h2>
+                    {fieldErrors.capacities && (
+                      <p className="text-sm text-red-600 flex items-center gap-1 mt-1">
+                        <i className="ri-error-warning-line"></i>
+                        {fieldErrors.capacities}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  Cấu hình sức chứa
-                </h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end bg-white p-4 rounded-xl border border-gray-200">
                 <div className="md:col-span-1">
@@ -940,18 +1148,34 @@ export default function RegisterLot() {
             </section>
 
             {/* ---- POLICIES ---- */}
-            <section className="p-8 border-b border-gray-100 bg-gradient-to-br from-blue-50/30 to-indigo-50/30">
+            <section 
+              ref={fieldRefs.policies}
+              className={`p-8 border-b border-gray-100 bg-gradient-to-br from-blue-50/30 to-indigo-50/30 ${
+                fieldErrors.policies ? "ring-2 ring-red-500 ring-inset" : ""
+              }`}
+            >
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <i className="ri-shield-check-fill text-blue-600 text-xl"></i>
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                  fieldErrors.policies ? "bg-red-100" : "bg-blue-100"
+                }`}>
+                  <i className={`ri-shield-check-fill text-xl ${
+                    fieldErrors.policies ? "text-red-600" : "text-blue-600"
+                  }`}></i>
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">
                     Chính sách bãi đỗ xe
+                    <span className="text-red-500 ml-1">*</span>
                   </h2>
                   <p className="text-sm text-gray-600 mt-0.5">
                     Cấu hình chính sách bãi đỗ xe (đơn vị: phút)
                   </p>
+                  {fieldErrors.policies && (
+                    <p className="text-sm text-red-600 flex items-center gap-1 mt-1">
+                      <i className="ri-error-warning-line"></i>
+                      {fieldErrors.policies}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -1031,15 +1255,33 @@ export default function RegisterLot() {
             </section>
 
             {/* ---- PRICING RULES ---- */}
-            <section className="p-8 pb-32">
+            <section 
+              ref={fieldRefs.rules}
+              className={`p-8 pb-32 ${
+                fieldErrors.rules ? "ring-2 ring-red-500 ring-inset" : ""
+              }`}
+            >
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-                    <i className="ri-money-dollar-circle-fill text-yellow-600 text-xl"></i>
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                    fieldErrors.rules ? "bg-red-100" : "bg-yellow-100"
+                  }`}>
+                    <i className={`ri-money-dollar-circle-fill text-xl ${
+                      fieldErrors.rules ? "text-red-600" : "text-yellow-600"
+                    }`}></i>
                   </div>
-                  <h2 className="text-xl font-bold text-gray-900">
-                    Quy tắc giá
-                  </h2>
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900">
+                      Quy tắc giá
+                      <span className="text-red-500 ml-1">*</span>
+                    </h2>
+                    {fieldErrors.rules && (
+                      <p className="text-sm text-red-600 flex items-center gap-1 mt-1">
+                        <i className="ri-error-warning-line"></i>
+                        {fieldErrors.rules}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <button
                   type="button"

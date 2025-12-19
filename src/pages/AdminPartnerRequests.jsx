@@ -178,11 +178,11 @@ export default function AdminPartnerRequests() {
               onChange={(e) => setSortBy(e.target.value)}
               className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
             >
-              <option value="createdAt">Ngày Tạo</option>
-              <option value="companyName">Tên Công Ty</option>
-              <option value="contactPersonName">Người Liên Hệ</option>
-              <option value="companyPhone">Số Điện Thoại</option>
-              <option value="status">Trạng Thái</option>
+              <option value="createdAt">Ngày tạo</option>
+              <option value="companyName">Tên công ty</option>
+              <option value="contactPersonName">Người liên hệ</option>
+              <option value="companyPhone">Số điện thoại</option>
+              <option value="status">Trạng thái</option>
             </select>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -218,10 +218,10 @@ export default function AdminPartnerRequests() {
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
-            <option value="">Tất Cả Trạng Thái</option>
-            <option value="PENDING">Chờ Duyệt</option>
-            <option value="APPROVED">Đã Duyệt</option>
-            <option value="REJECTED">Bị Từ Chối</option>
+            <option value="">Tất cả trạng thái</option>
+            <option value="PENDING">Chờ duyệt</option>
+            <option value="APPROVED">Đã duyệt</option>
+            <option value="REJECTED">Bị từ chối</option>
           </select>
 
           {/* Date Range */}

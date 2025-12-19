@@ -74,7 +74,7 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-orange-500">
                 <path fillRule="evenodd" d="M3.75 3.75L7.5 7.5L3.75 11.25V3.75ZM7.5 7.5L11.25 3.75H18.75A2.25 2.25 0 0121 6V18A2.25 2.25 0 0118.75 20.25H5.25A2.25 2.25 0 013 18.75V15L7.5 10.5V7.5ZM15 15.75A1.5 1.5 0 1112 15.75A1.5 1.5 0 0115 15.75Z" clipRule="evenodd" />
             </svg>
-            Thông Tin Chi Tiết
+            Thông tin chi tiết
           </h2>
           <button
             onClick={onClose}
@@ -98,7 +98,7 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
             
             {/* --- General Status Section --- */}
             <div className="mb-6 pb-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-700 mb-3">Tình Trạng Chung</h3>
+                <h3 className="text-lg font-semibold text-gray-700 mb-3">Tình trạng chung</h3>
                 <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
                     <span className="font-bold text-base text-gray-600">Trạng thái:</span>
                     <span
@@ -117,15 +117,15 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
 
             {/* --- Company Info Section --- */}
             <section className="mb-6">
-                <h3 className="text-lg font-semibold text-orange-600 mb-3 border-b-2 border-orange-100 pb-1">Thông Tin Công Ty</h3>
+                <h3 className="text-lg font-semibold text-orange-600 mb-3 border-b-2 border-orange-100 pb-1">Thông tin công ty</h3>
                 <div className="space-y-1">
-                    <InfoRow label="Tên Công Ty" value={data.companyName} />
-                    <InfoRow label="Mã Số Thuế" value={data.taxNumber} />
-                    <InfoRow label="Giấy Phép KD" value={data.businessLicenseNumber} />
-                    <InfoRow label="Địa Chỉ" value={data.companyAddress} />
-                    <InfoRow label="Email Công Ty" value={data.companyEmail} />
-                    <InfoRow label="SĐT Công Ty" value={data.companyPhone} />
-                    <InfoRow label="Số Bãi Đỗ Xe">
+                    <InfoRow label="Tên công ty" value={data.companyName} />
+                    <InfoRow label="Mã số thuế" value={data.taxNumber} />
+                    <InfoRow label="Giấy phép KD" value={data.businessLicenseNumber} />
+                    <InfoRow label="Địa chỉ" value={data.companyAddress} />
+                    <InfoRow label="Email công ty" value={data.companyEmail} />
+                    <InfoRow label="SĐT công ty" value={data.companyPhone} />
+                    <InfoRow label="Số bãi đỗ xe">
                         <button
                             onClick={() => {
                                 onClose();
@@ -138,7 +138,7 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
                             {data.numbersOfParkingLots ?? 0} bãi đỗ
                         </button>
                     </InfoRow>
-                    <InfoRow label="File Giấy Phép">
+                    <InfoRow label="File giấy phép">
                         {data.businessLicenseFileUrl ? (
                             <a
                                 href={data.businessLicenseFileUrl}
@@ -146,7 +146,7 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
                                 rel="noreferrer"
                                 className="text-orange-600 hover:text-orange-800 font-semibold transition underline"
                             >
-                                Xem Tệp Đính Kèm
+                                Xem tệp đính kèm
                             </a>
                         ) : (
                             <span className="text-gray-400">Không có file</span>
@@ -169,9 +169,9 @@ export default function ViewPartnerDetailModal({ partnerId, onClose }) {
                         const contact = data.accounts[0];
                         return (
                             <div className="space-y-1">
-                                <InfoRow label="Tên Liên Hệ" value={contact.fullName} />
-                                <InfoRow label="Email Liên Hệ" value={contact.email} />
-                                <InfoRow label="SĐT Liên Hệ" value={contact.phone} />
+                                <InfoRow label="Tên liên hệ" value={contact.fullName} />
+                                <InfoRow label="Email liên hệ" value={contact.email} />
+                                <InfoRow label="SĐT liên hệ" value={contact.phone} />
                             </div>
                         );
                     })()  

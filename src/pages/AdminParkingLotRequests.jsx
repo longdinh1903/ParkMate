@@ -170,15 +170,15 @@ export default function AdminParkingLotRequests() {
 
     // Map to Vietnamese
     const statusMap = {
-      PENDING: "Chờ Duyệt",
-      PREPARING: "Đang Chuẩn Bị",
-      PARTNER_CONFIGURATION: "Cấu Hình Đối Tác",
-      ACTIVE: "Hoạt Động",
-      UNDER_MAINTENANCE: "Đang Bảo Trì",
-      INACTIVE: "Ngừng Hoạt Động",
-      MAP_DENIED: "Từ Chối Bản Đồ",
-      REJECTED: "Bị Từ Chối",
-      PENDING_PAYMENT: "Chờ Thanh Toán",
+      PENDING: "Chờ duyệt",
+      PREPARING: "Đang chuẩn bị",
+      PARTNER_CONFIGURATION: "Cấu hình đối tác",
+      ACTIVE: "Hoạt động",
+      UNDER_MAINTENANCE: "Đang bảo trì",
+      INACTIVE: "Ngừng hoạt động",
+      MAP_DENIED: "Từ chối bản đồ",
+      REJECTED: "Bị từ chối",
+      PENDING_PAYMENT: "Chờ thanh toán",
     };
 
     const displayText = statusMap[s] || "Không xác định";
@@ -271,11 +271,11 @@ export default function AdminParkingLotRequests() {
               onChange={(e) => setSortBy(e.target.value)}
               className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
             >
-              <option value="createdAt">Ngày Tạo</option>
+              <option value="createdAt">Ngày tạo</option>
               <option value="name">Tên</option>
-              <option value="city">Thành Phố</option>
-              <option value="status">Trạng Thái</option>
-              <option value="totalFloors">Tổng Số Tầng</option>
+              <option value="city">Thành phố</option>
+              <option value="status">Trạng thái</option>
+              <option value="totalFloors">Tổng số tầng</option>
             </select>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -315,17 +315,17 @@ export default function AdminParkingLotRequests() {
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
-            <option value="">Tất Cả Trạng Thái</option>
+            <option value="">Tất cả trạng thái</option>
             {[
-              { value: "Chờ Duyệt", label: "Chờ Duyệt" },
-              { value: "Preparing", label: "Đang Chuẩn Bị" },
-              { value: "Partner Configuration", label: "Cấu Hình Đối Tác" },
-              { value: "Active", label: "Hoạt Động" },
-              { value: "Under_Maintenance", label: "Đang Bảo Trì" },
-              { value: "Inactive", label: "Ngừng Hoạt Động" },
-              { value: "Map Denied", label: "Từ Chối Bản Đồ" },
-              { value: "Rejected", label: "Bị Từ Chối" },
-              { value: "Pending_Payment", label: "Chờ Thanh Toán" },
+              { value: "Pending", label: "Chờ duyệt" },
+              { value: "Preparing", label: "Đang chuẩn bị" },
+              { value: "Partner_Configuration", label: "Cấu hình đối tác" },
+              { value: "Active", label: "Hoạt động" },
+              { value: "Under_Maintenance", label: "Đang bảo trì" },
+              { value: "Inactive", label: "Ngừng hoạt động" },
+              { value: "Map_Denied", label: "Từ chối bản đồ" },
+              { value: "Rejected", label: "Bị từ chối" },
+              { value: "Pending_Payment", label: "Chờ thanh toán" },
             ].map((s) => (
               <option key={s.value} value={s.value}>
                 {s.label}
@@ -402,13 +402,13 @@ export default function AdminParkingLotRequests() {
             <tr>
               <th className="px-6 py-3 text-left">#</th>
               <th className="px-6 py-3 text-left">Tên</th>
-              <th className="px-6 py-3 text-left">Địa Chỉ</th>
+              <th className="px-6 py-3 text-left">Địa chỉ</th>
               <th className="px-6 py-3 text-left">Phường</th>
-              <th className="px-6 py-3 text-left">Thành Phố</th>
-              <th className="px-6 py-3 text-left">Số Tầng</th>
-              <th className="px-6 py-3 text-left">Giờ Mở - Đóng</th>
-              <th className="px-6 py-3 text-left">Trạng Thái</th>
-              <th className="px-6 py-3 text-center">Thao Tác</th>
+              <th className="px-6 py-3 text-left">Thành phố</th>
+              <th className="px-6 py-3 text-left">Số tầng</th>
+              <th className="px-6 py-3 text-left">Giờ mở - đóng</th>
+              <th className="px-6 py-3 text-left">Trạng thái</th>
+              <th className="px-6 py-3 text-center">Thao tác</th>
             </tr>
           </thead>
 
@@ -560,13 +560,13 @@ export default function AdminParkingLotRequests() {
           showPaymentBanner={false}
           showAssignDevicesButton={true}
           statusOptions={[
-            { key: "PREPARING", label: "Đang Chuẩn Bị", color: "text-yellow-600" },
+            { key: "PREPARING", label: "Đang chuẩn bị", color: "text-yellow-600" },
             {
               key: "PARTNER_CONFIGURATION",
-              label: "Cấu Hình Đối Tác",
+              label: "Cấu hình đối tác",
               color: "text-blue-600",
             },
-            { key: "REJECTED", label: "Bị Từ Chối", color: "text-red-600" },
+            { key: "REJECTED", label: "Bị từ chối", color: "text-red-600" },
           ]}
         />
       )}

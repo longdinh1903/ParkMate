@@ -6,21 +6,21 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
   const getStatusLabel = (status) => {
     switch (status) {
       case "ACTIVE":
-        return "Hoạt Động";
+        return "Hoạt động";
       case "REJECTED":
-        return "Bị Từ Chối";
+        return "Bị từ chối";
       case "PREPARING":
-        return "Đang Chuẩn Bị";
+        return "Đang chuẩn bị";
       case "PARTNER_CONFIGURATION":
-        return "Cấu Hình Đối Tác";
+        return "Cấu hình đối tác";
       case "PENDING":
-        return "Chờ Duyệt";
+        return "Chờ duyệt";
       case "PENDING_PAYMENT":
-        return "Chờ Thanh Toán";
+        return "Chờ thanh toán";
       case "MAP_DENIED":
-        return "Từ Chối Bản Đồ";
+        return "Từ chối bản đồ";
       case "INACTIVE":
-        return "Không Hoạt Động";
+        return "Không hoạt động";
       default:
         return status;
     }
@@ -73,9 +73,9 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
         <div className="px-8 py-6 overflow-y-auto flex-1 custom-scrollbar">
           {/* ROW 1: Basic Info + Images (2 columns) */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            {/* Left Column: Thông Tin Cơ Bản */}
+            {/* Left Column: Thông tin cơ bản */}
             <div>
-              <h3 className="font-bold text-gray-900 text-lg mb-4">Thông Tin Cơ Bản</h3>
+              <h3 className="font-bold text-gray-900 text-lg mb-4">Thông tin cơ bản</h3>
               <div className="space-y-3">
                 {/* Địa chỉ */}
                 <div className="bg-white p-4 rounded-xl border-l-4 border-orange-500 shadow-sm">
@@ -161,9 +161,9 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
               </div>
             </div>
 
-            {/* Right Column: Thư Viện Ảnh */}
+            {/* Right Column: Thư viện ảnh */}
             <div>
-              <h3 className="font-bold text-gray-900 text-lg mb-4">Thư Viện Ảnh</h3>
+              <h3 className="font-bold text-gray-900 text-lg mb-4">Thư viện ảnh</h3>
               {lot.images && lot.images.length > 0 ? (
                 <div className="grid grid-cols-2 gap-3">
                   {lot.images.map((image, index) => (
@@ -207,7 +207,7 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
             <div className="mb-6 bg-white p-6 rounded-2xl border-l-4 border-orange-500 shadow-sm">
               <h3 className="font-bold text-gray-900 mb-4 text-lg flex items-center gap-3">
                 <i className="ri-building-line text-orange-600 text-xl"></i>
-                Đối Tác / Chủ Sở Hữu
+                Đối tác / Chủ sở hữu
               </h3>
               <div className="text-sm text-gray-700 space-y-1">
                 <p>
@@ -217,10 +217,10 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
                   <p><strong>Email:</strong> {lot.partner.companyEmail}</p>
                 )}
                 {lot.partner?.companyPhone && (
-                  <p><strong>Điện Thoại:</strong> {lot.partner.companyPhone}</p>
+                  <p><strong>Điện thoại:</strong> {lot.partner.companyPhone}</p>
                 )}
                 {lot.partner?.taxNumber && (
-                  <p><strong>Mã Số Thuế:</strong> {lot.partner.taxNumber}</p>
+                  <p><strong>Mã số thuế:</strong> {lot.partner.taxNumber}</p>
                 )}
               </div>
             </div>
@@ -231,11 +231,11 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
             <div className="mb-6 bg-white p-6 rounded-2xl border-l-4 border-orange-500 shadow-sm">
               <h3 className="font-bold text-gray-900 mb-4 text-lg flex items-center gap-3">
                 <i className="ri-phone-line text-orange-600 text-xl"></i>
-                Thông Tin Liên Hệ
+                Thông tin liên hệ
               </h3>
               <div className="text-sm text-gray-700 space-y-1">
-                {lot.contactPhone && (<p><strong>Điện Thoại:</strong> {lot.contactPhone}</p>)}
-                {lot.phone && !lot.contactPhone && (<p><strong>Điện Thoại:</strong> {lot.phone}</p>)}
+                {lot.contactPhone && (<p><strong>Điện thoại:</strong> {lot.contactPhone}</p>)}
+                {lot.phone && !lot.contactPhone && (<p><strong>Điện thoại:</strong> {lot.phone}</p>)}
                 {lot.contactEmail && (<p><strong>Email:</strong> {lot.contactEmail}</p>)}
               </div>
             </div>
@@ -246,7 +246,7 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
             <div className="mb-6 bg-white p-6 rounded-2xl border-l-4 border-orange-500 shadow-sm">
               <h3 className="font-bold text-gray-900 mb-4 text-lg flex items-center gap-3">
                 <i className="ri-file-text-line text-orange-600 text-xl"></i>
-                Mô Tả
+                Mô tả
               </h3>
               <p className="text-sm text-gray-700">{lot.description}</p>
             </div>
@@ -370,13 +370,11 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
                   const getPolicyLabel = (type) => {
                     switch (type) {
                       case "EARLY_CHECK_IN_BUFFER":
-                        return { label: "Bộ đệm Nhận Chỗ Sớm", icon: "🕐", desc: "Cho phép khách nhận chỗ sớm hơn thời gian đặt" };
-                      case "LATE_CHECK_OUT_BUFFER":
-                        return { label: "Bộ đệm Trả Chỗ Muộn", icon: "🕐", desc: "Cho phép khách trả chỗ muộn hơn thời gian đặt" };
+                        return { label: "Bộ đệm nhận chỗ sớm", icon: "🕐", desc: "Cho phép khách nhận chỗ sớm hơn thời gian đặt" };
                       case "LATE_CHECK_IN_CANCEL_AFTER":
-                        return { label: "Hủy Nhận Chỗ Muộn Sau", icon: "⏰", desc: "Tự động hủy nếu nhận chỗ quá muộn" };
+                        return { label: "Hủy nhận chỗ muộn sau", icon: "⏰", desc: "Tự động hủy nếu nhận chỗ quá muộn" };
                       case "EARLY_CANCEL_REFUND_BEFORE":
-                        return { label: "Hoàn Tiền Hủy Sớm Trước", icon: "💰", desc: "Hoàn tiền 100% nếu hủy trước" };
+                        return { label: "Hoàn tiền hủy sớm trước", icon: "💰", desc: "Hoàn tiền 100% nếu hủy trước" };
                       default:
                         return { label: type, icon: "📋", desc: "" };
                     }

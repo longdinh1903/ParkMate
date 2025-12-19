@@ -100,7 +100,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
         <div className="flex items-center justify-between px-6 py-4 bg-orange-50 border-b border-orange-100">
           <h2 className="text-xl font-bold text-orange-700 flex items-center gap-3">
             <i className="ri-parking-box-fill text-orange-600 text-2xl" />
-            Chỉnh Sửa
+            Chỉnh sửa
           </h2>
           <button
             type="button"
@@ -155,7 +155,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
           {/* Row 3 */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Thành Phố</label>
+              <label className="block text-sm font-medium text-gray-700">Thành phố</label>
               <input
                 type="text"
                 name="city"
@@ -165,7 +165,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Số Tầng</label>
+              <label className="block text-sm font-medium text-gray-700">Số tầng</label>
               <input
                 type="number"
                 name="totalFloors"
@@ -179,7 +179,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
           {/* Row 4 */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Vĩ Độ</label>
+              <label className="block text-sm font-medium text-gray-700">Vĩ độ</label>
               <input
                 type="number"
                 step="any"
@@ -190,7 +190,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Kinh Độ</label>
+              <label className="block text-sm font-medium text-gray-700">Kinh độ</label>
               <input
                 type="number"
                 step="any"
@@ -206,7 +206,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Giờ Bắt Đầu (HH:mm:ss)
+                Giờ bắt đầu (HH:mm:ss)
               </label>
               <input
                 type="text"
@@ -219,7 +219,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Giờ Kết Thúc (HH:mm:ss)
+                Giờ kết thúc (HH:mm:ss)
               </label>
               <input
                 type="text"
@@ -250,7 +250,7 @@ export default function EditParkingLotModal({ open, onClose, lot, onUpdated }) {
           {["REJECTED", "MAP_DENIED"].includes(form.status) && (
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Lý Do (bắt buộc cho REJECTED hoặc MAP_DENIED)
+                Lý do (bắt buộc cho REJECTED hoặc MAP_DENIED)
               </label>
               <textarea
                 name="reason"
