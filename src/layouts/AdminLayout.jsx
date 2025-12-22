@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
+import authApi from "../api/authApi";
 import { Toaster } from "react-hot-toast";
 
 export default function AdminLayout({ children }) {
@@ -39,7 +39,7 @@ export default function AdminLayout({ children }) {
     try {
       const refreshToken = localStorage.getItem("refreshToken");
       if (refreshToken) {
-        await axios.post("/api/v1/user-service/auth/logout", { refreshToken });
+        await authApi.logout(refreshToken);
       }
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
