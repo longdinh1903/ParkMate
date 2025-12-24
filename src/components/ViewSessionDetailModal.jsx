@@ -79,6 +79,36 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
     }
   };
 
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case "ACTIVE":
+        return "Đang hoạt động";
+      case "COMPLETED":
+        return "Hoàn thành";
+      case "SYNCED":
+        return "Đã đồng bộ";
+      case "CANCELLED":
+        return "Đã hủy";
+      case "PENDING":
+        return "Đang chờ";
+      default:
+        return status || "Không xác định";
+    }
+  };
+
+  const getSyncStatusLabel = (syncStatus) => {
+    switch (syncStatus) {
+      case "SYNCED":
+        return "Đã đồng bộ";
+      case "PENDING":
+        return "Đang chờ";
+      case "FAILED":
+        return "Thất bại";
+      default:
+        return syncStatus || "Không xác định";
+    }
+  };
+
   const getReferenceTypeBadge = (type) => {
     switch (type) {
       case "WALK_IN":
@@ -149,7 +179,7 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
               <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-sm">
                 <span className="font-medium text-gray-600 block mb-2">Trạng thái phiên:</span>
                 <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ring-1 ring-inset ${getStatusBadge(displaySession.status)}`}>
-                  {displaySession.status || "KHÔNG XÁC ĐỊNH"}
+                  {getStatusLabel(displaySession.status)}
                 </span>
               </div>
               <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-sm">
@@ -236,7 +266,7 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
                         ? "bg-purple-100 text-purple-700 ring-purple-600/20" 
                         : "bg-yellow-100 text-yellow-700 ring-yellow-600/20"
                     }`}>
-                      {displaySession.pricingRule.syncStatus}
+                      {getSyncStatusLabel(displaySession.pricingRule.syncStatus)}
                     </span>
                   </InfoRow>
                 )}
@@ -403,7 +433,7 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
               </h3>
               <div className="space-y-1">
                 {displaySession.syncedFromLocal && (
-                  <InfoRow label="Đồng bộ từ local" value={displaySession.syncedFromLocal} />
+                  <InfoRow label="Đồng bộ từ local" value={formatDateTime(displaySession.syncedFromLocal)} />
                 )}
                 {displaySession.syncedPromoId && (
                   <InfoRow label="ID khuyến mại đã đồng bộ" value={displaySession.syncedPromoId} />
@@ -415,7 +445,7 @@ export default function ViewSessionDetailModal({ session, parkingLotName, onClos
                         ? "bg-purple-100 text-purple-700 ring-purple-600/20" 
                         : "bg-yellow-100 text-yellow-700 ring-yellow-600/20"
                     }`}>
-                      {displaySession.syncStatus}
+                      {getSyncStatusLabel(displaySession.syncStatus)}
                     </span>
                   </InfoRow>
                 )}

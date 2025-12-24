@@ -154,6 +154,54 @@ export default function AddRuleModal({
           </div>
         </div>
 
+        {/* Initial Charge */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium">Phí ban đầu (VND)</label>
+            <input
+              type="number"
+              name="initialCharge"
+              value={rule.initialCharge}
+              onChange={handleChange}
+              placeholder="vd. 5000"
+              className={`w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 ${
+                errors.initialCharge
+                  ? 'border-red-500 focus:ring-red-500'
+                  : focusRing
+              }`}
+            />
+            {errors.initialCharge && (
+              <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                <i className="ri-error-warning-line"></i>
+                {errors.initialCharge}
+              </p>
+            )}
+          </div>
+          <div>
+            <label className="text-sm font-medium">
+              Thời gian ban đầu (phút)
+            </label>
+            <input
+              type="number"
+              name="initialDurationMinute"
+              value={rule.initialDurationMinute}
+              onChange={handleChange}
+              placeholder="vd. 30"
+              className={`w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 ${
+                errors.initialDurationMinute
+                  ? 'border-red-500 focus:ring-red-500'
+                  : focusRing
+              }`}
+            />
+            {errors.initialDurationMinute && (
+              <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                <i className="ri-error-warning-line"></i>
+                {errors.initialDurationMinute}
+              </p>
+            )}
+          </div>
+        </div>
+
         {/* Step Config */}
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -202,53 +250,7 @@ export default function AddRuleModal({
           </div>
         </div>
 
-        {/* Initial Charge */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm font-medium">Phí ban đầu (VND)</label>
-            <input
-              type="number"
-              name="initialCharge"
-              value={rule.initialCharge}
-              onChange={handleChange}
-              placeholder="vd. 5000"
-              className={`w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 ${
-                errors.initialCharge
-                  ? 'border-red-500 focus:ring-red-500'
-                  : focusRing
-              }`}
-            />
-            {errors.initialCharge && (
-              <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
-                <i className="ri-error-warning-line"></i>
-                {errors.initialCharge}
-              </p>
-            )}
-          </div>
-          <div>
-            <label className="text-sm font-medium">
-              Thời lượng ban đầu (phút)
-            </label>
-            <input
-              type="number"
-              name="initialDurationMinute"
-              value={rule.initialDurationMinute}
-              onChange={handleChange}
-              placeholder="vd. 30"
-              className={`w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 ${
-                errors.initialDurationMinute
-                  ? 'border-red-500 focus:ring-red-500'
-                  : 'focus:ring-indigo-400'
-              }`}
-            />
-            {errors.initialDurationMinute && (
-              <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
-                <i className="ri-error-warning-line"></i>
-                {errors.initialDurationMinute}
-              </p>
-            )}
-          </div>
-        </div>
+        
 
         {/* Valid Date Range */}
         <div className="grid grid-cols-2 gap-4">
