@@ -225,6 +225,17 @@ export default function RegisterLot() {
     const { name, value, type, checked } = e.target;
     const newValue = type === "checkbox" ? checked : value;
     
+    // Auto set operating hours when is24Hour is checked
+    if (name === "is24Hour" && checked) {
+      setForm({
+        ...form,
+        is24Hour: true,
+        operatingHoursStart: "00:00",
+        operatingHoursEnd: "23:59",
+      });
+      return;
+    }
+    
     // Validate number fields
     if (["totalFloors", "lotSquare", "horizonTime"].includes(name)) {
       const numValue = parseFloat(value);

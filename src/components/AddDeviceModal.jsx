@@ -202,7 +202,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
         <div className="flex justify-between items-center px-6 py-4 bg-orange-50 border-b border-orange-100">
           <h2 className="text-xl font-bold text-orange-700 flex items-center gap-2">
             <CpuChipIcon className="w-6 h-6 text-orange-500" />
-            Thêm Thiết Bị Mới
+            Thêm thiết bị mới
           </h2>
           <button
             onClick={handleClose}
@@ -219,7 +219,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
             {/* Partner */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Đối Tác
+                Đối tác
               </label>
               <select
                 name="partnerId"
@@ -239,7 +239,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
             {/* Parking Lot */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Bãi Đỗ Xe <span className="text-red-500">*</span>
+                Bãi đỗ xe <span className="text-red-500">*</span>
               </label>
               <select
                 name="lotId"
@@ -260,7 +260,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
             {/* Device ID */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                ID Thiết Bị <span className="text-red-500">*</span>
+                ID thiết bị <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -277,7 +277,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
             {/* Device Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tên Thiết Bị
+                Tên thiết bị
               </label>
               <input
                 type="text"
@@ -293,7 +293,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
             {/* Device Type */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Loại Thiết Bị <span className="text-red-500">*</span>
+                Loại thiết bị <span className="text-red-500">*</span>
               </label>
               <select
                 name="deviceType"
@@ -330,7 +330,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
             {/* Serial Number */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Số Seri
+                Số seri
               </label>
               <input
                 type="text"
@@ -346,7 +346,7 @@ export default function AddDeviceModal({ open, onClose, onCreated }) {
             {/* Notes */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Ghi Chú
+                Ghi chú
               </label>
               <textarea
                 name="notes"

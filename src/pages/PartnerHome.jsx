@@ -201,7 +201,7 @@ export default function PartnerHome() {
         bg: "bg-orange-100",
         text: "text-orange-700",
         icon: "ri-tools-fill",
-        label: "Đang bảo trì",
+        label: "Bảo trì",
       },
 
       PENDING: {
@@ -239,25 +239,13 @@ export default function PartnerHome() {
         bg: "bg-red-100",
         text: "text-red-700",
         icon: "ri-close-circle-fill",
-        label: "Bị từ chối",
-      },
-      REJECT: {
-        bg: "bg-red-100",
-        text: "text-red-700",
-        icon: "ri-close-circle-fill",
-        label: "Bị từ chối",
-      },
-      DENIED: {
-        bg: "bg-red-100",
-        text: "text-red-700",
-        icon: "ri-close-circle-fill",
-        label: "Bị từ chối",
+        label: "Từ chối",
       },
       MAP_DENIED: {
         bg: "bg-red-100",
         text: "text-red-700",
         icon: "ri-map-pin-2-fill",
-        label: "Bản đồ bị từ chối",
+        label: "Từ chối bản đồ",
       },
 
       INACTIVE: {
@@ -344,9 +332,9 @@ export default function PartnerHome() {
                 Cấu hình đối tác
               </option>
               <option value="ACTIVE">Hoạt động</option>
-              <option value="UNDER_MAINTENANCE">Đang bảo trì</option>
+              <option value="UNDER_MAINTENANCE">Bảo trì</option>
               <option value="INACTIVE">Không hoạt động</option>
-              <option value="MAP_DENIED">Bản đồ bị từ chối</option>
+              <option value="MAP_DENIED">Từ chối bản đồ</option>
               <option value="REJECTED">Bị từ chối</option>
               <option value="PENDING_PAYMENT">Thanh toán</option>
             </select>
@@ -651,28 +639,33 @@ export default function PartnerHome() {
           statusOptions={
             selectedLot.status === "ACTIVE" 
               ? [
-                  { key: "UNDER_MAINTENANCE", label: "Đang Bảo Trì", color: "text-orange-600" },
-                  { key: "PENDING_PAYMENT", label: "Thanh Toán", color: "text-purple-600" },
+                  { key: "UNDER_MAINTENANCE", label: "Bảo trì", color: "text-orange-600" },
+                  { key: "PENDING_PAYMENT", label: "Thanh toán", color: "text-purple-600" },
                 ]
               : selectedLot.status === "UNDER_MAINTENANCE"
               ? [
-                  { key: "ACTIVE", label: "Hoạt Động", color: "text-green-600" },
+                  { key: "ACTIVE", label: "Hoạt động", color: "text-green-600" },
                 ]
               : selectedLot.status === "PENDING_PAYMENT"
               ? [
-                  { key: "MAP_DENIED", label: "Bản Đồ Bị Từ Chối", color: "text-red-600" },
+                  { key: "MAP_DENIED", label: "Từ chối bản đồ", color: "text-red-600" },
                 ]
               : selectedLot.status === "PENDING" || 
                 selectedLot.status === "PREPARING" || 
                 selectedLot.status === "PARTNER_CONFIGURATION"
               ? [
-                  { key: "MAP_DENIED", label: "Bản Đồ Bị Từ Chối", color: "text-red-600" },
-                  { key: "PENDING_PAYMENT", label: "Thanh Toán", color: "text-purple-600" },
+                  { key: "MAP_DENIED", label: "Từ chối bản đồ", color: "text-red-600" },
+                  { key: "PENDING_PAYMENT", label: "Thanh toán", color: "text-purple-600" },
+                ]
+              : selectedLot.status === "REJECTED" || selectedLot.status === "MAP_DENIED"
+              ? [
+                  { key: "MAP_DENIED", label: "Từ chối bản đồ", color: "text-red-600" },
+                  { key: "PENDING_PAYMENT", label: "Thanh toán", color: "text-purple-600" },
                 ]
               : [
-                  { key: "ACTIVE", label: "Hoạt Động", color: "text-green-600" },
-                  { key: "MAP_DENIED", label: "Bản Đồ Bị Từ Chối", color: "text-red-600" },
-                  { key: "PENDING_PAYMENT", label: "Thanh Toán", color: "text-purple-600" },
+                  { key: "ACTIVE", label: "Hoạt động", color: "text-green-600" },
+                  { key: "MAP_DENIED", label: "Từ chối bản đồ", color: "text-red-600" },
+                  { key: "PENDING_PAYMENT", label: "Thanh toán", color: "text-purple-600" },
                 ]
           }
           allowEdit={true}

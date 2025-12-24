@@ -262,6 +262,7 @@ export default function AddRuleModal({
               value={rule.validFrom}
               onChange={handleChange}
               required
+              min={new Date().toISOString().slice(0, 16)}
               className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
             />
           </div>
@@ -273,6 +274,7 @@ export default function AddRuleModal({
               value={rule.validTo}
               onChange={handleChange}
               placeholder="(Tùy chọn)"
+              min={rule.validFrom || new Date().toISOString().slice(0, 16)}
               className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-400"
             />
           </div>

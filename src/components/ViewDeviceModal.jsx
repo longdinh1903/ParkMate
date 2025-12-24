@@ -146,7 +146,7 @@ export default function ViewDeviceModal({ device, onClose }) {
         <div className="flex justify-between items-center px-6 py-4 bg-orange-50 border-b border-orange-100">
           <h2 className="text-xl font-bold text-orange-700 flex items-center gap-2">
             <CpuChipIcon className="w-6 h-6 text-orange-500" />
-            Thông Tin Chi Tiết
+            Thông tin chi tiết
           </h2>
           <button
             onClick={onClose}
@@ -163,11 +163,11 @@ export default function ViewDeviceModal({ device, onClose }) {
           <div className="mb-6">
             <h4 className="flex items-center gap-2 text-orange-700 font-semibold mb-3 text-base">
               <CpuChipIcon className="w-5 h-5" />
-              Trạng Thái
+              Trạng thái
             </h4>
             <div className="bg-gray-50 rounded-lg p-4">
               <InfoRow
-                label="Trạng Thái Thiết Bị"
+                label="Trạng thái thiết bị"
                 value={renderStatus(device.status || device.deviceStatus)}
               />
             </div>
@@ -177,15 +177,15 @@ export default function ViewDeviceModal({ device, onClose }) {
           <div className="mb-6">
             <h4 className="flex items-center gap-2 text-orange-700 font-semibold mb-3 text-base">
               <CpuChipIcon className="w-5 h-5" />
-              Thông Tin Thiết Bị
+              Thông tin thiết bị
             </h4>
             <div className="bg-gray-50 rounded-lg p-4">
-              <InfoRow label="ID Thiết Bị" value={device.deviceId} />
-              <InfoRow label="Tên Thiết Bị" value={device.deviceName} />
-              <InfoRow label="Đối Tác" value={partnerLabel} />
-              <InfoRow label="Loại Thiết Bị" value={deviceTypeLabels[device.deviceType] || device.deviceType} />
+              <InfoRow label="ID thiết bị" value={device.deviceId} />
+              <InfoRow label="Tên thiết bị" value={device.deviceName} />
+              <InfoRow label="Đối tác" value={partnerLabel} />
+              <InfoRow label="Loại thiết bị" value={deviceTypeLabels[device.deviceType] || device.deviceType} />
               <InfoRow label="Model" value={device.model} />
-              <InfoRow label="Số Seri" value={device.serialNumber} />
+              <InfoRow label="Số seri" value={device.serialNumber} />
             </div>
           </div>
 
@@ -193,11 +193,11 @@ export default function ViewDeviceModal({ device, onClose }) {
           <div className="mb-6">
             <h4 className="flex items-center gap-2 text-orange-700 font-semibold mb-3 text-base">
               <CpuChipIcon className="w-5 h-5" />
-              Vị Trí
+              Vị trí
             </h4>
             <div className="bg-gray-50 rounded-lg p-4">
               <InfoRow
-                label="Bãi Đỗ Xe"
+                label="Bãi đỗ xe"
                 value={device.parkingLot?.name || device.lotName || "-"}
               />
             </div>
@@ -207,19 +207,19 @@ export default function ViewDeviceModal({ device, onClose }) {
           <div className="mb-6">
             <h4 className="flex items-center gap-2 text-orange-700 font-semibold mb-3 text-base">
               <CpuChipIcon className="w-5 h-5" />
-              Thông Tin Hệ Thống
+              Thông tin hệ thống
             </h4>
             <div className="bg-gray-50 rounded-lg p-4">
               <InfoRow
-                label="Ngày Tạo"
+                label="Ngày tạo"
                 value={formatDate(device.createdAt)}
               />
               <InfoRow
-                label="Ngày Cập Nhật"
+                label="Ngày cập nhật"
                 value={formatDate(device.updatedAt)}
               />
               <InfoRow
-                label="Bảo Trì Lần Cuối"
+                label="Bảo trì lần cuối"
                 value={formatDate(device.lastMaintenanceAt)}
               />
             </div>
@@ -230,7 +230,7 @@ export default function ViewDeviceModal({ device, onClose }) {
             <div className="mb-6">
               <h4 className="flex items-center gap-2 text-orange-700 font-semibold mb-3 text-base">
                 <CpuChipIcon className="w-5 h-5" />
-                Ghi Chú
+                Ghi chú
               </h4>
               <div className="bg-gray-50 rounded-lg p-4">
                 <p className="text-gray-700 whitespace-pre-wrap">
@@ -244,7 +244,7 @@ export default function ViewDeviceModal({ device, onClose }) {
         {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-100 flex justify-end bg-gray-50">
           <button
-            onClick={onClose}
+            onClick={onClose} 
             className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
           >
             Đóng

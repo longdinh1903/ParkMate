@@ -121,7 +121,7 @@ export default function EditDeviceModal({ open, device, onClose, onUpdated }) {
         <div className="flex justify-between items-center px-6 py-4 bg-orange-50 border-b border-orange-100">
           <h2 className="text-xl font-bold text-orange-700 flex items-center gap-2">
             <CpuChipIcon className="w-6 h-6 text-orange-500" />
-            Chỉnh Sửa 
+            Chỉnh sửa thiết bị
           </h2>
           <button
             onClick={onClose}
@@ -138,7 +138,7 @@ export default function EditDeviceModal({ open, device, onClose, onUpdated }) {
             {/* Device ID (read-only in edit mode - usually shouldn't change) */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                ID Thiết Bị <span className="text-red-500">*</span>
+                ID thiết bị <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -155,7 +155,7 @@ export default function EditDeviceModal({ open, device, onClose, onUpdated }) {
             {/* Device Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tên Thiết Bị
+                Tên thiết bị
               </label>
               <input
                 type="text"
@@ -170,7 +170,7 @@ export default function EditDeviceModal({ open, device, onClose, onUpdated }) {
 
             {/* Read-only fields */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Loại Thiết Bị</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Loại thiết bị</label>
               <input
                 type="text"
                 value={deviceTypeLabels[device?.deviceType] || device?.deviceType || "-"}
@@ -179,7 +179,7 @@ export default function EditDeviceModal({ open, device, onClose, onUpdated }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Đối Tác</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Đối tác</label>
               <input
                 type="text"
                 value={partnerName || device?.partner?.companyName || device?.companyName || device?.partnerName || (device?.partnerId ? `#${device.partnerId}` : "-")}
@@ -188,7 +188,7 @@ export default function EditDeviceModal({ open, device, onClose, onUpdated }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Bãi Đỗ Xe</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Bãi đỗ xe</label>
               <input
                 type="text"
                 value={device?.parkingLot?.name || device?.lotName || "-"}
@@ -199,19 +199,19 @@ export default function EditDeviceModal({ open, device, onClose, onUpdated }) {
 
             {/* Device Status */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Trạng Thái Thiết Bị</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Trạng thái thiết bị</label>
               <select
                 name="deviceStatus"
                 value={formData.deviceStatus}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
               >
-                <option value="PENDING">CHỞ XỬ LÝ</option>
-                <option value="ACTIVE">HOẠT ĐỘNG</option>
-                <option value="OFFLINE">NGOẠI TUYẾN</option>
-                <option value="MAINTENANCE">BẢO TRÌ</option>
-                <option value="FAULTY">LỖI</option>
-                <option value="DEACTIVATED">VÔ HIỆU HÓA</option>
+                <option value="PENDING">Chờ xử lý</option>
+                <option value="ACTIVE">Hoạt động</option>
+                <option value="OFFLINE">Ngại tuyến</option>
+                <option value="MAINTENANCE">Bảo trì</option>
+                <option value="FAULTY">Lỗi</option>
+                <option value="DEACTIVATED">Vô hiệu hóa</option>
               </select>
             </div>
 
@@ -233,7 +233,7 @@ export default function EditDeviceModal({ open, device, onClose, onUpdated }) {
 
             {/* Serial Number */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Số Seri</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Số seri</label>
               <input
                 type="text"
                 name="serialNumber"
@@ -247,7 +247,7 @@ export default function EditDeviceModal({ open, device, onClose, onUpdated }) {
 
             {/* Notes */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Ghi Chú</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Ghi chú</label>
               <textarea
                 name="notes"
                 value={formData.notes}

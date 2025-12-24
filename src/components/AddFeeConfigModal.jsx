@@ -15,7 +15,33 @@ export default function AddFeeConfigModal({ onClose, onAdded }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+    const newForm = { ...form, [name]: value };
+    
+    // Auto-calculate validUntil when validFrom or billingPeriodMonths changes
+    if (name === "validFrom" || name === "billingPeriodMonths") {
+      const validFrom = name === "validFrom" ? value : form.validFrom;
+      const months = name === "billingPeriodMonths" ? parseInt(value) : parseInt(form.billingPeriodMonths);
+      
+      if (validFrom && months > 0) {
+        const fromDate = new Date(validFrom);
+        fromDate.setMonth(fromDate.getMonth() + months);
+        // Format to date format (YYYY-MM-DD)
+        const validUntil = fromDate.toISOString().slice(0, 10);
+        newForm.validUntil = validUntil;
+      }
+    }
+    
+    setForm(newForm);
+  };
+
+  // Helper function to add current time to date
+  const appendCurrentTime = (dateStr) => {
+    if (!dateStr) return dateStr;
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    return `${dateStr}T${hours}:${minutes}:${seconds}`;
   };
 
   const handleSubmit = async (e) => {
@@ -34,8 +60,8 @@ export default function AddFeeConfigModal({ onClose, onAdded }) {
         pricePerSqm: parseFloat(form.pricePerSqm),
         billingPeriodMonths: parseInt(form.billingPeriodMonths),
         description: form.description,
-        validFrom: form.validFrom,
-        validUntil: form.validUntil,
+        validFrom: appendCurrentTime(form.validFrom),
+        validUntil: appendCurrentTime(form.validUntil),
       };
 
       const res = await operationalFeeApi.create(payload);
@@ -73,7 +99,7 @@ export default function AddFeeConfigModal({ onClose, onAdded }) {
         <div className="flex items-center justify-between px-6 py-4 bg-orange-50 border-b border-orange-100">
           <h2 className="text-xl font-bold text-orange-700 flex items-center gap-3">
             <i className="ri-money-dollar-circle-line text-2xl text-orange-500"></i>
-            Thêm Cấu Hình Phí Mới
+            Thêm cấu hình phí mới
           </h2>
           <button
             onClick={onClose}
@@ -103,7 +129,7 @@ export default function AddFeeConfigModal({ onClose, onAdded }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Kỳ Thanh Toán (Tháng)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Kỳ thanh toán (Tháng)</label>
               <input
                 type="number"
                 name="billingPeriodMonths"
@@ -117,7 +143,7 @@ export default function AddFeeConfigModal({ onClose, onAdded }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Mô Tả</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả</label>
             <textarea
               name="description"
               value={form.description}
@@ -130,24 +156,26 @@ export default function AddFeeConfigModal({ onClose, onAdded }) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Hiệu Lực Từ</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Hiệu lực từ</label>
               <input
-                type="datetime-local"
+                type="date"
                 name="validFrom"
                 value={form.validFrom}
                 onChange={handleChange}
                 required
+                min={new Date().toISOString().slice(0, 10)}
                 className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none transition bg-gray-50"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Hiệu Lực Đến</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Hiệu lực đến</label>
               <input
-                type="datetime-local"
+                type="date"
                 name="validUntil"
                 value={form.validUntil}
                 onChange={handleChange}
                 required
+                min={new Date().toISOString().slice(0, 10)}
                 className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none transition bg-gray-50"
               />
             </div>

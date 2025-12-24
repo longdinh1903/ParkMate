@@ -150,7 +150,7 @@ export default function AdminDevices() {
 
       const matchesType = deviceType ? device.deviceType === deviceType : true;
       const matchesStatus = deviceStatus
-        ? device.deviceStatus === deviceStatus
+        ? (device.status === deviceStatus || device.deviceStatus === deviceStatus)
         : true;
 
       // Match selected parking lot (support multiple device fields)
@@ -291,7 +291,7 @@ export default function AdminDevices() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-orange-700 flex items-center gap-2">
           <CpuChipIcon className="w-8 h-8" />
-          Quản Lý Thiết Bị
+          Quản lý thiết bị
         </h2>
       </div>
 
@@ -330,10 +330,10 @@ export default function AdminDevices() {
               onChange={(e) => setSortBy(e.target.value)}
               className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
             >
-              <option value="createdAt">Ngày Tạo</option>
-              <option value="deviceId">ID Thiết Bị</option>
-              <option value="deviceName">Tên Thiết Bị</option>
-              <option value="deviceType">Loại Thiết Bị</option>
+              <option value="createdAt">Ngày tạo</option>
+              <option value="deviceId">ID Thiết bị</option>
+              <option value="deviceName">Tên thiết bị</option>
+              <option value="deviceType">Loại thiết bị</option>
             </select>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -373,7 +373,7 @@ export default function AdminDevices() {
             value={deviceType}
             onChange={(e) => setDeviceType(e.target.value)}
           >
-            <option value="">Tất Cả Loại</option>
+            <option value="">Tất cả loại</option>
             {deviceTypes.map((type) => (
               <option key={type} value={type}>
                 {deviceTypeLabels[type] || type}
@@ -387,7 +387,7 @@ export default function AdminDevices() {
             value={lotFilter}
             onChange={(e) => setLotFilter(e.target.value)}
           >
-            <option value="">Tất Cả Bãi Đỗ</option>
+            <option value="">Tất cả bãi đỗ</option>
             {parkingLots.map((lot) => (
               <option key={lot.id} value={String(lot.id)}>
                 {lot.name}
@@ -401,13 +401,13 @@ export default function AdminDevices() {
             value={deviceStatus}
             onChange={(e) => setDeviceStatus(e.target.value)}
           >
-            <option value="">Tất Cả Trạng Thái</option>
-            <option value="PENDING">Chờ Xử Lý</option>
-            <option value="ACTIVE">Hoạt Động</option>
-            <option value="OFFLINE">Ngoại Tuyến</option>
-            <option value="MAINTENANCE">Bảo Trì</option>
+            <option value="">Tất cả trạng thái</option>
+            <option value="PENDING">Chờ xử lý</option>
+            <option value="ACTIVE">Hoạt động</option>
+            <option value="OFFLINE">Ngoại tuyến</option>
+            <option value="MAINTENANCE">Bảo trì</option>
             <option value="FAULTY">Lỗi</option>
-            <option value="DEACTIVATED">Vô Hiệu Hóa</option>
+            <option value="DEACTIVATED">Vô hiệu hóa</option>
           </select>
 
           {/* Refresh Button */}
@@ -426,7 +426,7 @@ export default function AdminDevices() {
             title="Làm mới bộ lọc"
           >
             <i className="ri-refresh-line text-lg text-gray-600"></i>
-            <span className="text-sm text-gray-600">Làm Mới</span>
+            <span className="text-sm text-gray-600">Làm mới</span>
           </button>
         </div>
 
@@ -437,7 +437,7 @@ export default function AdminDevices() {
             className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition transform hover:scale-105 hover:shadow-md cursor-pointer"
           >
             <PlusIcon className="w-5 h-5 text-white" />
-            Thêm Thiết Bị
+            Thêm thiết bị
           </button>
         </div>
       </div>
@@ -448,15 +448,15 @@ export default function AdminDevices() {
           <thead className="bg-orange-50 text-orange-700 uppercase text-sm font-semibold">
             <tr>
               <th className="px-6 py-3 text-left">#</th>
-              <th className="px-6 py-3 text-left">ID Thiết Bị</th>
-              <th className="px-6 py-3 text-left">Tên Thiết Bị</th>
+              <th className="px-6 py-3 text-left">ID thiết bị</th>
+              <th className="px-6 py-3 text-left">Tên thiết bị</th>
               <th className="px-6 py-3 text-left">Loại</th>
               <th className="px-6 py-3 text-left">Model</th>
-              <th className="px-6 py-3 text-left">Số Seri</th>
-              <th className="px-6 py-3 text-left">Bãi Đỗ Xe</th>
-              <th className="px-6 py-3 text-left">Trạng Thái</th>
-              <th className="px-6 py-3 text-left">Ngày Tạo</th>
-              <th className="px-6 py-3 text-center">Thao Tác</th>
+              <th className="px-6 py-3 text-left">Số seri</th>
+              <th className="px-6 py-3 text-left">Bãi đỗ xe</th>
+              <th className="px-6 py-3 text-left">Trạng thái</th>
+              <th className="px-6 py-3 text-left">Ngày tạo</th>
+              <th className="px-6 py-3 text-center">Thao tác</th>
             </tr>
           </thead>
           <tbody className="text-gray-700 text-sm">
@@ -588,7 +588,7 @@ export default function AdminDevices() {
       {/* Confirm Delete Modal */}
       <ConfirmModal
         open={!!deletingDevice}
-        title="Xác Nhận Xóa Thiết Bị"
+        title="Xác nhận xóa thiết bị"
         message={`Bạn có chắc chắn muốn xóa thiết bị "${
           deletingDevice?.deviceName || deletingDevice?.deviceId || "thiết bị này"
         }"? Hành động này không thể hoàn tác.`}
