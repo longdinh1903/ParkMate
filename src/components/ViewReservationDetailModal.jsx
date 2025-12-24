@@ -61,6 +61,10 @@ export default function ViewReservationDetailModal({
         return "bg-red-100 text-red-700 ring-1 ring-inset ring-red-600/20";
       case "PENDING":
         return "bg-yellow-100 text-yellow-700 ring-1 ring-inset ring-yellow-600/20";
+      case "EXPIRED":
+        return "bg-red-100 text-red-700 ring-1 ring-inset ring-red-600/20";
+      case "ACTIVE":
+        return "bg-blue-100 text-blue-700 ring-1 ring-inset ring-blue-600/20";
       default:
         return "bg-gray-100 text-gray-700 ring-1 ring-inset ring-gray-600/20";
     }
@@ -164,29 +168,6 @@ export default function ViewReservationDetailModal({
               </p>
             </div>
           </section>
-
-          {/* QR Code Section */}
-          {reservation.qrCode && (
-            <section className="mb-6">
-              <h3 className="text-lg font-semibold text-indigo-600 mb-3 border-b-2 border-indigo-100 pb-1 flex items-center gap-2">
-                <i className="ri-qr-code-fill text-indigo-500"></i>
-                Mã QR
-              </h3>
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 flex flex-col items-center border border-gray-200">
-                <div className="bg-white p-4 rounded-lg shadow-lg">
-                  <img
-                    src={reservation.qrCode}
-                    alt="Mã QR Đặt Chỗ"
-                    className="w-48 h-48 object-contain"
-                  />
-                </div>
-                <p className="text-xs text-gray-600 mt-3 text-center">
-                  <i className="ri-information-line mr-1"></i>
-                  Quét mã QR này để làm thủ tục vào
-                </p>
-              </div>
-            </section>
-          )}
 
           {/* Vehicle Information */}
           <section className="mb-6">
