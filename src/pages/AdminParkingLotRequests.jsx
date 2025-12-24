@@ -174,11 +174,11 @@ export default function AdminParkingLotRequests() {
       PREPARING: "Đang chuẩn bị",
       PARTNER_CONFIGURATION: "Cấu hình đối tác",
       ACTIVE: "Hoạt động",
-      UNDER_MAINTENANCE: "Đang bảo trì",
+      UNDER_MAINTENANCE: "Bảo trì",
       INACTIVE: "Ngừng hoạt động",
       MAP_DENIED: "Từ chối bản đồ",
-      REJECTED: "Bị từ chối",
-      PENDING_PAYMENT: "Chờ thanh toán",
+      REJECTED: "Từ chối",
+      PENDING_PAYMENT: "Thanh toán",
     };
 
     const displayText = statusMap[s] || "Không xác định";
@@ -321,11 +321,11 @@ export default function AdminParkingLotRequests() {
               { value: "Preparing", label: "Đang chuẩn bị" },
               { value: "Partner_Configuration", label: "Cấu hình đối tác" },
               { value: "Active", label: "Hoạt động" },
-              { value: "Under_Maintenance", label: "Đang bảo trì" },
+              { value: "Under_Maintenance", label: "Bảo trì" },
               { value: "Inactive", label: "Ngừng hoạt động" },
               { value: "Map_Denied", label: "Từ chối bản đồ" },
-              { value: "Rejected", label: "Bị từ chối" },
-              { value: "Pending_Payment", label: "Chờ thanh toán" },
+              { value: "Rejected", label: "Từ chối" },
+              { value: "Pending_Payment", label: "Thanh toán" },
             ].map((s) => (
               <option key={s.value} value={s.value}>
                 {s.label}
@@ -406,7 +406,7 @@ export default function AdminParkingLotRequests() {
               <th className="px-6 py-3 text-left">Phường</th>
               <th className="px-6 py-3 text-left">Thành phố</th>
               <th className="px-6 py-3 text-left">Số tầng</th>
-              <th className="px-6 py-3 text-left">Giờ mở - đóng</th>
+              <th className="px-6 py-3 text-left">24 giờ</th>
               <th className="px-6 py-3 text-left">Trạng thái</th>
               <th className="px-6 py-3 text-center">Thao tác</th>
             </tr>
@@ -470,11 +470,11 @@ export default function AdminParkingLotRequests() {
                     </div>
                   </td>
                   <td className="px-6 py-3">
-                    {lot.is24Hour
-                      ? "Mở cửa 24/7"
-                      : `${lot.operatingHoursStart || "-"} - ${
-                          lot.operatingHoursEnd || "-"
-                        }`}
+                    {lot.is24Hour ? (
+                      <span className="text-green-600 font-medium">Có</span>
+                    ) : (
+                      <span className="text-gray-500">Không</span>
+                    )}
                   </td>
                   <td className="px-6 py-3">{renderStatus(lot.status)}</td>
                   <td className="px-6 py-3 text-center">
@@ -542,7 +542,7 @@ export default function AdminParkingLotRequests() {
       {confirmingLot && (
         <ConfirmModal
           open={!!confirmingLot}
-          title="Xác Nhận Xóa"
+          title="Xác nhận xóa"
           message={`Bạn có chắc chắn muốn xóa "${confirmingLot?.name}"?`}
           onConfirm={confirmDelete}
           onCancel={() => setConfirmingLot(null)}
@@ -566,7 +566,7 @@ export default function AdminParkingLotRequests() {
               label: "Cấu hình đối tác",
               color: "text-blue-600",
             },
-            { key: "REJECTED", label: "Bị từ chối", color: "text-red-600" },
+            { key: "REJECTED", label: "Từ chối", color: "text-red-600" },
           ]}
         />
       )}

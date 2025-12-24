@@ -188,7 +188,7 @@ export default function AdminDeviceFees() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-orange-700 flex items-center gap-2">
           <i className="ri-copper-coin-fill"></i>
-          Quản Lý Phí Thiết Bị
+          Quản lý phí thiết bị
         </h2>
       </div>
 
@@ -248,7 +248,7 @@ export default function AdminDeviceFees() {
             className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all cursor-pointer"
           >
             <i className="ri-refresh-line text-lg text-gray-600"></i>
-            <span className="text-sm text-gray-600">Làm Mới</span>
+            <span className="text-sm text-gray-600">Làm mới</span>
           </button>
         </div>
 
@@ -258,7 +258,7 @@ export default function AdminDeviceFees() {
           className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition cursor-pointer"
         >
           <PlusIcon className="w-5 h-5 text-white" />
-          Thêm Cấu Hình Phí
+          Thêm cấu hình phí
         </button>
       </div>
 
@@ -268,13 +268,13 @@ export default function AdminDeviceFees() {
           <thead className="bg-orange-50 text-orange-700 uppercase text-sm font-semibold">
             <tr>
               <th className="px-6 py-3 text-left w-16">#</th>
-              <th className="px-6 py-3 text-left">Loại Thiết Bị</th>
-              <th className="px-6 py-3 text-left">Phí Vận Hành</th>
-              <th className="px-6 py-3 text-left">Mô Tả</th>
-              <th className="px-6 py-3 text-left">Hiệu Lực Từ</th>
-              <th className="px-6 py-3 text-left">Hiệu Lực Đến</th>
-              <th className="px-6 py-3 text-left">Trạng Thái</th>
-              <th className="px-6 py-3 text-center">Thao Tác</th>
+              <th className="px-6 py-3 text-left">Loại thiết bị</th>
+              <th className="px-6 py-3 text-left">Phí vận hành</th>
+              <th className="px-6 py-3 text-left">Mô tả</th>
+              <th className="px-6 py-3 text-left">Hiệu lực từ</th>
+              <th className="px-6 py-3 text-left">Hiệu lực đến</th>
+              <th className="px-6 py-3 text-left">Trạng thái</th>
+              <th className="px-6 py-3 text-center">Thao tác</th>
             </tr>
           </thead>
           <tbody className="text-gray-700 text-sm">
@@ -435,7 +435,7 @@ export default function AdminDeviceFees() {
           open={!!confirmingFee}
           onClose={() => setConfirmingFee(null)}
           onConfirm={confirmDelete}
-          title="Xác Nhận Xóa"
+          title="Xác nhận xóa"
           message={`Bạn có chắc chắn muốn xóa cấu hình phí cho thiết bị "${getDeviceTypeLabel(
             confirmingFee.deviceType
           )}"?`}

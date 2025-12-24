@@ -307,9 +307,9 @@ export default function ViewParkingLotModal({
       case "ACTIVE":
         return "Hoạt động";
       case "UNDER_MAINTENANCE":
-        return "Đang bảo trì";
+        return "Bảo trì";
       case "REJECTED":
-        return "Bị từ chối";
+        return "Từ chối";
       case "PREPARING":
         return "Đang chuẩn bị";
       case "PARTNER_CONFIGURATION":
@@ -1198,18 +1198,18 @@ export default function ViewParkingLotModal({
             <div className="relative">
               <details
                 className="group"
-                disabled={lotData.status === "PENDING_PAYMENT"}
+                disabled={lotData.status === "PENDING_PAYMENT" && !isAdminView}
               >
                 <summary
                   className={`list-none flex items-center gap-2 px-4 py-1.5 text-sm font-semibold rounded-lg shadow-sm select-none transition-all duration-200 ${getStatusStyle(
                     lotData.status
                   )} ${
-                    lotData.status === "PENDING_PAYMENT"
+                    lotData.status === "PENDING_PAYMENT" && !isAdminView
                       ? "cursor-not-allowed opacity-60"
                       : "cursor-pointer"
                   }`}
                   onClick={(e) => {
-                    if (lotData.status === "PENDING_PAYMENT") {
+                    if (lotData.status === "PENDING_PAYMENT" && !isAdminView) {
                       e.preventDefault();
                       showInfo(
                         "⚠️ Không thể thay đổi trạng thái khi đang Thanh toán. Vui lòng hoàn tất thanh toán trước."
@@ -1218,7 +1218,7 @@ export default function ViewParkingLotModal({
                   }}
                 >
                   {getStatusLabel(lotData.status)}
-                  {lotData.status !== "PENDING_PAYMENT" && (
+                  {!(lotData.status === "PENDING_PAYMENT" && !isAdminView) && (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -1234,12 +1234,12 @@ export default function ViewParkingLotModal({
                       />
                     </svg>
                   )}
-                  {lotData.status === "PENDING_PAYMENT" && (
+                  {lotData.status === "PENDING_PAYMENT" && !isAdminView && (
                     <i className="ri-lock-line text-sm"></i>
                   )}
                 </summary>
 
-                {lotData.status !== "PENDING_PAYMENT" && (
+                {!(lotData.status === "PENDING_PAYMENT" && !isAdminView) && (
                   <ul className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
                     {(
                       statusOptions || [
@@ -1266,7 +1266,7 @@ export default function ViewParkingLotModal({
                         },
                         {
                           key: "REJECTED",
-                          label: "Bị từ chối",
+                          label: "Từ chối",
                           color: "text-red-600",
                         },
                         {
@@ -1279,6 +1279,10 @@ export default function ViewParkingLotModal({
                       .filter((s) => {
                         // Hide ACTIVE if payment required but not completed
                         if (s.key === "ACTIVE" && lotData.status === "PARTNER_CONFIGURATION" && !lotData.isPaid) {
+                          return false;
+                        }
+                        // Hide ACTIVE if status is REJECTED or MAP_DENIED
+                        if (s.key === "ACTIVE" && (lotData.status === "REJECTED" || lotData.status === "MAP_DENIED")) {
                           return false;
                         }
                         // Hide PENDING_PAYMENT if already ACTIVE

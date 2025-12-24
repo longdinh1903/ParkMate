@@ -521,7 +521,7 @@ export default function AdminPartners() {
       {confirmingPartner && (
         <ConfirmModal
           open={!!confirmingPartner}
-          title="Xác Nhận Xóa"
+          title="Xác nhận xóa"
           message={`Bạn có chắc chắn muốn xóa "${confirmingPartner?.companyName}"?`}
           onConfirm={confirmDelete}
           onCancel={() => setConfirmingPartner(null)}

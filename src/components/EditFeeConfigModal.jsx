@@ -29,19 +29,19 @@ export default function EditFeeConfigModal({ feeConfig, onClose, onUpdated }) {
 
   useEffect(() => {
     if (feeConfig) {
-      // Format datetime for input type="datetime-local"
-      const formatDateTime = (dateStr) => {
+      // Format date for input type="date"
+      const formatDate = (dateStr) => {
         if (!dateStr) return "";
         const date = new Date(dateStr);
-        return date.toISOString().slice(0, 16);
+        return date.toISOString().slice(0, 10);
       };
 
       setForm({
         pricePerSqm: feeConfig.pricePerSqm || "",
         billingPeriodMonths: feeConfig.billingPeriodMonths || "",
         description: feeConfig.description || "",
-        validFrom: formatDateTime(feeConfig.validFrom),
-        validUntil: formatDateTime(feeConfig.validUntil),
+        validFrom: formatDate(feeConfig.validFrom),
+        validUntil: formatDate(feeConfig.validUntil),
       });
     }
   }, [feeConfig]);
@@ -59,7 +59,33 @@ export default function EditFeeConfigModal({ feeConfig, onClose, onUpdated }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+    const newForm = { ...form, [name]: value };
+    
+    // Auto-calculate validUntil when validFrom or billingPeriodMonths changes
+    if (name === "validFrom" || name === "billingPeriodMonths") {
+      const validFrom = name === "validFrom" ? value : form.validFrom;
+      const months = name === "billingPeriodMonths" ? parseInt(value) : parseInt(form.billingPeriodMonths);
+      
+      if (validFrom && months > 0) {
+        const fromDate = new Date(validFrom);
+        fromDate.setMonth(fromDate.getMonth() + months);
+        // Format to date format (YYYY-MM-DD)
+        const validUntil = fromDate.toISOString().slice(0, 10);
+        newForm.validUntil = validUntil;
+      }
+    }
+    
+    setForm(newForm);
+  };
+
+  // Helper function to add current time to date
+  const appendCurrentTime = (dateStr) => {
+    if (!dateStr) return dateStr;
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    return `${dateStr}T${hours}:${minutes}:${seconds}`;
   };
 
   const handleSubmit = async (e) => {
@@ -78,18 +104,18 @@ export default function EditFeeConfigModal({ feeConfig, onClose, onUpdated }) {
         pricePerSqm: parseFloat(form.pricePerSqm),
         billingPeriodMonths: parseInt(form.billingPeriodMonths),
         description: form.description,
-        validFrom: form.validFrom,
-        validUntil: form.validUntil,
+        validFrom: appendCurrentTime(form.validFrom),
+        validUntil: appendCurrentTime(form.validUntil),
       };
 
       const res = await operationalFeeApi.update(feeConfig.id, payload);
 
       if (res.status === 200) {
-        showSuccess("✅ Fee configuration updated successfully!");
+        showSuccess("✅ Cấu hình phí đã được cập nhật thành công!");
         onUpdated();
         onClose();
       } else {
-        showError("❌ Failed to update fee configuration!");
+        showError("❌ Cấu hình phí không thể cập nhật!");
       }
     } catch (err) {
       console.error("❌ Error updating fee config:", err);
@@ -111,7 +137,7 @@ export default function EditFeeConfigModal({ feeConfig, onClose, onUpdated }) {
         <div className="flex items-center justify-between px-6 py-4 bg-orange-50 border-b border-orange-100">
           <h2 className="text-xl font-bold text-orange-700 flex items-center gap-3">
             <i className="ri-money-dollar-circle-line text-orange-500 text-xl" />
-            Chỉnh Sửa
+            Chỉnh sửa
           </h2>
           <button
             onClick={onClose}
@@ -134,7 +160,7 @@ export default function EditFeeConfigModal({ feeConfig, onClose, onUpdated }) {
         </div>
 
         <div className="p-6 text-sm text-gray-700">
-          <form ref={formRef} className="space-y-4" onSubmit={handleSubmit}>
+          <form id="edit-fee-form" ref={formRef} className="space-y-4" onSubmit={handleSubmit}>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Giá/m² (VND)
@@ -168,7 +194,7 @@ export default function EditFeeConfigModal({ feeConfig, onClose, onUpdated }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Kỳ Thanh Toán (Tháng)
+                  Kỳ thanh toán (Tháng)
                 </label>
                 <input
                   type="number"
@@ -184,7 +210,7 @@ export default function EditFeeConfigModal({ feeConfig, onClose, onUpdated }) {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Mô Tả (tùy chọn)
+                Mô tả (tùy chọn)
               </label>
               <textarea
                 name="description"
@@ -202,27 +228,29 @@ export default function EditFeeConfigModal({ feeConfig, onClose, onUpdated }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Hiệu Lực Từ
+                  Hiệu lực từ
                 </label>
                 <input
-                  type="datetime-local"
+                  type="date"
                   name="validFrom"
                   value={form.validFrom}
                   onChange={handleChange}
                   required
+                  min={new Date().toISOString().slice(0, 10)}
                   className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none transition bg-gray-50"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Hiệu Lực Đến
+                  Hiệu lực đến
                 </label>
                 <input
-                  type="datetime-local"
+                  type="date"
                   name="validUntil"
                   value={form.validUntil}
                   onChange={handleChange}
                   required
+                  min={new Date().toISOString().slice(0, 10)}
                   className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none transition bg-gray-50"
                 />
               </div>
@@ -239,11 +267,12 @@ export default function EditFeeConfigModal({ feeConfig, onClose, onUpdated }) {
           </button>
           <button
             type="submit"
+            form="edit-fee-form"
             disabled={loading}
             className="px-6 py-2 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors disabled:opacity-50 cursor-pointer"
           >
             <i className="ri-save-line"></i>
-            {loading ? "Đang cập nhật..." : "Lưu"}
+            {loading ? " Đang cập nhật..." : " Lưu"}
           </button>
         </div>
       </div>

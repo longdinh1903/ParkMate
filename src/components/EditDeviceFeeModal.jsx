@@ -95,7 +95,7 @@ export default function EditDeviceFeeModal({ open, onClose, onUpdated, fee }) {
         <div className="flex items-center justify-between px-6 py-4 bg-orange-50 border-b border-orange-100">
           <h2 className="text-xl font-bold text-orange-700 flex items-center gap-3">
             <CpuChipIcon className="w-6 h-6 text-orange-500" />
-            Chỉnh Sửa Cấu Hình Phí Thiết Bị
+            Chỉnh sửa cấu hình phí thiết bị
           </h2>
           <button
             onClick={onClose}
@@ -111,7 +111,7 @@ export default function EditDeviceFeeModal({ open, onClose, onUpdated, fee }) {
           {/* Device Type */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Loại Thiết Bị <span className="text-red-500">*</span>
+              Loại thiết bị <span className="text-red-500">*</span>
             </label>
             <select
               name="deviceType"
@@ -132,7 +132,7 @@ export default function EditDeviceFeeModal({ open, onClose, onUpdated, fee }) {
           {/* Device Fee */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Phí Vận Hành (VND) <span className="text-red-500">*</span>
+              Phí vận hành (VND) <span className="text-red-500">*</span>
             </label>
             <input
               type="number"
@@ -151,7 +151,7 @@ export default function EditDeviceFeeModal({ open, onClose, onUpdated, fee }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Hiệu Lực Từ <span className="text-red-500">*</span>
+                Hiệu lực từ <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
@@ -159,19 +159,20 @@ export default function EditDeviceFeeModal({ open, onClose, onUpdated, fee }) {
                 value={formData.validFrom}
                 onChange={handleChange}
                 required
+                min={new Date().toISOString().slice(0, 10)}
                 className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none transition bg-gray-50"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Hiệu Lực Đến
+                Hiệu lực đến
               </label>
               <input
                 type="date"
                 name="validUntil"
                 value={formData.validUntil}
                 onChange={handleChange}
-                min={formData.validFrom}
+                min={new Date().toISOString().slice(0, 10)}
                 className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none transition bg-gray-50"
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -230,7 +231,7 @@ export default function EditDeviceFeeModal({ open, onClose, onUpdated, fee }) {
             disabled={loading}
             className="px-6 py-2 bg-orange-600 text-white font-semibold rounded-lg shadow-sm hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
-            {loading ? "Đang cập nhật..." : "Cập Nhật"}
+            {loading ? "Đang cập nhật..." : "Cập nhật"}
           </button>
         </div>
       </div>

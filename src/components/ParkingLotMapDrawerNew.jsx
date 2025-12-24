@@ -1353,19 +1353,19 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <i className="ri-lock-fill text-amber-600 text-5xl"></i>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">Map Editing Locked</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Sơ đồ bị khóa</h3>
             <p className="text-gray-600 mb-2">
-              This parking lot is in <span className="font-semibold text-amber-600">{lot.mapStatus || lot.status}</span> status.
+              Bãi đỗ xe này đang ở trạng thái <span className="font-semibold text-amber-600">{lot.mapStatus || lot.status}</span>.
             </p>
             <p className="text-sm text-gray-500 mb-6">
-              Map editing is only available when status is <span className="font-semibold text-green-600">PREPARING</span> or <span className="font-semibold text-amber-600">MAP_DENIED</span>.
+              Vẽ sơ đồ chỉ có thể khi trạng thái là <span className="font-semibold text-green-600">PREPARING</span> hoặc <span className="font-semibold text-amber-600">MAP_DENIED</span>.
             </p>
             <button
               onClick={onClose}
               className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium shadow-md hover:shadow-lg transition-all cursor-pointer"
             >
               <i className="ri-close-line mr-2"></i>
-              Close
+              Đóng
             </button>
           </div>
         </div>
@@ -1375,16 +1375,16 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <i className="ri-checkbox-circle-fill text-green-600 text-5xl"></i>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">All Floors Completed! 🎉</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Đã vẽ thành công tất cả các tầng! 🎉</h3>
             <p className="text-gray-600 mb-6">
-              You have successfully drawn all {floors.length} floors for <span className="font-semibold">{lot.name}</span>.
+              Bạn đã vẽ thành công tất cả {floors.length} tầng cho <span className="font-semibold">{lot.name}</span>.
             </p>
             <button
               onClick={onClose}
               className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-md hover:shadow-lg transition-all cursor-pointer"
             >
               <i className="ri-close-line mr-2"></i>
-              Close Editor
+              Đóng
             </button>
           </div>
         </div>
@@ -1398,7 +1398,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
               </div>
               <div>
                 <h2 className="text-lg font-bold text-gray-900">
-                  Vẽ Sơ Đồ Bãi Đỗ Xe
+                  Vẽ sơ đồ bãi đỗ xe
                 </h2>
                 <p className="text-xs text-gray-500">{lot.name}</p>
               </div>
@@ -1493,7 +1493,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
               }`}
             >
               <i className="ri-layout-grid-fill"></i>
-              Khu Vực
+              Khu vực
             </button>
             <button
               onClick={() => setMode("floor")}
@@ -1522,7 +1522,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                 title="Delete floor bounds"
               >
                 <i className="ri-delete-bin-line"></i>
-                Xóa Ranh giới
+                Xóa ranh giới
               </button>
             )}
           </div>
@@ -1582,7 +1582,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                 disabled={!selectedAreaId}
               >
                 <i className="ri-parking-box-fill"></i>
-                Thêm 1 Chỗ
+                Thêm 1 chỗ
               </button>
 
               {/* Bulk Add Spots */}
@@ -1602,7 +1602,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                     className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-all font-medium flex items-center gap-2 cursor-pointer"
                   >
                     <i className="ri-add-circle-fill"></i>
-                    Thêm Nhiều
+                    Thêm nhiều
                   </button>
                 </div>
               )}
@@ -1614,7 +1614,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                   className="px-4 py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-all font-medium flex items-center gap-2 cursor-pointer"
                 >
                   <i className="ri-delete-bin-fill"></i>
-                  Xóa Chỗ Đỗ
+                  Xóa chỗ đỗ
                 </button>
               ) : selectedAreaId ? (
                 <button
@@ -1622,7 +1622,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                   className="px-4 py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-all font-medium flex items-center gap-2 cursor-pointer"
                 >
                   <i className="ri-delete-bin-fill"></i>
-                  Xóa Khu Vực
+                  Xóa khu vực
                 </button>
               ) : (
                 <button
@@ -1642,7 +1642,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             className="px-4 py-2 rounded-lg bg-orange-100 text-orange-700 hover:bg-orange-200 transition-all font-medium flex items-center gap-2 cursor-pointer"
           >
             <i className="ri-eraser-fill"></i>
-            Xóa Tầng
+            Xóa tất cả
           </button>
 
           <button
@@ -1650,7 +1650,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             className="px-6 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-all font-medium shadow-md flex items-center gap-2 cursor-pointer"
           >
             <i className="ri-save-fill"></i>
-            Lưu Sơ Đồ
+            Lưu sơ đồ
           </button>
 
           <button
@@ -1824,7 +1824,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
             : selectedSpotId
             ? "🚗 Kéo để di chuyển • Nhấn Delete để xóa chỗ đỗ"
             : selectedAreaId
-            ? "📍 Kéo để di chuyển • Kéo góc để thay đổi kích thước • Nhấn Delete để xóa khu vực"
+            ? "📍 Kéo để di chuyển • Kéo góc/cạnh để thay đổi kích thước • Nhấn Delete để xóa khu vực"
             : "🖱️ Click và kéo để tạo/di chuyển khu vực • Click vào chỗ đỗ để chọn"}
         </div>
       </div>
@@ -2120,8 +2120,12 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                 rotateEnabled={false}
                 enabledAnchors={[
                   'top-left',
+                  'top-center',
                   'top-right',
+                  'middle-left',
+                  'middle-right',
                   'bottom-left',
+                  'bottom-center',
                   'bottom-right',
                 ]}
               />
@@ -2139,7 +2143,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                 <i className="ri-map-pin-add-line text-green-600 text-2xl"></i>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-900">Cấu hình Khu Vực</h3>
+                <h3 className="text-lg font-bold text-gray-900">Cấu hình khu vực</h3>
                 <p className="text-sm text-gray-500">Chọn loại xe và thông tin cho {pendingArea.name}</p>
               </div>
             </div>
@@ -2329,7 +2333,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                 className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-all cursor-pointer shadow-md"
               >
                 <i className="ri-check-line mr-2"></i>
-                Tạo Khu Vực
+                Tạo khu vực
               </button>
             </div>
           </div>
@@ -2345,7 +2349,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                 <i className="ri-file-copy-line text-blue-600 text-2xl"></i>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-900">Sao Chép Sơ Đồ Tầng</h3>
+                <h3 className="text-lg font-bold text-gray-900">Sao chép sơ đồ tầng</h3>
                 <p className="text-sm text-gray-500">Chọn tầng để sao chép</p>
               </div>
             </div>
@@ -2400,7 +2404,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                 }`}
               >
                 <i className="ri-file-copy-line mr-2"></i>
-                Sao Chép Sơ Đồ
+                Sao chép sơ đồ
               </button>
             </div>
           </div>
@@ -2416,14 +2420,14 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                 <i className="ri-add-circle-line text-green-600 text-2xl"></i>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-900">Thêm Tầng Mới</h3>
+                <h3 className="text-lg font-bold text-gray-900">Thêm tầng mới</h3>
                 <p className="text-sm text-gray-500">Các loại xe dựa trên đăng ký bãi đỗ</p>
               </div>
             </div>
 
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                Loại Xe: <span className="text-red-500">*</span>
+                Loại xe: <span className="text-red-500">*</span>
               </label>
               
               <div className="space-y-3">
@@ -2584,7 +2588,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                 }`}
               >
                 <i className="ri-add-circle-line mr-2"></i>
-                Thêm Tầng
+                Thêm tầng
               </button>
             </div>
           </div>
@@ -2600,14 +2604,14 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
                 <i className="ri-settings-3-line text-purple-600 text-2xl"></i>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-900">Chỉnh Sửa Loại Xe</h3>
+                <h3 className="text-lg font-bold text-gray-900">Chỉnh sửa loại xe</h3>
                 <p className="text-sm text-gray-500">Cập nhật loại xe cho Tầng {currentFloor}</p>
               </div>
             </div>
 
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                Loại Xe: <span className="text-red-500">*</span>
+                Loại xe: <span className="text-red-500">*</span>
               </label>
               
               <div className="space-y-3">

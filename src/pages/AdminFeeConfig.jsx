@@ -157,7 +157,7 @@ export default function AdminFeeConfig() {
     try {
       const res = await operationalFeeApi.delete(feeConfig.id);
       if (res.status === 200 || res.status === 204) {
-        showSuccess("Fee configuration deleted successfully!");
+        showSuccess("Cấu hình phí đã được xóa thành công!");
         fetchFeeConfigs();
       } else {
         showError("❌ Failed to delete fee configuration.");
@@ -178,7 +178,7 @@ export default function AdminFeeConfig() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-orange-700 flex items-center gap-2">
           <i className="ri-money-dollar-circle-fill"></i>
-          Cấu Hình Phí Hoạt Động
+          Cấu hình phí hoạt động
         </h2>
       </div>
 
@@ -218,9 +218,9 @@ export default function AdminFeeConfig() {
               className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 transition-all appearance-none bg-white pr-10 cursor-pointer"
             >
               <option value="pricePerSqm">Giá/m²</option>
-              <option value="billingPeriodMonths">Kỳ Thanh Toán</option>
-              <option value="validFrom">Hiệu Lực Từ</option>
-              <option value="validUntil">Hiệu Lực Đến</option>
+              <option value="billingPeriodMonths">Kỳ thanh toán</option>
+              <option value="validFrom">Hiệu lực từ</option>
+              <option value="validUntil">Hiệu lực đến</option>
             </select>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -267,7 +267,7 @@ export default function AdminFeeConfig() {
             title="Làm mới bộ lọc"
           >
             <i className="ri-refresh-line text-lg text-gray-600"></i>
-            <span className="text-sm text-gray-600">Làm Mới</span>
+            <span className="text-sm text-gray-600">Làm mới</span>
           </button>
         </div>
 
@@ -278,7 +278,7 @@ export default function AdminFeeConfig() {
             className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition cursor-pointer"
           >
             <PlusIcon className="w-5 h-5 text-white" />
-            Thêm Cấu Hình Phí
+            Thêm cấu hình phí
           </button>
         </div>
       </div>
@@ -290,12 +290,12 @@ export default function AdminFeeConfig() {
             <tr>
               <th className="px-6 py-3 text-left w-16">#</th>
               <th className="px-6 py-3 text-left">Giá/m² (VND)</th>
-              <th className="px-6 py-3 text-left">Kỳ Thanh Toán</th>
-              <th className="px-6 py-3 text-left">Mô Tả</th>
-              <th className="px-6 py-3 text-left">Hiệu Lực Từ</th>
-              <th className="px-6 py-3 text-left">Hiệu Lực Đến</th>
-              <th className="px-6 py-3 text-left">Trạng Thái</th>
-              <th className="px-6 py-3 text-center">Thao Tác</th>
+              <th className="px-6 py-3 text-left">Kỳ thanh toán</th>
+              <th className="px-6 py-3 text-left">Mô tả</th>
+              <th className="px-6 py-3 text-left">Hiệu lực từ</th>
+              <th className="px-6 py-3 text-left">Hiệu lực đến</th>
+              <th className="px-6 py-3 text-left">Trạng thái</th>
+              <th className="px-6 py-3 text-center">Thao tác</th>
             </tr>
           </thead>
           <tbody className="text-gray-700 text-sm">
@@ -446,7 +446,7 @@ export default function AdminFeeConfig() {
       {confirmingFeeConfig && (
         <ConfirmModal
           open={!!confirmingFeeConfig}
-          title="Xác Nhận Xóa"
+          title="Xác nhận xóa"
           message={`Bạn có chắc chắn muốn xóa cấu hình phí này?`}
           onConfirm={confirmDelete}
           onCancel={() => setConfirmingFeeConfig(null)}
@@ -459,7 +459,7 @@ export default function AdminFeeConfig() {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh] overflow-hidden">
             {/* Header */}
             <div className="flex justify-between items-center px-6 py-4 bg-orange-50">
-              <h2 className="text-xl font-bold text-orange-700 flex items-center gap-2"><i className="ri-money-dollar-circle-line text-orange-500"></i> Thông Tin Chi Tiết</h2>
+              <h2 className="text-xl font-bold text-orange-700 flex items-center gap-2"><i className="ri-money-dollar-circle-line text-orange-500"></i> Thông tin chi tiết</h2>
               <button
                 onClick={() => setViewingFeeConfig(null)}
                 className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition cursor-pointer"
@@ -475,31 +475,31 @@ export default function AdminFeeConfig() {
                   <p className="font-medium text-orange-600 border-0">{viewingFeeConfig.pricePerSqm?.toLocaleString("vi-VN")} VND</p>
                 </div>
                 <div>
-                  <p className="text-gray-500 text-xs border-0">Kỳ Thanh Toán:</p>
+                  <p className="text-gray-500 text-xs border-0">Kỳ thanh toán:</p>
                   <p className="font-medium border-0">{viewingFeeConfig.billingPeriodMonths} tháng</p>
                 </div>
                 <div className="col-span-2">
-                  <p className="text-gray-500 text-xs border-0">Mô Tả:</p>
+                  <p className="text-gray-500 text-xs border-0">Mô tả:</p>
                   <p className="font-medium text-gray-800 whitespace-pre-wrap break-words max-h-48 overflow-auto mt-1 border-0">{viewingFeeConfig.description}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500 text-xs border-0">Hiệu Lực Từ:</p>
+                  <p className="text-gray-500 text-xs border-0">Hiệu lực từ:</p>
                   <p className="font-medium border-0">{formatDate(viewingFeeConfig.validFrom)}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500 text-xs border-0">Hiệu Lực Đến:</p>
+                  <p className="text-gray-500 text-xs border-0">Hiệu lực đến:</p>
                   <p className="font-medium border-0">{formatDate(viewingFeeConfig.validUntil)}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500 text-xs">Trạng Thái:</p>
+                  <p className="text-gray-500 text-xs">Trạng thái:</p>
                   <div className="mt-1">{renderStatus(viewingFeeConfig)}</div>
                 </div>
                 <div>
-                  <p className="text-gray-500 text-xs border-0">Ngày Tạo:</p>
+                  <p className="text-gray-500 text-xs border-0">Ngày tạo:</p>
                   <p className="font-medium border-0">{formatDate(viewingFeeConfig.createdAt)}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500 text-xs border-0">Ngày Cập Nhật:</p>
+                  <p className="text-gray-500 text-xs border-0">Ngày cập nhật:</p>
                   <p className="font-medium border-0">{formatDate(viewingFeeConfig.updatedAt)}</p>
                 </div>
               </div>

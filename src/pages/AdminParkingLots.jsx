@@ -594,12 +594,12 @@ export default function AdminParkingLots() {
       {/* ✅ Confirm Delete Modal */}
       <ConfirmModal
         open={!!confirmingLot}
-        title="Vô Hiệu Hóa Bãi Đỗ Xe"
+        title="Vô hiệu hóa Bãi Đỗ Xe"
         message={`Điều này sẽ đặt bãi đỗ xe "${confirmingLot?.name}" thành NGỪNG HOẠT ĐỘNG (xóa mềm). Tiếp tục?`}
         onConfirm={confirmDelete}
         onCancel={() => setConfirmingLot(null)}
         loading={deleting}
-        confirmLabel="Vô Hiệu Hóa"
+        confirmLabel="Vô hiệu hóa"
       />
 
       {/* ✅ Popup Edit */}

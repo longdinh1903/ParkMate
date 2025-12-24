@@ -51,7 +51,7 @@ export default function ViewDeviceFeeModal({ open, onClose, fee }) {
         <div className="flex items-center justify-between px-6 py-4 bg-orange-50 border-b border-orange-100">
           <h2 className="text-xl font-bold text-orange-700 flex items-center gap-3">
             <CpuChipIcon className="w-6 h-6 text-orange-500" />
-            Thông Tin Chi Tiết
+            Thông tin chi tiết
           </h2>
           <button
             onClick={onClose}
@@ -65,7 +65,7 @@ export default function ViewDeviceFeeModal({ open, onClose, fee }) {
         <div className="p-6 text-sm text-gray-700 max-h-[70vh] overflow-y-auto custom-scrollbar">
           {/* Device Type */}
           <div className="mb-6 pb-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-700 mb-3">Loại Thiết Bị</h3>
+            <h3 className="text-lg font-semibold text-gray-700 mb-3">Loại thiết bị</h3>
             <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
               <span className="font-bold text-base text-gray-600">Loại:</span>
               <span className="text-lg font-semibold text-orange-600">
@@ -76,7 +76,7 @@ export default function ViewDeviceFeeModal({ open, onClose, fee }) {
 
           {/* Fee Amount */}
           <div className="mb-6 pb-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-700 mb-3">Phí Vận Hành</h3>
+            <h3 className="text-lg font-semibold text-gray-700 mb-3">Phí vận hành</h3>
             <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
               <span className="font-bold text-base text-gray-600">Số tiền:</span>
               <span className="text-2xl font-bold text-green-600">
@@ -87,14 +87,14 @@ export default function ViewDeviceFeeModal({ open, onClose, fee }) {
 
           {/* Validity Period */}
           <section className="mb-6">
-            <h3 className="text-lg font-semibold text-orange-600 mb-3 border-b-2 border-orange-100 pb-1">Thời Gian Hiệu Lực</h3>
+            <h3 className="text-lg font-semibold text-orange-600 mb-3 border-b-2 border-orange-100 pb-1">Thời gian hiệu lực</h3>
             <div className="space-y-1">
               <div className="flex justify-between items-start py-2 border-b border-gray-100">
-                <span className="font-medium text-gray-500 w-1/3 min-w-[150px]">Hiệu Lực Từ</span>
+                <span className="font-medium text-gray-500 w-1/3 min-w-[150px]">Hiệu lực từ</span>
                 <div className="text-gray-800 w-2/3 break-words text-right">{formatDate(fee.validFrom)}</div>
               </div>
               <div className="flex justify-between items-start py-2 border-b border-gray-100">
-                <span className="font-medium text-gray-500 w-1/3 min-w-[150px]">Hiệu Lực Đến</span>
+                <span className="font-medium text-gray-500 w-1/3 min-w-[150px]">Hiệu lực đến</span>
                 <div className="text-gray-800 w-2/3 break-words text-right">{formatDate(fee.validUntil)}</div>
               </div>
             </div>
@@ -102,7 +102,7 @@ export default function ViewDeviceFeeModal({ open, onClose, fee }) {
 
           {/* Status */}
           <div className="mb-6 pb-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-700 mb-3">Trạng Thái</h3>
+            <h3 className="text-lg font-semibold text-gray-700 mb-3">Trạng thái</h3>
             <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
               <span className="font-bold text-base text-gray-600">Trạng thái:</span>
               <span
@@ -120,7 +120,7 @@ export default function ViewDeviceFeeModal({ open, onClose, fee }) {
           {/* Description */}
           {fee.description && (
             <section className="mb-6">
-              <h3 className="text-lg font-semibold text-orange-600 mb-3 border-b-2 border-orange-100 pb-1">Mô Tả</h3>
+              <h3 className="text-lg font-semibold text-orange-600 mb-3 border-b-2 border-orange-100 pb-1">Mô tả</h3>
               <div className="p-3 bg-gray-50 border rounded-md whitespace-pre-wrap text-gray-800">
                 {fee.description}
               </div>
@@ -129,7 +129,7 @@ export default function ViewDeviceFeeModal({ open, onClose, fee }) {
 
           {/* Metadata */}
           <section>
-            <h3 className="text-lg font-semibold text-orange-600 mb-3 border-b-2 border-orange-100 pb-1">Thông Tin Hệ Thống</h3>
+            <h3 className="text-lg font-semibold text-orange-600 mb-3 border-b-2 border-orange-100 pb-1">Thông tin hệ thống</h3>
             <div className="space-y-1">
               {fee.createdAt && (
                 <div className="flex justify-between items-start py-2 border-b border-gray-100">
