@@ -219,8 +219,8 @@ export default function PartnerHome() {
       PARTNER_CONFIGURATION: {
         bg: "bg-blue-100",
         text: "text-blue-600",
-        icon: "ri-tools-fill",
-        label: "Cấu cấu hình đối tác",
+        icon: "ri-tools-fill",  
+        label: "Cấu hình đối tác",
       },
       PENDING_PAYMENT: {
         bg: "bg-purple-100",
@@ -555,7 +555,7 @@ export default function PartnerHome() {
                                       className="w-full px-4 py-2.5 text-left text-sm text-purple-600 hover:bg-purple-50 flex items-center gap-2 transition-colors cursor-pointer"
                                     >
                                       <i className="ri-file-list-3-line text-base"></i>
-                                      Xem đăng ký
+                                      Xem gói đăng ký
                                     </button>
                                     <button
                                       onClick={(e) => {

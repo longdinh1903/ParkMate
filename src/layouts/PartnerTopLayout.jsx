@@ -205,25 +205,6 @@ export default function PartnerTopLayout({ children }) {
             Đăng ký bãi
           </NavLink>
           <NavLink
-            to="/subscriptions"
-            onClick={(e) => {
-              if (!isApproved) {
-                e.preventDefault();
-                toast.error("Vui lòng đợi tài khoản được duyệt để truy cập trang này");
-              }
-            }}
-            className={({ isActive }) =>
-              `flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
-                isActive 
-                  ? "bg-white/20 text-white font-semibold shadow-sm" 
-                  : "hover:bg-white/10 text-white/90 hover:text-white"
-              } ${!isApproved ? "opacity-50 cursor-not-allowed" : ""}`
-            }
-          >
-            <i className="ri-vip-crown-line text-lg"></i>
-            Đăng ký thành viên
-          </NavLink>
-          <NavLink
             to="/withdrawals"
             onClick={(e) => {
               if (!isApproved) {
@@ -270,6 +251,18 @@ export default function PartnerTopLayout({ children }) {
 
             {showManagementMenu && isApproved && (
               <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                <NavLink
+                  to="/subscriptions"
+                  onClick={() => setShowManagementMenu(false)}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-indigo-50 transition-all ${
+                      isActive ? "bg-indigo-100 font-semibold text-indigo-700" : ""
+                    }`
+                  }
+                >
+                  <i className="ri-vip-crown-line text-lg"></i>
+                  Gói đăng ký
+                </NavLink>
                 <NavLink
                   to="/users"
                   onClick={() => setShowManagementMenu(false)}

@@ -157,23 +157,18 @@ export default function RegisterLot() {
   const policyTypes = [
     {
       type: "EARLY_CHECK_IN_BUFFER",
-      label: "Bộ đệm nhận chỗ sớm",
-      description: "🕐 Thời gian cho phép nhận chỗ sớm",
+      label: "Thời gian giãn cách an toàn",
+      description: "Khoảng nghỉ bắt buộc giữa hai lượt đặt liên tiếp.",
     },
-    // {
-    //   type: "LATE_CHECK_OUT_BUFFER",
-    //   label: "Late Check-out Buffer",
-    //   description: "🕐 Late check-out time allowed",
-    // },
     {
       type: "LATE_CHECK_IN_CANCEL_AFTER",
-      label: "Hủy nếu nhận chỗ trễ",
-      description: "⏰ Tự động hủy nếu nhận chỗ quá trễ",
+      label: "Thời gian giữ chỗ tối đa",
+      description: "Tự động hủy đặt chỗ nếu khách đến trễ quá thời gian này.",
     },
     {
       type: "EARLY_CANCEL_REFUND_BEFORE",
-      label: "Hoàn tiền nếu hủy sớm",
-      description: "💰 Hoàn 100% nếu hủy trước thời gian này",
+      label: "Thời gian tối thiểu báo hủy",
+      description: "Khách phải hủy trước giờ đặt ít nhất bao nhiêu phút để được hoàn tiền.",
     },
   ];
 
@@ -1247,17 +1242,13 @@ export default function RegisterLot() {
                     </p>
                     <ul className="space-y-1.5 text-blue-700">
                       <li>
-                        • <strong>Bộ đệm nhận chỗ sớm:</strong> Cho phép khách nhận chỗ sớm hơn giờ đã đặt
-                      </li>
-                      {/* <li>
-                        • <strong>Late Check-out Buffer:</strong> Allows guests
-                        to check out later than the booked time
-                      </li> */}
-                      <li>
-                        • <strong>Hủy nếu nhận chỗ trễ:</strong> Tự động hủy đặt chỗ nếu khách không nhận chỗ
+                        • <strong>Thời gian giãn cách an toàn:</strong> Khoảng nghỉ bắt buộc giữa hai lượt đặt liên tiếp.
                       </li>
                       <li>
-                        • <strong>Hoàn tiền nếu hủy sớm:</strong> Hoàn 100% nếu hủy trước thời gian này
+                        • <strong>Thời gian giữ chỗ tối đa:</strong> Tự động hủy đặt chỗ nếu khách đến trễ quá thời gian này.
+                      </li>
+                      <li>
+                        • <strong>Thời gian tối thiểu báo hủy:</strong> Khách phải hủy trước giờ đặt ít nhất bao nhiêu phút để được hoàn tiền.
                       </li>
                     </ul>
                   </div>
