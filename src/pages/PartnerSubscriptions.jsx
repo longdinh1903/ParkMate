@@ -26,16 +26,18 @@ export default function PartnerSubscriptions() {
   
   const [subscriptions, setSubscriptions] = useState([]);
   const [parkingLotsMap, setParkingLotsMap] = useState({}); // Changed to object map for easier lookup
+  const [parkingLots, setParkingLots] = useState([]); // Danh sách tất cả bãi xe của partner
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterVehicleType, setFilterVehicleType] = useState("");
   const [filterDurationType, setFilterDurationType] = useState("");
+  const [filterParkingLot, setFilterParkingLot] = useState(""); // Filter theo bãi xe
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState("desc");
   
   // Pagination state
   const [page, setPage] = useState(0);
-  const [size] = useState(6); // 9 items per page (3x3 grid)
+  const [size] = useState(9); // 9 items per page (3x3 grid)
   const [pagination, setPagination] = useState({
     totalPages: 0,
     totalElements: 0,
@@ -67,8 +69,10 @@ export default function PartnerSubscriptions() {
         ownedByMe: true, // Get subscriptions for current partner only
       };
       
-      // Add lotId filter from URL if present
-      if (lotIdFromUrl) {
+      // Add lotId filter from dropdown or URL
+      if (filterParkingLot) {
+        filterParams.lotId = filterParkingLot;
+      } else if (lotIdFromUrl) {
         filterParams.lotId = lotIdFromUrl;
       }
       
@@ -116,7 +120,7 @@ export default function PartnerSubscriptions() {
     } finally {
       setLoading(false);
     }
-  }, [size, sortBy, sortOrder, filterVehicleType, filterDurationType, lotIdFromUrl]);
+  }, [size, sortBy, sortOrder, filterVehicleType, filterDurationType, filterParkingLot, lotIdFromUrl]);
 
   // Fetch parking lots to get names by IDs from subscriptions
   const fetchParkingLotsForSubscriptions = async (subs) => {
@@ -152,9 +156,35 @@ export default function PartnerSubscriptions() {
     }
   };
 
+  // Fetch all parking lots của partner để hiển thị trong dropdown filter
+  const fetchAllParkingLots = async () => {
+    try {
+      const response = await parkingLotApi.getAllByPartner();
+      const payload = response?.data?.data;
+      if (payload?.content) {
+        setParkingLots(payload.content);
+      } else if (Array.isArray(payload)) {
+        setParkingLots(payload);
+      }
+    } catch {
+      // Fail silently - dropdown will just be empty
+    }
+  };
+
+  useEffect(() => {
+    fetchAllParkingLots();
+  }, []);
+
+  useEffect(() => {
+    // Nếu có lotIdFromUrl thì set vào filterParkingLot
+    if (lotIdFromUrl && !filterParkingLot) {
+      setFilterParkingLot(lotIdFromUrl);
+    }
+  }, [lotIdFromUrl]);
+
   useEffect(() => {
     fetchSubscriptions(page);
-  }, [page, sortBy, sortOrder, filterVehicleType, filterDurationType, lotIdFromUrl, fetchSubscriptions]); // searchTerm không cần vì filter client-side
+  }, [page, sortBy, sortOrder, filterVehicleType, filterDurationType, filterParkingLot, lotIdFromUrl, fetchSubscriptions]); // searchTerm không cần vì filter client-side
 
   // Fetch parking lots when subscriptions change
   useEffect(() => {
@@ -252,7 +282,7 @@ export default function PartnerSubscriptions() {
             <div className="pt-6 mb-4 flex-shrink-0">
               <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
                 <i className="ri-vip-crown-line text-indigo-600"></i>
-                Gói đăng ký gói thành viên
+                Gói đăng ký
               </h1>
               <p className="text-gray-600 mt-1">
                 Quản lý các gói đăng ký bãi đỗ xe theo tháng, quý và năm
@@ -267,119 +297,149 @@ export default function PartnerSubscriptions() {
               )}
           </div>
 
-          {/* Actions Bar */}
-          <div className="bg-white rounded-lg shadow-sm p-4 mb-4 flex-shrink-0">
-            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-              
+          {/* Actions Bar - Gọn gàng 2 hàng */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-4 flex-shrink-0">
+            {/* Row 1: Search + Add Button */}
+            <div className="flex items-center gap-3 mb-3">
               {/* Search */}
-              <div className="relative flex-1 max-w-md">
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <div className="relative flex-1">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Tìm kiếm theo tên hoặc mô tả..."
+                  placeholder="Tìm kiếm gói đăng ký..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 focus:bg-white transition-colors"
                 />
               </div>
 
               {/* Refresh Button */}
               <button
                 onClick={() => {
-                  // Reset all filters and refetch
                   setSearchTerm("");
                   setFilterVehicleType("");
                   setFilterDurationType("");
+                  setFilterParkingLot("");
                   setSortBy("createdAt");
                   setSortOrder("desc");
                   setPage(0);
-                  // Clear URL params (remove lotId filter)
                   navigate("/subscriptions", { replace: true });
-                  // Manually trigger fetch with current page
                   fetchSubscriptions(0);
                 }}
                 disabled={loading}
-                className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all flex items-center gap-2 font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all cursor-pointer disabled:opacity-50"
+                title="Làm mới"
               >
-                <i className={`ri-refresh-line ${loading ? 'animate-spin' : ''}`}></i> Làm mới
+                <i className={`ri-refresh-line text-lg ${loading ? 'animate-spin' : ''}`}></i>
               </button>
 
-              {/* Sort and Actions */}
-              <div className="flex gap-3 items-center flex-wrap">
-                <FunnelIcon className="w-5 h-5 text-gray-500" />
+              {/* Add Button */}
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer shadow-sm"
+              >
+                <PlusIcon className="w-4 h-4" />
+                Thêm gói
+              </button>
+            </div>
 
-                {/* Vehicle Type Filter */}
-                <select
-                  value={filterVehicleType}
-                  onChange={(e) => {
-                    setFilterVehicleType(e.target.value);
-                    setPage(0); // Reset to first page
-                  }}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
-                >
-                  <option value="">Tất cả loại xe</option>
-                  <option value="MOTORBIKE">Xe máy</option>
-                  <option value="CAR_UP_TO_9_SEATS">Ôtô (tối đa 9 chỗ)</option>
-                </select>
-
-                {/* Duration Filter */}
-                <select
-                  value={filterDurationType}
-                  onChange={(e) => {
-                    setFilterDurationType(e.target.value);
-                    setPage(0); // Reset to first page
-                  }}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
-                >
-                  <option value="">Tất cả thời hạn</option>
-                  <option value="MONTHLY">Theo tháng</option>
-                  <option value="QUARTERLY">Theo quý</option>
-                  <option value="YEARLY">Theo năm</option>
-                </select>
-
-                {/* Sort By Dropdown */}
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white cursor-pointer"
-                >
-                  <option value="createdAt">Ngày tạo</option>
-                  <option value="name">Tên</option>
-                  <option value="price">Giá</option>
-                  <option value="vehicleType">Loại xe</option>
-                  <option value="durationType">Thời hạn</option>
-                </select>
-
-                {/* Sort Order Button */}
-                <button
-                  onClick={() =>
-                    setSortOrder(sortOrder === "asc" ? "desc" : "asc")
-                  }
-                  className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer"
-                  title={sortOrder === "asc" ? "Tăng dần" : "Giảm dần"}
-                >
-                  {sortOrder === "asc" ? (
-                    <>
-                      <i className="ri-sort-asc text-lg"></i>
-                      <span className="hidden sm:inline">Tăng</span>
-                    </>
-                  ) : (
-                    <>
-                      <i className="ri-sort-desc text-lg"></i>
-                      <span className="hidden sm:inline">Giảm</span>
-                    </>
-                  )}
-                </button>
-
-                {/* Add Button */}
-                <button
-                  onClick={() => setShowAddModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer"
-                >
-                  <PlusIcon className="w-5 h-5" />
-                  Thêm gói
-                </button>
+            {/* Row 2: Filters - Compact */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-1.5 text-gray-500 text-sm">
+                <FunnelIcon className="w-4 h-4" />
+                <span className="font-medium">Lọc:</span>
               </div>
+
+              {/* Parking Lot Filter */}
+              <select
+                value={filterParkingLot}
+                onChange={(e) => {
+                  setFilterParkingLot(e.target.value);
+                  setPage(0);
+                  if (e.target.value) {
+                    navigate(`/subscriptions?lotId=${e.target.value}`, { replace: true });
+                  } else {
+                    navigate("/subscriptions", { replace: true });
+                  }
+                }}
+                className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer bg-white hover:border-indigo-300 transition-colors"
+              >
+                <option value="">Bãi xe</option>
+                {parkingLots.map((lot) => (
+                  <option key={lot.id} value={lot.id}>
+                    {lot.name}
+                  </option>
+                ))}
+              </select>
+
+              {/* Vehicle Type Filter */}
+              <select
+                value={filterVehicleType}
+                onChange={(e) => {
+                  setFilterVehicleType(e.target.value);
+                  setPage(0);
+                }}
+                className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer bg-white hover:border-indigo-300 transition-colors"
+              >
+                <option value="">Loại xe</option>
+                <option value="MOTORBIKE">Xe máy</option>
+                <option value="CAR_UP_TO_9_SEATS">Ô tô</option>
+              </select>
+
+              {/* Duration Filter */}
+              <select
+                value={filterDurationType}
+                onChange={(e) => {
+                  setFilterDurationType(e.target.value);
+                  setPage(0);
+                }}
+                className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer bg-white hover:border-indigo-300 transition-colors"
+              >
+                <option value="">Thời hạn</option>
+                <option value="MONTHLY">Tháng</option>
+                <option value="QUARTERLY">Quý</option>
+                <option value="YEARLY">Năm</option>
+              </select>
+
+              {/* Divider */}
+              <div className="w-px h-5 bg-gray-200 mx-1"></div>
+
+              {/* Sort Label */}
+              <div className="flex items-center gap-1.5 text-gray-500 text-sm">
+                <i className="ri-arrow-up-down-line"></i>
+                <span className="font-medium">Sắp xếp:</span>
+              </div>
+
+              {/* Sort By Dropdown */}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer bg-white hover:border-indigo-300 transition-colors"
+              >
+                <option value="createdAt">Ngày tạo</option>
+                <option value="name">Tên</option>
+                <option value="price">Giá</option>
+              </select>
+
+              {/* Sort Order Button */}
+              <button
+                onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                  sortOrder === "desc" 
+                    ? "bg-indigo-100 text-indigo-600" 
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+                title={sortOrder === "asc" ? "Tăng dần" : "Giảm dần"}
+              >
+                <i className={`ri-sort-${sortOrder === "asc" ? "asc" : "desc"} text-base`}></i>
+              </button>
+
+              {/* Active Filters Count */}
+              {(filterParkingLot || filterVehicleType || filterDurationType) && (
+                <span className="ml-auto px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs font-medium rounded-full">
+                  {[filterParkingLot, filterVehicleType, filterDurationType].filter(Boolean).length} bộ lọc
+                </span>
+              )}
             </div>
           </div>
 
@@ -405,148 +465,124 @@ export default function PartnerSubscriptions() {
               </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pb-4">
                 {filteredSubscriptions.map((subscription) => (
                 <div
                   key={subscription.id}
-                  className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200 flex flex-col h-[280px]"
+                  className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200 p-3"
                 >
                   {/* Card Header */}
-                  <div className="p-4 border-b border-gray-200 flex-shrink-0">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex-1 min-w-0 pr-2">
-                        <h3 className="text-base font-semibold text-gray-900 truncate">
-                          {subscription.name}
-                        </h3>
-                        {getParkingLotName(subscription.lotId) && (
-                          <p className="text-xs text-indigo-600 mt-1 truncate">
-                            📍 {getParkingLotName(subscription.lotId)}
-                          </p>
-                        )}
-                      </div>
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex-1 min-w-0 pr-2">
+                      <h3 className="text-sm font-semibold text-gray-900 truncate">
+                        {subscription.name}
+                      </h3>
+                      {getParkingLotName(subscription.lotId) && (
+                        <p className="text-xs text-indigo-600 truncate">
+                          📍 {getParkingLotName(subscription.lotId)}
+                        </p>
+                      )}
+                    </div>
+                    
+                    {/* Dropdown Menu */}
+                    <div className="relative flex-shrink-0">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenDropdownId(openDropdownId === subscription.id ? null : subscription.id);
+                        }}
+                        className="p-1 text-gray-500 hover:bg-gray-100 rounded transition-colors cursor-pointer"
+                        title="Actions"
+                      >
+                        <EllipsisVerticalIcon className="w-4 h-4" />
+                      </button>
                       
-                      {/* Dropdown Menu */}
-                      <div className="relative flex-shrink-0">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setOpenDropdownId(openDropdownId === subscription.id ? null : subscription.id);
-                          }}
-                          className="p-1.5 text-gray-600 hover:bg-gray-100 rounded transition-colors cursor-pointer"
-                          title="Actions"
-                        >
-                          <EllipsisVerticalIcon className="w-5 h-5" />
-                        </button>
-                        
-                        {/* Dropdown Panel */}
-                        {openDropdownId === subscription.id && (
-                          <>
-                            {/* Overlay to close dropdown */}
-                            <div
-                              className="fixed inset-0 z-10"
-                              onClick={() => setOpenDropdownId(null)}
-                            />
-                            
-                            {/* Menu */}
-                            <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-20 overflow-hidden cursor-pointer">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedSubscription(subscription);
-                                  setShowViewModal(true);
-                                  setOpenDropdownId(null);
-                                }}
-                                className="w-full px-4 py-2.5 text-left text-sm text-green-600 hover:bg-green-50 flex items-center gap-2 transition-colors cursor-pointer"
-                              >
-                                <EyeIcon className="w-4 h-4" />
-                                Xem chi tiết
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  navigate(`/users?subscriptionId=${subscription.id}&lotId=${subscription.lotId}`);
-                                  setOpenDropdownId(null);
-                                }}
-                                className="w-full px-4 py-2.5 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center gap-2 transition-colors cursor-pointer"
-                              >
-                                <UserGroupIcon className="w-4 h-4" />
-                                Xem người dùng
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedSubscription(subscription);
-                                  setShowEditModal(true);
-                                  setOpenDropdownId(null);
-                                }}
-                                className="w-full px-4 py-2.5 text-left text-sm text-indigo-600 hover:bg-indigo-50 flex items-center gap-2 transition-colors cursor-pointer"
-                              >
-                                <PencilSquareIcon className="w-4 h-4" />
-                                Chỉnh sửa
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedSubscription(subscription);
-                                  setShowDeleteModal(true);
-                                  setOpenDropdownId(null);
-                                }}
-                                className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 border-t border-gray-200 transition-colors cursor-pointer"
-                              >
-                                <TrashIcon className="w-4 h-4" />
-                                Xóa
-                              </button>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Badges */}
-                    <div className="flex gap-1.5 mb-2 flex-wrap">
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-xs font-medium ${getVehicleTypeBadge(
-                          subscription.vehicleType
-                        )}`}
-                      >
-                        {getVehicleTypeLabel(subscription.vehicleType)}
-                      </span>
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-xs font-medium ${getDurationBadge(
-                          subscription.durationType
-                        )}`}
-                      >
-                        {getDurationTypeLabel(subscription.durationType)}
-                      </span>
-                      {/* Active Status Badge */}
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                          subscription.isActive
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {subscription.isActive ? "● Hoạt động" : "○ Không hoạt động"}
-                      </span>
-                    </div>
-
-                    {/* Description */}
-                    <div className="h-8 overflow-hidden mb-2">
-                      <p className="text-gray-600 text-xs leading-tight line-clamp-2">
-                        {subscription.description}
-                      </p>
+                      {/* Dropdown Panel */}
+                      {openDropdownId === subscription.id && (
+                        <>
+                          <div
+                            className="fixed inset-0 z-10"
+                            onClick={() => setOpenDropdownId(null)}
+                          />
+                          <div className="absolute right-0 mt-1 w-40 bg-white rounded-lg shadow-xl border border-gray-200 z-20 overflow-hidden">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedSubscription(subscription);
+                                setShowViewModal(true);
+                                setOpenDropdownId(null);
+                              }}
+                              className="w-full px-3 py-2 text-left text-xs text-green-600 hover:bg-green-50 flex items-center gap-2 cursor-pointer"
+                            >
+                              <EyeIcon className="w-3.5 h-3.5" />
+                              Xem chi tiết
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/users?subscriptionId=${subscription.id}&lotId=${subscription.lotId}`);
+                                setOpenDropdownId(null);
+                              }}
+                              className="w-full px-3 py-2 text-left text-xs text-blue-600 hover:bg-blue-50 flex items-center gap-2 cursor-pointer"
+                            >
+                              <UserGroupIcon className="w-3.5 h-3.5" />
+                              Người dùng
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedSubscription(subscription);
+                                setShowEditModal(true);
+                                setOpenDropdownId(null);
+                              }}
+                              className="w-full px-3 py-2 text-left text-xs text-indigo-600 hover:bg-indigo-50 flex items-center gap-2 cursor-pointer"
+                            >
+                              <PencilSquareIcon className="w-3.5 h-3.5" />
+                              Chỉnh sửa
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedSubscription(subscription);
+                                setShowDeleteModal(true);
+                                setOpenDropdownId(null);
+                              }}
+                              className="w-full px-3 py-2 text-left text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 border-t border-gray-100 cursor-pointer"
+                            >
+                              <TrashIcon className="w-3.5 h-3.5" />
+                              Xóa
+                            </button>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
 
-                  {/* Card Body */}
-                  <div className="px-4 pb-3 pt-0 border-t border-gray-100">
-                    {/* Price */}
-                    <div className="pt-2">
-                      <p className="text-xs text-gray-500">Giá</p>
-                      <p className="text-lg font-bold text-indigo-600">
-                        {formatPrice(subscription.price)}
-                      </p>
-                    </div>
+                  {/* Badges - Compact inline */}
+                  <div className="flex gap-1 mb-2 flex-wrap">
+                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${getVehicleTypeBadge(subscription.vehicleType)}`}>
+                      {getVehicleTypeLabel(subscription.vehicleType)}
+                    </span>
+                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${getDurationBadge(subscription.durationType)}`}>
+                      {getDurationTypeLabel(subscription.durationType)}
+                    </span>
+                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                      subscription.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
+                    }`}>
+                      {subscription.isActive ? "● Đang hoạt động" : "○ Tắt"}
+                    </span>
+                  </div>
+
+                  {/* Description - 1 line */}
+                  <p className="text-gray-500 text-xs truncate mb-2">
+                    {subscription.description || "Không có mô tả"}
+                  </p>
+
+                  {/* Price - Compact */}
+                  <div className="pt-2 border-t border-gray-100">
+                    <p className="text-base font-bold text-indigo-600">
+                      {formatPrice(subscription.price)}
+                    </p>
                   </div>
                 </div>
               ))}

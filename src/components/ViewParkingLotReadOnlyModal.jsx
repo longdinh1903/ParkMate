@@ -370,11 +370,11 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
                   const getPolicyLabel = (type) => {
                     switch (type) {
                       case "EARLY_CHECK_IN_BUFFER":
-                        return { label: "Bộ đệm nhận chỗ sớm", icon: "🕐", desc: "Cho phép khách nhận chỗ sớm hơn thời gian đặt" };
+                        return { label: "Thời gian giãn cách an toàn", icon: "🕐", desc: "Khoảng nghỉ bắt buộc giữa hai lượt đặt liên tiếp." };
                       case "LATE_CHECK_IN_CANCEL_AFTER":
-                        return { label: "Hủy nhận chỗ muộn sau", icon: "⏰", desc: "Tự động hủy nếu nhận chỗ quá muộn" };
+                        return { label: "Thời gian giữ chỗ tối đa", icon: "⏰", desc: "Tự động hủy đặt chỗ nếu khách đến trễ quá thời gian này." };
                       case "EARLY_CANCEL_REFUND_BEFORE":
-                        return { label: "Hoàn tiền hủy sớm trước", icon: "💰", desc: "Hoàn tiền 100% nếu hủy trước" };
+                        return { label: "Thời gian tối thiểu báo hủy", icon: "💰", desc: "Khách phải hủy trước giờ đặt ít nhất bao nhiêu phút để được hoàn tiền." };
                       default:
                         return { label: type, icon: "📋", desc: "" };
                     }
