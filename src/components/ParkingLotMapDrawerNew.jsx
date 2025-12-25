@@ -48,6 +48,7 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
   const stageRef = useRef(null);
   const transformerRef = useRef(null);
   const selectedAreaRef = useRef(null);
+  const lastMoveTimeRef = useRef(0); // Throttle mouse moves to prevent crash
 
   // Get allowed vehicle types from lot's capacity (from registration request)
   const getAllowedVehicleTypes = useCallback(() => {
@@ -264,314 +265,350 @@ export default function ParkingLotMapDrawer({ lot, onClose }) {
   // ===== DRAWING FUNCTIONS =====
 
   const handleMouseDown = (e) => {
-    const stage = e.target.getStage();
-    const pos = stage.getPointerPosition();
-    const targetClass = e.target.getClassName();
-    
-    // Chỉ chặn khi click vào Area/Spot rectangles, không chặn Background
-    const clickedOnShape = 
-      (targetClass === "Rect" && e.target.attrs.fill !== "#ffffff") ||
-      targetClass === "Text" ||
-      targetClass === "Group";
+    try {
+      const stage = e.target.getStage();
+      if (!stage) return;
+      const pos = stage.getPointerPosition();
+      if (!pos) return;
+      const targetClass = e.target.getClassName();
+      
+      // Chỉ chặn khi click vào Area/Spot rectangles, không chặn Background
+      const clickedOnShape = 
+        (targetClass === "Rect" && e.target.attrs.fill !== "#ffffff") ||
+        targetClass === "Text" ||
+        targetClass === "Group";
 
-    if (mode === "draw") {
-      if (clickedOnShape) return;
-      isDrawing.current = true;
+      if (mode === "draw") {
+        if (clickedOnShape) return;
+        isDrawing.current = true;
 
-      setFloors((prev) =>
-        prev.map((f) =>
-          f.floorNumber === currentFloor
-            ? {
-                ...f,
-                strokes: [
-                  ...f.strokes,
-                  {
-                    id: Date.now().toString(),
-                    points: [pos.x, pos.y],
-                    stroke: brushColor,
-                    strokeWidth: brushSize,
-                    tension: 0.5,
-                    lineCap: "round",
-                    lineJoin: "round",
-                  },
-                ],
-              }
-            : f
-        )
-      );
-    } else if (mode === "erase") {
-      if (clickedOnShape) return;
-      isDrawing.current = true;
-      // Erasing will happen in handleMouseMove
-    } else if (mode === "floor") {
-      if (clickedOnShape) return;
-      isCreatingFloorBounds.current = true;
-      floorBoundsStartPos.current = pos;
-    } else if (mode === "area") {
-      if (clickedOnShape) {
-        console.log("Clicked on shape, not creating area");
-        return;
+        setFloors((prev) =>
+          prev.map((f) =>
+            f.floorNumber === currentFloor
+              ? {
+                  ...f,
+                  strokes: [
+                    ...f.strokes,
+                    {
+                      id: Date.now().toString(),
+                      points: [pos.x, pos.y],
+                      stroke: brushColor,
+                      strokeWidth: brushSize,
+                      tension: 0.5,
+                      lineCap: "round",
+                      lineJoin: "round",
+                    },
+                  ],
+                }
+              : f
+          )
+        );
+      } else if (mode === "erase") {
+        if (clickedOnShape) return;
+        isDrawing.current = true;
+        // Erasing will happen in handleMouseMove
+      } else if (mode === "floor") {
+        if (clickedOnShape) return;
+        isCreatingFloorBounds.current = true;
+        floorBoundsStartPos.current = pos;
+      } else if (mode === "area") {
+        if (clickedOnShape) return;
+        
+        // Check if reached capacity limit
+        const totalRegistered = getTotalRegisteredCapacity();
+        const totalDrawn = getTotalDrawnSpots();
+        
+        if (totalDrawn >= totalRegistered) {
+          toast.error("⚠️ Đã đạt giới hạn chỗ đỗ! Không thể tạo thêm khu vực.", { duration: 2000, id: 'area-limit' });
+          return;
+        }
+        
+        isCreatingArea.current = true;
+        areaStartPos.current = pos;
       }
-      
-      // Check if reached capacity limit
-      const totalRegistered = getTotalRegisteredCapacity();
-      const totalDrawn = getTotalDrawnSpots();
-      
-      if (totalDrawn >= totalRegistered) {
-        toast.error("⚠️ Đã đạt giới hạn chỗ đỗ! Không thể tạo thêm khu vực.", { duration: 2000, id: 'area-limit' });
-        return;
-      }
-      
-      console.log("Starting area creation at:", pos);
-      isCreatingArea.current = true;
-      areaStartPos.current = pos;
+    } catch (err) {
+      console.error("MouseDown error:", err);
     }
   };
 
   const handleMouseMove = (e) => {
-    const stage = e.target.getStage();
-    const point = stage.getPointerPosition();
-    if (!point) return; // Safety check
+    try {
+      // Throttle: skip if last move was less than 16ms ago (60fps)
+      const now = Date.now();
+      if (now - lastMoveTimeRef.current < 16) return;
+      lastMoveTimeRef.current = now;
 
-    // 🖌 Draw mode
-    if (mode === "draw" && isDrawing.current) {
-      setFloors((prev) =>
-        prev.map((f) => {
-          if (f.floorNumber !== currentFloor) return f;
-          const strokes = f.strokes;
-          if (strokes.length === 0) return f;
+      const stage = e.target.getStage();
+      if (!stage) return;
+      const point = stage.getPointerPosition();
+      if (!point) return; // Safety check
 
-          const last = strokes[strokes.length - 1];
-          const updated = {
-            ...last,
-            points: [...last.points, point.x, point.y],
-          };
+      // 🖌 Draw mode
+      if (mode === "draw" && isDrawing.current) {
+        setFloors((prev) =>
+          prev.map((f) => {
+            if (f.floorNumber !== currentFloor) return f;
+            const strokes = f.strokes;
+            if (!strokes || strokes.length === 0) return f;
 
-          return { ...f, strokes: [...strokes.slice(0, -1), updated] };
-        })
-      );
-    }
+            const last = strokes[strokes.length - 1];
+            if (!last) return f;
+            const updated = {
+              ...last,
+              points: [...(last.points || []), point.x, point.y],
+            };
 
-    // 🧹 Erase mode
-    if (mode === "erase" && isDrawing.current) {
-      setFloors((prev) =>
-        prev.map((f) => {
-          if (f.floorNumber !== currentFloor) return f;
-          
-          // Filter out strokes that intersect with erase position
-          const filteredStrokes = f.strokes.filter((stroke) => {
-            const points = stroke.points;
-            for (let i = 0; i < points.length; i += 2) {
-              const x = points[i];
-              const y = points[i + 1];
-              const distance = Math.sqrt(
-                Math.pow(x - point.x, 2) + Math.pow(y - point.y, 2)
-              );
-              if (distance < eraseSize) {
-                return false; // Remove this stroke
+            return { ...f, strokes: [...strokes.slice(0, -1), updated] };
+          })
+        );
+      }
+
+      // 🧹 Erase mode
+      if (mode === "erase" && isDrawing.current) {
+        setFloors((prev) =>
+          prev.map((f) => {
+            if (f.floorNumber !== currentFloor) return f;
+            if (!f.strokes) return f;
+            
+            // Filter out strokes that intersect with erase position
+            const filteredStrokes = f.strokes.filter((stroke) => {
+              const points = stroke?.points;
+              if (!points) return false;
+              for (let i = 0; i < points.length; i += 2) {
+                const x = points[i];
+                const y = points[i + 1];
+                const distance = Math.sqrt(
+                  Math.pow(x - point.x, 2) + Math.pow(y - point.y, 2)
+                );
+                if (distance < eraseSize) {
+                  return false; // Remove this stroke
+                }
               }
-            }
-            return true; // Keep this stroke
-          });
+              return true; // Keep this stroke
+            });
 
-          return { ...f, strokes: filteredStrokes };
-        })
-      );
-    }
+            return { ...f, strokes: filteredStrokes };
+          })
+        );
+      }
 
-    // � Floor Bounds mode (preview rectangle)
-    if (
-      mode === "floor" &&
-      isCreatingFloorBounds.current &&
-      floorBoundsStartPos.current
-    ) {
-      const width = point.x - floorBoundsStartPos.current.x;
-      const height = point.y - floorBoundsStartPos.current.y;
-      
-      updateCurrentFloor({
-        tempFloorBounds: {
-          x: floorBoundsStartPos.current.x,
-          y: floorBoundsStartPos.current.y,
-          width: Math.abs(width),
-          height: Math.abs(height),
-        }
-      });
-    }
+      // 📐 Floor Bounds mode (preview rectangle)
+      if (
+        mode === "floor" &&
+        isCreatingFloorBounds.current &&
+        floorBoundsStartPos.current
+      ) {
+        const width = point.x - floorBoundsStartPos.current.x;
+        const height = point.y - floorBoundsStartPos.current.y;
+        
+        updateCurrentFloor({
+          tempFloorBounds: {
+            x: floorBoundsStartPos.current.x,
+            y: floorBoundsStartPos.current.y,
+            width: Math.abs(width),
+            height: Math.abs(height),
+          }
+        });
+      }
 
-    // �🟦 Area mode (preview rectangle)
-    if (
-      mode === "area" &&
-      isCreatingArea.current &&
-      areaStartPos.current
-    ) {
-      console.log("Moving mouse while creating area:", point);
-      const width = point.x - areaStartPos.current.x;
-      const height = point.y - areaStartPos.current.y;
-      const tempId = "temp-area";
+      // 📐🟦 Area mode (preview rectangle)
+      if (
+        mode === "area" &&
+        isCreatingArea.current &&
+        areaStartPos.current
+      ) {
+        const width = point.x - areaStartPos.current.x;
+        const height = point.y - areaStartPos.current.y;
+        const tempId = "temp-area";
 
-      // Tính toán số lượng spot có thể chứa
-      const spotWidth = 40;
-      const spotHeight = 60;
-      const padding = 10;
-      const areaWidth = Math.abs(width);
-      const areaHeight = Math.abs(height);
-      const spotsPerRow = Math.floor(areaWidth / (spotWidth + padding));
-      const spotsPerCol = Math.floor(areaHeight / (spotHeight + padding));
-      const maxSpots = spotsPerRow * spotsPerCol;
+        // Tính toán số lượng spot có thể chứa
+        const spotWidth = 40;
+        const spotHeight = 60;
+        const padding = 10;
+        const areaWidth = Math.abs(width);
+        const areaHeight = Math.abs(height);
+        const spotsPerRow = Math.floor(areaWidth / (spotWidth + padding));
+        const spotsPerCol = Math.floor(areaHeight / (spotHeight + padding));
+        const maxSpots = spotsPerRow * spotsPerCol;
 
-      // Hiển thị thông tin tổng số chỗ (chỉ để thông báo, không chặn)
-      const totalRegistered = getTotalRegisteredCapacity();
-      const totalDrawn = getTotalDrawnSpots();
+        // Hiển thị thông tin tổng số chỗ
+        const totalRegistered = getTotalRegisteredCapacity();
+        const totalDrawn = getTotalDrawnSpots();
 
-      setFloors((prev) =>
-        prev.map((f) => {
-          if (f.floorNumber !== currentFloor) return f;
-          const hasTemp = f.areas.some((a) => a.id === tempId);
-          const newArea = {
-            id: tempId,
-            name: `Có thể chứa: ${maxSpots} chỗ đỗ (Đã vẽ: ${totalDrawn}/${totalRegistered})`,
-            x: areaStartPos.current.x,
-            y: areaStartPos.current.y,
-            width: areaWidth,
-            height: areaHeight,
-            spots: [],
-            fill: "rgba(147,197,253,0.2)",
-            stroke: "#3b82f6",
-            maxSpots: maxSpots,
-          };
-          return {
-            ...f,
-            areas: hasTemp
-              ? f.areas.map((a) => (a.id === tempId ? newArea : a))
-              : [...f.areas, newArea],
-          };
-        })
-      );
+        // Capture areaStartPos values before setState
+        const startX = areaStartPos.current.x;
+        const startY = areaStartPos.current.y;
+
+        setFloors((prev) =>
+          prev.map((f) => {
+            if (f.floorNumber !== currentFloor) return f;
+            const hasTemp = f.areas.some((a) => a.id === tempId);
+            const newArea = {
+              id: tempId,
+              name: `Có thể chứa: ${maxSpots} chỗ đỗ (Đã vẽ: ${totalDrawn}/${totalRegistered})`,
+              x: startX,
+              y: startY,
+              width: areaWidth,
+              height: areaHeight,
+              spots: [],
+              fill: "rgba(147,197,253,0.2)",
+              stroke: "#3b82f6",
+              maxSpots: maxSpots,
+            };
+            return {
+              ...f,
+              areas: hasTemp
+                ? f.areas.map((a) => (a.id === tempId ? newArea : a))
+                : [...f.areas, newArea],
+            };
+          })
+        );
+      }
+    } catch (err) {
+      console.error("MouseMove error:", err);
     }
   };
 
   const handleMouseUp = (e) => {
-    if (mode === "draw") {
-      isDrawing.current = false;
-      return;
-    }
+    try {
+      if (mode === "draw") {
+        isDrawing.current = false;
+        return;
+      }
 
-    if (mode === "floor" && isCreatingFloorBounds.current && floorBoundsStartPos.current) {
-      isCreatingFloorBounds.current = false;
-      const stage = e.target.getStage();
-      const point = stage.getPointerPosition();
-      
-      const startX = floorBoundsStartPos.current.x;
-      const startY = floorBoundsStartPos.current.y;
-      
-      if (!point) {
-        updateCurrentFloor({ tempFloorBounds: null });
+      if (mode === "erase") {
+        isDrawing.current = false;
+        return;
+      }
+
+      if (mode === "floor" && isCreatingFloorBounds.current && floorBoundsStartPos.current) {
+        isCreatingFloorBounds.current = false;
+        const stage = e.target.getStage();
+        if (!stage) {
+          floorBoundsStartPos.current = null;
+          return;
+        }
+        const point = stage.getPointerPosition();
+        
+        const startX = floorBoundsStartPos.current.x;
+        const startY = floorBoundsStartPos.current.y;
+        
+        if (!point) {
+          updateCurrentFloor({ tempFloorBounds: null });
+          floorBoundsStartPos.current = null;
+          return;
+        }
+
+        const width = point.x - startX;
+        const height = point.y - startY;
+
+        if (Math.abs(width) > 50 && Math.abs(height) > 50) {
+          updateCurrentFloor({
+            floorTopLeftX: startX,
+            floorTopLeftY: startY,
+            floorWidth: Math.abs(width),
+            floorHeight: Math.abs(height),
+            tempFloorBounds: null,
+          });
+        } else {
+          updateCurrentFloor({ tempFloorBounds: null });
+        }
+        
         floorBoundsStartPos.current = null;
         return;
       }
 
-      const width = point.x - startX;
-      const height = point.y - startY;
+      if (mode === "area" && isCreatingArea.current && areaStartPos.current) {
+        isCreatingArea.current = false;
+        const stage = e.target.getStage();
+        if (!stage) {
+          areaStartPos.current = null;
+          return;
+        }
+        const point = stage.getPointerPosition();
+        
+        // Lưu giá trị startPos vào biến local trước khi xóa ref
+        const startX = areaStartPos.current.x;
+        const startY = areaStartPos.current.y;
+        
+        if (!point) {
+          // Nếu không có point, xóa temp area
+          setFloors((prev) =>
+            prev.map((f) =>
+              f.floorNumber === currentFloor
+                ? { ...f, areas: (f.areas || []).filter((a) => a.id !== "temp-area") }
+                : f
+            )
+          );
+          areaStartPos.current = null;
+          return;
+        }
 
-      if (Math.abs(width) > 50 && Math.abs(height) > 50) {
-        updateCurrentFloor({
-          floorTopLeftX: startX,
-          floorTopLeftY: startY,
-          floorWidth: Math.abs(width),
-          floorHeight: Math.abs(height),
-          tempFloorBounds: null,
-        });
-        // Floor bounds set - visual feedback is enough
-      } else {
-        updateCurrentFloor({ tempFloorBounds: null });
-        // toast.error("⚠️ Floor bounds too small! Minimum 50×50");
-      }
-      
-      floorBoundsStartPos.current = null;
-      return;
-    }
+        const width = point.x - startX;
+        const height = point.y - startY;
 
-    if (mode === "area" && isCreatingArea.current && areaStartPos.current) {
-      console.log("Mouse up in area mode");
-      isCreatingArea.current = false;
-      const stage = e.target.getStage();
-      const point = stage.getPointerPosition();
-      console.log("Final point:", point);
-      
-      // Lưu giá trị startPos vào biến local trước khi xóa ref
-      const startX = areaStartPos.current.x;
-      const startY = areaStartPos.current.y;
-      
-      if (!point) {
-        // Nếu không có point, xóa temp area
         setFloors((prev) =>
-          prev.map((f) =>
-            f.floorNumber === currentFloor
-              ? { ...f, areas: f.areas.filter((a) => a.id !== "temp-area") }
-              : f
-          )
-        );
-        areaStartPos.current = null;
-        return;
-      }
+          prev.map((f) => {
+            if (f.floorNumber !== currentFloor) return f;
+            const filtered = (f.areas || []).filter((a) => a.id !== "temp-area");
 
-      const width = point.x - startX;
-      const height = point.y - startY;
-
-      setFloors((prev) =>
-        prev.map((f) => {
-          if (f.floorNumber !== currentFloor) return f;
-          const filtered = f.areas.filter((a) => a.id !== "temp-area");
-
-          if (Math.abs(width) > 30 && Math.abs(height) > 30) {
-            // Check if reached capacity limit before creating area
-            const totalRegistered = getTotalRegisteredCapacity();
-            const totalDrawn = getTotalDrawnSpots();
-            
-            if (totalDrawn >= totalRegistered) {
-              // Don't show toast here - already shown in mouseDown
+            if (Math.abs(width) > 30 && Math.abs(height) > 30) {
+              // Check if reached capacity limit before creating area
+              const totalRegistered = getTotalRegisteredCapacity();
+              const totalDrawn = getTotalDrawnSpots();
+              
+              if (totalDrawn >= totalRegistered) {
+                return { ...f, areas: filtered };
+              }
+              
+              // Calculate max spots this area can hold
+              const spotWidth = 40;
+              const spotHeight = 60;
+              const padding = 10;
+              const areaWidth = Math.abs(width);
+              const areaHeight = Math.abs(height);
+              const spotsPerRow = Math.floor(areaWidth / (spotWidth + padding));
+              const spotsPerCol = Math.floor(areaHeight / (spotHeight + padding));
+              const maxSpots = spotsPerRow * spotsPerCol;
+              
+              // Store pending area and show configuration modal
+              const areaNumber = filtered.length + 1;
+              setPendingArea({
+                name: `Area ${areaNumber}`,
+                x: startX,
+                y: startY,
+                width: Math.abs(width),
+                height: Math.abs(height),
+                maxSpots: maxSpots,
+              });
+              
+              // Reset modal state
+              const allowedTypes = getAllowedVehicleTypes();
+              const defaultType = allowedTypes.CAR_UP_TO_9_SEATS ? "CAR_UP_TO_9_SEATS" : 
+                                 allowedTypes.MOTORBIKE ? "MOTORBIKE" : 
+                                 allowedTypes.BIKE ? "BIKE" : "OTHER";
+              setAreaVehicleType(defaultType);
+              setAreaType("WALK_IN_ONLY");
+              setAreaCapacity("");
+              setShowAreaConfigModal(true);
+              
+              return { ...f, areas: filtered };
+            } else {
               return { ...f, areas: filtered };
             }
-            
-            // Calculate max spots this area can hold
-            const spotWidth = 40;
-            const spotHeight = 60;
-            const padding = 10;
-            const areaWidth = Math.abs(width);
-            const areaHeight = Math.abs(height);
-            const spotsPerRow = Math.floor(areaWidth / (spotWidth + padding));
-            const spotsPerCol = Math.floor(areaHeight / (spotHeight + padding));
-            const maxSpots = spotsPerRow * spotsPerCol;
-            
-            // Store pending area and show configuration modal
-            const areaNumber = filtered.length + 1;
-            setPendingArea({
-              name: `Area ${areaNumber}`,
-              x: startX,
-              y: startY,
-              width: Math.abs(width),
-              height: Math.abs(height),
-              maxSpots: maxSpots, // Store max capacity
-            });
-            
-            // Reset modal state
-            const allowedTypes = getAllowedVehicleTypes();
-            const defaultType = allowedTypes.CAR_UP_TO_9_SEATS ? "CAR_UP_TO_9_SEATS" : 
-                               allowedTypes.MOTORBIKE ? "MOTORBIKE" : 
-                               allowedTypes.BIKE ? "BIKE" : "OTHER";
-            setAreaVehicleType(defaultType);
-            setAreaType("WALK_IN_ONLY");
-            setAreaCapacity("");
-            setShowAreaConfigModal(true);
-            
-            return { ...f, areas: filtered };
-          } else {
-            return { ...f, areas: filtered };
-          }
-        })
-      );
+          })
+        );
 
+        areaStartPos.current = null;
+      }
+    } catch (err) {
+      console.error("MouseUp error:", err);
+      // Reset all drawing states on error
+      isDrawing.current = false;
+      isCreatingArea.current = false;
+      isCreatingFloorBounds.current = false;
       areaStartPos.current = null;
+      floorBoundsStartPos.current = null;
     }
   };
 

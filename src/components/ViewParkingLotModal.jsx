@@ -177,10 +177,19 @@ export default function ViewParkingLotModal({
       });
 
       if (res.status === 200) {
+        const updatedLot = res.data?.data || res.data;
         const statusLabel = getStatusLabel(payloadStatus);
         showSuccess(`Cập nhật trạng thái "${statusLabel}" thành công!`);
+        
+        // Update local state for real-time display (don't close modal)
+        setLotData((prev) => ({
+          ...prev,
+          ...updatedLot,
+          status: payloadStatus,
+        }));
+        
+        // Notify parent to refresh list
         onActionDone();
-        onClose();
       } else {
         showError("Cập nhật trạng thái thất bại. Vui lòng thử lại.");
       }
