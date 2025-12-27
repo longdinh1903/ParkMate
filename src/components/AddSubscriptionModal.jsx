@@ -239,7 +239,7 @@ export default function AddSubscriptionModal({ onClose, onSuccess }) {
               <option value="">Chọn bãi đỗ xe</option>
               {parkingLots.map((lot) => (
                 <option key={lot.id} value={lot.id}>
-                  {lot.name} - {lot.address}
+                  {lot.name}
                 </option>
               ))}
             </select>

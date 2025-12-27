@@ -70,8 +70,14 @@ export default function ViewParkingLotModal({
     ring: isAdminView ? 'ring-orange-500' : 'ring-indigo-500',
   };
 
-  // Real-time updates - refresh lot data every 5 seconds
+  // Real-time updates - refresh lot data every 5 seconds (PAUSE when drawer is open)
   useEffect(() => {
+    // Don't poll when map drawer is open to avoid resetting the drawing state
+    if (showDrawMap) {
+      console.log("⏸️ Real-time polling paused (map drawer is open)");
+      return;
+    }
+
     const fetchLotData = async () => {
       try {
         const response = await parkingLotApi.getById(lot.id);
@@ -89,14 +95,14 @@ export default function ViewParkingLotModal({
     // Set up polling every 5 seconds
     realtimeIntervalRef.current = setInterval(fetchLotData, 5000);
 
-    // Cleanup on unmount
+    // Cleanup on unmount or when showDrawMap changes
     return () => {
       if (realtimeIntervalRef.current) {
         clearInterval(realtimeIntervalRef.current);
         console.log("🧹 Cleaned up real-time interval");
       }
     };
-  }, [lot.id]);
+  }, [lot.id, showDrawMap]);
 
   // Auto-open payment modal if status is PENDING_PAYMENT
   useEffect(() => {
@@ -686,7 +692,7 @@ export default function ViewParkingLotModal({
 
   // Only allow reset when lot status is PREPARING or MAP_DENIED
   const isResetAllowed = ["PREPARING", "MAP_DENIED"].includes(
-    (lot?.status || "").toUpperCase()
+    (lotData?.status || "").toUpperCase()
   );
 
   // Delete all floors (and their areas/spots if necessary) so admin can redraw the map
@@ -2147,21 +2153,21 @@ export default function ViewParkingLotModal({
                 onClick={() => setShowDrawMap(true)}
                 disabled={
                   !["PREPARING", "MAP_DENIED"].includes(
-                    (lot?.mapStatus || lot?.status || "").toUpperCase()
+                    (lotData?.mapStatus || lotData?.status || "").toUpperCase()
                   )
                 }
                 title={
                   !["PREPARING", "MAP_DENIED"].includes(
-                    (lot?.mapStatus || lot?.status || "").toUpperCase()
+                    (lotData?.mapStatus || lotData?.status || "").toUpperCase()
                   )
-                    ? `Map editing is locked. Current status: ${
-                        lot?.mapStatus || lot?.status
-                      }. Only available in PREPARING or MAP_DENIED status.`
-                    : "Open map editor"
+                    ? `Chỉnh sửa bản đồ bị khóa. Trạng thái hiện tại: ${
+                        getStatusLabel(lotData?.mapStatus || lotData?.status)
+                      }. Chỉ khả dụng khi trạng thái là Đang chuẩn bị hoặc Từ chối bản đồ.`
+                    : "Mở trình vẽ bản đồ"
                 }
                 className={`px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 cursor-pointer transition-all shadow-sm ${
                   ["PREPARING", "MAP_DENIED"].includes(
-                    (lot?.mapStatus || lot?.status || "").toUpperCase()
+                    (lotData?.mapStatus || lotData?.status || "").toUpperCase()
                   )
                     ? "bg-indigo-500 text-white hover:bg-indigo-600 shadow-md"
                     : "bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed"
@@ -2747,7 +2753,7 @@ export default function ViewParkingLotModal({
       {/* ✅ Drawer vẽ map toàn màn hình */}
       {showDrawMap && (
         <ParkingLotMapDrawer
-          lot={lot}
+          lot={lotData}
           onClose={() => {
             setShowDrawMap(false);
             onActionDone(); // reload lại danh sách sau khi lưu layout
