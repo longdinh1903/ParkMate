@@ -1881,7 +1881,17 @@ export default function ViewParkingLotModal({
                     <tbody className="bg-white divide-y divide-gray-100">
                     {lot.lotCapacity.map((c, idx) => (
                       <tr key={idx} className="border-t text-gray-700">
-                        <td className="px-3 py-2">{c.vehicleType}</td>
+                        <td className="px-3 py-2">
+                          {(() => {
+                            const vehicleTypeLabels = {
+                              MOTORBIKE: "🏍️ Xe máy",
+                              CAR_UP_TO_9_SEATS: "🚗 Ôtô (≤9 Chỗ)",
+                              BIKE: "🚲 Xe đạp",
+                              OTHER: "📦 Khác",
+                            };
+                            return vehicleTypeLabels[c.vehicleType] || c.vehicleType;
+                          })()}
+                        </td>
                         <td className="px-3 py-2">{c.capacity}</td>
                         <td className="px-3 py-2">
                           {c.supportElectricVehicle ? "⚡ Có" : "Không"}
@@ -1925,7 +1935,15 @@ export default function ViewParkingLotModal({
                           <td className="px-3 py-2">{r.ruleName}</td>
                           <td className="px-3 py-2">
                             <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-semibold">
-                              {r.vehicleType}
+                              {(() => {
+                                const vehicleTypeLabels = {
+                                  MOTORBIKE: "🏍️ Xe máy",
+                                  CAR_UP_TO_9_SEATS: "🚗 Ôtô (≤9 Chỗ)",
+                                  BIKE: "🚲 Xe đạp",
+                                  OTHER: "📦 Khác",
+                                };
+                                return vehicleTypeLabels[r.vehicleType] || r.vehicleType;
+                              })()}
                             </span>
                           </td>
                           <td className="px-3 py-2 font-semibold text-green-600">

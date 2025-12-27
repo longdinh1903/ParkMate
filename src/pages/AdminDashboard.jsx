@@ -415,7 +415,7 @@ export default function AdminDashboard() {
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={(entry) => `${entry.name}`}
+                        label={false}
                         outerRadius={100}
                         fill="#8884d8"
                         dataKey="value"
@@ -547,7 +547,7 @@ export default function AdminDashboard() {
                         fill="#8884d8"
                         paddingAngle={5}
                         dataKey="value"
-                        label={({ name, value }) => `${name}: ${value}`}
+                        label={false}
                       >
                         {PARTNER_COLORS.map((color, index) => (
                           <Cell key={`cell-${index}`} fill={color} />
@@ -610,7 +610,7 @@ export default function AdminDashboard() {
                         fill="#8884d8"
                         paddingAngle={5}
                         dataKey="value"
-                        label={({ name, value }) => `${name}: ${value}`}
+                        label={false}
                       >
                         {LOT_COLORS.map((color, index) => (
                           <Cell key={`cell-${index}`} fill={color} />
