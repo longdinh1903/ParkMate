@@ -106,11 +106,11 @@ export default function PartnerDashboard() {
     if (!stats) return [];
     return [
       {
-        name: "Completed",
+        name: "Hoàn thành",
         value: stats.completedSessions || 0,
         color: "#10b981",
       },
-      { name: "Active", value: stats.activeSessions || 0, color: "#3b82f6" },
+      { name: "Đang hoạt động", value: stats.activeSessions || 0, color: "#3b82f6" },
     ];
   };
 
@@ -592,7 +592,7 @@ export default function PartnerDashboard() {
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ name, value }) => `${name}: ${value}`}
+                        label={false}
                         outerRadius={90}
                         fill="#8884d8"
                         dataKey="value"
