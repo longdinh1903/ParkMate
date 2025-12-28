@@ -157,8 +157,8 @@ export default function RegisterLot() {
   const policyTypes = [
     {
       type: "EARLY_CHECK_IN_BUFFER",
-      label: "Thời gian giãn cách an toàn",
-      description: "Khoảng nghỉ bắt buộc giữa hai lượt đặt liên tiếp.",
+      label: "Thời gian checkin sớm",
+      description: "Khoảng thời gian cho phép người dùng vào sớm so với thời gian đặt.",
     },
     {
       type: "LATE_CHECK_IN_CANCEL_AFTER",
@@ -1242,7 +1242,7 @@ export default function RegisterLot() {
                     </p>
                     <ul className="space-y-1.5 text-blue-700">
                       <li>
-                        • <strong>Thời gian giãn cách an toàn:</strong> Khoảng nghỉ bắt buộc giữa hai lượt đặt liên tiếp.
+                        • <strong>Thời gian checkin sớm:</strong> Khoảng thời gian cho phép người dùng vào sớm so với thời gian đặt.
                       </li>
                       <li>
                         • <strong>Thời gian giữ chỗ tối đa:</strong> Tự động hủy đặt chỗ nếu khách đến trễ quá thời gian này.

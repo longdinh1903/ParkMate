@@ -2022,9 +2022,9 @@ export default function ViewParkingLotModal({
                       switch (type) {
                         case "EARLY_CHECK_IN_BUFFER":
                           return {
-                            label: "Thời gian giãn cách an toàn",
+                            label: "Thời gian checkin sớm",
                             icon: "🕐",
-                            desc: "Khoảng nghỉ bắt buộc giữa hai lượt đặt liên tiếp.",
+                            desc: "Khoảng thời gian cho phép người dùng vào sớm so với thời gian đặt.",
                           };
                         case "LATE_CHECK_IN_CANCEL_AFTER":
                           return {
