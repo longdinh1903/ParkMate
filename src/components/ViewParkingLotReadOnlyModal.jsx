@@ -394,7 +394,7 @@ export default function ViewParkingLotReadOnlyModal({ lot, onClose }) {
                   const getPolicyLabel = (type) => {
                     switch (type) {
                       case "EARLY_CHECK_IN_BUFFER":
-                        return { label: "Thời gian giãn cách an toàn", icon: "🕐", desc: "Khoảng nghỉ bắt buộc giữa hai lượt đặt liên tiếp." };
+                        return { label: "Thời gian checkin sớm", icon: "🕐", desc: "Khoảng thời gian cho phép người dùng vào sớm so với thời gian đặt." };
                       case "LATE_CHECK_IN_CANCEL_AFTER":
                         return { label: "Thời gian giữ chỗ tối đa", icon: "⏰", desc: "Tự động hủy đặt chỗ nếu khách đến trễ quá thời gian này." };
                       case "EARLY_CANCEL_REFUND_BEFORE":
